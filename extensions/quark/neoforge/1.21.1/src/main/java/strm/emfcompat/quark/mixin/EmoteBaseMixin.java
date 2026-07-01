@@ -49,18 +49,18 @@ public class EmoteBaseMixin {
         PlayerModel<AbstractClientPlayer> typedModel = (PlayerModel<AbstractClientPlayer>) playerModel;
 
         // FA PE animates arms and head, so those are always paused while a Quark emote is playing.
-        PoseSnapshot headPose = new PoseSnapshot(typedModel.head);
+        // Quark only rotates these parts, so we keep EMF's position changes (body-follow idle/walk
+        // translation) to stop the head and arms from visually detaching from the torso.
+        PoseSnapshot headPose = new PoseSnapshot(typedModel.head, true);
         PoseSnapshot leftArmPose = new PoseSnapshot(typedModel.leftArm);
         PoseSnapshot rightArmPose = new PoseSnapshot(typedModel.rightArm);
 
         Map<String, PoseSnapshot> parts = new HashMap<>();
         parts.put("head", headPose);
-        parts.put("left_arm", leftArmPose);
-        parts.put("right_arm", rightArmPose);
 
         // In 1.21.1 the hat/headwear layer is a separate vanilla part named "hat".
         // Save it explicitly so EMF does not leave it behind while restoring the head pose.
-        PoseSnapshot hatPose = new PoseSnapshot(typedModel.hat);
+        PoseSnapshot hatPose = new PoseSnapshot(typedModel.hat, true);
         parts.put("hat", hatPose);
         parts.put("headwear", hatPose);
 

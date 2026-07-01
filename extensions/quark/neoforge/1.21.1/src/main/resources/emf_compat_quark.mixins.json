@@ -7,9 +7,7 @@
   "client": [
     "EmoteBaseAccessor",
     "EmoteBaseMixin",
-    "EmoteHandlerMixin",
-    "EMFModelPartRootMixin",
-    "PlayerModelMixin"
+    "EmoteHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -11,8 +11,13 @@ public class PoseSnapshot {
     public final float xScale, yScale, zScale;
     public final boolean visible;
     public final boolean skipDraw;
+    public final boolean rotationOnly;
 
     public PoseSnapshot(ModelPart part) {
+        this(part, false);
+    }
+
+    public PoseSnapshot(ModelPart part, boolean rotationOnly) {
         this.xRot = part.xRot;
         this.yRot = part.yRot;
         this.zRot = part.zRot;
@@ -24,12 +29,16 @@ public class PoseSnapshot {
         this.zScale = part.zScale;
         this.visible = part.visible;
         this.skipDraw = part.skipDraw;
+        this.rotationOnly = rotationOnly;
     }
 
     public void apply(ModelPart part) {
         part.xRot = this.xRot;
         part.yRot = this.yRot;
         part.zRot = this.zRot;
+        if (this.rotationOnly) {
+            return;
+        }
         part.x = this.x;
         part.y = this.y;
         part.z = this.z;
