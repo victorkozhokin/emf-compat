@@ -1,0 +1,114 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'maven-publish'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    clientCompileOnly fabricApi.module("fabric-api-base", project.fabric_version)
+    clientCompileOnly fabricApi.module("fabric-data-generation-api-v1", project.fabric_version)
+    clientCompileOnly fabricApi.module("fabric-renderer-api-v1", project.fabric_version)
+    clientCompileOnly fabricApi.module("fabric-model-loading-api-v1", project.fabric_version)
+
+    implementation project(":core-fabric-26.2")
+
+    compileOnly "maven.modrinth:create-fly:${create_fly_version}"
+
+    compileOnly "maven.modrinth:entity-model-features:${emf_version}-fabric-${minecraft_version}"
+    compileOnly "maven.modrinth:entitytexturefeatures:${etf_version}-fabric-${minecraft_version}"
+    compileOnly 'maven.modrinth:MPCX6s5C:67xQnLDS'
+}
+
+processResources {
+    inputs.property "version", version
+    inputs.property "minecraft_version", minecraft_version
+    inputs.property "loader_version", loader_version
+    inputs.property "mod_id", mod_id
+    inputs.property "mod_name", mod_name
+    inputs.property "mod_description", mod_description
+    inputs.property "mod_authors", mod_authors
+    inputs.property "mod_license", mod_license
+    inputs.property "emf_version", emf_version
+    inputs.property "etf_version", etf_version
+    filteringCharset = "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand([
+                "version"          : version,
+                "minecraft_version": minecraft_version,
+                "loader_version"   : loader_version,
+                "mod_id"           : mod_id,
+                "mod_name"         : mod_name,
+                "mod_description"  : mod_description,
+                "mod_authors"      : mod_authors,
+                "mod_license"      : mod_license,
+                "emf_version"      : emf_version,
+                "etf_version"      : etf_version
+        ])
+    }
+}
+
+def targetJavaVersion = project.hasProperty('target_java_version') ? target_java_version.toInteger() : 25
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    it.options.release.set(targetJavaVersion)
+}
+
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${mod_id}" }
+    }
+}
+
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            artifactId = mod_id
+            from components.java
+        }
+    }
+}

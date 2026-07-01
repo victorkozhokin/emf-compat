@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "STRadaT"
+  ],
+  "contact": {},
+  "license": "GPL-3.0",
+  "icon": "icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "strm.neaemfcompat.NEAEMFCompatClient"
+    ]
+  },
+  "mixins": [
+    "nea_emf_compat.client.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}",
+    "notenoughanimations": ">=1.8",
+    "entity_model_features": ">=3.2.4",
+    "emf_compat_core": ">=1.0.0"
+  }
+}

@@ -1,0 +1,73 @@
+plugins {
+    id 'base'
+}
+
+// Root aggregator for the multi-loader EMF compatibility project.
+//
+// Layout:
+//   core/<loader>/<version>               — shared EMF compatibility framework.
+//   extensions/create/<loader>/<version>  — Create addon (Create on NeoForge / Create Fly on Fabric).
+//   extensions/nea/<loader>/<version>     — NotEnoughAnimations addon.
+//   extensions/carryon/<loader>/<version> — Carry On addon.
+
+allprojects {
+    apply plugin: 'base'
+
+    group = mod_group_id
+    version = mod_version
+
+    repositories {
+        mavenLocal()
+    }
+
+    afterEvaluate { p ->
+        if (p == rootProject) return
+
+        def modId = p.findProperty('mod_id')
+        def mcVersion = p.findProperty('minecraft_version')
+        def modVersion = p.findProperty('mod_version')
+        def modSuffix = (modId != null && modId.startsWith('emf_compat_')) ? modId.substring('emf_compat_'.length()) : null
+
+        def uploadElement
+        def uploadLoader
+        def uploadVersion
+
+        def nameParts = p.name.split('-')
+        if (nameParts.length >= 3) {
+            uploadElement = nameParts[0] == 'nea' ? 'NEA' : nameParts[0].capitalize()
+            uploadLoader = nameParts[1]
+            uploadVersion = nameParts[2..-1].join('-')
+        } else {
+            return
+        }
+
+        p.tasks.register('copyToUpload', Copy) {
+            def jarTask = p.tasks.findByName('reobfJar') ?: p.tasks.findByName('remapJar') ?: p.tasks.jar
+            def uploadDir = rootProject.file("upload/${uploadElement}/${uploadLoader}/${uploadVersion}")
+            doFirst {
+                project.delete project.fileTree(uploadDir).matching { include '*.jar' }
+            }
+            from jarTask.archiveFile
+            into uploadDir
+
+            if (modSuffix != null && mcVersion != null && modVersion != null) {
+                rename { "emf_compat_${modSuffix}_${mcVersion}_${modVersion}.jar" }
+            }
+        }
+
+        p.tasks.build.finalizedBy('copyToUpload')
+
+        if (modSuffix != null) {
+            def iconSource = rootProject.file("resources/icons/icon_emf_compat_${modSuffix}.png")
+            if (iconSource.exists()) {
+                def processResources = p.tasks.findByName('processResources')
+                if (processResources instanceof ProcessResources) {
+                    processResources.from(iconSource) {
+                        into '.'
+                        rename { 'icon.png' }
+                    }
+                }
+            }
+        }
+    }
+}

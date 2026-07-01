@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "strm.createFlyEmfCompat.mixin",
+  "plugin": "strm.createFlyEmfCompat.mixin.CreateFlyEmfCompatMixinPlugin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "PlayerSkyhookRendererAccessor",
+    "ItemSwapAnimationMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

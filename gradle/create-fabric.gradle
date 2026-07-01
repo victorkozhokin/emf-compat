@@ -1,0 +1,129 @@
+// Shared Fabric Loom build script for the Create addon.
+// Apply after declaring the fabric-loom plugin and the loom {} block.
+//
+// Required Gradle properties in the subproject:
+//   mod_id, mod_name, mod_description, mod_version, mod_group_id
+//   minecraft_version, loader_version, fabric_version
+//   emf_version, etf_version, create_fly_version
+// Optional:
+//   emf_mc_version (if EMF/ETF classifier differs from minecraft_version)
+//   target_java_version (defaults to 21 for pre-26, 25 for 26.x)
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+// Minecraft 26.1+ ships deobfuscated and does not use Yarn/Mojang mappings.
+def isDeobfuscated = minecraft_version.startsWith("26")
+
+repositories {
+    mavenLocal()
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+
+    if (isDeobfuscated) {
+        implementation "net.fabricmc:fabric-loader:${loader_version}"
+        implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+        clientCompileOnly fabricApi.module("fabric-api-base", project.fabric_version)
+        clientCompileOnly fabricApi.module("fabric-data-generation-api-v1", project.fabric_version)
+        clientCompileOnly fabricApi.module("fabric-renderer-api-v1", project.fabric_version)
+        clientCompileOnly fabricApi.module("fabric-model-loading-api-v1", project.fabric_version)
+    } else {
+        modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    }
+
+    implementation project(":core-fabric-1.21.11")
+
+    // Create Fly is kept as compileOnly to avoid Loom remap conflicts.
+    compileOnly "maven.modrinth:create-fly:${create_fly_version}"
+
+    def emfMcVersion = project.hasProperty('emf_mc_version') && emf_mc_version ? emf_mc_version : minecraft_version
+    def resolvedEtfVersion = project.hasProperty('etf_version') && etf_version ? etf_version : '7.1'
+    if (isDeobfuscated) {
+        compileOnly "maven.modrinth:entity-model-features:${emf_version}-fabric-${emfMcVersion}"
+        compileOnly "maven.modrinth:entitytexturefeatures:${resolvedEtfVersion}-fabric-${emfMcVersion}"
+    } else {
+        modCompileOnly "maven.modrinth:entity-model-features:${emf_version}-fabric-${emfMcVersion}"
+        modCompileOnly "maven.modrinth:entitytexturefeatures:${resolvedEtfVersion}-fabric-${emfMcVersion}"
+    }
+}
+
+processResources {
+    inputs.property "version", version
+    inputs.property "minecraft_version", minecraft_version
+    inputs.property "loader_version", loader_version
+    inputs.property "mod_id", mod_id
+    inputs.property "mod_name", mod_name
+    inputs.property "mod_description", mod_description
+    inputs.property "mod_authors", mod_authors
+    inputs.property "mod_license", mod_license
+    filteringCharset "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand([
+                "version"          : version,
+                "minecraft_version": minecraft_version,
+                "loader_version"   : loader_version,
+                "mod_id"           : mod_id,
+                "mod_name"         : mod_name,
+                "mod_description"  : mod_description,
+                "mod_authors"      : mod_authors,
+                "mod_license"      : mod_license
+        ])
+    }
+}
+
+def targetJavaVersion = project.hasProperty('target_java_version') ? target_java_version.toInteger() : (isDeobfuscated ? 25 : 21)
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    it.options.release.set(targetJavaVersion)
+}
+
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${mod_id}" }
+    }
+}
+
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            artifactId = mod_id
+            from components.java
+        }
+    }
+}
+
+tasks.register('copyToModrinth', Copy) {
+    def jarTask = tasks.findByName('remapJar') ?: tasks.jar
+    from(jarTask.archiveFile)
+    into(rootProject.file("to modrinth/${project.name}"))
+}
+
+tasks.build.finalizedBy('copyToModrinth')

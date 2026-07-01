@@ -1,0 +1,73 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# NetBeans
+nbproject/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.log
+*.hprof
+hs_err_pid*
+replay_pid*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Minecraft modding
+run/
+runs/
+run-server/
+run-client/
+.mixin.out/
+remappedSrc/
+
+# Loom / Architectury
+.tmp/
+loom-cache/
+.architectury-transformer/
+
+# Mod build outputs
+upload/
+*.jar
+!gradle/**/*.jar
+
+# Debug / local artifacts
+[Dd]EBUG/
+[Dd]ebug/
+[[]DEBUG[]]/
+
+# Notes / local docs
+To-Do List.md
+noteforai.md
+Test-Cases.md
+documentation.md

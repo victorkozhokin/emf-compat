@@ -1,0 +1,104 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'maven-publish'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = archives_base_name
+}
+
+loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    implementation project(':core-fabric-26.2')
+
+    clientCompileOnly fabricApi.module("fabric-api-base", project.fabric_version)
+    clientCompileOnly fabricApi.module("fabric-data-generation-api-v1", project.fabric_version)
+    clientCompileOnly fabricApi.module("fabric-renderer-api-v1", project.fabric_version)
+    clientCompileOnly fabricApi.module("fabric-model-loading-api-v1", project.fabric_version)
+
+    compileOnly 'maven.modrinth:MPCX6s5C:67xQnLDS'
+    compileOnly 'maven.modrinth:entity-model-features:3.2.5-fabric-26.2'
+    compileOnly 'maven.modrinth:entitytexturefeatures:7.1.1-fabric-26.2'
+}
+
+processResources {
+    inputs.property "version", version
+    inputs.property "minecraft_version", minecraft_version
+    inputs.property "loader_version", loader_version
+    inputs.property "mod_id", mod_id
+    inputs.property "mod_name", mod_name
+    inputs.property "mod_description", mod_description
+    filteringCharset = "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand([
+                "version"          : version,
+                "minecraft_version": minecraft_version,
+                "loader_version"   : loader_version,
+                "mod_id"           : mod_id,
+                "mod_name"         : mod_name,
+                "mod_description"  : mod_description
+        ])
+    }
+}
+
+def targetJavaVersion = 25
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    it.options.release.set(targetJavaVersion)
+}
+
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${archives_base_name}" }
+    }
+}
+
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            artifactId = archives_base_name
+            from components.java
+        }
+    }
+}
+

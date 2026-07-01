@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "strm.emfcompat.quark.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [],
+  "client": [
+    "EmoteBaseAccessor",
+    "EmoteBaseMixin",
+    "EmoteHandlerMixin",
+    "EMFModelPartRootMixin",
+    "PlayerModelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "emf_compat_quark.refmap.json"
+}

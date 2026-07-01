@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "strm.neaemfcompat.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "AnimationProviderMixin",
+    "PlayerModelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

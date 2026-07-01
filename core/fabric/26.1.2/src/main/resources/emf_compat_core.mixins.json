@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "strm.emfcompat.core.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [],
+  "client": [
+    "EMFBipedPoseMixin",
+    "EMFModelPartRootMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

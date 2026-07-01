@@ -1,0 +1,12 @@
+{
+  "package": "strm.emfcompat.create.mixin",
+  "plugin": "strm.emfcompat.create.mixin.CreateEMFCompatMixinPlugin",
+  "client": [
+    "PlayerSkyhookRendererAccessor",
+    "PlayerHoldingHandleRendererAccessor",
+    "PlayerHoldingHandleRendererMixin",
+    "PlayerGrappleHookAccessor",
+    "HumanoidModelRagdollMixin",
+    "ItemSwapAnimationMixin"
+  ]
+}
