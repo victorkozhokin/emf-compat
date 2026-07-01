@@ -34,7 +34,7 @@ public class PlayerModelMixin {
         }
 
         if (!PlayerAnimatorCompat.isAnimationActive(player)) {
-            PoseManager.clearPoses(player.getUUID(), SOURCE);
+            PoseManager.clearPoses(player, SOURCE);
             return;
         }
 
@@ -49,7 +49,7 @@ public class PlayerModelMixin {
         parts.put("right_leg", new PoseSnapshot(model.rightLeg));
 
         PoseManager.savePoses(
-                player.getUUID(), SOURCE,
+                player, SOURCE,
                 new PoseSnapshot(model.leftArm),
                 new PoseSnapshot(model.rightArm),
                 parts

@@ -36,7 +36,7 @@ public class PlayerModelMixin {
 
         Set<String> animatedParts = EmotecraftCompat.getAnimatedParts(player);
         if (animatedParts.isEmpty()) {
-            PoseManager.clearPoses(player.getUUID(), SOURCE);
+            PoseManager.clearPoses(player, SOURCE);
             return;
         }
 
@@ -60,7 +60,7 @@ public class PlayerModelMixin {
         PoseSnapshot rightArm = animatedParts.contains("right_arm") ? new PoseSnapshot(model.rightArm) : null;
 
         PoseManager.savePoses(
-                player.getUUID(), SOURCE,
+                player, SOURCE,
                 leftArm,
                 rightArm,
                 parts

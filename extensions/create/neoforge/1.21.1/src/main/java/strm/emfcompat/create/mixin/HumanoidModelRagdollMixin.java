@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 
-import java.util.UUID;
+
 
 @Mixin(value = HumanoidModel.class, priority = 1100)
 public class HumanoidModelRagdollMixin {
@@ -25,17 +25,16 @@ public class HumanoidModelRagdollMixin {
         if (player.level() == null) return;
         if (Minecraft.getInstance().isPaused()) return;
 
-        UUID uuid = player.getUUID();
-        if (RagdollGrabState.isGrabbing(uuid)) {
+        if (RagdollGrabState.isGrabbing(player.getUUID())) {
             HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
             PoseManager.savePoses(
-                    uuid,
+                    player,
                     SOURCE,
                     new PoseSnapshot(model.leftArm),
                     new PoseSnapshot(model.rightArm)
             );
         } else {
-            PoseManager.clearPoses(uuid, SOURCE);
+            PoseManager.clearPoses(player, SOURCE);
         }
     }
 }

@@ -44,12 +44,12 @@ public class AnimationProviderMixin {
     private void neaemfcompat$onApplyAnimationsReturn(AbstractClientPlayer entity, PlayerModel model, float delta, float swing, CallbackInfo ci) {
         BasicAnimation[] animation = this.neaemfcompat$animationArray;
         if (animation == null) {
-            PoseManager.clearPoses(entity.getUUID());
+            PoseManager.clearPoses(entity);
             return;
         }
 
         if (EMFCompatCore.isLocalPlayerInFirstPerson(entity.getUUID())) {
-            PoseManager.clearPoses(entity.getUUID());
+            PoseManager.clearPoses(entity);
             return;
         }
 
@@ -62,7 +62,7 @@ public class AnimationProviderMixin {
                 }
             }
             if (!hasBurningOrFreezingOrNaruto) {
-                PoseManager.clearPoses(entity.getUUID());
+                PoseManager.clearPoses(entity);
                 return;
             }
         }
@@ -70,10 +70,10 @@ public class AnimationProviderMixin {
         boolean leftArm = EMFCompat.shouldPauseForAnimation(animation[BodyPart.LEFT_ARM.ordinal()]);
         boolean rightArm = EMFCompat.shouldPauseForAnimation(animation[BodyPart.RIGHT_ARM.ordinal()]);
         if (!leftArm && !rightArm) {
-            PoseManager.clearPoses(entity.getUUID());
+            PoseManager.clearPoses(entity);
             return;
         }
 
-        PoseManager.setActiveParts(entity.getUUID(), new ActiveParts(leftArm, rightArm), model);
+        PoseManager.setActiveParts(entity, new ActiveParts(leftArm, rightArm), model);
     }
 }

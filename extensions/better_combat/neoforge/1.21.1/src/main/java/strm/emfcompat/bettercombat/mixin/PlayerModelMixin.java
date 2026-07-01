@@ -36,7 +36,7 @@ public class PlayerModelMixin {
 
         AttackHand attackHand = BetterCombatCompat.getAttackHand(player);
         if (attackHand == null) {
-            PoseManager.clearPoses(player.getUUID(), SOURCE);
+            PoseManager.clearPoses(player, SOURCE);
             return;
         }
 
@@ -46,7 +46,7 @@ public class PlayerModelMixin {
         parts.put("jacket", new PoseSnapshot(model.jacket));
 
         PoseManager.savePoses(
-                player.getUUID(), SOURCE,
+                player, SOURCE,
                 new PoseSnapshot(model.leftArm),
                 new PoseSnapshot(model.rightArm),
                 parts

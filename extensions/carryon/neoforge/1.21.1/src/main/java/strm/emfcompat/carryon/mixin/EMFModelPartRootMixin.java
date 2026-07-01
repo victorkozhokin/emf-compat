@@ -9,7 +9,7 @@ import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 
-import java.util.UUID;
+import net.minecraft.world.entity.Entity;
 
 /**
  * Captures the EMF-animated torso pose after EMF animation has run.
@@ -24,12 +24,12 @@ public class EMFModelPartRootMixin {
         var state = EMFAnimationEntityContext.getEmfState();
         if (state == null || state.emfEntity() == null) return;
 
-        UUID uuid = state.emfEntity().etf$getUuid();
+        Entity entity = (Entity) state.emfEntity();
         EMFModelPartRoot root = (EMFModelPartRoot) (Object) this;
 
         for (EMFModelPartVanilla part : root.getAllVanillaPartsEMF()) {
             if ("[vanilla part body]".equals(part.toStringShort())) {
-                BodyPartSync.captureCurrent(uuid, "body", part);
+                BodyPartSync.captureCurrent(entity, "body", part);
                 break;
             }
         }

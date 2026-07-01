@@ -59,9 +59,9 @@ public final class CarryOnRenderState {
     }
 
     /**
-     * Removes all tracked data for the given player UUID.
+     * Removes all tracked data for the given entity.
      */
-    public static void clear(UUID uuid) {
-        BodyPartSync.clear(uuid);
+    public static void clear(Entity entity) {
+        BodyPartSync.clear(entity);
     }
 }

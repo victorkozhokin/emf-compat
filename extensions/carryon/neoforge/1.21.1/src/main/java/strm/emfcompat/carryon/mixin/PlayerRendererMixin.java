@@ -66,7 +66,7 @@ public class PlayerRendererMixin {
     }
 
     private void emfcompat$restoreCarryOnArmPose(ModelPart armPart, ModelPart sleevePart, AbstractClientPlayer player) {
-        SavedPoses saved = PoseManager.getSavedPoses(player.getUUID());
+        SavedPoses saved = PoseManager.getSavedPoses(player);
         if (saved == null) return;
 
         PlayerModel<AbstractClientPlayer> model = ((PlayerRenderer) (Object) this).getModel();

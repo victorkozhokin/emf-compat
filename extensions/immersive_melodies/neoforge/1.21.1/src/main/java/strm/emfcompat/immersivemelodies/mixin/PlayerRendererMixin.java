@@ -67,7 +67,7 @@ public class PlayerRendererMixin {
     }
 
     private void restorePose(ModelPart armPart, ModelPart sleevePart, AbstractClientPlayer player) {
-        SavedPoses saved = PoseManager.getSavedPoses(player.getUUID(), SOURCE);
+        SavedPoses saved = PoseManager.getSavedPoses(player, SOURCE);
         if (saved == null) return;
 
         PlayerModel<AbstractClientPlayer> model = ((PlayerRenderer) (Object) this).getModel();

@@ -74,10 +74,10 @@ public class CarryRenderHelperMixin {
     }
 
     private static void applyBodyDelta(PoseStack poseStack, Player player) {
-        if (!BodyPartSync.hasDelta(player.getUUID(), "body")) return;
+        if (!BodyPartSync.hasDelta(player, "body")) return;
 
-        Vector3f translation = BodyPartSync.getTranslationDelta(player.getUUID(), "body");
-        Vector3f rotation = BodyPartSync.getRotationDelta(player.getUUID(), "body");
+        Vector3f translation = BodyPartSync.getTranslationDelta(player, "body");
+        Vector3f rotation = BodyPartSync.getRotationDelta(player, "body");
 
         // Model part positions are in pixels (1/16 block). CarryOn scales the matrix by 0.6.
         // Y and Z are inverted because model-space and PoseStack space differ:

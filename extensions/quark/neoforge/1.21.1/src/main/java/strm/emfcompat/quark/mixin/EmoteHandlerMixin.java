@@ -49,7 +49,7 @@ public class EmoteHandlerMixin {
 
         EmoteBase emote = EmoteHandler.getPlayerEmote(player);
         if (emote == null || emote.isDone()) {
-            PoseManager.clearPoses(player.getUUID(), SOURCE);
+            PoseManager.clearPoses(player, SOURCE);
         }
     }
 }

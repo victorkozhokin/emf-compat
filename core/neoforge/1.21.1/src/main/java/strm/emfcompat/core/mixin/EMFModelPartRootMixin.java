@@ -33,11 +33,12 @@ public class EMFModelPartRootMixin {
         var state = EMFAnimationEntityContext.getEmfState();
         if (state == null || state.emfEntity() == null) return;
 
-        UUID uuid = state.emfEntity().etf$getUuid();
+        Entity entity = (Entity) state.emfEntity();
+        UUID uuid = entity.getUUID();
         if (EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
-        if (EMFCompatCore.isCorpseDummy((Entity) state.emfEntity())) return;
+        if (EMFCompatCore.isCorpseDummy(entity)) return;
 
-        SavedPoses savedPoses = PoseManager.getSavedPoses(uuid);
+        SavedPoses savedPoses = PoseManager.getSavedPoses(entity);
         if (savedPoses == null) return;
 
         EMFModelPartRoot root = (EMFModelPartRoot) (Object) this;

@@ -12,7 +12,7 @@ import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 import strm.emfcompat.supplementaries.compat.SupplementariesCompat;
 
-import java.util.UUID;
+
 
 /**
  * Captures the arm poses set by Supplementaries (Flute, Slingshot, Bubble Blower)
@@ -31,20 +31,19 @@ public class HumanoidModelMixin {
                                                        CallbackInfo ci) {
         if (!(entity instanceof Player player)) return;
 
-        UUID uuid = player.getUUID();
         if (!SupplementariesCompat.isUsingSupplementariesItem(player)) {
-            PoseManager.clearPoses(uuid, SOURCE);
+            PoseManager.clearPoses(player, SOURCE);
             return;
         }
 
-        if (EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) {
-            PoseManager.clearPoses(uuid, SOURCE);
+        if (EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) {
+            PoseManager.clearPoses(player, SOURCE);
             return;
         }
 
         HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
         PoseManager.savePoses(
-                uuid,
+                player,
                 SOURCE,
                 new PoseSnapshot(model.leftArm),
                 new PoseSnapshot(model.rightArm)
