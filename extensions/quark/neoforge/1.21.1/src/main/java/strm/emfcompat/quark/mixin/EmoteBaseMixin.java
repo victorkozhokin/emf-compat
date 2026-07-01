@@ -20,8 +20,8 @@ import java.util.Map;
 /**
  * Captures the Quark emote pose after {@link EmoteBase#update} has run.
  * <p>
- * Fresh Animations / FA PE animate the player's arms and head, so while a Quark emote is
- * active we always pause EMF on those parts. Body and legs are left to EMF/FA PE, which
+ * Only the parts the emote actually declares via {@code use} directives are frozen;
+ * everything else keeps EMF/FA PE animation. Body and legs are left to EMF/FA PE, which
  * keeps the player walking / idling naturally while the emote controls the gesture.
  * </p>
  */
@@ -48,23 +48,25 @@ public class EmoteBaseMixin {
         @SuppressWarnings("unchecked")
         PlayerModel<AbstractClientPlayer> typedModel = (PlayerModel<AbstractClientPlayer>) playerModel;
 
-        // FA PE animates arms and head, so those are always paused while a Quark emote is playing.
-        // Quark only rotates these parts, so we keep EMF's position changes (body-follow idle/walk
-        // translation) to stop the head and arms from visually detaching from the torso.
-        PoseSnapshot headPose = new PoseSnapshot(typedModel.head, true);
-        PoseSnapshot leftArmPose = new PoseSnapshot(typedModel.leftArm);
-        PoseSnapshot rightArmPose = new PoseSnapshot(typedModel.rightArm);
+        // Each Quark emote declares which parts it actually animates via `use` directives.
+        // Only freeze those parts; the rest keep EMF/FA PE animation. Quark only rotates
+        // parts, so we keep EMF's position changes (body-follow idle/walk translation).
+        boolean usesHead = self.usesBodyPart(ModelAccessor.HEAD);
+        boolean usesLeftArm = self.usesBodyPart(ModelAccessor.LEFT_ARM);
+        boolean usesRightArm = self.usesBodyPart(ModelAccessor.RIGHT_ARM);
 
         Map<String, PoseSnapshot> parts = new HashMap<>();
-        parts.put("head", headPose);
+        if (usesHead) {
+            PoseSnapshot headPose = new PoseSnapshot(typedModel.head, true);
+            parts.put("head", headPose);
 
-        // In 1.21.1 the hat/headwear layer is a separate vanilla part named "hat".
-        // Save it explicitly so EMF does not leave it behind while restoring the head pose.
-        PoseSnapshot hatPose = new PoseSnapshot(typedModel.hat, true);
-        parts.put("hat", hatPose);
-        parts.put("headwear", hatPose);
+            // In 1.21.1 the hat/headwear layer is a separate vanilla part named "hat".
+            // Save it explicitly so EMF does not leave it behind while restoring the head pose.
+            PoseSnapshot hatPose = new PoseSnapshot(typedModel.hat, true);
+            parts.put("hat", hatPose);
+            parts.put("headwear", hatPose);
+        }
 
-        // Quark does not normally animate body/legs, but keep the check as a safety net.
         if (self.usesBodyPart(ModelAccessor.BODY)) {
             parts.put("body", new PoseSnapshot(typedModel.body));
         }
@@ -74,6 +76,9 @@ public class EmoteBaseMixin {
         if (self.usesBodyPart(ModelAccessor.RIGHT_LEG)) {
             parts.put("right_leg", new PoseSnapshot(typedModel.rightLeg));
         }
+
+        PoseSnapshot leftArmPose = usesLeftArm ? new PoseSnapshot(typedModel.leftArm) : null;
+        PoseSnapshot rightArmPose = usesRightArm ? new PoseSnapshot(typedModel.rightArm) : null;
 
         PoseManager.savePoses(
                 clientPlayer.getUUID(),
