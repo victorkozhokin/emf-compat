@@ -1,5 +1,6 @@
 package strm.emfcompat.core.mixin;
 
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,6 +35,7 @@ public class EMFModelPartRootMixin {
 
         UUID uuid = state.emfEntity().etf$getUuid();
         if (EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
+        if (EMFCompatCore.isCorpseDummy((Entity) state.emfEntity())) return;
 
         SavedPoses savedPoses = PoseManager.getSavedPoses(uuid);
         if (savedPoses == null) return;

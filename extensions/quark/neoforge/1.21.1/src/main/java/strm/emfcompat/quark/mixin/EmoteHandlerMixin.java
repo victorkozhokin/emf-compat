@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.violetmoon.quark.content.tweaks.client.emote.EmoteBase;
 import org.violetmoon.quark.content.tweaks.client.emote.EmoteHandler;
+import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.PoseManager;
 
 /**
@@ -22,11 +23,27 @@ public class EmoteHandlerMixin {
 
     @Inject(
             method = "updateEmotes(Lnet/minecraft/world/entity/Entity;)V",
+            at = @At("HEAD"),
+            cancellable = true,
+            remap = false
+    )
+    private static void emfcompat$skipCorpseDummy(Entity e, CallbackInfo ci) {
+        if (EMFCompatCore.isCorpseDummy(e)) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(
+            method = "updateEmotes(Lnet/minecraft/world/entity/Entity;)V",
             at = @At("RETURN"),
             remap = false
     )
     private static void emfcompat$clearPosesWhenEmoteEnds(Entity e, CallbackInfo ci) {
         if (!(e instanceof AbstractClientPlayer player)) {
+            return;
+        }
+
+        if (EMFCompatCore.isCorpseDummy(player)) {
             return;
         }
 
