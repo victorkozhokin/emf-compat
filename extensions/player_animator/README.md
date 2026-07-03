@@ -1,5 +1,7 @@
 # EMF Compat: Player Animator
 
+## [Modrinth](https://modrinth.com/project/emf-compat-player-animator)
+
 A small client-side mod for **Minecraft** that preserves **[Player Animator](https://modrinth.com/mod/playeranimator)** poses when **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations are active.
 
 Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** but it should work with any player-animation resource pack.

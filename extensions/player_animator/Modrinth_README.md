@@ -1,5 +1,7 @@
 # EMF Compat: Player Animator
 
+## [Modrinth](https://modrinth.com/project/emf-compat-player-animator)
+
 Makes Player Animator library animations work correctly with animated EMF player models.
 
 Brings **Player Animator** full-body poses to **Entity Model Features**.

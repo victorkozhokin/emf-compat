@@ -1,5 +1,7 @@
 # EMF Compat: Horse Sync
 
+## [Modrinth](https://modrinth.com/project/emf-compat-horse-sync)
+
 Fixes player sitting position on horses animated with Entity Model Features.
 
 Keeps the player aligned with **EMF-animated horses**.

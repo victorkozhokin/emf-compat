@@ -1,5 +1,7 @@
 # EMF Compat Core
 
+## [Modrinth](https://modrinth.com/project/emf-compat-core)
+
 Shared framework for the **EMF Compat** family of mods.
 
 EMF Compat Core provides the pose snapshot/restore system and first-person checks used by all addons. It does not add any visible gameplay features on its own, but it is **required** by:

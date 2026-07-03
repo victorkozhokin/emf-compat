@@ -1,5 +1,7 @@
 # EMF Compat: Quark
 
+## [Modrinth](https://modrinth.com/project/emf-compat-quark)
+
 A small client-side mod that makes **[Quark](https://modrinth.com/mod/quark)** emotes work correctly with **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player models.
 
 Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.

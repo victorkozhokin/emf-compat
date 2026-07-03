@@ -1,5 +1,7 @@
 # EMF Compat: Corpse
 
+## [Modrinth](https://modrinth.com/project/emf-compat-corpse)
+
 A small client-side mod that makes **[Corpse](https://modrinth.com/mod/corpse)** death bodies stay still when **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player models are active.
 
 Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.

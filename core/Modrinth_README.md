@@ -1,5 +1,7 @@
 # EMF Compat: Core
 
+## [Modrinth](https://modrinth.com/project/emf-compat-core)
+
 A shared client-side library that lets all **EMF Compat** addons fix animation conflicts with **[Entity Model Features](https://modrinth.com/mod/entity-model-features)**.
 
 This mod does not add visible gameplay features on its own, but it is **required** by every EMF Compat addon.

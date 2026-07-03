@@ -1,5 +1,7 @@
 # EMF Compat: Horse Sync
 
+## [Modrinth](https://modrinth.com/project/emf-compat-horse-sync)
+
 A client-side **NeoForge 1.21.1** addon that synchronizes the player's riding position with horses animated by **Entity Model Features**.
 
 ## What it does

@@ -1,5 +1,7 @@
 # EMF Compat: Carry On
 
+## [Modrinth](https://modrinth.com/project/emf-compat-carry-on)
+
 A small client-side mod that makes **[Carry On](https://modrinth.com/mod/carry-on)** carry poses work correctly with **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player models.
 
 Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.

@@ -1,5 +1,7 @@
 # Emotecraft: EMF Compat
 
+## [Modrinth](https://modrinth.com/project/emf-compat-emotecraft)
+
 A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while **[Emotecraft](https://modrinth.com/mod/emotecraft)** is playing an emote.
 
 Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
