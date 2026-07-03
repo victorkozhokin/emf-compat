@@ -8,8 +8,9 @@
     "PlayerModelMixin",
     "PlayerRendererMixin",
     "AttackAnimationStackMixin",
-    "BetterCombatMaceTorsoMixin",
-    "EMFAnimationEntityContextMixin"
+    "BetterCombatOneHandedSlamMixin",
+    "EMFAnimationEntityContextMixin",
+    "HumanoidModelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

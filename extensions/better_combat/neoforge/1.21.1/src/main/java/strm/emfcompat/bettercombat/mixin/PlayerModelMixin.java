@@ -9,18 +9,19 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import strm.emfcompat.bettercombat.compat.AttackPauseOverride;
 import strm.emfcompat.bettercombat.compat.BetterCombatCompat;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Captures the arms and torso jacket during an active Better Combat attack.
- * The body, head and legs remain under EMF's control so that resource-pack animations there keep running.
+ * Captures the arms during an active Better Combat attack.
+ * The body, head, legs and jacket remain under EMF's control so that resource-pack animations there keep running.
+ *
+ * <p>Player Animator applies its animation at {@code PlayerModel.setupAnim} RETURN with priority 2000,
+ * so this mixin runs at priority 2500 to capture the pose <em>after</em> Better Combat has modified the model.</p>
  */
-@Mixin(PlayerModel.class)
+@Mixin(value = PlayerModel.class, priority = 2500)
 public class PlayerModelMixin {
 
     @Unique
@@ -37,19 +38,18 @@ public class PlayerModelMixin {
         AttackHand attackHand = BetterCombatCompat.getAttackHand(player);
         if (attackHand == null) {
             PoseManager.clearPoses(player, SOURCE);
+            AttackPauseOverride.tickCooldown(player.getUUID());
             return;
         }
 
-        PlayerModel<AbstractClientPlayer> model = (PlayerModel<AbstractClientPlayer>) (Object) this;
+        AttackPauseOverride.markAttackActive(player.getUUID());
 
-        Map<String, PoseSnapshot> parts = new HashMap<>();
-        parts.put("jacket", new PoseSnapshot(model.jacket));
+        PlayerModel<AbstractClientPlayer> model = (PlayerModel<AbstractClientPlayer>) (Object) this;
 
         PoseManager.savePoses(
                 player, SOURCE,
                 new PoseSnapshot(model.leftArm),
-                new PoseSnapshot(model.rightArm),
-                parts
+                new PoseSnapshot(model.rightArm)
         );
     }
 }

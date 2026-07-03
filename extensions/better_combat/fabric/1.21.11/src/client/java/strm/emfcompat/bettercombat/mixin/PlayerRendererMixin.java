@@ -18,7 +18,7 @@ import strm.emfcompat.core.PoseSnapshot;
 import strm.emfcompat.core.SavedPoses;
 
 /**
- * Applies the saved Better Combat attack arm pose to the first-person hand model.
+ * Applies the saved Better Combat attack arm pose (rotation + translation) to the first-person hand model.
  */
 @Mixin(AvatarRenderer.class)
 public class PlayerRendererMixin {
@@ -64,7 +64,7 @@ public class PlayerRendererMixin {
         }
 
         if (snapshot != null) {
-            snapshot.applyRotation(armPart);
+            snapshot.apply(armPart);
         }
     }
 }

@@ -49,9 +49,15 @@ public final class BetterCombatCompat {
         Minecraft minecraft = Minecraft.getInstance();
 
         // For the local player Better Combat tracks the ongoing swing on the client instance.
+        // isWeaponSwingInProgress() only covers the swing itself; the underlying animation layer
+        // is also active during upswing/recovery, so check it too to keep arms captured for the
+        // whole attack sequence.
         if (player == minecraft.player) {
             MinecraftClient_BetterCombat client = (MinecraftClient_BetterCombat) minecraft;
-            return client.isWeaponSwingInProgress() ? client.getCurrentAttackHand() : null;
+            if (client.isWeaponSwingInProgress() || isAttackAnimationActive(player)) {
+                return client.getCurrentAttackHand();
+            }
+            return null;
         }
 
         // For other players, EntityPlayer_BetterCombat#getCurrentAttack is non-null whenever the

@@ -6,22 +6,23 @@ import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.world.entity.Entity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import strm.emfcompat.bettercombat.compat.AttackPauseOverride;
+
+import java.util.UUID;
 import strm.emfcompat.bettercombat.compat.BetterCombatCompat;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
-import strm.emfcompat.core.SavedPoses;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * Captures the arms and torso jacket during an active Better Combat attack.
- * The body, head and legs remain under EMF's control so that resource-pack animations there keep running.
+ * Captures the arms during an active Better Combat attack.
+ * The body, head, legs and jacket remain under EMF's control so that resource-pack animations there keep running.
  *
  * <p>Player Animation Library applies its animation at {@code PlayerModel.setupAnim} RETURN with priority 2001,
  * so this mixin runs at priority 2500 to capture the pose <em>after</em> Better Combat has modified the model.</p>
@@ -31,6 +32,10 @@ public class PlayerModelMixin {
 
     @Unique
     private static final String SOURCE = "better_combat";
+    @Unique
+    private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatBetterCombat/Capture");
+    @Unique
+    private static int emfcompat$logTick = 0;
 
     @Inject(
             method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V",
@@ -45,22 +50,28 @@ public class PlayerModelMixin {
         Entity entity = mc.level.getEntity(state.id);
         if (!(entity instanceof AbstractClientPlayer player)) return;
 
+        UUID uuid = player.getUUID();
         AttackHand attackHand = BetterCombatCompat.getAttackHand(player);
         if (attackHand == null) {
-            PoseManager.clearPoses(player.getUUID(), SOURCE);
+            if (++emfcompat$logTick % 20 == 0) {
+                LOGGER.debug("no attack hand for {}", uuid);
+            }
+            PoseManager.clearPoses(uuid, SOURCE);
+            AttackPauseOverride.tickCooldown(uuid);
             return;
         }
 
-        Map<String, PoseSnapshot> parts = new HashMap<>();
-        parts.put("jacket", new PoseSnapshot(model.jacket));
-
+        AttackPauseOverride.markAttackActive(uuid);
+        if (++emfcompat$logTick % 5 == 0) {
+            LOGGER.debug("capture leftArm rot=({},{},{}) rightArm rot=({},{},{}) for {}",
+                    model.leftArm.xRot, model.leftArm.yRot, model.leftArm.zRot,
+                    model.rightArm.xRot, model.rightArm.yRot, model.rightArm.zRot,
+                    uuid);
+        }
         PoseManager.savePoses(
                 player.getUUID(), SOURCE,
-                new SavedPoses(
-                        new PoseSnapshot(model.leftArm),
-                        new PoseSnapshot(model.rightArm),
-                        parts
-                )
+                new PoseSnapshot(model.leftArm),
+                new PoseSnapshot(model.rightArm)
         );
     }
 }
