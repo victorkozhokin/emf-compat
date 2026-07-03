@@ -1,12 +1,32 @@
-# EMF Compat: Create
+# Create: EMF Compat
 
-Makes Create animations work correctly with animated EMF player models.
+A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while using **[Create](https://modrinth.com/mod/create)**'s **Skyhook** feature, including chain and rope riding from Aeronautics.
 
-Brings **Create** player animations to **Entity Model Features**.
+Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-Suppresses conflicting EMF poses while the player is skyhooking with Create: Aeronautics (NeoForge) / Create Fly (Fabric), and while using grappling hooks on NeoForge. Also integrates Sable ragdoll poses so 
+**Also added compat for Grabbing Physics Objects!**
 
-## Optional integrations
+## Features
 
-- Not Enough Animations — item-swap arm animation is disabled during skyhook/grapple.
-- Sable Player Ragdoll — ragdoll poses are handled through the core pose system.
+- Pauses EMF player animations during Skyhook riding
+- Works with chains and ropes from Create Skyhook mechanics
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
+- Should work with most player animation resource packs using EMF
+
+## Additional Compatibility
+
+**[Create Aeronautics](https://modrinth.com/mod/create-aeronautics)**
+
+**[Climbable Ropes](https://modrinth.com/mod/create-aeronautics-climbable-rope)**
+
+**[Create Grappling Hooks](https://modrinth.com/mod/create-grappling-hooks)**
+
+## Video
+
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/072A-CVufho" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+## Video (Aeronautics update)
+
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/YHm2dS88qz8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+enjoy ^_^

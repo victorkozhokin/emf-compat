@@ -1,23 +1,32 @@
-# EMF Compat: Quark
+# Quark: EMF Compat
 
-NeoForge 1.21.1 addon that preserves **Quark emotes** when **Entity Model Features (EMF)** player animations are active.
+A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while **[Quark](https://modrinth.com/mod/quark)** emotes are playing.
 
-## What it does
+Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-Quark adds client-side emotes (wave, salute, dance, custom emotes, etc.) that animate the player model. EMF resource-pack animations normally overwrite those poses. This addon captures the emote pose after Quark applies it and lets EMF Compat Core restore it on top of EMF.
+**Also preserves only the body parts that the emote actually moves!**
 
-## Supported versions
+## Features
 
-- NeoForge 1.21.1
+- Pauses EMF player animations during Quark emotes
+- Preserves wave, salute, dance and custom emote poses
+- Captures only the body parts used by the emote
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
+- Should work with most player animation resource packs using EMF
 
-## How it works
+## Additional Compatibility
 
-- `EmoteBaseMixin` injects into `EmoteBase#update` (after Quark's tween update) and saves the full body pose (`head`, `body`, `left_arm`, `right_arm`, `left_leg`, `right_leg`) to `PoseManager` under the source `"quark"`.
-- `EmoteHandlerMixin` clears the saved pose when the player has no active emote or the emote has finished.
-- EMF Compat Core mixins restore the saved pose after EMF animation runs.
+**[Zeta](https://modrinth.com/mod/zeta)** — required library for Quark.
 
-## Dependencies
+## Compatibility
 
-- `emf_compat_core`
-- `quark`
-- `entity_model_features`
+- **[Freecam](https://modrinth.com/mod/freecam)** — pose capture/restore continues while the camera is detached.
+- **[First Person Model](https://modrinth.com/mod/first-person-model)** — emote poses stay visible on the visible body in first person.
+
+## Build
+
+```bash
+./gradlew :quark-neoforge-1.21.1:build
+```
+
+enjoy ^_^

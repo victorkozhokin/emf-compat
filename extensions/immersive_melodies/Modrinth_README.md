@@ -1,9 +1,17 @@
-# EMF Compat: Immersive Melodies
+# Immersive Melodies: EMF Compat
 
-Makes Immersive Melodies instrument poses work correctly with animated EMF player models.
+A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while **[Immersive Melodies](https://modrinth.com/mod/immersive-melodies)** is playing an instrument.
 
-Brings **Immersive Melodies** playing animations to **Entity Model Features**.
+Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-When a resource pack replaces the player model with an animated Entity Model Features variant, the instrument-playing arm poses from Immersive Melodies are often overwritten by the resource-pack animation. This addon captures the arm poses after Immersive Melodies sets them, then restores them after EMF runs so the player keeps the correct playing posture while holding an instrument.
+**Also preserves flute, slingshot and bubble blower poses!**
 
-First-person hand rendering is handled separately so your own instrument pose stays visible in first person.
+## Features
+
+- Pauses EMF player animations during instrument use
+- Preserves instrument-holding and playing arm poses
+- Works with all Immersive Melodies instruments
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
+- Should work with most player animation resource packs using EMF
+
+enjoy ^_^

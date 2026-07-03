@@ -1,9 +1,21 @@
-# EMF Compat: Better Combat
+# Better Combat: EMF Compat
 
-Makes Better Combat attack animations work correctly with animated EMF player models.
+A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while a **[Better Combat](https://modrinth.com/mod/better-combat)** attack is playing.
 
-Brings **Better Combat** weapon-swing poses to **Entity Model Features**.
+Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-When a resource pack replaces the player model with an animated Entity Model Features variant, Better Combat's raised-arm charge and swing poses are often overwritten. This addon captures those arm poses after Better Combat sets them, then restores them after EMF runs so attacks look correct. It also scales down the global pitch-based body adjustment and the mace-slam torso tilt so EMF animations remain readable.
+**Also tones down the mace slam torso tilt!**
 
-Tested with **Fresh Animations: Player Extension**.
+## Features
+
+- Pauses EMF player animations during Better Combat attacks
+- Preserves raised/charging arm and weapon-swing poses
+- Works with one-handed, two-handed and mace attacks
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
+- Should work with most player animation resource packs using EMF
+
+## Additional Compatibility
+
+**[Player Animator](https://modrinth.com/mod/playeranimator)** — used internally by Better Combat; poses are handled through the shared animation system.
+
+enjoy ^_^

@@ -1,9 +1,18 @@
-# EMF Compat: Supplementaries
+# Supplementaries: EMF Compat
 
-Makes Supplementaries item-use poses work correctly with animated EMF player models.
+A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while using **[Supplementaries](https://modrinth.com/mod/supplementaries)** items.
 
-Brings **Supplementaries** item animations to **Entity Model Features**.
+Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-When a resource pack replaces the player model with an animated Entity Model Features variant, the arm poses from Supplementaries items (Flute, Slingshot, Bubble Blower) are often overwritten by the resource-pack animation. This addon captures the arm poses after Supplementaries sets them, then restores them after EMF runs so the player keeps the correct holding posture while using these items.
+**Also keeps first-person hand poses visible!**
 
-First-person hand rendering is handled separately so your own item pose stays visible in first person.
+## Features
+
+- Pauses EMF player animations while playing the Flute
+- Pauses EMF player animations while aiming the Slingshot
+- Pauses EMF player animations while using the Bubble Blower
+- Preserves two-handed and one-handed item-use arm poses
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
+- Should work with most player animation resource packs using EMF
+
+enjoy ^_^

@@ -1,9 +1,21 @@
-# EMF Compat: Quark
+# Quark: EMF Compat
 
-Makes Quark emotes work correctly with animated EMF player models.
+A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while **[Quark](https://modrinth.com/mod/quark)** emotes are playing.
 
-Brings **Quark** emote poses to **Entity Model Features**.
+Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-When a resource pack replaces the player model with an animated Entity Model Features variant, Quark's built-in emotes (wave, salute, dance, custom emotes, etc.) are often overwritten. This addon captures only the body parts that the current emote actually moves, then restores them after EMF runs so the emote stays visible while the rest of the body keeps its resource-pack animation.
+**Also preserves only the body parts that the emote actually moves!**
 
-Tested with **Fresh Animations: Player Extension**.
+## Features
+
+- Pauses EMF player animations during Quark emotes
+- Preserves wave, salute, dance and custom emote poses
+- Captures only the body parts used by the emote
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
+- Should work with most player animation resource packs using EMF
+
+## Additional Compatibility
+
+**[Zeta](https://modrinth.com/mod/zeta)** — required library for Quark.
+
+enjoy ^_^

@@ -1,9 +1,22 @@
-# EMF Compat: Carry On
+# Carry On: EMF Compat
 
-Makes Carry On pick-up poses work correctly with animated EMF player models.
+A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while **[Carry On](https://modrinth.com/mod/carry-on)** is carrying a block or entity.
 
-Brings **Carry On** carry animations to **Entity Model Features**.
+Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-When a resource pack replaces the player model with an animated Entity Model Features variant, Carry On's raised-arm carry pose is often overwritten by the resource-pack animation. This addon captures the carry pose before EMF applies its animation, then restores it so the player keeps their raised arms while carrying blocks and entities.
+**Also keeps carried objects synced to the animated torso!**
 
-Carried objects in third person are also synced to the EMF-animated torso, and carried entities are rendered with the vanilla model so they don't inherit conflicting resource-pack animations. First-person hand rendering is handled separately so your own raised carry pose stays visible.
+## Features
+
+- Pauses EMF player animations while carrying
+- Preserves the raised-arm carry pose
+- Syncs carried blocks/entities to the EMF-animated torso in third person
+- Renders carried entities with the vanilla model
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
+- Should work with most player animation resource packs using EMF
+
+## Additional Compatibility
+
+**[Corpse](https://modrinth.com/mod/corpse)** — Corpse dummy players/skeletons are excluded from Carry On tracking.
+
+enjoy ^_^

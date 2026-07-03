@@ -1,26 +1,30 @@
-# EMF Compat: Supplementaries
+# Supplementaries: EMF Compat
 
-Client-side addon that preserves **Supplementaries** item-use arm poses when **Entity Model Features** player animations are active.
+A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while using **[Supplementaries](https://modrinth.com/mod/supplementaries)** items.
 
-## Supported items
+Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-- **Flute** — two-handed playing pose.
-- **Slingshot** — aiming pose.
-- **Bubble Blower** — blowing pose.
+**Also keeps first-person hand poses visible!**
 
-## How it works
+## Features
 
-Supplementaries (via Moonlight) animates the player arms in `HumanoidModel#setupAnim`. EMF normally overwrites those poses with resource-pack animations. This addon captures the arm poses after Supplementaries sets them and lets the Core mixins restore them after EMF runs.
+- Pauses EMF player animations while playing the Flute
+- Pauses EMF player animations while aiming the Slingshot
+- Pauses EMF player animations while using the Bubble Blower
+- Preserves two-handed and one-handed item-use arm poses
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
+- Should work with most player animation resource packs using EMF
 
-First-person hand rendering is handled separately so the item pose stays visible in first person.
+## Compatibility
 
-## Modules
+- **[Freecam](https://modrinth.com/mod/freecam)** — pose capture/restore continues while the camera is detached.
+- **[First Person Model](https://modrinth.com/mod/first-person-model)** — item poses stay visible on the visible body in first person.
 
-- `extensions/supplementaries/neoforge/1.21.1`
-- `extensions/supplementaries/forge/1.20.1`
+## Build
 
-## Dependencies
+```bash
+./gradlew :supplementaries-neoforge-1.21.1:build
+./gradlew :supplementaries-forge-1.20.1:build
+```
 
-- `emf_compat_core`
-- `supplementaries`
-- `entity_model_features`
+enjoy ^_^

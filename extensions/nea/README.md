@@ -1,19 +1,13 @@
-# EMF Compat: Not Enough Animations
+# Not Enough Animations: EMF Compat
 
-## [Modrinth](https://modrinth.com/mod/not-enough-animations-emf-compat)
+A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while **[Not Enough Animations](https://modrinth.com/mod/not-enough-animations)** is active.
 
-A small client-side mod for **Minecraft** that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while **[Not Enough Animations](https://modrinth.com/mod/not-enough-animations)** is active.
+Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** but it should work with any player-animation resource pack.
-
-## Video
-
-[![NEA EMF Compat](https://img.youtube.com/vi/QIZlt0xBARQ/maxresdefault.jpg)](https://youtu.be/QIZlt0xBARQ?si=IvY1qwvvB6avab2r)
-
-## Covered animations (EMF yields to NEA)
+## Covered Animations
 
 | Animation | Notes |
-|-----------|-------|
+|---|---|
 | Boat (rowing) | |
 | Horse (riding) | |
 | Eating / Drinking | |
@@ -21,57 +15,52 @@ Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resource
 | Item Swap | |
 | Petting | |
 | Map Holding | |
-| Hold Up Items | Lanterns, etc. |
+| Hold Up Items | Can be disabled for FA:PE |
 | Burning | Works even while sprinting |
 | Freezing | Works even while sprinting |
-| Naruto Running | Works only while sprinting |
+| Naruto running | Works only while sprinting |
 
-## Ignored animations (Fresh Animations: Player Extension handles them better)
+## Ignored Animations
 
 | Animation | Reason |
-|-----------|--------|
+|---|---|
 | Ladder | FA:PE handles ladders better |
 | Crawling | FA:PE handles crawling better |
 | Elytra | FA:PE handles elytra better |
 | Falling | FA:PE handles falling better |
 | Death | FA:PE handles death better |
 | Swimming | FA:PE handles swimming better |
-| Bow / Crossbow | FA:PE handles bow/crossbow better; excluded intentionally due to broken behaviour |
+| Bow / Crossbow | FA:PE handles bow/crossbow better |
 
-## Sprint behavior
+## Sprint Behavior
 
-The compat layer is **disabled while sprinting**, with the exception of `Burning` and `Freezing` animations.
+The compat layer is **disabled while sprinting**, with the exception of `BurningAnimation` and `FreezingAnimation`.
 
-## Recommended "Not Enough Animations" settings
+## REQUIRED "Not Enough Animations" Settings
 
-These settings are in the **Not Enough Animations** mod config. This mod has no config of its own.
+These settings are REQUIRED to set in the mod **Not Enough Animations**.
 
 | Setting | Value |
-|---------|-------|
+|---|---|
 | Animation Smoothing | OFF |
 | Disable Leg Smoothing | ON |
 | Ladder Animation | OFF |
 | Bow Animation | Vanilla |
-
-## Dependencies
-
-- [NeoForge](https://neoforged.net/) 21.1+
-- [Not Enough Animations](https://modrinth.com/mod/not-enough-animations) 1.8+
-- [EMF Compat Core](../../core/README.md)
-- [Entity Model Features](https://modrinth.com/mod/entity-model-features) 3.2.4+
-- [Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures) (required by EMF)
 
 ## Compatibility
 
 - **[Freecam](https://modrinth.com/mod/freecam)** — when the camera is detached, the compat layer keeps capturing and restoring poses so animations stay correct.
 - **[First Person Model](https://modrinth.com/mod/first-person-model)** — when FPM is installed and enabled, pose capture and restoration are not skipped in first person, so NEA animations still apply to the visible body.
 
-## Known Limitations
-
-> The mod uses a pose save/restore workaround instead of the official EMF `pauseCustomAnimationsForThesePartsOfEntity` API. The API may not work correctly with ASM math compilation enabled (default in EMF 3.2.4+), though this is only a suspected issue on our end.
-
 ## Build
 
 ```bash
-./gradlew :nea:build
+./gradlew :nea-neoforge-1.21.1:build
+./gradlew :nea-forge-1.20.1:build
+./gradlew :nea-fabric-1.21.11:build
+./gradlew :nea-fabric-1.21.4:build
+./gradlew :nea-fabric-26.1.2:build
+./gradlew :nea-fabric-26.2:build
 ```
+
+enjoy ^-_-^

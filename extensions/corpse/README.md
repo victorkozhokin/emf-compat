@@ -1,32 +1,24 @@
-# EMF Compat: Corpse
+# Corpse: EMF Compat
 
-A small client-side mod for **Minecraft** that keeps **[Corpse](https://modrinth.com/mod/corpse)** death bodies still when **Entity Model Features** player models are active.
+A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while **[Corpse](https://modrinth.com/mod/corpse)** is rendering a dead body.
 
-## What it does
+Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-Corpse renders dead bodies by creating internal "dummy" players and skeletons and drawing them through the normal renderer. Because EMF replaces that model with a shared custom model, simply pausing animation leaves the corpse stuck in the real player's pose. This addon temporarily switches the renderer to the vanilla EMF variant (`0`) during the corpse render pass, so bodies keep Corpse's intended pose and don't twitch or walk.
+**Also forces the vanilla model so bodies stay perfectly still!**
 
-## Supported versions
+## Features
 
-| Loader | Minecraft versions |
-|--------|-------------------|
-| NeoForge | 1.21.1 |
-| Forge | 1.20.1 |
+- Pauses EMF player animations during Corpse rendering
+- Forces the vanilla player model for Corpse bodies
+- Prevents EMF animations from making corpses twitch or move
+- Keeps Corpse's intended death pose
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
+- Should work with most player animation resource packs using EMF
 
-## Dependencies
+## Compatibility
 
-**Forge**
-- [Forge](https://files.minecraftforge.net/) 47.3+
-- [Corpse](https://modrinth.com/mod/corpse) for Forge 1.20.1
-
-**NeoForge**
-- [NeoForge](https://neoforged.net/) 21.1+
-- [Corpse](https://modrinth.com/mod/corpse) for NeoForge 1.21.1
-
-**General**
-- [EMF Compat Core](../../core/README.md)
-- [Entity Model Features](https://modrinth.com/mod/entity-model-features) 3.2.4+
-- [Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures) (required by EMF)
+- **[Freecam](https://modrinth.com/mod/freecam)** — pose capture/restore continues while the camera is detached.
+- **[First Person Model](https://modrinth.com/mod/first-person-model)** — death bodies keep their intended pose even when FPM is enabled.
 
 ## Build
 
@@ -34,3 +26,5 @@ Corpse renders dead bodies by creating internal "dummy" players and skeletons an
 ./gradlew :corpse-neoforge-1.21.1:build
 ./gradlew :corpse-forge-1.20.1:build
 ```
+
+enjoy ^_^

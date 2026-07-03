@@ -1,9 +1,59 @@
-# EMF Compat: Not Enough Animations
+# Not Enough Animations: EMF Compat
 
-Makes Not Enough Animations work correctly with animated EMF player models.
+A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while **[Not Enough Animations](https://modrinth.com/mod/not-enough-animations)** is active.
 
-A bridge between **Not Enough Animations** and **Entity Model Features**.
+Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-Pauses EMF player animations while Not Enough Animations is playing its own arm/leg poses — such as horse riding, sleeping and item interactions — so resource-pack models don't conflict with the modded animations.
+## Video
 
-Also includes cross-mod support for Create: the NEA item-swap arm animation is disabled while the player is skyhooking (all Fabric Create Fly and NeoForge versions) or using a grappling hook (NeoForge).
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/QIZlt0xBARQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+## Covered Animations
+
+| Animation | Notes |
+|---|---|
+| Boat (rowing) | |
+| Horse (riding) | |
+| Eating / Drinking | |
+| Hug | |
+| Item Swap | |
+| Petting | |
+| Map Holding | |
+| Hold Up Items | Can be disabled for FA:PE |
+| Burning | Works even while sprinting |
+| Freezing | Works even while sprinting |
+| Naruto running | Works only while sprinting |
+
+## Ignored Animations
+
+| Animation | Reason |
+|---|---|
+| Ladder | FA:PE handles ladders better |
+| Crawling | FA:PE handles crawling better |
+| Elytra | FA:PE handles elytra better |
+| Falling | FA:PE handles falling better |
+| Death | FA:PE handles death better |
+| Swimming | FA:PE handles swimming better |
+| Bow / Crossbow | FA:PE handles bow/crossbow better |
+
+## Sprint Behavior
+
+The compat layer is **disabled while sprinting**, with the exception of `BurningAnimation` and `FreezingAnimation`.
+
+## REQUIRED "Not Enough Animations" Settings
+
+These settings are REQUIRED to set in the mod **Not Enough Animations**.
+
+| Setting | Value |
+|---|---|
+| Animation Smoothing | OFF |
+| Disable Leg Smoothing | ON |
+| Ladder Animation | OFF |
+| Bow Animation | Vanilla |
+
+## Compatibility
+
+- **[Freecam](https://modrinth.com/mod/freecam)** — when the camera is detached, the compat layer keeps capturing and restoring poses so animations stay correct.
+- **[First Person Model](https://modrinth.com/mod/first-person-model)** — when FPM is installed and enabled, pose capture and restoration are not skipped in first person, so NEA animations still apply to the visible body.
+
+enjoy ^-_-^

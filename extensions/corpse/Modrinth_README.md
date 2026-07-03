@@ -1,7 +1,18 @@
-# EMF Compat: Corpse
+# Corpse: EMF Compat
 
-Keeps Corpse death bodies still when using Entity Model Features player models.
+A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while **[Corpse](https://modrinth.com/mod/corpse)** is rendering a dead body.
 
-Brings **Corpse** dead bodies in line with **Entity Model Features**.
+Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-When a resource pack replaces the player model with an animated Entity Model Features variant, Corpse's internal dummy player can inherit those animations — making corpses twitch, walk or otherwise move when they should stay frozen in death. This addon forces the vanilla model and pauses EMF animations only while the Corpse renderer is drawing a body, so corpses keep Corpse's intended pose.
+**Also forces the vanilla model so bodies stay perfectly still!**
+
+## Features
+
+- Pauses EMF player animations during Corpse rendering
+- Forces the vanilla player model for Corpse bodies
+- Prevents EMF animations from making corpses twitch or move
+- Keeps Corpse's intended death pose
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
+- Should work with most player animation resource packs using EMF
+
+enjoy ^_^
