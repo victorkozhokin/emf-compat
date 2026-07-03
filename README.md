@@ -13,6 +13,23 @@ Each part of the project is published separately:
 - **[EMF Compat: Supplementaries](extensions/supplementaries/README.md)** — compatibility with Supplementaries (Flute, Slingshot, Bubble Blower).
 - **[EMF Compat: Quark](extensions/quark/README.md)** — compatibility with Quark emotes.
 
+## Modrinth
+
+Each addon is published as a separate project:
+
+- **[EMF Compat Core](https://modrinth.com/project/emf-compat-core)**
+- **[EMF Compat: Better Combat](https://modrinth.com/project/emf-compat-better-combat)**
+- **[EMF Compat: Carry On](https://modrinth.com/project/emf-compat-carry-on)**
+- **[EMF Compat: Corpse](https://modrinth.com/project/emf-compat-corpse)**
+- **[EMF Compat: Create](https://modrinth.com/project/emf-compat-create)**
+- **[EMF Compat: Emotecraft](https://modrinth.com/project/emf-compat-emotecraft)**
+- **[EMF Compat: Horse Sync](https://modrinth.com/project/emf-compat-horse-sync)**
+- **[EMF Compat: Immersive Melodies](https://modrinth.com/project/emf-compat-immersive-melodies)**
+- **[EMF Compat: Not Enough Animations](https://modrinth.com/project/emf-compat-not-enough-animations)**
+- **[EMF Compat: Player Animator](https://modrinth.com/project/emf-compat-player-animator)**
+- **[EMF Compat: Quark](https://modrinth.com/project/emf-compat-quark)**
+- **[EMF Compat: Supplementaries](https://modrinth.com/project/emf-compat-supplementaries)**
+
 ## Build
 
 ```bash
