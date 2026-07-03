@@ -1,27 +1,27 @@
-# Better Combat: EMF Compat
+# EMF Compat: Better Combat
 
-A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while a **[Better Combat](https://modrinth.com/mod/better-combat)** attack is playing.
+A small client-side mod that makes **[Better Combat](https://modrinth.com/mod/better-combat)** attack animations work correctly with **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player models.
 
 Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-**Also tones down the mace slam torso tilt!**
-
 ## Features
 
-- Pauses EMF player animations during Better Combat attacks
-- Preserves raised/charging arm and weapon-swing poses
-- Works with one-handed, two-handed and mace attacks
-- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
-- Should work with most player animation resource packs using EMF
+- Your weapon swings and charge poses look right instead of being overwritten by idle resource-pack animations.
+- Body and legs keep their EMF animations during attacks; only arms switch to Better Combat.
+- Held items align with your swing in first person, so weapons don't float next to your arm.
+- Smooth hand-off back to EMF at the end of an attack — no single-frame snap.
+- Works with one-handed, two-handed and mace attacks.
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**.
+- Should work with most player animation resource packs using EMF.
 
 ## Additional Compatibility
 
-**[Player Animator](https://modrinth.com/mod/playeranimator)** — used internally by Better Combat; poses are handled through the shared animation system.
+**[Player Animator](https://modrinth.com/mod/playeranimator)** — used by Better Combat under the hood.
 
 ## Compatibility
 
-- **[Freecam](https://modrinth.com/mod/freecam)** — pose capture/restore continues while the camera is detached.
-- **[First Person Model](https://modrinth.com/mod/first-person-model)** — attack poses stay visible on the visible body in first person.
+- **[Freecam](https://modrinth.com/mod/freecam)** — attack poses stay correct even when the camera is detached.
+- **[First Person Model](https://modrinth.com/mod/first-person-model)** — swings stay visible on your body in first person.
 
 ## Build
 

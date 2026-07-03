@@ -1,19 +1,17 @@
-# Carry On: EMF Compat
+# EMF Compat: Carry On
 
-A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while **[Carry On](https://modrinth.com/mod/carry-on)** is carrying a block or entity.
+A small client-side mod that makes **[Carry On](https://modrinth.com/mod/carry-on)** carry poses work correctly with **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player models.
 
 Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-**Also keeps carried objects synced to the animated torso!**
-
 ## Features
 
-- Pauses EMF player animations while carrying
-- Preserves the raised-arm carry pose
-- Syncs carried blocks/entities to the EMF-animated torso in third person
-- Renders carried entities with the vanilla model
-- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
-- Should work with most player animation resource packs using EMF
+- Your arms stay raised naturally while carrying blocks and entities.
+- Carried objects follow your EMF-animated body in third person.
+- Carried entities keep their normal model so they don't inherit the player resource-pack shape.
+- First-person carry pose stays visible.
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**.
+- Should work with most player animation resource packs using EMF.
 
 ## Additional Compatibility
 
@@ -21,8 +19,8 @@ Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resource
 
 ## Compatibility
 
-- **[Freecam](https://modrinth.com/mod/freecam)** — pose capture/restore continues while the camera is detached.
-- **[First Person Model](https://modrinth.com/mod/first-person-model)** — the carry pose stays visible on the visible body in first person.
+- **[Freecam](https://modrinth.com/mod/freecam)** — carry poses stay correct even when the camera is detached.
+- **[First Person Model](https://modrinth.com/mod/first-person-model)** — raised arms stay visible on your body in first person.
 
 ## Build
 

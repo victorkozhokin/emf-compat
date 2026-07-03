@@ -1,17 +1,19 @@
-# Create: EMF Compat
+# EMF Compat: Create
 
-A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while using **[Create](https://modrinth.com/mod/create)**'s **Skyhook** feature, including chain and rope riding from Aeronautics.
+A small client-side mod that makes **[Create](https://modrinth.com/mod/create)** player animations work correctly with **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player models.
 
 Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-**Also added compat for Grabbing Physics Objects!**
+**Also works when grabbing physics objects!**
 
 ## Features
 
-- Pauses EMF player animations during Skyhook riding
-- Works with chains and ropes from Create Skyhook mechanics
-- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
-- Should work with most player animation resource packs using EMF
+- Your arms and body stay in the Skyhook riding pose while flying on chains and ropes.
+- Riding Create's chains and ropes looks right with animated EMF models.
+- Grappling hook poses show correctly on NeoForge.
+- Grabbed physics objects don't conflict with EMF animations.
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**.
+- Should work with most player animation resource packs using EMF.
 
 ## Additional Compatibility
 
@@ -23,8 +25,8 @@ Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resource
 
 ## Compatibility
 
-- **[Freecam](https://modrinth.com/mod/freecam)** — pose capture/restore continues while the camera is detached.
-- **[First Person Model](https://modrinth.com/mod/first-person-model)** — Skyhook poses stay visible on the visible body in first person.
+- **[Freecam](https://modrinth.com/mod/freecam)** — Skyhook poses stay correct even when the camera is detached.
+- **[First Person Model](https://modrinth.com/mod/first-person-model)** — Skyhook poses stay visible on your body in first person.
 
 ## Build
 
