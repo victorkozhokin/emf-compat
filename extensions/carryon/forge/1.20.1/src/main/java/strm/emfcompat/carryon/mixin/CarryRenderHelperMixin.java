@@ -89,6 +89,6 @@ public class CarryRenderHelperMixin {
         );
 
         // Y rotation is inverted so the carried object tilts in the same direction as the torso.
-        poseStack.mulPose(new Quaternionf().rotationZYX(rotation.z, -rotation.y, rotation.x));
+        poseStack.mulPose(new Quaternionf().rotationZYX(-rotation.z, -rotation.y, -rotation.x));
     }
 }
