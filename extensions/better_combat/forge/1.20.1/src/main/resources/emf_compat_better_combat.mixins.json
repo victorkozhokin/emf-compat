@@ -8,7 +8,6 @@
     "PlayerModelMixin",
     "PlayerRendererMixin",
     "AttackAnimationSubStackMixin",
-    "BetterCombatOneHandedSlamMixin",
     "EMFAnimationEntityContextMixin"
   ],
   "injectors": {
