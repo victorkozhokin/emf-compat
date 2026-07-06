@@ -14,6 +14,8 @@ import strm.emfcompat.bettercombat.compat.BetterCombatCompat;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 
+import java.util.UUID;
+
 /**
  * Captures the arms during an active Better Combat attack.
  * The body, head, legs and jacket remain under EMF's control so that resource-pack animations there keep running.
@@ -36,13 +38,18 @@ public class PlayerModelMixin {
         }
 
         AttackHand attackHand = BetterCombatCompat.getAttackHand(player);
+        UUID uuid = player.getUUID();
         if (attackHand == null) {
-            PoseManager.clearPoses(player.getUUID(), SOURCE);
-            AttackPauseOverride.tickCooldown(player.getUUID());
+            AttackPauseOverride.tickCooldown(uuid);
+            // Keep the captured arm pose for a few frames after the attack ends so that
+            // first-person hands and EMF unpausing don't snap back instantly.
+            if (!AttackPauseOverride.isUnpaused(uuid)) {
+                PoseManager.clearPoses(uuid, SOURCE);
+            }
             return;
         }
 
-        AttackPauseOverride.markAttackActive(player.getUUID());
+        AttackPauseOverride.markAttackActive(uuid);
 
         PlayerModel<AbstractClientPlayer> model = (PlayerModel<AbstractClientPlayer>) (Object) this;
 

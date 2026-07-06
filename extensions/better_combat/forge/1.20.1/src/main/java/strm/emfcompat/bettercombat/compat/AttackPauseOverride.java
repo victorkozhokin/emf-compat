@@ -18,7 +18,7 @@ public final class AttackPauseOverride {
     private AttackPauseOverride() {
     }
 
-    private static final int LINGER_FRAMES = 3;
+    private static final int LINGER_FRAMES = 5;
     private static final Map<UUID, Integer> COOLDOWN_TICKS = new HashMap<>();
 
     /**
