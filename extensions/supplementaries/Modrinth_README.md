@@ -8,10 +8,10 @@ Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resource
 
 ## Features
 
-- Your arms keep the right pose while playing the flute, aiming the slingshot or blowing bubbles.
-- Item-use animations don't get overridden by idle resource-pack animations.
-- First-person hand pose stays visible.
 - Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**.
+- Your arms keep the right pose while playing the flute, aiming the slingshot or blowing bubbles.
+- Item-use animations don't get overridden by resource-pack animations.
+- First-person hand pose stays visible.
 - Should work with most player animation resource packs using EMF.
 
 enjoy ^_^

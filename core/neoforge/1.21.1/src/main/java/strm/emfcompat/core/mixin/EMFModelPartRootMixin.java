@@ -70,7 +70,7 @@ public class EMFModelPartRootMixin {
 
             switch (name) {
                 case "head" -> headPart = part;
-                case "headwear" -> headwearPart = part;
+                case "headwear", "hat" -> headwearPart = part;
                 case "left_arm" -> {
                     if (!hasLeftArmInParts && savedPoses.leftArm() != null) {
                         savedPoses.leftArm().applyRotation(part);
@@ -94,7 +94,8 @@ public class EMFModelPartRootMixin {
             }
         }
 
-        if (headPart != null && headwearPart != null && !headPart.hasChild("headwear")) {
+        if (headPart != null && headwearPart != null
+                && !headPart.hasChild("headwear") && !headPart.hasChild("hat")) {
             new PoseSnapshot(headPart).apply(headwearPart);
         }
         if (leftArmPart != null && leftSleeve != null && !leftArmPart.hasChild("left_sleeve")) {
