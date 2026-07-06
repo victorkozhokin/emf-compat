@@ -16,14 +16,10 @@ import dev.tr7zw.notenoughanimations.versionless.NEABaseMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import traben.entity_model_features.EMFAnimationApi;
 import traben.entity_model_features.utils.EMFEntity;
 
 public class EMFCompat {
-
-    public static final Logger LOGGER = LogManager.getLogger("nea-emf-compat");
 
     public static boolean shouldPauseForAnimation(BasicAnimation anim) {
         if (anim == null) return false;
