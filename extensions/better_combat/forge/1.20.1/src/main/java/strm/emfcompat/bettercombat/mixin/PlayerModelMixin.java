@@ -53,10 +53,13 @@ public class PlayerModelMixin {
 
         PlayerModel<AbstractClientPlayer> model = (PlayerModel<AbstractClientPlayer>) (Object) this;
 
+        // Capture only the attacking arm so the off-hand keeps its EMF animation.
+        PoseSnapshot leftSnap = attackHand.isOffHand() ? new PoseSnapshot(model.leftArm) : null;
+        PoseSnapshot rightSnap = attackHand.isOffHand() ? null : new PoseSnapshot(model.rightArm);
         PoseManager.savePoses(
-                player.getUUID(), SOURCE,
-                new PoseSnapshot(model.leftArm),
-                new PoseSnapshot(model.rightArm)
+                uuid, SOURCE,
+                leftSnap,
+                rightSnap
         );
     }
 }
