@@ -5,9 +5,12 @@ import dev.tr7zw.notenoughanimations.logic.AnimationProvider;
 import dev.tr7zw.notenoughanimations.api.BasicAnimation;
 import dev.tr7zw.notenoughanimations.animations.fullbody.BurningAnimation;
 import dev.tr7zw.notenoughanimations.animations.fullbody.FreezingAnimation;
+import dev.tr7zw.notenoughanimations.versionless.NEABaseMod;
 import dev.tr7zw.notenoughanimations.versionless.animations.BodyPart;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -45,6 +48,19 @@ public class AnimationProviderMixin {
         BasicAnimation[] animation = this.neaemfcompat$animationArray;
 
         if (animation == null) return;
+        boolean leftArm = EMFCompat.shouldPauseForAnimation(animation[BodyPart.LEFT_ARM.ordinal()]);
+        boolean rightArm = EMFCompat.shouldPauseForAnimation(animation[BodyPart.RIGHT_ARM.ordinal()]);
+
+        boolean leftLeg = false;
+        boolean rightLeg = false;
+        if (NEABaseMod.config.enableHorseLegAnimation) {
+            Entity vehicle = entity.getVehicle();
+            if (vehicle instanceof AbstractHorse) {
+                leftLeg = true;
+                rightLeg = true;
+            }
+        }
+
         if (entity.isSprinting()) {
             boolean hasBurningOrFreezingOrNaruto = false;
             for (BasicAnimation anim : animation) {
@@ -53,19 +69,17 @@ public class AnimationProviderMixin {
                     break;
                 }
             }
-            if (!hasBurningOrFreezingOrNaruto) {
+            if (!hasBurningOrFreezingOrNaruto && !leftLeg && !rightLeg) {
                 PoseManager.clearPoses(entity.getUUID());
                 return;
             }
         }
 
-        boolean leftArm = EMFCompat.shouldPauseForAnimation(animation[BodyPart.LEFT_ARM.ordinal()]);
-        boolean rightArm = EMFCompat.shouldPauseForAnimation(animation[BodyPart.RIGHT_ARM.ordinal()]);
-        if (!leftArm && !rightArm) {
+        if (!leftArm && !rightArm && !leftLeg && !rightLeg) {
             PoseManager.clearPoses(entity.getUUID());
             return;
         }
 
-        PoseManager.setActiveParts(entity.getUUID(), new ActiveParts(leftArm, rightArm), model);
+        PoseManager.setActiveParts(entity.getUUID(), new ActiveParts(leftArm, rightArm, leftLeg, rightLeg), model);
     }
 }

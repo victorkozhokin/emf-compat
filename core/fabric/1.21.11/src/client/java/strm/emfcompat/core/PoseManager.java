@@ -47,12 +47,24 @@ public final class PoseManager {
     }
 
     /**
-     * Marks the given arm parts as active and snapshots their current poses from the model.
+     * Marks the given limbs as active and snapshots their current poses from the model.
      */
     public static void setActiveParts(UUID uuid, ActiveParts activeParts, PlayerModel model) {
         PoseSnapshot leftArm = activeParts.leftArm() ? new PoseSnapshot(model.leftArm) : null;
         PoseSnapshot rightArm = activeParts.rightArm() ? new PoseSnapshot(model.rightArm) : null;
-        savePoses(uuid, leftArm, rightArm);
+
+        Map<String, PoseSnapshot> parts = null;
+        if (activeParts.leftLeg() || activeParts.rightLeg()) {
+            parts = new HashMap<>();
+            if (activeParts.leftLeg()) {
+                parts.put("left_leg", new PoseSnapshot(model.leftLeg));
+            }
+            if (activeParts.rightLeg()) {
+                parts.put("right_leg", new PoseSnapshot(model.rightLeg));
+            }
+        }
+
+        savePoses(uuid, DEFAULT_SOURCE, leftArm, rightArm, parts);
     }
 
     /**

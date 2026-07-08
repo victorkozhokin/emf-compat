@@ -14,7 +14,6 @@ import dev.tr7zw.notenoughanimations.animations.hands.NarutoRunningAnimation;
 import dev.tr7zw.notenoughanimations.animations.hands.PetAnimation;
 import dev.tr7zw.notenoughanimations.versionless.NEABaseMod;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import net.minecraft.world.entity.player.Player;
 import traben.entity_model_features.EMFAnimationApi;
 import traben.entity_model_features.utils.EMFEntity;
@@ -56,12 +55,6 @@ public class EMFCompat {
         }
         if (NEABaseMod.config == null) {
             return false;
-        }
-        if (NEABaseMod.config.enableHorseLegAnimation) {
-            Entity vehicle = player.getVehicle();
-            if (vehicle instanceof AbstractHorse) {
-                return true;
-            }
         }
         if (NEABaseMod.config.freezeArmsInBed && player.isSleeping()) {
             return true;

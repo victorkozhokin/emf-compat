@@ -47,12 +47,24 @@ public final class PoseManager {
     }
 
     /**
-     * Marks the given arm parts as active and snapshots their current poses from the model.
+     * Marks the given limbs as active and snapshots their current poses from the model.
      */
     public static void setActiveParts(UUID uuid, ActiveParts activeParts, PlayerModel model) {
         PoseSnapshot leftArm = activeParts.leftArm() ? new PoseSnapshot(model.leftArm) : null;
         PoseSnapshot rightArm = activeParts.rightArm() ? new PoseSnapshot(model.rightArm) : null;
-        savePoses(uuid, leftArm, rightArm);
+
+        Map<String, PoseSnapshot> parts = null;
+        if (activeParts.leftLeg() || activeParts.rightLeg()) {
+            parts = new HashMap<>();
+            if (activeParts.leftLeg()) {
+                parts.put("left_leg", new PoseSnapshot(model.leftLeg));
+            }
+            if (activeParts.rightLeg()) {
+                parts.put("right_leg", new PoseSnapshot(model.rightLeg));
+            }
+        }
+
+        savePoses(uuid, DEFAULT_SOURCE, leftArm, rightArm, parts);
     }
 
     /**
@@ -75,12 +87,35 @@ public final class PoseManager {
      * per-frame deduplication logic in other mixins.
      */
     public static void savePoses(UUID uuid, String source, PoseSnapshot leftArm, PoseSnapshot rightArm, boolean incrementFrame) {
+        savePoses(uuid, source, new SavedPoses(leftArm, rightArm, null), incrementFrame);
+    }
+
+    /**
+     * Saves arm poses plus an optional full-body part map under the specified source.
+     */
+    public static void savePoses(UUID uuid, String source, PoseSnapshot leftArm, PoseSnapshot rightArm, Map<String, PoseSnapshot> parts) {
+        savePoses(uuid, source, new SavedPoses(leftArm, rightArm, parts));
+    }
+
+    /**
+     * Saves a complete {@link SavedPoses} instance under the specified source.
+     */
+    public static void savePoses(UUID uuid, String source, SavedPoses poses) {
+        savePoses(uuid, source, poses, true);
+    }
+
+    /**
+     * Saves a complete {@link SavedPoses} instance under the specified source, optionally incrementing the current
+     * frame counter. Use {@code incrementFrame=false} when saving poses from inside an animation callback to avoid
+     * interfering with per-frame deduplication logic in other mixins.
+     */
+    public static void savePoses(UUID uuid, String source, SavedPoses poses, boolean incrementFrame) {
         if (DEFAULT_SOURCE.equals(source)) {
-            entitySavedPoses.put(uuid, new SavedPoses(leftArm, rightArm));
+            entitySavedPoses.put(uuid, poses);
         } else {
             entitySavedPosesBySource
                     .computeIfAbsent(uuid, k -> new HashMap<>())
-                    .put(source, new SavedPoses(leftArm, rightArm));
+                    .put(source, poses);
         }
         if (incrementFrame) {
             currentFrame++;
@@ -142,6 +177,10 @@ public final class PoseManager {
 
         PoseSnapshot leftArm = defaultPoses != null ? defaultPoses.leftArm() : null;
         PoseSnapshot rightArm = defaultPoses != null ? defaultPoses.rightArm() : null;
+        Map<String, PoseSnapshot> parts = new HashMap<>();
+        if (defaultPoses != null && defaultPoses.parts() != null) {
+            parts.putAll(defaultPoses.parts());
+        }
 
         for (SavedPoses poses : sources.values()) {
             if (poses.leftArm() != null) {
@@ -150,9 +189,12 @@ public final class PoseManager {
             if (poses.rightArm() != null) {
                 rightArm = poses.rightArm();
             }
+            if (poses.parts() != null) {
+                parts.putAll(poses.parts());
+            }
         }
 
-        return new SavedPoses(leftArm, rightArm);
+        return new SavedPoses(leftArm, rightArm, parts);
     }
 
     /**
