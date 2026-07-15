@@ -1,21 +1,17 @@
-# EMF Compat: Create
+# Create: EMF Compat
 
-## [Modrinth](https://modrinth.com/project/emf-compat-create)
-
-A small client-side mod that makes **[Create](https://modrinth.com/mod/create)** player animations work correctly with **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player models.
+A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while using **[Create](https://modrinth.com/mod/create)**'s **Skyhook** feature, including chain and rope riding from Aeronautics.
 
 Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
 
-**Also works when grabbing physics objects!**
+**Also added compat for Grabbing Physics Objects!**
 
 ## Features
 
-- Your arms and body stay in the Skyhook riding pose while flying on chains and ropes.
-- Riding Create's chains and ropes looks right with animated EMF models.
-- Grappling hook poses show correctly on NeoForge.
-- Grabbed physics objects don't conflict with EMF animations.
-- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**.
-- Should work with most player animation resource packs using EMF.
+- Pauses EMF player animations during Skyhook riding
+- Works with chains and ropes from Create Skyhook mechanics
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
+- Should work with most player animation resource packs using EMF
 
 ## Additional Compatibility
 

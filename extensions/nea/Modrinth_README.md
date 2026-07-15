@@ -1,12 +1,8 @@
-# EMF Compat: Not Enough Animations
+# Not Enough Animations: EMF Compat
 
-## [Modrinth](https://modrinth.com/project/emf-compat-not-enough-animations)
-
-A small client-side mod that makes **[Not Enough Animations](https://modrinth.com/mod/not-enough-animations)** animations work correctly with **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player models.
+A small client-side mod that pauses **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations while **[Not Enough Animations](https://modrinth.com/mod/not-enough-animations)** is active.
 
 Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
-
-Not Enough Animations adds extra player animations for eating, rowing, riding and more. This addon lets those animations take priority over EMF resource-pack animations.
 
 ## Video
 
@@ -57,7 +53,7 @@ These settings are REQUIRED to set in the mod **Not Enough Animations**.
 
 ## Compatibility
 
-- **[Freecam](https://modrinth.com/mod/freecam)** — NEA animations stay correct even when the camera is detached.
-- **[First Person Model](https://modrinth.com/mod/first-person-model)** — NEA animations stay visible on your body in first person.
+- **[Freecam](https://modrinth.com/mod/freecam)** — when the camera is detached, the compat layer keeps capturing and restoring poses so animations stay correct.
+- **[First Person Model](https://modrinth.com/mod/first-person-model)** — when FPM is installed and enabled, pose capture and restoration are not skipped in first person, so NEA animations still apply to the visible body.
 
 enjoy ^-_-^
