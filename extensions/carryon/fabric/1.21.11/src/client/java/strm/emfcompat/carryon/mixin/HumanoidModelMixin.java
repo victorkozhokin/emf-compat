@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.carryon.CarryOnRenderState;
 import strm.emfcompat.carryon.compat.CarryOnCompat;
-import strm.emfcompat.carryon.compat.CorpseCompatGuard;
 import strm.emfcompat.core.BodyPartSync;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
@@ -43,7 +42,6 @@ public class HumanoidModelMixin {
 
         Entity entity = mc.level.getEntity(avatarState.id);
         if (!(entity instanceof Player player)) return;
-        if (CorpseCompatGuard.isCorpseDummyPlayer(player)) return;
 
         UUID uuid = player.getUUID();
         if (!CarryOnCompat.isCarrying(player)) {

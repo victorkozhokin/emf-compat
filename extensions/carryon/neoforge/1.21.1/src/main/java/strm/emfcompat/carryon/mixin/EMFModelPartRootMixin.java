@@ -23,8 +23,8 @@ public class EMFModelPartRootMixin {
     private void carryonemfcompat$captureCurrentBodyPose(CallbackInfo ci) {
         var state = EMFAnimationEntityContext.getEmfState();
         if (state == null || state.emfEntity() == null) return;
+        if (!(state.emfEntity() instanceof Entity entity)) return;
 
-        Entity entity = (Entity) state.emfEntity();
         EMFModelPartRoot root = (EMFModelPartRoot) (Object) this;
 
         for (EMFModelPartVanilla part : root.getAllVanillaPartsEMF()) {

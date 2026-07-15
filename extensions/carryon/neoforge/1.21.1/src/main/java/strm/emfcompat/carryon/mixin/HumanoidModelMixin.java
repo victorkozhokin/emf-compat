@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.carryon.CarryOnRenderState;
 import strm.emfcompat.carryon.compat.CarryOnCompat;
-import strm.emfcompat.carryon.compat.CorpseCompatGuard;
 import strm.emfcompat.core.BodyPartSync;
 import strm.emfcompat.core.FirstPersonModelCompat;
 import strm.emfcompat.core.PoseManager;
@@ -32,7 +31,6 @@ public class HumanoidModelMixin {
     private void emfcompat$captureCarryOnPose(LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
         if (!(entity instanceof Player player)) return;
         if (player.level() == null) return;
-        if (CorpseCompatGuard.isCorpseDummyPlayer(player)) return;
 
         if (!CarryOnCompat.isCarrying(player)) {
             PoseManager.clearPoses(player, SOURCE);
