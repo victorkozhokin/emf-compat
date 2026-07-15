@@ -9,7 +9,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import strm.emfcompat.horsesync.Config;
+//Temporary disabled. Prepare to delete
+//import strm.emfcompat.horsesync.Config;
 import strm.emfcompat.horsesync.compat.EMFCompat;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
@@ -26,10 +27,12 @@ public class EMFModelPartRootMixin {
 
     @Inject(method = "animate", at = @At("RETURN"))
     private void emfhorsesync$captureHorseBodyOffset(CallbackInfo ci) {
-        if (!Config.ENABLED.get()) {
-            EMFCompat.horseBodyOffsets.clear();
-            return;
-        }
+
+        //Temporary disabled. Prepare to delete
+        //        if (!Config.ENABLED.get()) {
+        //            EMFCompat.horseBodyOffsets.clear();
+        //            return;
+        //        }
 
         if (++emfhorsesync$cleanupCounter % 200 == 0) {
             var mc = Minecraft.getInstance();
@@ -44,8 +47,7 @@ public class EMFModelPartRootMixin {
 
         var state = EMFAnimationEntityContext.getEmfState();
         if (state == null || state.emfEntity() == null) return;
-
-        Entity entity = (Entity) state.emfEntity();
+        if (!(state.emfEntity() instanceof Entity entity)) return;
         if (!(entity instanceof AbstractHorse horse)) return;
 
         EMFModelPartRoot root = (EMFModelPartRoot) (Object) this;

@@ -13,7 +13,7 @@ public class EMFHorseSync {
     public static final String MOD_ID = "emf_compat_horse_sync";
 
     public EMFHorseSync(IEventBus modEventBus, ModContainer modContainer) {
-        modContainer.registerConfig(ModConfig.Type.CLIENT, Config.SPEC);
+        //modContainer.registerConfig(ModConfig.Type.CLIENT, Config.SPEC);
         modEventBus.addListener(this::onClientSetup);
     }
 

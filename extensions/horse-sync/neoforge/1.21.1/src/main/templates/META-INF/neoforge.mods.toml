@@ -35,3 +35,10 @@ type="required"
 versionRange="[3.2.4,)"
 ordering="AFTER"
 side="CLIENT"
+
+[[dependencies.${mod_id}]]
+modId="emf_compat_core"
+type="required"
+versionRange="[1.0.0,)"
+ordering="AFTER"
+side="CLIENT"
