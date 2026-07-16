@@ -49,6 +49,6 @@ public class EMFBipedPoseMixin {
 
     private static void emfcompat$applyIfPresent(Map<String, PoseSnapshot> parts, String name, net.minecraft.client.model.geom.ModelPart part) {
         PoseSnapshot snap = parts.get(name);
-        if (snap != null) snap.apply(part);
+        if (snap != null) snap.applyRotation(part);
     }
 }

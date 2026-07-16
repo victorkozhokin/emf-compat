@@ -35,7 +35,7 @@ public class EMFModelPartRootMixin {
         UUID uuid = state.emfEntity().etf$getUuid();
         if (EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
 
-        SavedPoses savedPoses = PoseManager.entitySavedPoses.get(uuid);
+        SavedPoses savedPoses = PoseManager.getSavedPoses(uuid);
         if (savedPoses == null) return;
 
         EMFModelPartRoot root = (EMFModelPartRoot) (Object) this;

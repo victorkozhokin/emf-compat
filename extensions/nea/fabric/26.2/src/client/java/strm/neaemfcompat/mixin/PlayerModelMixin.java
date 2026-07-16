@@ -28,7 +28,7 @@ public class PlayerModelMixin {
         Entity entity = Minecraft.getInstance().level.getEntity(avatarState.id);
         if (!(entity instanceof AbstractClientPlayer player)) return;
 
-        var saved = PoseManager.entitySavedPoses.get(player.getUUID());
+        var saved = PoseManager.getSavedPoses(player.getUUID());
         if (saved == null) return;
 
         PlayerModel model = (PlayerModel) (Object) this;
