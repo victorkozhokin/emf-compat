@@ -52,6 +52,6 @@ public class EMFCompatBetterCombatMod {
         if (!EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) {
             return false;
         }
-        return AttackPauseOverride.isUnpaused(uuid) || PoseManager.getSavedPoses(player, SOURCE) != null;
+        return AttackPauseOverride.isUnpaused(uuid) || PoseManager.getSavedPoses(uuid, SOURCE) != null;
     }
 }

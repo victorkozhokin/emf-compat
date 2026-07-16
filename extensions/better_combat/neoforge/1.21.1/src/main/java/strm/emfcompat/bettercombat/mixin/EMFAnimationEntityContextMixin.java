@@ -49,6 +49,6 @@ public class EMFAnimationEntityContextMixin {
         if (AttackPauseOverride.isUnpaused(uuid)) {
             return false;
         }
-        return PoseManager.getSavedPoses(entity, SOURCE) == null;
+        return PoseManager.getSavedPoses(uuid, SOURCE) == null;
     }
 }

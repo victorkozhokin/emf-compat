@@ -1,7 +1,6 @@
 package strm.emfcompat.core;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.Entity;
 
 import java.util.UUID;
 
@@ -9,8 +8,6 @@ import java.util.UUID;
  * Shared helpers for the EMF compatibility framework.
  */
 public final class EMFCompatCore {
-
-    private static final String CORPSE_DUMMY_CLASS_PREFIX = "de.maxhenkel.corpse.entities.Dummy";
 
     private EMFCompatCore() {
     }
@@ -29,17 +26,5 @@ public final class EMFCompatCore {
         // First Person Model renders the local body in first person, so treat it as not
         // first-person for the purposes of pose capture/restoration.
         return !FirstPersonModelCompat.isActive();
-    }
-
-    /**
-     * Returns {@code true} if the given entity is a Corpse mod dummy player/skeleton.
-     * Corpse renders dead bodies by creating a dummy entity that reuses the deceased player's
-     * UUID; those dummies must not receive pose overrides from any extension.
-     */
-    public static boolean isCorpseDummy(Entity entity) {
-        if (entity == null) {
-            return false;
-        }
-        return entity.getClass().getName().startsWith(CORPSE_DUMMY_CLASS_PREFIX);
     }
 }

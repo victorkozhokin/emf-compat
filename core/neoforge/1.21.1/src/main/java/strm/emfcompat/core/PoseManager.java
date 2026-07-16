@@ -2,20 +2,16 @@ package strm.emfcompat.core;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Stores captured model poses and tracks the current animation frame.
- * <p>
- * Poses are keyed by the {@link Entity} instance rather than by UUID. This prevents
- * fake/dummy entities that reuse a player's UUID (Corpse dummies, Create contraption
- * fake players, etc.) from sharing or overwriting the real player's poses.
- * </p>
+ * Modules that integrate animation mods call this class when poses should be captured or cleared.
  */
 public final class PoseManager {
 
@@ -24,14 +20,14 @@ public final class PoseManager {
 
     private static final String DEFAULT_SOURCE = "default";
 
-    public static final Map<Entity, SavedPoses> entitySavedPoses = new IdentityHashMap<>();
-    public static final Map<Entity, Map<String, SavedPoses>> entitySavedPosesBySource = new IdentityHashMap<>();
+    public static final Map<UUID, SavedPoses> entitySavedPoses = new HashMap<>();
+    public static final Map<UUID, Map<String, SavedPoses>> entitySavedPosesBySource = new HashMap<>();
     public static long currentFrame = 0;
 
     private static int cleanupCounter = 0;
 
     /**
-     * Called once per render frame to remove stale entries for entities that are no longer in the level.
+     * Called once per render frame to remove stale entries for players that are no longer in the level.
      */
     public static void cleanupIfNeeded() {
         if (++cleanupCounter % 200 != 0) return;
@@ -39,22 +35,21 @@ public final class PoseManager {
         var mc = Minecraft.getInstance();
         if (mc.level == null) return;
 
-        entitySavedPoses.keySet().removeIf(entity -> !isEntityActive(entity));
-        entitySavedPosesBySource.keySet().removeIf(entity -> !isEntityActive(entity));
-    }
-
-    private static boolean isEntityActive(Entity entity) {
-        var mc = Minecraft.getInstance();
-        if (mc.level == null || entity == null) return false;
-        if (mc.level.getEntity(entity.getId()) != entity) return false;
-        if (entity.isRemoved() || !entity.isAlive()) return false;
-        return true;
+        var activeUUIDs = mc.level.players().stream()
+                .map(Player::getUUID)
+                .collect(java.util.stream.Collectors.toSet());
+        entitySavedPoses.keySet().retainAll(activeUUIDs);
+        entitySavedPosesBySource.keySet().retainAll(activeUUIDs);
+        // The inner maps are removed along with their owning UUID entries above.
+        // Do NOT call retainAll on the inner keySets here: their keys are source
+        // names (Strings), not UUIDs, so that would incorrectly wipe all named
+        // sources every 200 frames.
     }
 
     /**
      * Marks the given limbs as active and snapshots their current poses from the model.
      */
-    public static void setActiveParts(Entity entity, ActiveParts activeParts, PlayerModel model) {
+    public static void setActiveParts(UUID uuid, ActiveParts activeParts, PlayerModel model) {
         PoseSnapshot leftArm = activeParts.leftArm() ? new PoseSnapshot(model.leftArm) : null;
         PoseSnapshot rightArm = activeParts.rightArm() ? new PoseSnapshot(model.rightArm) : null;
 
@@ -69,35 +64,35 @@ public final class PoseManager {
             }
         }
 
-        savePoses(entity, DEFAULT_SOURCE, leftArm, rightArm, parts);
+        savePoses(uuid, DEFAULT_SOURCE, leftArm, rightArm, parts);
     }
 
     /**
-     * Saves poses for the given entity using the default source. Passing {@code null} for an arm skips that arm.
+     * Saves poses for the given player using the default source. Passing {@code null} for an arm skips that arm.
      */
-    public static void savePoses(Entity entity, PoseSnapshot leftArm, PoseSnapshot rightArm) {
-        savePoses(entity, DEFAULT_SOURCE, leftArm, rightArm);
+    public static void savePoses(UUID uuid, PoseSnapshot leftArm, PoseSnapshot rightArm) {
+        savePoses(uuid, DEFAULT_SOURCE, leftArm, rightArm);
     }
 
     /**
-     * Saves poses for the given entity under the specified source. Passing {@code null} for an arm skips that arm.
+     * Saves poses for the given player under the specified source. Passing {@code null} for an arm skips that arm.
      */
-    public static void savePoses(Entity entity, String source, PoseSnapshot leftArm, PoseSnapshot rightArm) {
-        savePoses(entity, source, leftArm, rightArm, null);
+    public static void savePoses(UUID uuid, String source, PoseSnapshot leftArm, PoseSnapshot rightArm) {
+        savePoses(uuid, source, leftArm, rightArm, null);
     }
 
     /**
      * Saves arm poses plus an optional full-body part map under the specified source.
      */
-    public static void savePoses(Entity entity, String source, PoseSnapshot leftArm, PoseSnapshot rightArm, Map<String, PoseSnapshot> parts) {
-        savePoses(entity, source, new SavedPoses(leftArm, rightArm, parts));
+    public static void savePoses(UUID uuid, String source, PoseSnapshot leftArm, PoseSnapshot rightArm, Map<String, PoseSnapshot> parts) {
+        savePoses(uuid, source, new SavedPoses(leftArm, rightArm, parts));
     }
 
     /**
      * Saves a complete {@link SavedPoses} instance under the specified source.
      */
-    public static void savePoses(Entity entity, String source, SavedPoses poses) {
-        savePoses(entity, source, poses, true);
+    public static void savePoses(UUID uuid, String source, SavedPoses poses) {
+        savePoses(uuid, source, poses, true);
     }
 
     /**
@@ -105,13 +100,12 @@ public final class PoseManager {
      * frame counter. Use {@code incrementFrame=false} when saving poses from inside an animation callback to avoid
      * interfering with per-frame deduplication logic in other mixins.
      */
-    public static void savePoses(Entity entity, String source, SavedPoses poses, boolean incrementFrame) {
-        if (entity == null) return;
+    public static void savePoses(UUID uuid, String source, SavedPoses poses, boolean incrementFrame) {
         if (DEFAULT_SOURCE.equals(source)) {
-            entitySavedPoses.put(entity, poses);
+            entitySavedPoses.put(uuid, poses);
         } else {
             entitySavedPosesBySource
-                    .computeIfAbsent(entity, k -> new HashMap<>())
+                    .computeIfAbsent(uuid, k -> new HashMap<>())
                     .put(source, poses);
         }
         if (incrementFrame) {
@@ -120,58 +114,55 @@ public final class PoseManager {
     }
 
     /**
-     * Removes any saved poses for the given entity from the default source.
+     * Removes any saved poses for the given player from the default source.
      */
-    public static void clearPoses(Entity entity) {
-        clearPoses(entity, DEFAULT_SOURCE);
+    public static void clearPoses(UUID uuid) {
+        clearPoses(uuid, DEFAULT_SOURCE);
     }
 
     /**
-     * Removes any saved poses for the given entity from the specified source.
+     * Removes any saved poses for the given player from the specified source.
      */
-    public static void clearPoses(Entity entity, String source) {
-        if (entity == null) return;
+    public static void clearPoses(UUID uuid, String source) {
         if (DEFAULT_SOURCE.equals(source)) {
-            entitySavedPoses.remove(entity);
+            entitySavedPoses.remove(uuid);
         } else {
-            var sources = entitySavedPosesBySource.get(entity);
+            var sources = entitySavedPosesBySource.get(uuid);
             if (sources != null) {
                 sources.remove(source);
                 if (sources.isEmpty()) {
-                    entitySavedPosesBySource.remove(entity);
+                    entitySavedPosesBySource.remove(uuid);
                 }
             }
         }
     }
 
     /**
-     * Removes entries for the given source whose entity UUID is not present in the provided active UUID set.
+     * Removes entries for the given source that are not present in the provided active UUID set.
      */
-    public static void retainOnly(Collection<java.util.UUID> activeUUIDs, String source) {
+    public static void retainOnly(Collection<UUID> activeUUIDs, String source) {
         if (DEFAULT_SOURCE.equals(source)) {
-            entitySavedPoses.entrySet().removeIf(entry -> !activeUUIDs.contains(entry.getKey().getUUID()));
+            entitySavedPoses.keySet().retainAll(activeUUIDs);
         } else {
             var it = entitySavedPosesBySource.entrySet().iterator();
             while (it.hasNext()) {
                 var entry = it.next();
-                if (!activeUUIDs.contains(entry.getKey().getUUID())) {
-                    var sources = entry.getValue();
-                    sources.remove(source);
-                    if (sources.isEmpty()) {
-                        it.remove();
-                    }
+                var sources = entry.getValue();
+                sources.remove(source);
+                if (sources.isEmpty()) {
+                    it.remove();
                 }
             }
         }
     }
 
     /**
-     * Returns the effective saved poses for the given entity, merging the default source and all named sources.
+     * Returns the effective saved poses for the given player, merging the default source and all named sources.
      * Named sources override the default per part; for arms, the latest named source with a non-null arm wins.
      */
-    public static SavedPoses getSavedPoses(Entity entity) {
-        SavedPoses defaultPoses = entitySavedPoses.get(entity);
-        Map<String, SavedPoses> sources = entitySavedPosesBySource.get(entity);
+    public static SavedPoses getSavedPoses(UUID uuid) {
+        SavedPoses defaultPoses = entitySavedPoses.get(uuid);
+        Map<String, SavedPoses> sources = entitySavedPosesBySource.get(uuid);
         if (sources == null || sources.isEmpty()) {
             return defaultPoses;
         }
@@ -202,12 +193,11 @@ public final class PoseManager {
      * Returns the saved poses from a single source without merging. Useful when callers need the pose that was
      * captured specifically for that source (for example the live EMF-animated arm pose).
      */
-    public static SavedPoses getSavedPoses(Entity entity, String source) {
-        if (entity == null) return null;
+    public static SavedPoses getSavedPoses(UUID uuid, String source) {
         if (DEFAULT_SOURCE.equals(source)) {
-            return entitySavedPoses.get(entity);
+            return entitySavedPoses.get(uuid);
         }
-        Map<String, SavedPoses> sources = entitySavedPosesBySource.get(entity);
+        Map<String, SavedPoses> sources = entitySavedPosesBySource.get(uuid);
         return sources != null ? sources.get(source) : null;
     }
 }

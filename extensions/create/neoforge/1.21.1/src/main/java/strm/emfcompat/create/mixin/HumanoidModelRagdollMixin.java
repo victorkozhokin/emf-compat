@@ -28,13 +28,13 @@ public class HumanoidModelRagdollMixin {
         if (RagdollGrabState.isGrabbing(player.getUUID())) {
             HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
             PoseManager.savePoses(
-                    player,
+                    player.getUUID(),
                     SOURCE,
                     new PoseSnapshot(model.leftArm),
                     new PoseSnapshot(model.rightArm)
             );
         } else {
-            PoseManager.clearPoses(player, SOURCE);
+            PoseManager.clearPoses(player.getUUID(), SOURCE);
         }
     }
 }

@@ -15,10 +15,6 @@ Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resource
 - Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**.
 - Should work with most player animation resource packs using EMF.
 
-## Additional Compatibility
-
-**[Corpse](https://modrinth.com/mod/corpse)** — Corpse dummy players/skeletons are excluded from Carry On tracking.
-
 ## Compatibility
 
 - **[Freecam](https://modrinth.com/mod/freecam)** — carry poses stay correct even when the camera is detached.

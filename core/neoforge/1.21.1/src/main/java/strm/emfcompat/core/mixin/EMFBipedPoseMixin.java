@@ -28,9 +28,8 @@ public class EMFBipedPoseMixin {
         Entity entity = (Entity) state.emfEntity();
         UUID uuid = entity.getUUID();
         if (EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
-        if (EMFCompatCore.isCorpseDummy(entity)) return;
 
-        SavedPoses savedPoses = PoseManager.getSavedPoses(entity);
+        SavedPoses savedPoses = PoseManager.getSavedPoses(uuid);
         if (savedPoses == null) return;
 
         Map<String, PoseSnapshot> parts = savedPoses.parts();

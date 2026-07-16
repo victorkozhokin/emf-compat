@@ -31,7 +31,7 @@ public class PlayerHoldingHandleRendererMixin {
         }
 
         PoseManager.savePoses(
-                player,
+                player.getUUID(),
                 SOURCE,
                 new PoseSnapshot(model.leftArm),
                 new PoseSnapshot(model.rightArm)

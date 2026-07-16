@@ -33,24 +33,24 @@ public class EntityModelAnimatorMixin {
         }
 
         if (EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) {
-            PoseManager.clearPoses(player, SOURCE);
+            PoseManager.clearPoses(player.getUUID(), SOURCE);
             return;
         }
 
         if (!ImmersiveMelodiesCompat.hasInstrument(player)) {
-            PoseManager.clearPoses(player, SOURCE);
+            PoseManager.clearPoses(player.getUUID(), SOURCE);
             return;
         }
 
         Optional<ModelPart> leftArm = accessor.getLeftArm();
         Optional<ModelPart> rightArm = accessor.getRightArm();
         if (leftArm.isEmpty() && rightArm.isEmpty()) {
-            PoseManager.clearPoses(player, SOURCE);
+            PoseManager.clearPoses(player.getUUID(), SOURCE);
             return;
         }
 
         PoseManager.savePoses(
-                player,
+                player.getUUID(),
                 SOURCE,
                 leftArm.map(PoseSnapshot::new).orElse(null),
                 rightArm.map(PoseSnapshot::new).orElse(null)

@@ -61,13 +61,6 @@ project(":carryon-forge-1.20.1").projectDir = file("extensions/carryon/forge/1.2
 include("carryon-fabric-1.21.11")
 project(":carryon-fabric-1.21.11").projectDir = file("extensions/carryon/fabric/1.21.11")
 
-// Corpse addon.
-include("corpse-neoforge-1.21.1")
-project(":corpse-neoforge-1.21.1").projectDir = file("extensions/corpse/neoforge/1.21.1")
-
-include("corpse-forge-1.20.1")
-project(":corpse-forge-1.20.1").projectDir = file("extensions/corpse/forge/1.20.1")
-
 // NotEnoughAnimations addon.
 include("nea-neoforge-1.21.1")
 project(":nea-neoforge-1.21.1").projectDir = file("extensions/nea/neoforge/1.21.1")
@@ -101,10 +94,6 @@ project(":supplementaries-neoforge-1.21.1").projectDir = file("extensions/supple
 include("supplementaries-forge-1.20.1")
 project(":supplementaries-forge-1.20.1").projectDir = file("extensions/supplementaries/forge/1.20.1")
 
-// Player Animator addon.
-include("player-animator-neoforge-1.21.1")
-project(":player-animator-neoforge-1.21.1").projectDir = file("extensions/player_animator/neoforge/1.21.1")
-
 // Better Combat addon.
 include("better-combat-neoforge-1.21.1")
 project(":better-combat-neoforge-1.21.1").projectDir = file("extensions/better_combat/neoforge/1.21.1")
@@ -114,10 +103,6 @@ project(":better-combat-forge-1.20.1").projectDir = file("extensions/better_comb
 
 include("better-combat-fabric-1.21.11")
 project(":better-combat-fabric-1.21.11").projectDir = file("extensions/better_combat/fabric/1.21.11")
-
-// Emotecraft addon.
-include("emotecraft-neoforge-1.21.1")
-project(":emotecraft-neoforge-1.21.1").projectDir = file("extensions/emotecraft/neoforge/1.21.1")
 
 // Quark addon.
 include("quark-neoforge-1.21.1")

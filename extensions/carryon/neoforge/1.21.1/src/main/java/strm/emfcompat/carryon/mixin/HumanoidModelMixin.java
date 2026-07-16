@@ -33,7 +33,7 @@ public class HumanoidModelMixin {
         if (player.level() == null) return;
 
         if (!CarryOnCompat.isCarrying(player)) {
-            PoseManager.clearPoses(player, SOURCE);
+            PoseManager.clearPoses(player.getUUID(), SOURCE);
             CarryOnRenderState.clear(player);
             return;
         }
@@ -42,7 +42,7 @@ public class HumanoidModelMixin {
         PoseSnapshot leftArm = new PoseSnapshot(model.leftArm);
         PoseSnapshot rightArm = new PoseSnapshot(model.rightArm);
 
-        PoseManager.savePoses(player, SOURCE, leftArm, rightArm);
+        PoseManager.savePoses(player.getUUID(), SOURCE, leftArm, rightArm);
 
         // FirstPersonModel hides empty hands in first person. While carrying, force the arms
         // visible again so the raised Carry On pose is actually rendered.

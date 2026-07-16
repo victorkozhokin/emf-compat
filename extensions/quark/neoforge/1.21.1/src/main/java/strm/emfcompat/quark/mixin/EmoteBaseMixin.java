@@ -81,7 +81,7 @@ public class EmoteBaseMixin {
         PoseSnapshot rightArmPose = usesRightArm ? new PoseSnapshot(typedModel.rightArm) : null;
 
         PoseManager.savePoses(
-                clientPlayer,
+                clientPlayer.getUUID(),
                 SOURCE,
                 leftArmPose,
                 rightArmPose,

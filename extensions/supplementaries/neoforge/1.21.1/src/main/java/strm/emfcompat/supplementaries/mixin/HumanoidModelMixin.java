@@ -32,18 +32,18 @@ public class HumanoidModelMixin {
         if (!(entity instanceof Player player)) return;
 
         if (!SupplementariesCompat.isUsingSupplementariesItem(player)) {
-            PoseManager.clearPoses(player, SOURCE);
+            PoseManager.clearPoses(player.getUUID(), SOURCE);
             return;
         }
 
         if (EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) {
-            PoseManager.clearPoses(player, SOURCE);
+            PoseManager.clearPoses(player.getUUID(), SOURCE);
             return;
         }
 
         HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
         PoseManager.savePoses(
-                player,
+                player.getUUID(),
                 SOURCE,
                 new PoseSnapshot(model.leftArm),
                 new PoseSnapshot(model.rightArm)
