@@ -25,6 +25,6 @@
     "minecraft": "${minecraft_version}",
     "notenoughanimations": ">=1.8",
     "entity_model_features": ">=3.2.4",
-    "emf_compat_core": ">=1.0.0"
+    "emf_compat_core": ">=1.0.1"
   }
 }
