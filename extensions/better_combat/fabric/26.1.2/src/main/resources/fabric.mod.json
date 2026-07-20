@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "STRadaT"
+  ],
+  "contact": {},
+  "license": "GPL-3.0",
+  "icon": "icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "strm.emfcompat.bettercombat.EMFCompatBetterCombatClient"
+    ]
+  },
+  "mixins": [
+    "emf_compat_better_combat.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}",
+    "bettercombat": ">=3.0.0",
+    "player_animation_library": ">=1.1.5",
+    "entity_model_features": ">=3.2.4",
+    "emf_compat_core": ">=1.0.0"
+  }
+}
