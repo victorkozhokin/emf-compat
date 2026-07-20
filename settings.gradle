@@ -107,3 +107,6 @@ project(":better-combat-fabric-1.21.11").projectDir = file("extensions/better_co
 // Quark addon.
 include("quark-neoforge-1.21.1")
 project(":quark-neoforge-1.21.1").projectDir = file("extensions/quark/neoforge/1.21.1")
+
+include("quark-forge-1.20.1")
+project(":quark-forge-1.20.1").projectDir = file("extensions/quark/forge/1.20.1")
