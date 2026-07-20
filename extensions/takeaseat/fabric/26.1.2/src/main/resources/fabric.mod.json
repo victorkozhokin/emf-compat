@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": ["${mod_authors}"],
+  "contact": {},
+  "license": "${mod_license}",
+  "icon": "icon.png",
+  "environment": "client",
+  "entrypoints": {},
+  "mixins": [
+    "emf_compat_takeaseat.client.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": ">=${minecraft_version}",
+    "entity_model_features": ">=${emf_version}",
+    "seatify": "*",
+    "emf_compat_core": ">=1.0.1"
+  }
+}

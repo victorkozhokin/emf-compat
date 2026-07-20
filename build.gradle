@@ -34,9 +34,19 @@ allprojects {
 
         def nameParts = p.name.split('-')
         if (nameParts.length >= 3) {
-            uploadElement = nameParts[0] == 'nea' ? 'NEA' : nameParts[0].capitalize()
-            uploadLoader = nameParts[1]
-            uploadVersion = nameParts[2..-1].join('-')
+            uploadLoader = nameParts[-2]
+            uploadVersion = nameParts[-1]
+            def elementParts = nameParts[0..-3]
+
+            // Use the user-facing mod name (without the "EMF Compat: " prefix) when available,
+            // so multi-word extension names like "Immersive Melodies" become a single folder.
+            def modName = p.findProperty('mod_name')
+            if (modName != null) {
+                def prefix = 'EMF Compat: '
+                uploadElement = modName.startsWith(prefix) ? modName.substring(prefix.length()) : modName
+            } else {
+                uploadElement = elementParts.collect { it.capitalize() }.join(' ')
+            }
         } else {
             return
         }
@@ -70,4 +80,46 @@ allprojects {
             }
         }
     }
+}
+
+// Personal Aeronautics pack assembly (NeoForge 1.21.1 only).
+tasks.register('copyToAeronautics', Copy) {
+    group = 'build'
+    description = 'Assembles the Aeronautics NeoForge 1.21.1 pack into upload/Aeronautics/neoforge-1.21.1'
+
+    def aeronauticsModules = [
+        ':core-neoforge-1.21.1',
+        ':quark-neoforge-1.21.1',
+        ':supplementaries-neoforge-1.21.1',
+        ':create-neoforge-1.21.1',
+        ':horse-sync-neoforge-1.21.1',
+        ':nea-neoforge-1.21.1',
+        ':takeaseat-neoforge-1.21.1'
+    ]
+
+    aeronauticsModules.each { path ->
+        dependsOn("${path}:assemble")
+    }
+
+    def uploadDir = file("upload/Aeronautics/neoforge-1.21.1")
+    doFirst {
+        delete fileTree(uploadDir).matching { include '*.jar' }
+    }
+
+    aeronauticsModules.each { path ->
+        def p = project(path)
+        def jarTask = p.tasks.jar
+        def modId = p.findProperty('mod_id')
+        def mcVersion = p.findProperty('minecraft_version')
+        def modVersion = p.findProperty('mod_version')
+        def suffix = (modId != null && modId.startsWith('emf_compat_')) ? modId.substring('emf_compat_'.length()) : jarTask.archiveBaseName.get()
+
+        from(jarTask.archiveFile) {
+            if (mcVersion != null && modVersion != null) {
+                rename { "emf_compat_${suffix}_${mcVersion}_${modVersion}.jar" }
+            }
+        }
+    }
+
+    into uploadDir
 }

@@ -78,7 +78,7 @@ public class CarryRenderHelperMixin {
 
         Vector3f translation = BodyPartSync.getTranslationDelta(player, "body");
         Vector3f rotation = BodyPartSync.getRotationDelta(player, "body");
-
+        //Need to rework
         // Model part positions are in pixels (1/16 block). CarryOn scales the matrix by 0.6.
         // Y and Z are inverted because model-space and PoseStack space differ:
         // model Y+ is down, PoseStack Y+ is up; model Z+ is back, PoseStack Z+ is forward.
@@ -87,8 +87,8 @@ public class CarryRenderHelperMixin {
                 -translation.y * BODY_PART_SCALE,
                 -translation.z * BODY_PART_SCALE
         );
-
-        // Invert all three axes so the carried object tilts in the same direction as the torso.
-        poseStack.mulPose(new Quaternionf().rotationZYX(-rotation.z, -rotation.y, -rotation.x));
+        // X=Forward Y=UP Z=Tilt (i dunno, need to recheck)(again)
+        // Invert all three axes, except X so the carried object tilts in the same direction as the torso.
+        poseStack.mulPose(new Quaternionf().rotationZYX(-rotation.z, -rotation.y, rotation.x));
     }
 }

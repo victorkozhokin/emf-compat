@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "strm.emfcompat.takeaseat.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "EMFModelPartRootMixin",
+    "PlayerEntityModelMixin",
+    "PlayerRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

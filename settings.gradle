@@ -94,6 +94,10 @@ project(":supplementaries-neoforge-1.21.1").projectDir = file("extensions/supple
 include("supplementaries-forge-1.20.1")
 project(":supplementaries-forge-1.20.1").projectDir = file("extensions/supplementaries/forge/1.20.1")
 
+// Iron's Spells addon.
+include("iron-spells-neoforge-1.21.1")
+project(":iron-spells-neoforge-1.21.1").projectDir = file("extensions/iron_spells/neoforge/1.21.1")
+
 // Better Combat addon.
 include("better-combat-neoforge-1.21.1")
 project(":better-combat-neoforge-1.21.1").projectDir = file("extensions/better_combat/neoforge/1.21.1")
@@ -110,3 +114,20 @@ project(":quark-neoforge-1.21.1").projectDir = file("extensions/quark/neoforge/1
 
 include("quark-forge-1.20.1")
 project(":quark-forge-1.20.1").projectDir = file("extensions/quark/forge/1.20.1")
+
+// Instant Death addon.
+include("instantdeath-neoforge-1.21.1")
+project(":instantdeath-neoforge-1.21.1").projectDir = file("extensions/instant_death/neoforge/1.21.1")
+
+// Take a Seat addon.
+include("takeaseat-neoforge-1.21.1")
+project(":takeaseat-neoforge-1.21.1").projectDir = file("extensions/takeaseat/neoforge/1.21.1")
+
+include("takeaseat-fabric-1.21.11")
+project(":takeaseat-fabric-1.21.11").projectDir = file("extensions/takeaseat/fabric/1.21.11")
+
+include("takeaseat-fabric-26.1.2")
+project(":takeaseat-fabric-26.1.2").projectDir = file("extensions/takeaseat/fabric/26.1.2")
+
+include("takeaseat-fabric-26.2")
+project(":takeaseat-fabric-26.2").projectDir = file("extensions/takeaseat/fabric/26.2")
