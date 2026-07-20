@@ -77,7 +77,7 @@ dependencies {
     compileOnly 'maven.modrinth:entity-model-features:3.2.4-neoforge-1.21'
     compileOnly 'maven.modrinth:entitytexturefeatures:7.1-neoforge-1.21'
     compileOnly 'maven.modrinth:create-grappling-hooks:1.2.0'
-    compileOnly 'maven.modrinth:sable-ragdolls:0.6.7'
+    compileOnly 'maven.modrinth:sable-ragdolls:0.7.5'
     compileOnly 'maven.modrinth:MPCX6s5C:1o1ia1vh'
 
     aeronauticsBundled 'maven.modrinth:create-aeronautics:1.2.1+mc1.21.1'
