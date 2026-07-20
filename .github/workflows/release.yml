@@ -1,0 +1,55 @@
+name: Release
+
+# Сборка всех артифаков и публикация GitHub Release.
+# Запуск: пуш тега v* (например v1.0.2).
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Тег релиза (например v1.0.2)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 25, 21 and 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: |
+            17
+            21
+            25
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make installed JDKs visible to Gradle toolchains
+        run: echo "org.gradle.java.installations.fromEnv=JAVA_HOME_17_X64,JAVA_HOME_21_X64,JAVA_HOME_25_X64" >> ~/.gradle/gradle.properties
+
+      - name: Resolve release tag
+        id: meta
+        run: echo "tag=${{ github.event.inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+      # См. build.yml — core сначала, иначе Loom падает.
+      - name: Build core modules first
+        run: ./gradlew :core-fabric-1.21.11:build :core-fabric-1.21.4:build :core-fabric-26.1.2:build :core-fabric-26.2:build :core-forge-1.20.1:build :core-neoforge-1.21.1:build --configure-on-demand --stacktrace
+
+      - name: Build all modules
+        run: ./gradlew build --stacktrace
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: EMF Compat ${{ steps.meta.outputs.tag }}
+          generate_release_notes: true
+          files: upload/**/*.jar

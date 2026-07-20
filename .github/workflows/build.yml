@@ -1,0 +1,52 @@
+name: Build
+
+# Проверка сборки всех модулей на каждый push/PR в main.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 25, 21 and 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: |
+            17
+            21
+            25
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # Gradle toolchain: Java 17 (Forge 1.20.1), 21 (1.21.x), 25 (Fabric 26.x).
+      # JDK 25 идёт последним в списке — Gradle запускается на нём (как локально).
+      - name: Make installed JDKs visible to Gradle toolchains
+        run: echo "org.gradle.java.installations.fromEnv=JAVA_HOME_17_X64,JAVA_HOME_21_X64,JAVA_HOME_25_X64" >> ~/.gradle/gradle.properties
+
+      # Loom читает jar'ы core-модулей ещё на этапе конфигурации расширений,
+      # поэтому core собираем первыми отдельным вызовом (configure-on-demand
+      # не конфигурирует расширения и не падает об отсутствующие jar'ы).
+      - name: Build core modules first
+        run: ./gradlew :core-fabric-1.21.11:build :core-fabric-1.21.4:build :core-fabric-26.1.2:build :core-fabric-26.2:build :core-forge-1.20.1:build :core-neoforge-1.21.1:build --configure-on-demand --stacktrace
+
+      - name: Build all modules
+        run: ./gradlew build --stacktrace
+
+      - name: Upload built jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: jars
+          path: upload/**/*.jar
+          if-no-files-found: warn
+          retention-days: 14
