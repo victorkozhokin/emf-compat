@@ -7,6 +7,7 @@ import net.bettercombat.client.animation.AttackAnimationSubStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import strm.emfcompat.bettercombat.EMFCompatBetterCombatMod;
 
 import java.lang.reflect.Field;
 import java.util.Optional;
@@ -48,6 +49,9 @@ public class AttackAnimationSubStackMixin {
             argsOnly = true
     )
     private static AdjustmentModifier emfcompat$reduceGlobalAttackAdjustment(AdjustmentModifier original) {
+        if (!EMFCompatBetterCombatMod.isEnabled()) {
+            return original;
+        }
         Function<String, Optional<AdjustmentModifier.PartModifier>> source = getAdjustmentSource(original);
         if (source == null) {
             return original;

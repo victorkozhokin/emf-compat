@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
+import strm.emfcompat.immersivemelodies.ImmersiveMelodiesEMFCompat;
 import strm.emfcompat.immersivemelodies.compat.ImmersiveMelodiesCompat;
 
 import java.util.Optional;
@@ -29,6 +30,11 @@ public class EntityModelAnimatorMixin {
     private static <T extends Entity> void emfcompat$onSetAnglesReturn(ModelAccessor<T> accessor, CallbackInfo ci) {
         T entity = accessor.getEntity();
         if (!(entity instanceof AbstractClientPlayer player)) {
+            return;
+        }
+
+        if (!ImmersiveMelodiesEMFCompat.isEnabled()) {
+            PoseManager.clearPoses(player.getUUID(), SOURCE);
             return;
         }
 

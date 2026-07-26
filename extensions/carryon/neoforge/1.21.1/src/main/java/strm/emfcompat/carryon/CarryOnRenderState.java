@@ -1,7 +1,6 @@
 package strm.emfcompat.carryon;
 
 import net.minecraft.world.entity.Entity;
-import strm.emfcompat.core.BodyPartSync;
 import traben.entity_model_features.EMFAnimationApi;
 
 import java.util.Collections;
@@ -29,6 +28,9 @@ public final class CarryOnRenderState {
     static {
         try {
             EMFAnimationApi.registerVanillaModelCondition(emfEntity -> {
+                if (!EMFCarryOnMod.isEnabled() || !EMFCarryOnMod.forceVanillaCarried()) {
+                    return false;
+                }
                 UUID uuid = emfEntity.etf$getUuid();
                 return uuid != null && CARRIED_ENTITIES.contains(uuid);
             });
@@ -56,12 +58,5 @@ public final class CarryOnRenderState {
      */
     public static void clearCarriedEntities() {
         CARRIED_ENTITIES.clear();
-    }
-
-    /**
-     * Removes all tracked data for the given entity.
-     */
-    public static void clear(Entity entity) {
-        BodyPartSync.clear(entity);
     }
 }

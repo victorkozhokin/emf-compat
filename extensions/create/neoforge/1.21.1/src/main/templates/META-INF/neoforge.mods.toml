@@ -49,3 +49,17 @@ type="required"
 versionRange="[3.2.4,)"
 ordering="AFTER"
 side="CLIENT"
+
+[[dependencies.${mod_id}]]
+modId="rocketnautics"
+type="optional"
+versionRange="*"
+ordering="AFTER"
+side="CLIENT"
+
+[[dependencies.${mod_id}]]
+modId="create_sa"
+type="optional"
+versionRange="*"
+ordering="AFTER"
+side="CLIENT"

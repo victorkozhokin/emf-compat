@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.ActiveParts;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.PoseManager;
+import strm.neaemfcompat.NEAEMFCompat;
 import strm.neaemfcompat.compat.EMFCompat;
 
 @Mixin(AnimationProvider.class)
@@ -45,6 +46,11 @@ public class AnimationProviderMixin {
 
     @Inject(method = "applyAnimations", at = @At("RETURN"))
     private void neaemfcompat$onApplyAnimationsReturn(AbstractClientPlayer entity, PlayerModel model, float delta, float swing, CallbackInfo ci) {
+        if (!NEAEMFCompat.isEnabled()) {
+            PoseManager.clearPoses(entity.getUUID());
+            return;
+        }
+
         BasicAnimation[] animation = this.neaemfcompat$animationArray;
         if (animation == null) {
             PoseManager.clearPoses(entity.getUUID());

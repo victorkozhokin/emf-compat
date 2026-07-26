@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "strm.emfcompat.gliders.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [],
+  "client": [
+    "AnimationDetectionMixin",
+    "EMFManagerResetMixin",
+    "HumanoidModelMixin",
+    "MathMethodAccessor",
+    "NBTMethodLambdaMixin",
+    "NBTMethodMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "emf_compat_gliders.refmap.json"
+}

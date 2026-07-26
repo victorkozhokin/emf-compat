@@ -4,8 +4,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,6 +27,16 @@ public final class PoseManager {
     public static final Map<UUID, Map<String, SavedPoses>> entitySavedPosesBySource = new HashMap<>();
     public static long currentFrame = 0;
 
+    // Per-source merge priority: when several sources pose the same part, the higher priority wins.
+    // Default (unregistered) is 0. "Seat" poses like horse-riding register a negative priority so
+    // action poses (guns, attacks) take the arms while the seat keeps the legs/body.
+    private static final Map<String, Integer> sourcePriority = new HashMap<>();
+
+    // The body-follow translation delta the core applied to a player's arms this frame
+    // (model-space pixels, currentBody - bodyBase). Exposed so consumers can move objects
+    // attached to the hands by the same amount, keeping them in sync with the arms.
+    private static final Map<UUID, org.joml.Vector3f> bodyFollowDelta = new HashMap<>();
+
     private static int cleanupCounter = 0;
 
     /**
@@ -40,10 +53,32 @@ public final class PoseManager {
                 .collect(java.util.stream.Collectors.toSet());
         entitySavedPoses.keySet().retainAll(activeUUIDs);
         entitySavedPosesBySource.keySet().retainAll(activeUUIDs);
+        bodyFollowDelta.keySet().retainAll(activeUUIDs);
         // The inner maps are removed along with their owning UUID entries above.
         // Do NOT call retainAll on the inner keySets here: their keys are source
         // names (Strings), not UUIDs, so that would incorrectly wipe all named
         // sources every 200 frames.
+    }
+
+    /**
+     * Records the body-follow translation delta applied to the given player's arms this
+     * frame. Passing {@code null} clears it. Called by the core restore.
+     */
+    public static void setBodyFollowDelta(UUID uuid, org.joml.Vector3f delta) {
+        if (delta == null) {
+            bodyFollowDelta.remove(uuid);
+        } else {
+            bodyFollowDelta.put(uuid, delta);
+        }
+    }
+
+    /**
+     * Returns the body-follow translation delta the core applied to the player's arms this
+     * frame (model-space pixels), or {@code null} if the player has no body-follow pose.
+     * Consumers can apply the same delta to hand-attached objects to keep them in sync.
+     */
+    public static org.joml.Vector3f getBodyFollowDelta(UUID uuid) {
+        return bodyFollowDelta.get(uuid);
     }
 
     /**
@@ -86,6 +121,17 @@ public final class PoseManager {
      */
     public static void savePoses(UUID uuid, String source, PoseSnapshot leftArm, PoseSnapshot rightArm, Map<String, PoseSnapshot> parts) {
         savePoses(uuid, source, new SavedPoses(leftArm, rightArm, parts));
+    }
+
+    /**
+     * Saves arm poses (following the body), an optional part map and the body's neutral
+     * position under the specified source. With a non-null {@code bodyBase}, the arms are
+     * restored rotation-absolute plus a position offset equal to the body's movement since
+     * capture, so the pose follows the torso. See {@link SavedPoses}.
+     */
+    public static void savePoses(UUID uuid, String source, PoseSnapshot leftArm, PoseSnapshot rightArm,
+                                 Map<String, PoseSnapshot> parts, org.joml.Vector3f bodyBase) {
+        savePoses(uuid, source, new SavedPoses(leftArm, rightArm, parts, bodyBase));
     }
 
     /**
@@ -157,8 +203,55 @@ public final class PoseManager {
     }
 
     /**
-     * Returns the effective saved poses for the given player, merging the default source and all named sources.
-     * Named sources override the default per part; for arms, the latest named source with a non-null arm wins.
+     * Registers a merge priority for a named source (higher wins per part; default is 0). Seat-type
+     * poses (e.g. horse riding) register a negative value so action poses take the arms.
+     */
+    public static void setSourcePriority(String source, int priority) {
+        sourcePriority.put(source, priority);
+    }
+
+    private static int priorityOf(String source) {
+        return sourcePriority.getOrDefault(source, 0);
+    }
+
+    /**
+     * Returns {@code true} if any source other than {@code excludeSource} currently poses either
+     * arm for this player (via the arm slot or the {@code parts} map) — i.e. an action pose such as
+     * a gun aim or a melee swing is active. A "seat" pose (horse riding) uses this to yield its
+     * whole upper body while an action controls the arms.
+     */
+    public static boolean hasArmPoseExcept(UUID uuid, String excludeSource) {
+        SavedPoses def = entitySavedPoses.get(uuid);
+        if (def != null && emfcompat$armPosed(def)) {
+            return true;
+        }
+        Map<String, SavedPoses> sources = entitySavedPosesBySource.get(uuid);
+        if (sources != null) {
+            for (Map.Entry<String, SavedPoses> e : sources.entrySet()) {
+                if (!e.getKey().equals(excludeSource) && emfcompat$armPosed(e.getValue())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean emfcompat$armPosed(SavedPoses poses) {
+        if (poses.leftArm() != null || poses.rightArm() != null) {
+            return true;
+        }
+        Map<String, PoseSnapshot> parts = poses.parts();
+        return parts != null && (parts.containsKey("left_arm") || parts.containsKey("right_arm"));
+    }
+
+    /**
+     * Returns the effective saved poses for the given player, merging the default source and all
+     * named sources in ascending priority order (higher priority overrides lower).
+     *
+     * <p>Each arm has a single winner — the highest-priority source that poses it, via either the
+     * arm <em>slot</em> (rotation + optional body-follow) or the {@code parts} map (full pose). The
+     * winner's channel is preserved and the other channel cleared, so e.g. a gun/attack slot pose
+     * overrides a riding-seat parts pose for the arms while the seat keeps the legs/body.</p>
      */
     public static SavedPoses getSavedPoses(UUID uuid) {
         SavedPoses defaultPoses = entitySavedPoses.get(uuid);
@@ -167,26 +260,53 @@ public final class PoseManager {
             return defaultPoses;
         }
 
-        PoseSnapshot leftArm = defaultPoses != null ? defaultPoses.leftArm() : null;
-        PoseSnapshot rightArm = defaultPoses != null ? defaultPoses.rightArm() : null;
         Map<String, PoseSnapshot> parts = new HashMap<>();
-        if (defaultPoses != null && defaultPoses.parts() != null) {
-            parts.putAll(defaultPoses.parts());
+        PoseSnapshot leftArm = null;
+        PoseSnapshot rightArm = null;
+        org.joml.Vector3f bodyBase = null;
+
+        // The default source is the lowest-priority base.
+        if (defaultPoses != null) {
+            if (defaultPoses.parts() != null) parts.putAll(defaultPoses.parts());
+            leftArm = defaultPoses.leftArm();
+            rightArm = defaultPoses.rightArm();
+            bodyBase = defaultPoses.bodyBase();
         }
 
-        for (SavedPoses poses : sources.values()) {
-            if (poses.leftArm() != null) {
-                leftArm = poses.leftArm();
+        List<Map.Entry<String, SavedPoses>> ordered = new ArrayList<>(sources.entrySet());
+        // Ascending priority; ties broken by source name so the merge is fully deterministic
+        // (never relies on HashMap iteration order).
+        ordered.sort(Comparator
+                .comparingInt((Map.Entry<String, SavedPoses> e) -> priorityOf(e.getKey()))
+                .thenComparing(Map.Entry::getKey));
+
+        for (Map.Entry<String, SavedPoses> entry : ordered) {
+            SavedPoses poses = entry.getValue();
+            Map<String, PoseSnapshot> sp = poses.parts();
+            if (sp != null) {
+                parts.putAll(sp);
             }
-            if (poses.rightArm() != null) {
+
+            // Arms: whichever channel this source used wins and clears the other channel.
+            if (sp != null && sp.containsKey("left_arm")) {
+                leftArm = null;                       // parts channel wins for the left arm
+            } else if (poses.leftArm() != null) {
+                leftArm = poses.leftArm();            // slot channel wins
+                parts.remove("left_arm");
+            }
+            if (sp != null && sp.containsKey("right_arm")) {
+                rightArm = null;
+            } else if (poses.rightArm() != null) {
                 rightArm = poses.rightArm();
+                parts.remove("right_arm");
             }
-            if (poses.parts() != null) {
-                parts.putAll(poses.parts());
+
+            if (poses.bodyBase() != null) {
+                bodyBase = poses.bodyBase();
             }
         }
 
-        return new SavedPoses(leftArm, rightArm, parts);
+        return new SavedPoses(leftArm, rightArm, parts, bodyBase);
     }
 
     /**

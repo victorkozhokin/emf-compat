@@ -6,6 +6,7 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import strm.emfcompat.horsesync.compat.EMFCompat;
 
@@ -18,13 +19,16 @@ public class ClientEventHandler {
     private static int cleanupCounter = 0;
 
     @SubscribeEvent
-    public static void onClientTick(ClientTickEvent.Pre event) {
-        //Temporary disabled. Prepare to delete
+    public static void onRegisterClientCommands(RegisterClientCommandsEvent event) {
+        RidingPoseCommand.register(event.getDispatcher());
+    }
 
-        //        if (!Config.ENABLED.get()) {
-        //            EMFCompat.horseBodyOffsets.clear();
-        //            return;
-        //        }
+    @SubscribeEvent
+    public static void onClientTick(ClientTickEvent.Pre event) {
+        if (!EMFHorseSync.isEnabled()) {
+            EMFCompat.horseBodyOffsets.clear();
+            return;
+        }
 
         if (++cleanupCounter % 200 != 0) return;
 
@@ -43,8 +47,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public static void onRenderPlayerPre(RenderPlayerEvent.Pre event) {
-        //Temporary disabled. Prepare to delete
-        //        if (!Config.ENABLED.get()) return;
+        if (!EMFHorseSync.isEnabled()) return;
         if (!(event.getEntity().getVehicle() instanceof AbstractHorse horse)) return;
 
         Float offset = EMFCompat.horseBodyOffsets.get(horse.getUUID());
@@ -60,8 +63,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public static void onRenderPlayerPost(RenderPlayerEvent.Post event) {
-        //Temporary disabled. Prepare to delete
-        //        if (!Config.ENABLED.get()) return;
+        if (!EMFHorseSync.isEnabled()) return;
         if (!(event.getEntity().getVehicle() instanceof AbstractHorse horse)) return;
 
         Float offset = EMFCompat.horseBodyOffsets.get(horse.getUUID());

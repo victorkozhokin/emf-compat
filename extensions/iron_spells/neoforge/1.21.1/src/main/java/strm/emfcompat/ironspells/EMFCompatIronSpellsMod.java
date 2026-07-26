@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import traben.entity_model_features.EMFAnimationApi;
 import traben.entity_model_features.utils.EMFEntity;
+import strm.emfcompat.core.ConfigRegistry;
+import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.ironspells.compat.IronSpellsCompat;
 
@@ -21,8 +23,26 @@ public class EMFCompatIronSpellsMod {
     public static final String MOD_ID = "emf_compat_iron_spells";
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatIronSpells");
 
+    public static final String KEY_ENABLED = "ironspells.enabled";
+    public static final String KEY_BODY_FOLLOW_ARMS = "ironspells.bodyFollowArms";
+
     public EMFCompatIronSpellsMod(IEventBus modEventBus, ModContainer modContainer) {
+        ConfigRegistry.section(MOD_ID, "Iron's Spells")
+                .addBoolean(KEY_ENABLED, "EMF compatibility", true,
+                        "On", "Apply EMF compatibility to Iron's Spells casting poses.",
+                        "Off", "Disable all EMF compatibility for Iron's Spells.")
+                .addBoolean(KEY_BODY_FOLLOW_ARMS, "Arm sync", true,
+                        "Body-follow (new)", "Casting arm poses keep their shape and follow the moving torso.",
+                        "Rotation-only (legacy)", "Casting arm poses keep only their rotation.");
         modEventBus.addListener(this::clientSetup);
+    }
+
+    public static boolean isEnabled() {
+        return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
+    }
+
+    public static boolean isBodyFollow() {
+        return EMFCompatConfig.getBoolean(KEY_BODY_FOLLOW_ARMS, true);
     }
 
     private void clientSetup(FMLClientSetupEvent event) {
@@ -42,6 +62,9 @@ public class EMFCompatIronSpellsMod {
      * Without this, EMF's custom first-person model can hide the casting animation arms.
      */
     private static boolean shouldForceVanillaModelInFirstPerson(EMFEntity entity) {
+        if (!isEnabled()) {
+            return false;
+        }
         Entity mcEntity = (Entity) entity;
         if (!(mcEntity instanceof AbstractClientPlayer player)) {
             return false;

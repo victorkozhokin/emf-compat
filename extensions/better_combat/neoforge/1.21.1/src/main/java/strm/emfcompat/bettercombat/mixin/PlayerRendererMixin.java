@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import strm.emfcompat.bettercombat.EMFCompatBetterCombatMod;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 import strm.emfcompat.core.SavedPoses;
@@ -67,6 +68,7 @@ public class PlayerRendererMixin {
     }
 
     private void emfcompat$restoreArmPose(ModelPart armPart, ModelPart sleevePart, AbstractClientPlayer player) {
+        if (!EMFCompatBetterCombatMod.isEnabled()) return;
         SavedPoses saved = PoseManager.getSavedPoses(player.getUUID(), SOURCE);
         if (saved == null) return;
 

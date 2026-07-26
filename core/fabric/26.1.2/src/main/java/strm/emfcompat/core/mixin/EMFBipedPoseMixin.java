@@ -49,6 +49,8 @@ public class EMFBipedPoseMixin {
 
     private static void emfcompat$applyIfPresent(Map<String, PoseSnapshot> parts, String name, net.minecraft.client.model.geom.ModelPart part) {
         PoseSnapshot snap = parts.get(name);
-        if (snap != null) snap.applyRotation(part);
+        // Full pose (rotation + position + scale): a sitting pose moves parts, not just rotates
+        // them, so rotation-only left the armor at standing pivots (detached from the body).
+        if (snap != null) snap.apply(part);
     }
 }

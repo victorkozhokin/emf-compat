@@ -6,7 +6,8 @@
   "mixins": [],
   "client": [
     "AbstractHorseRendererAccessor",
-    "EMFModelPartRootMixin"
+    "EMFModelPartRootMixin",
+    "PlayerModelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

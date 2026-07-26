@@ -7,9 +7,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
+import strm.emfcompat.ironspells.EMFCompatIronSpellsMod;
 import strm.emfcompat.ironspells.compat.IronSpellsCompat;
 
 /**
@@ -36,17 +38,22 @@ public class PlayerModelMixin {
             return;
         }
 
-        if (!IronSpellsCompat.isCasting(player)) {
+        if (!EMFCompatIronSpellsMod.isEnabled() || !IronSpellsCompat.isCasting(player)) {
             PoseManager.clearPoses(player.getUUID(), SOURCE);
             return;
         }
 
         PlayerModel<AbstractClientPlayer> model = (PlayerModel<AbstractClientPlayer>) (Object) this;
 
+        Vector3f bodyBase = EMFCompatIronSpellsMod.isBodyFollow()
+                ? new Vector3f(model.body.x, model.body.y, model.body.z)
+                : null;
         PoseManager.savePoses(
                 player.getUUID(), SOURCE,
                 new PoseSnapshot(model.leftArm),
-                new PoseSnapshot(model.rightArm)
+                new PoseSnapshot(model.rightArm),
+                null,
+                bodyBase
         );
     }
 }

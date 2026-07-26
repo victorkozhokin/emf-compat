@@ -9,7 +9,9 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import strm.emfcompat.carryon.EMFCarryOnMod;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 import strm.emfcompat.core.SavedPoses;
@@ -22,6 +24,9 @@ import strm.emfcompat.core.SavedPoses;
  */
 @Mixin(PlayerRenderer.class)
 public class PlayerRendererMixin {
+
+    @Unique
+    private static final String SOURCE = "carry_on";
 
     @Inject(
             method = "renderHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;Lnet/minecraft/client/model/geom/ModelPart;Lnet/minecraft/client/model/geom/ModelPart;)V",
@@ -66,7 +71,10 @@ public class PlayerRendererMixin {
     }
 
     private void emfcompat$restoreCarryOnArmPose(ModelPart armPart, ModelPart sleevePart, AbstractClientPlayer player) {
-        SavedPoses saved = PoseManager.getSavedPoses(player.getUUID());
+        if (!EMFCarryOnMod.isEnabled()) return;
+        // Read only Carry On's own source — reading the merged pose here would leak other
+        // addons' arm poses (e.g. a held TACZ gun) onto the first-person hand.
+        SavedPoses saved = PoseManager.getSavedPoses(player.getUUID(), SOURCE);
         if (saved == null) return;
 
         PlayerModel<AbstractClientPlayer> model = ((PlayerRenderer) (Object) this).getModel();

@@ -8,7 +8,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import strm.emfcompat.bettercombat.EMFCompatBetterCombatMod;
 import strm.emfcompat.bettercombat.compat.AttackPauseOverride;
 import strm.emfcompat.bettercombat.compat.BetterCombatCompat;
 import strm.emfcompat.core.PoseManager;
@@ -35,6 +37,11 @@ public class PlayerModelMixin {
             return;
         }
 
+        if (!EMFCompatBetterCombatMod.isEnabled()) {
+            PoseManager.clearPoses(player.getUUID(), SOURCE);
+            return;
+        }
+
         AttackHand attackHand = BetterCombatCompat.getAttackHand(player);
         if (attackHand == null) {
             PoseManager.clearPoses(player.getUUID(), SOURCE);
@@ -46,10 +53,17 @@ public class PlayerModelMixin {
 
         PlayerModel<AbstractClientPlayer> model = (PlayerModel<AbstractClientPlayer>) (Object) this;
 
+        // Body-follow: attack arm poses keep their shape and follow the torso (bodyBase = the
+        // body's position at capture). Rotation-only (legacy): no bodyBase, arms keep only rotation.
+        Vector3f bodyBase = EMFCompatBetterCombatMod.isBodyFollow()
+                ? new Vector3f(model.body.x, model.body.y, model.body.z)
+                : null;
         PoseManager.savePoses(
                 player.getUUID(), SOURCE,
                 new PoseSnapshot(model.leftArm),
-                new PoseSnapshot(model.rightArm)
+                new PoseSnapshot(model.rightArm),
+                null,
+                bodyBase
         );
     }
 }

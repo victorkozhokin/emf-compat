@@ -37,7 +37,8 @@ public class CreateEMFCompatMixinPlugin implements IMixinConfigPlugin {
                 || mixinClassName.equals("strm.emfcompat.create.mixin.PlayerHoldingHandleRendererMixin")) {
             return aeronauticsLoaded;
         }
-        if (mixinClassName.equals("strm.emfcompat.create.mixin.PlayerGrappleHookAccessor")) {
+        if (mixinClassName.equals("strm.emfcompat.create.mixin.PlayerGrappleHookAccessor")
+                || mixinClassName.equals("strm.emfcompat.create.mixin.PlayerModelGrappleMixin")) {
             return grapplingHooksLoaded;
         }
         if (mixinClassName.equals("strm.emfcompat.create.mixin.HumanoidModelRagdollMixin")) {

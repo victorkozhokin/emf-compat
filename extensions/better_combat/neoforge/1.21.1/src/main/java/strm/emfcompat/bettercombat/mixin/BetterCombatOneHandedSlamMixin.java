@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import strm.emfcompat.bettercombat.EMFCompatBetterCombatMod;
 
 /**
  * Redirects Better Combat's one-handed slam animations to scaled-down versions.
@@ -28,6 +29,9 @@ public class BetterCombatOneHandedSlamMixin {
             argsOnly = true
     )
     private static ResourceLocation emfcompat$redirectOneHandedSlam(ResourceLocation id) {
+        if (!EMFCompatBetterCombatMod.isEnabled()) {
+            return id;
+        }
         if (ORIGINAL_SLAM.equals(id)) {
             return FIXED_SLAM;
         }

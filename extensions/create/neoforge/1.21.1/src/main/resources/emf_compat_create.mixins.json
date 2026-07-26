@@ -3,10 +3,19 @@
   "plugin": "strm.emfcompat.create.mixin.CreateEMFCompatMixinPlugin",
   "client": [
     "PlayerSkyhookRendererAccessor",
+    "PlayerSkyhookRendererMixin",
     "PlayerHoldingHandleRendererAccessor",
     "PlayerHoldingHandleRendererMixin",
     "PlayerGrappleHookAccessor",
+    "PlayerModelGrappleMixin",
     "HumanoidModelRagdollMixin",
-    "ItemSwapAnimationMixin"
+    "ItemSwapAnimationMixin",
+    "FlightMathMethodAccessor",
+    "FlightNbtMethodMixin",
+    "FlightNbtMethodLambdaMixin",
+    "FlightJumpSuppressMixin",
+    "FlightAnimationDetectionMixin",
+    "FlightEMFManagerResetMixin",
+    "CreateSaItemPoseMixin"
   ]
 }

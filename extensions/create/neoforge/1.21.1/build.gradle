@@ -68,6 +68,7 @@ repositories {
 
 configurations {
     aeronauticsBundled
+    cosmonauticsShaded
 }
 
 dependencies {
@@ -82,7 +83,23 @@ dependencies {
 
     aeronauticsBundled 'maven.modrinth:create-aeronautics:1.2.1+mc1.21.1'
     compileOnly files(layout.buildDirectory.file('extracted-aeronautics/simulated-neoforge.jar'))
+
+    // Create Cosmonautics (rocketnautics) — optional at runtime; compiled against a stripped jar.
+    cosmonauticsShaded 'maven.modrinth:create-cosmonatics:26.07.272'
+    compileOnly files(layout.buildDirectory.file('libs/cosmonautics-26.07.272-stripped.jar'))
 }
+
+// The cosmonautics jar ships a META-INF/services/com.sun.source.util.Plugin entry whose
+// provider class (shaded orekit compiler plugin) is missing from the jar, and javac dies while
+// scanning plugins. Repack the jar without that service entry before compiling.
+def stripCosmonautics = tasks.register('stripCosmonautics', Zip) {
+    destinationDirectory = layout.buildDirectory.dir('libs')
+    archiveFileName = 'cosmonautics-26.07.272-stripped.jar'
+    from({ zipTree(configurations.cosmonauticsShaded.singleFile) }) {
+        exclude 'META-INF/services/com.sun.source.util.Plugin'
+    }
+}
+compileJava.dependsOn stripCosmonautics
 
 task extractAeronautics(type: Copy) {
     from(zipTree(configurations.aeronauticsBundled.singleFile).matching {

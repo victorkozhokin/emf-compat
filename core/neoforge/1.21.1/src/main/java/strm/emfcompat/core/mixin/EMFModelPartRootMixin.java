@@ -1,6 +1,7 @@
 package strm.emfcompat.core.mixin;
 
 import net.minecraft.world.entity.Entity;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -69,18 +70,8 @@ public class EMFModelPartRootMixin {
             switch (name) {
                 case "head" -> headPart = part;
                 case "headwear", "hat" -> headwearPart = part;
-                case "left_arm" -> {
-                    if (!hasLeftArmInParts && savedPoses.leftArm() != null) {
-                        savedPoses.leftArm().applyRotation(part);
-                    }
-                    leftArmPart = part;
-                }
-                case "right_arm" -> {
-                    if (!hasRightArmInParts && savedPoses.rightArm() != null) {
-                        savedPoses.rightArm().applyRotation(part);
-                    }
-                    rightArmPart = part;
-                }
+                case "left_arm" -> leftArmPart = part;
+                case "right_arm" -> rightArmPart = part;
                 case "left_sleeve" -> leftSleeve = part;
                 case "right_sleeve" -> rightSleeve = part;
                 case "left_leg" -> leftLegPart = part;
@@ -90,6 +81,24 @@ public class EMFModelPartRootMixin {
                 case "body" -> bodyPart = part;
                 case "jacket" -> jacket = part;
             }
+        }
+
+        // Arms: rotation absolute, position optionally offset by the body's movement since
+        // capture (body-follow) when a bodyBase was supplied. Applied after the loop so the
+        // body part's current position is known.
+        Vector3f bodyDelta = null;
+        Vector3f bodyBase = savedPoses.bodyBase();
+        if (bodyBase != null && bodyPart != null) {
+            bodyDelta = new Vector3f(bodyPart.x - bodyBase.x(), bodyPart.y - bodyBase.y(), bodyPart.z - bodyBase.z());
+        }
+        // Publish the delta so hand-attached objects (e.g. Carry On's carried block) can move
+        // by the same amount and stay in sync with the arms.
+        PoseManager.setBodyFollowDelta(uuid, bodyDelta);
+        if (!hasLeftArmInParts && savedPoses.leftArm() != null && leftArmPart != null) {
+            emfcompat$applyArm(leftArmPart, savedPoses.leftArm(), bodyDelta);
+        }
+        if (!hasRightArmInParts && savedPoses.rightArm() != null && rightArmPart != null) {
+            emfcompat$applyArm(rightArmPart, savedPoses.rightArm(), bodyDelta);
         }
 
         if (headPart != null && headwearPart != null
@@ -110,6 +119,22 @@ public class EMFModelPartRootMixin {
         }
         if (bodyPart != null && jacket != null && !bodyPart.hasChild("jacket")) {
             new PoseSnapshot(bodyPart).apply(jacket);
+        }
+    }
+
+    @Unique
+    private static void emfcompat$applyArm(EMFModelPartVanilla part, PoseSnapshot snap, Vector3f bodyDelta) {
+        // Rotation is always absolute. Without a body delta this is rotation-only (the arm
+        // keeps EMF's position); with one, the pose position follows the moved torso.
+        snap.applyRotation(part);
+        if (bodyDelta != null) {
+            part.x = snap.x + bodyDelta.x;
+            part.y = snap.y + bodyDelta.y;
+            part.z = snap.z + bodyDelta.z;
+            part.xScale = snap.xScale;
+            part.yScale = snap.yScale;
+            part.zScale = snap.zScale;
+            part.visible = snap.visible;
         }
     }
 

@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.PoseSnapshot;
+import strm.emfcompat.takeaseat.TakeASeatEMFCompat;
 import traben.entity_model_features.EMFAnimationApi;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
@@ -28,6 +29,7 @@ public class EMFModelPartRootMixin {
 
     @Inject(method = "animate", at = @At("HEAD"))
     private void takeaseat$capturePoses(CallbackInfo ci) {
+        if (!TakeASeatEMFCompat.isEnabled()) return;
         if (!ModList.get().isLoaded("takeaseat")) return;
         if (EMFAnimationEntityContext.isFirstPersonHand) return;
 

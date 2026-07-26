@@ -5,6 +5,7 @@ import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import strm.emfcompat.bettercombat.EMFCompatBetterCombatMod;
 import strm.emfcompat.bettercombat.compat.AttackPauseOverride;
 import strm.emfcompat.core.PoseManager;
 
@@ -29,6 +30,9 @@ public class EMFAnimationEntityContextMixin {
     private static boolean emfcompat$unpauseDuringBetterCombatAttack(boolean original) {
         if (!original) {
             return false;
+        }
+        if (!EMFCompatBetterCombatMod.isEnabled()) {
+            return original;
         }
 
         var state = EMFAnimationEntityContext.getEmfState();
