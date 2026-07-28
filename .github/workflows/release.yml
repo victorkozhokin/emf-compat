@@ -41,7 +41,7 @@ jobs:
 
       # См. build.yml — core сначала, иначе Loom падает.
       - name: Build core modules first
-        run: ./gradlew :core-fabric-1.21.11:build :core-fabric-1.21.4:build :core-fabric-26.1.2:build :core-fabric-26.2:build :core-forge-1.20.1:build :core-neoforge-1.21.1:build --configure-on-demand --stacktrace
+        run: ./gradlew :core-fabric-1.21.11:build :core-fabric-26.1.2:build :core-fabric-26.2:build :core-forge-1.20.1:build :core-neoforge-1.21.1:build --configure-on-demand --stacktrace
 
       - name: Build all modules
         run: ./gradlew build --stacktrace

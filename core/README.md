@@ -60,7 +60,7 @@ Addons that cover several mods (Create, Gliders) add a toggle per supported mod,
 |--------|-------------------|
 | NeoForge | 1.21.1 |
 | Forge | 1.20.1 |
-| Fabric | 1.21.4, 1.21.11, 26.1.2, 26.2 |
+| Fabric | 1.21.11, 26.1.2, 26.2 |
 
 Addon coverage varies per loader — check each addon's page.
 
@@ -70,7 +70,6 @@ Addon coverage varies per loader — check each addon's page.
 ./gradlew :core-neoforge-1.21.1:build
 ./gradlew :core-forge-1.20.1:build
 ./gradlew :core-fabric-1.21.11:build
-./gradlew :core-fabric-1.21.4:build
 ./gradlew :core-fabric-26.1.2:build
 ./gradlew :core-fabric-26.2:build
 ```

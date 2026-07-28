@@ -70,7 +70,6 @@ Open the in-game config screen (Mods → EMF Compat Core → Config) and pick th
 ./gradlew :nea-neoforge-1.21.1:build
 ./gradlew :nea-forge-1.20.1:build
 ./gradlew :nea-fabric-1.21.11:build
-./gradlew :nea-fabric-1.21.4:build
 ./gradlew :nea-fabric-26.1.2:build
 ./gradlew :nea-fabric-26.2:build
 ```
