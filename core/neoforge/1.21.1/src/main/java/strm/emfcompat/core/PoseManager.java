@@ -21,7 +21,8 @@ public final class PoseManager {
     private PoseManager() {
     }
 
-    private static final String DEFAULT_SOURCE = "default";
+    /** Name of the unnamed source used by {@link #setActiveParts} and the two-arg {@code savePoses}. */
+    public static final String DEFAULT_SOURCE = "default";
 
     public static final Map<UUID, SavedPoses> entitySavedPoses = new HashMap<>();
     public static final Map<UUID, Map<String, SavedPoses>> entitySavedPosesBySource = new HashMap<>();

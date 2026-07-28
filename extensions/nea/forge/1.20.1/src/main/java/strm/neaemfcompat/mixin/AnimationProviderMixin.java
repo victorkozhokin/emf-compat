@@ -21,6 +21,7 @@ import strm.emfcompat.core.ActiveParts;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.PoseManager;
 import strm.neaemfcompat.compat.EMFCompat;
+import strm.neaemfcompat.NEAEMFCompat;
 
 @Mixin(AnimationProvider.class)
 public class AnimationProviderMixin {
@@ -46,6 +47,11 @@ public class AnimationProviderMixin {
 
     @Inject(method = "applyAnimations", at = @At("RETURN"), remap = false)
     private void neaemfcompat$onApplyAnimationsReturn(AbstractClientPlayer entity, PlayerModel model, float delta, float swing, CallbackInfo ci) {
+        if (!NEAEMFCompat.isEnabled()) {
+            PoseManager.clearPoses(entity.getUUID());
+            return;
+        }
+
         BasicAnimation[] animation = this.neaemfcompat$animationArray;
         if (animation == null) {
             PoseManager.clearPoses(entity.getUUID());

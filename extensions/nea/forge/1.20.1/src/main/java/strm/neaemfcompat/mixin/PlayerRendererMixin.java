@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 import strm.emfcompat.core.SavedPoses;
+import strm.neaemfcompat.NEAEMFCompat;
 
 @Mixin(PlayerRenderer.class)
 public class PlayerRendererMixin {
@@ -44,7 +45,12 @@ public class PlayerRendererMixin {
     }
 
     private void restorePose(ModelPart armPart, ModelPart sleevePart, AbstractClientPlayer player) {
-        SavedPoses saved = PoseManager.entitySavedPoses.get(player.getUUID());
+        if (!NEAEMFCompat.isEnabled()) return;
+
+        // Through the API rather than the raw map, so the global switch and any future gating
+        // apply here too. Only NEA's own (default) source — the merged pose would leak other
+        // addons' arms onto the first-person hand.
+        SavedPoses saved = PoseManager.getSavedPoses(player.getUUID(), PoseManager.DEFAULT_SOURCE);
         if (saved == null) return;
 
         PlayerModel<AbstractClientPlayer> model = ((PlayerRenderer) (Object) this).getModel();
