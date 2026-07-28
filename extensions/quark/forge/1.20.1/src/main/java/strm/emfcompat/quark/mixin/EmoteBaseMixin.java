@@ -9,10 +9,12 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.joml.Vector3f;
 import org.violetmoon.quark.content.tweaks.client.emote.EmoteBase;
 import org.violetmoon.quark.content.tweaks.client.emote.ModelAccessor;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
+import strm.emfcompat.quark.EMFCompatQuarkMod;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +40,11 @@ public class EmoteBaseMixin {
         Player player = ((EmoteBaseAccessor) self).emfcompat$getPlayer();
 
         if (!(player instanceof AbstractClientPlayer clientPlayer)) {
+            return;
+        }
+
+        if (!EMFCompatQuarkMod.isEnabled()) {
+            PoseManager.clearPoses(clientPlayer.getUUID(), SOURCE);
             return;
         }
 
@@ -80,12 +87,16 @@ public class EmoteBaseMixin {
         PoseSnapshot leftArmPose = usesLeftArm ? new PoseSnapshot(typedModel.leftArm) : null;
         PoseSnapshot rightArmPose = usesRightArm ? new PoseSnapshot(typedModel.rightArm) : null;
 
+        Vector3f bodyBase = (EMFCompatQuarkMod.isBodyFollow() && (usesLeftArm || usesRightArm))
+                ? new Vector3f(typedModel.body.x, typedModel.body.y, typedModel.body.z)
+                : null;
         PoseManager.savePoses(
                 clientPlayer.getUUID(),
                 SOURCE,
                 leftArmPose,
                 rightArmPose,
-                parts
+                parts,
+                bodyBase
         );
     }
 }
