@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 import strm.emfcompat.core.SavedPoses;
+import strm.emfcompat.bettercombat.EMFCompatBetterCombatMod;
 
 /**
  * Applies the saved Better Combat attack arm pose to the first-person hand model.
@@ -67,6 +68,8 @@ public class PlayerRendererMixin {
     }
 
     private void emfcompat$restoreArmPose(ModelPart armPart, ModelPart sleevePart, AbstractClientPlayer player) {
+        if (!EMFCompatBetterCombatMod.isEnabled()) return;
+
         SavedPoses saved = PoseManager.getSavedPoses(player.getUUID(), SOURCE);
         if (saved == null) return;
 

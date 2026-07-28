@@ -4,16 +4,20 @@ import net.bettercombat.api.AttackHand;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import strm.emfcompat.bettercombat.EMFCompatBetterCombatMod;
 import strm.emfcompat.bettercombat.compat.AttackPauseOverride;
 import strm.emfcompat.bettercombat.compat.BetterCombatCompat;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -29,6 +33,10 @@ public class PlayerModelMixin {
     @Unique
     private static final String SOURCE = "better_combat";
 
+    /** Below this limb-swing amount the player counts as stationary (legs get the attack step). */
+    @Unique
+    private static final float LEG_MOVE_THRESHOLD = 0.15f;
+
     @Inject(method = "setupAnim", at = @At("RETURN"))
     private void emfcompat$captureBetterCombatArmPose(LivingEntity entity, float limbSwing, float limbSwingAmount,
                                                       float ageInTicks, float netHeadYaw, float headPitch,
@@ -37,8 +45,13 @@ public class PlayerModelMixin {
             return;
         }
 
-        AttackHand attackHand = BetterCombatCompat.getAttackHand(player);
         UUID uuid = player.getUUID();
+        if (!EMFCompatBetterCombatMod.isEnabled()) {
+            PoseManager.clearPoses(uuid, SOURCE);
+            return;
+        }
+
+        AttackHand attackHand = BetterCombatCompat.getAttackHand(player);
         if (attackHand == null) {
             AttackPauseOverride.tickCooldown(uuid);
             // Keep the captured arm pose for a few frames after the attack ends so that
@@ -53,10 +66,29 @@ public class PlayerModelMixin {
 
         PlayerModel<AbstractClientPlayer> model = (PlayerModel<AbstractClientPlayer>) (Object) this;
 
+        // Body-follow: attack arm poses keep their shape and follow the torso (bodyBase = the
+        // body's position at capture). Rotation-only (legacy): no bodyBase, arms keep only rotation.
+        Vector3f bodyBase = EMFCompatBetterCombatMod.isBodyFollow()
+                ? new Vector3f(model.body.x, model.body.y, model.body.z)
+                : null;
+
+        // Optionally restore the legs so an attack's step survives EMF. Two safeguards:
+        //  - rotation-only: keeps the legs pivoted at the hip (absolute position detached them);
+        //  - only while roughly stationary: when walking/running, leave the legs to EMF so they
+        //    keep the walk cycle instead of freezing on the attack step.
+        Map<String, PoseSnapshot> parts = null;
+        if (EMFCompatBetterCombatMod.isAttackLegs() && limbSwingAmount < LEG_MOVE_THRESHOLD) {
+            parts = new HashMap<>();
+            parts.put("left_leg", new PoseSnapshot(model.leftLeg, true));
+            parts.put("right_leg", new PoseSnapshot(model.rightLeg, true));
+        }
+
         PoseManager.savePoses(
-                player.getUUID(), SOURCE,
+                uuid, SOURCE,
                 new PoseSnapshot(model.leftArm),
-                new PoseSnapshot(model.rightArm)
+                new PoseSnapshot(model.rightArm),
+                parts,
+                bodyBase
         );
     }
 }

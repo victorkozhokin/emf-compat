@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import strm.emfcompat.bettercombat.EMFCompatBetterCombatMod;
 import strm.emfcompat.bettercombat.compat.AttackPauseOverride;
 import strm.emfcompat.core.PoseManager;
 
@@ -30,6 +31,10 @@ public class EMFAnimationEntityContextMixin {
     private static void emfcompat$unpauseDuringBetterCombatAttack(CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValue()) {
             cir.setReturnValue(false);
+            return;
+        }
+
+        if (!EMFCompatBetterCombatMod.isEnabled()) {
             return;
         }
 
