@@ -107,9 +107,9 @@ public class CarryRenderHelperMixin {
             );
         } else {
             // Legacy: BodyPartSync translation + rotation of the torso.
-            if (!BodyPartSync.hasDelta(player, "body")) return;
-            Vector3f t = BodyPartSync.getTranslationDelta(player, "body");
-            Vector3f r = BodyPartSync.getRotationDelta(player, "body");
+            if (!BodyPartSync.hasDelta(player.getUUID(), "body")) return;
+            Vector3f t = BodyPartSync.getTranslationDelta(player.getUUID(), "body");
+            Vector3f r = BodyPartSync.getRotationDelta(player.getUUID(), "body");
             poseStack.translate(t.x * LEGACY_SCALE, -t.y * LEGACY_SCALE, -t.z * LEGACY_SCALE);
             poseStack.mulPose(new Quaternionf().rotationZYX(-r.z, -r.y, r.x));
         }

@@ -35,7 +35,7 @@ public class EMFModelPartRootMixin {
         EMFModelPartRoot root = (EMFModelPartRoot) (Object) this;
         for (EMFModelPartVanilla part : root.getAllVanillaPartsEMF()) {
             if ("[vanilla part body]".equals(part.toStringShort())) {
-                BodyPartSync.captureCurrent(entity, "body", part);
+                BodyPartSync.captureCurrent(entity.getUUID(), "body", part);
                 break;
             }
         }

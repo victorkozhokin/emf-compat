@@ -35,7 +35,7 @@ public class HumanoidModelMixin {
 
         if (!EMFCarryOnMod.isEnabled() || !CarryOnCompat.isCarrying(player)) {
             PoseManager.clearPoses(player.getUUID(), SOURCE);
-            BodyPartSync.clear(player);
+            BodyPartSync.clear(player.getUUID());
             return;
         }
 
@@ -53,7 +53,7 @@ public class HumanoidModelMixin {
             // the old way via BodyPartSync (translation + rotation). Capture the base body here;
             // the current body is captured after EMF animate (EMFModelPartRootMixin).
             PoseManager.savePoses(player.getUUID(), SOURCE, leftArm, rightArm);
-            BodyPartSync.captureBase(player, "body", model.body);
+            BodyPartSync.captureBase(player.getUUID(), "body", model.body);
         }
 
         // FirstPersonModel hides empty hands in first person. While carrying, force the arms
