@@ -7,7 +7,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import strm.emfcompat.carryon.CarryOnRenderState;
 import strm.emfcompat.carryon.compat.CarryOnCompat;
 import strm.emfcompat.core.BodyPartSync;
 import strm.emfcompat.core.FirstPersonModelCompat;
@@ -15,6 +14,8 @@ import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 
 import java.util.UUID;
+import org.joml.Vector3f;
+import strm.emfcompat.carryon.EMFCarryOnMod;
 
 /**
  * Captures the arm poses set by Carry On at the end of {@link HumanoidModel#setupAnim}.
@@ -32,9 +33,9 @@ public class HumanoidModelMixin {
         if (player.level() == null) return;
 
         UUID uuid = player.getUUID();
-        if (!CarryOnCompat.isCarrying(player)) {
+        if (!EMFCarryOnMod.isEnabled() || !CarryOnCompat.isCarrying(player)) {
             PoseManager.clearPoses(uuid, SOURCE);
-            CarryOnRenderState.clear(uuid);
+            BodyPartSync.clear(uuid);
             return;
         }
 
@@ -42,7 +43,18 @@ public class HumanoidModelMixin {
         PoseSnapshot leftArm = new PoseSnapshot(model.leftArm);
         PoseSnapshot rightArm = new PoseSnapshot(model.rightArm);
 
-        PoseManager.savePoses(uuid, SOURCE, leftArm, rightArm);
+        if (EMFCarryOnMod.isBodyFollow()) {
+            // Body-follow: arms keep their exact pose and track the torso; the carried object
+            // follows via the core's published body-follow delta (translation only).
+            PoseManager.savePoses(uuid, SOURCE, leftArm, rightArm, null,
+                    new Vector3f(model.body.x, model.body.y, model.body.z));
+        } else {
+            // Legacy: arms restored rotation-only, and the carried object synced to the torso
+            // the old way via BodyPartSync (translation + rotation). Capture the base body here;
+            // the current body is captured after EMF animate (EMFModelPartRootMixin).
+            PoseManager.savePoses(uuid, SOURCE, leftArm, rightArm);
+            BodyPartSync.captureBase(uuid, "body", model.body);
+        }
 
         // FirstPersonModel hides empty hands in first person. While carrying, force the arms
         // visible again so the raised Carry On pose is actually rendered.
@@ -50,8 +62,5 @@ public class HumanoidModelMixin {
             model.leftArm.visible = true;
             model.rightArm.visible = true;
         }
-
-        // Capture the base body pose so carried objects can follow torso animation.
-        BodyPartSync.captureBase(uuid, "body", model.body);
     }
 }

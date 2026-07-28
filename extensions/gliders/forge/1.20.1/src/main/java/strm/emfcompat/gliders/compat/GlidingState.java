@@ -2,12 +2,15 @@ package strm.emfcompat.gliders.compat;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.ModList;
+import strm.emfcompat.gliders.GlidersEMFCompat;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 
 /**
  * Central dispatcher for gliding detection across the supported glider mods.
  * Every supported mod is a soft dependency: its compat classes are only touched
  * when the mod is actually loaded, so any subset of them may be installed.
+ *
+ * <p>Reliable Gliders is handled on NeoForge only — that mod has no 1.20.1 build.</p>
  */
 public final class GlidingState {
 
@@ -35,7 +38,8 @@ public final class GlidingState {
      * mod is not installed.
      */
     public static boolean isParagliding(Player player) {
-        return PARAGLIDERS_LOADED && ParagliderCompat.isParagliding(player);
+        return PARAGLIDERS_LOADED && GlidersEMFCompat.isEnabled() && GlidersEMFCompat.isParagliderEnabled()
+                && ParagliderCompat.isParagliding(player);
     }
 
     /**
@@ -43,7 +47,8 @@ public final class GlidingState {
      * installed.
      */
     public static boolean isVcGliding(Player player) {
-        return VC_GLIDERS_LOADED && VCGlidersCompat.isGliding(player);
+        return VC_GLIDERS_LOADED && GlidersEMFCompat.isEnabled() && GlidersEMFCompat.isVcGlidersEnabled()
+                && VCGlidersCompat.isGliding(player);
     }
 
     /**
@@ -51,6 +56,28 @@ public final class GlidingState {
      */
     public static boolean isGliding(Player player) {
         return isParagliding(player) || isVcGliding(player);
+    }
+
+    /**
+     * Whether the glider is still opening — the swinging deploy animation is playing and the
+     * player should not be treated as in flight yet.
+     *
+     * <p>Only VC Gliders has a deploy animation: it plays a full-body Player Animator clip that
+     * starts with the glider snapping open. Paragliders just poses the arms in {@code setupAnim}
+     * with nothing to wait for, so it is never "deploying".</p>
+     */
+    public static boolean isDeploying(Player player) {
+        return VC_GLIDERS_LOADED && GlidersEMFCompat.isEnabled() && GlidersEMFCompat.isVcGlidersEnabled()
+                && VCGlidersCompat.isDeploying(player);
+    }
+
+    /**
+     * Whether the player should be shown in the flight pose — gliding, and past any deploy
+     * animation. This is what drives the {@code abilities.flying} spoof, so the pack's flight
+     * animation only takes over once the glider has finished opening.
+     */
+    public static boolean isInFlightPose(Player player) {
+        return isGliding(player) && !isDeploying(player);
     }
 
     /**
@@ -62,6 +89,19 @@ public final class GlidingState {
         try {
             var state = EMFAnimationEntityContext.getEmfState();
             return state != null && state.emfEntity() instanceof Player player && isGliding(player);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /**
+     * {@link #isInFlightPose(Player)} for the entity currently being animated by EMF. Never
+     * throws, for the same reason as {@link #isCurrentEmfEntityGliding()}.
+     */
+    public static boolean isCurrentEmfEntityInFlightPose() {
+        try {
+            var state = EMFAnimationEntityContext.getEmfState();
+            return state != null && state.emfEntity() instanceof Player player && isInFlightPose(player);
         } catch (Throwable t) {
             return false;
         }

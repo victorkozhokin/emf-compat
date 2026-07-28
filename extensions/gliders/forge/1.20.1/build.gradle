@@ -52,6 +52,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     mavenLocal()
+    maven { url = 'https://maven.kosmx.dev/' }
     exclusiveContent {
         forRepository {
             maven { url = 'https://api.modrinth.com/maven' }
@@ -67,6 +68,10 @@ dependencies {
     compileOnly 'maven.modrinth:XiC6HzoU:gLPEZ1Xm' // Gliders (vc_gliders) 1.2.0+forge for 1.20.1
     compileOnly 'maven.modrinth:entity-model-features:3.2.4-forge-1.20.1'
     compileOnly 'maven.modrinth:entitytexturefeatures:7.1-forge-1.20.1'
+    // Gliders (vc_gliders) plays its glide animation through Player Animator (bundled inside
+    // it, so it is not on the classpath transitively) — needed to read the animation's progress.
+    compileOnly 'dev.kosmx.player-anim:player-animation-lib-forge:1.0.2-rc1+1.20'
+
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 

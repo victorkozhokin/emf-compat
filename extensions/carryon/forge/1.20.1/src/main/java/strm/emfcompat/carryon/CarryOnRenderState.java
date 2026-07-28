@@ -1,7 +1,6 @@
 package strm.emfcompat.carryon;
 
 import net.minecraft.world.entity.Entity;
-import strm.emfcompat.core.BodyPartSync;
 import traben.entity_model_features.EMFAnimationApi;
 
 import java.util.Collections;
@@ -13,8 +12,7 @@ import java.util.UUID;
 /**
  * Tracks Carry On render state that needs to be shared across mixins.
  *
- * <p>Body-part pose deltas are delegated to {@link BodyPartSync} in the core
- * module. This class only keeps Carry-On-specific state: the set of entities
+ * <p>Body-part pose deltas live in the core's BodyPartSync. This class only keeps Carry-On-specific state: the set of entities
  * being carried this frame, used by the registered EMF vanilla-model condition.</p>
  */
 public final class CarryOnRenderState {
@@ -29,6 +27,9 @@ public final class CarryOnRenderState {
     static {
         try {
             EMFAnimationApi.registerVanillaModelCondition(emfEntity -> {
+                if (!EMFCarryOnMod.isEnabled() || !EMFCarryOnMod.forceVanillaCarried()) {
+                    return false;
+                }
                 UUID uuid = emfEntity.etf$getUuid();
                 return uuid != null && CARRIED_ENTITIES.contains(uuid);
             });
@@ -56,12 +57,5 @@ public final class CarryOnRenderState {
      */
     public static void clearCarriedEntities() {
         CARRIED_ENTITIES.clear();
-    }
-
-    /**
-     * Removes all tracked data for the given player UUID.
-     */
-    public static void clear(UUID uuid) {
-        BodyPartSync.clear(uuid);
     }
 }
