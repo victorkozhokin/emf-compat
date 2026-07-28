@@ -16,10 +16,8 @@ The body and legs always stay under EMF's control, so resource-pack animations k
 
 ## Features
 
-- Compatible with **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)**.
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**.
 - GUI / typing / idle poses survive EMF resource-pack animations.
-- Respects WATUT's own config toggles — features disabled in WATUT stay disabled.
-- Smooth transitions — WATUT's own pose lerp plays out instead of snapping.
 - Works for remote players too — statuses are synced by WATUT.
 - Should work with most player animation resource packs using EMF.
 

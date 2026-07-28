@@ -56,6 +56,14 @@ These settings are REQUIRED to set in the mod **Not Enough Animations**.
 - **[Freecam](https://modrinth.com/mod/freecam)** — NEA animations stay correct even when the camera is detached.
 - **[First Person Model](https://modrinth.com/mod/first-person-model)** — NEA animations stay visible on your body in first person.
 
+## Config
+
+Open the in-game config screen (Mods → EMF Compat Core → Config) and pick the **Not Enough Animations** tab:
+
+| Option | What it does |
+|---|---|
+| EMF compatibility | Master switch — turn the whole addon off to get plain Not Enough Animations behaviour. |
+
 ## Build
 
 ```bash

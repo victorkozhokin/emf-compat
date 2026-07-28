@@ -19,6 +19,15 @@ Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resource
 - **[Freecam](https://modrinth.com/mod/freecam)** — item poses stay correct even when the camera is detached.
 - **[First Person Model](https://modrinth.com/mod/first-person-model)** — item poses stay visible on your body in first person.
 
+## Config
+
+Open the in-game config screen (Mods → EMF Compat Core → Config) and pick the **Supplementaries** tab:
+
+| Option | What it does |
+|---|---|
+| EMF compatibility | Master switch — turn the whole addon off to get plain Supplementaries behaviour. |
+| Arm sync | **Body-follow** keeps captured poses attached to your moving torso. **Rotation-only** is the older, simpler behaviour, but in some cases it gives smoother animations. |
+
 ## Build
 
 ```bash

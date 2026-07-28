@@ -19,6 +19,14 @@ Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resource
 - **[Freecam](https://modrinth.com/mod/freecam)** — instrument poses stay correct even when the camera is detached.
 - **[First Person Model](https://modrinth.com/mod/first-person-model)** — instrument poses stay visible on your body in first person.
 
+## Config
+
+Open the in-game config screen (Mods → EMF Compat Core → Config) and pick the **Immersive Melodies** tab:
+
+| Option | What it does |
+|---|---|
+| EMF compatibility | Master switch — turn the whole addon off to get plain Immersive Melodies behaviour. |
+
 ## Build
 
 ```bash

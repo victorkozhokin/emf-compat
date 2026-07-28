@@ -1,30 +1,31 @@
 # EMF Compat
 
-A modular, client-side compatibility framework for **Minecraft** that makes **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations yield to animations added by other mods.
+A modular, client-side compatibility framework for **Minecraft** that lets poses added by other mods survive **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player animations.
 
-Each part of the project is published separately:
+Resource-pack animations through EMF override everything the player model does, so poses from other mods — swinging a weapon, carrying a chest, aiming a gun, sitting down — disappear. Each addon here fixes that for one mod, while leaving the rest of the body animated by the pack.
 
-- **[EMF Compat Core](core/README.md)** — shared framework required by every addon.
-- **[EMF Compat: Create](extensions/create/README.md)** — compatibility with Create's Skyhook, grabbing physics objects, and related addons.
-- **[EMF Compat: Not Enough Animations](extensions/nea/README.md)** — compatibility with Not Enough Animations.
-- **[EMF Compat: Carry On](extensions/carryon/README.md)** — compatibility with Carry On.
-- **[EMF Compat: Immersive Melodies](extensions/immersive_melodies/README.md)** — compatibility with Immersive Melodies.
-- **[EMF Compat: Supplementaries](extensions/supplementaries/README.md)** — compatibility with Supplementaries (Flute, Slingshot, Bubble Blower).
-- **[EMF Compat: Quark](extensions/quark/README.md)** — compatibility with Quark emotes.
+**[EMF Compat Core](core/README.md)** is the shared piece every addon needs, and holds the settings screen for all of them.
 
-## Modrinth
+## Addons
 
-Each addon is published as a separate project:
+| Addon | Makes these work with EMF | Modrinth |
+|---|---|---|
+| [Better Combat](extensions/better_combat/README.md) | Weapon swings, attack poses, RPG Series spellcasting | [link](https://modrinth.com/project/emf-compat-better-combat) |
+| [Carry On](extensions/carryon/README.md) | Carrying blocks, chests and mobs | [link](https://modrinth.com/project/emf-compat-carry-on) |
+| [Create](extensions/create/README.md) | Skyhook, grappling hooks, handles, jetpacks, physics objects | [link](https://modrinth.com/project/emf-compat-create) |
+| [Exposure](extensions/exposure/README.md) | Photos, selfies and tripod cameras | [link](https://modrinth.com/project/emf-compat-exposure) |
+| [Gliders](extensions/gliders/README.md) | Paragliders, Gliders, Reliable Gliders | [link](https://modrinth.com/project/emf-compat-gliders) |
+| [Horse Sync](extensions/horse-sync/README.md) | Sitting steady on an animated horse | [link](https://modrinth.com/project/emf-compat-horse-sync) |
+| [Immersive Melodies](extensions/immersive_melodies/README.md) | Playing instruments | [link](https://modrinth.com/project/emf-compat-immersive-melodies) |
+| [Iron's Spells 'n Spellbooks](extensions/iron_spells/README.md) | Spellcasting poses | [link](https://modrinth.com/project/emf-compat-irons-spells-n-spellbooks) |
+| [Not Enough Animations](extensions/nea/README.md) | Eating, rowing, riding, petting and more | [link](https://modrinth.com/project/emf-compat-not-enough-animations) |
+| [Quark](extensions/quark/README.md) | Quark emotes | [link](https://modrinth.com/project/emf-compat-quark) |
+| [Supplementaries](extensions/supplementaries/README.md) | Flute, slingshot, bubble blower | [link](https://modrinth.com/project/emf-compat-supplementaries) |
+| [TACZ](extensions/tacz/README.md) | Holding, aiming and reloading guns | [link](https://modrinth.com/project/emf-compat-tacz) |
+| [Take a Seat](extensions/takeaseat/README.md) | Sitting on chairs and benches | [link](https://modrinth.com/project/emf-compat-take-a-seat) |
+| [WATUT](extensions/watut/README.md) | Typing, menu and idle status poses | [link](https://modrinth.com/project/emf-compat-watut) |
 
-- **[EMF Compat Core](https://modrinth.com/project/emf-compat-core)**
-- **[EMF Compat: Better Combat](https://modrinth.com/project/emf-compat-better-combat)**
-- **[EMF Compat: Carry On](https://modrinth.com/project/emf-compat-carry-on)**
-- **[EMF Compat: Create](https://modrinth.com/project/emf-compat-create)**
-- **[EMF Compat: Horse Sync](https://modrinth.com/project/emf-compat-horse-sync)**
-- **[EMF Compat: Immersive Melodies](https://modrinth.com/project/emf-compat-immersive-melodies)**
-- **[EMF Compat: Not Enough Animations](https://modrinth.com/project/emf-compat-not-enough-animations)**
-- **[EMF Compat: Quark](https://modrinth.com/project/emf-compat-quark)**
-- **[EMF Compat: Supplementaries](https://modrinth.com/project/emf-compat-supplementaries)**
+Also in this repository: **[Instant Death](extensions/instant_death/README.md)** — a standalone utility mod (not an EMF Compat addon) that removes mobs instantly on death.
 
 ## Build
 

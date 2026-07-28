@@ -31,6 +31,15 @@ The body and legs always stay under EMF's control, so resource-pack animations k
 - [Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures) (required by EMF)
 - EMF Compat Core 1.0.1+
 
+## Config
+
+Open the in-game config screen (Mods → EMF Compat Core → Config) and pick the **WATUT** tab:
+
+| Option | What it does |
+|---|---|
+| EMF compatibility | Master switch — turn the whole addon off to get plain WATUT behaviour. |
+| Arm sync | **Body-follow** keeps captured poses attached to your moving torso. **Rotation-only** is the older, simpler behaviour, but in some cases it gives smoother animations. |
+
 ## Build
 
 ```bash

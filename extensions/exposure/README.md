@@ -21,7 +21,6 @@ The body and legs always stay under EMF's control, so resource-pack walk/idle an
 
 - Camera poses stay visible instead of being overwritten by resource-pack animations.
 - Works for remote players too — the camera state is synced by Exposure.
-- The head is captured rotation-only, so it keeps following the EMF-animated body and the hat/hair doesn't detach.
 - Respects the player's main-hand setting for the selfie pose.
 - Only affects third-person rendering; your own first-person view is left untouched.
 
@@ -31,6 +30,15 @@ The body and legs always stay under EMF's control, so resource-pack walk/idle an
 - [Entity Model Features](https://modrinth.com/mod/entity-model-features) 3.2.4+
 - [Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures) (required by EMF)
 - EMF Compat Core 1.0.1+
+
+## Config
+
+Open the in-game config screen (Mods → EMF Compat Core → Config) and pick the **Exposure** tab:
+
+| Option | What it does |
+|---|---|
+| EMF compatibility | Master switch — turn the whole addon off to get plain Exposure behaviour. |
+| Arm sync | **Body-follow** keeps captured poses attached to your moving torso. **Rotation-only** is the older, simpler behaviour, but in some cases it gives smoother animations. |
 
 ## Build
 
