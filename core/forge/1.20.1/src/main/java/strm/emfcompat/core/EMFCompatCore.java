@@ -9,7 +9,32 @@ import java.util.UUID;
  */
 public final class EMFCompatCore {
 
+    /**
+     * Option id of the global switch. Lives in the core's own config section; when it is off,
+     * every addon's own {@code <addon>.enabled} option reads as off too (see
+     * {@code EMFCompatConfig#getBoolean}), and the core stops handing out saved poses.
+     */
+    public static final String KEY_COMPAT_ENABLED = "core.enabled";
+
+    private static volatile boolean compatEnabled = true;
+
     private EMFCompatCore() {
+    }
+
+    /**
+     * Whether EMF compatibility is enabled at all. {@code false} turns the whole framework
+     * inert: addons report themselves as disabled and no captured pose is ever restored.
+     */
+    public static boolean isCompatEnabled() {
+        return compatEnabled;
+    }
+
+    /**
+     * Sets the global switch. Called by the config on load and whenever the option is toggled;
+     * on loaders without a config screen it simply stays at its default of {@code true}.
+     */
+    public static void setCompatEnabled(boolean enabled) {
+        compatEnabled = enabled;
     }
 
     /**

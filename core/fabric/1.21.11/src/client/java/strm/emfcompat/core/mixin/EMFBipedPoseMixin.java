@@ -1,6 +1,7 @@
 package strm.emfcompat.core.mixin;
 
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -47,7 +48,7 @@ public class EMFBipedPoseMixin {
         }
     }
 
-    private static void emfcompat$applyIfPresent(Map<String, PoseSnapshot> parts, String name, net.minecraft.client.model.geom.ModelPart part) {
+    private static void emfcompat$applyIfPresent(Map<String, PoseSnapshot> parts, String name, ModelPart part) {
         PoseSnapshot snap = parts.get(name);
         // Full pose (rotation + position + scale): a sitting pose moves parts, not just rotates
         // them, so rotation-only left the armor at standing pivots (detached from the body).

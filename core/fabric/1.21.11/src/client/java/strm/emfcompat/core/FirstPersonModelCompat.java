@@ -1,7 +1,9 @@
 package strm.emfcompat.core;
 
 /**
- * Optional compatibility helper for the FirstPersonModel mod.
+ * Optional compatibility with the First Person Model mod.
+ * When FPM is installed and enabled, the local player body is rendered in first person,
+ * so the core should not skip pose capture/restoration.
  */
 public final class FirstPersonModelCompat {
 
