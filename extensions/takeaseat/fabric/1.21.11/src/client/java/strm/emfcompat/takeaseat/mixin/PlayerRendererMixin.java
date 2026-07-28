@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 import strm.emfcompat.core.SavedPoses;
+import strm.emfcompat.takeaseat.TakeASeatEMFCompatClient;
 
 @Mixin(PlayerEntityRenderer.class)
 public class PlayerRendererMixin {
@@ -43,6 +44,8 @@ public class PlayerRendererMixin {
             boolean sleeveVisible,
             CallbackInfo ci
     ) {
+        if (!TakeASeatEMFCompatClient.isEnabled()) return;
+
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
 

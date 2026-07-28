@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 import strm.emfcompat.core.SavedPoses;
+import strm.emfcompat.takeaseat.TakeASeatEMFCompatClient;
 
 @Mixin(PlayerEntityModel.class)
 public class PlayerEntityModelMixin {
@@ -35,6 +36,7 @@ public class PlayerEntityModelMixin {
             MatrixStack matrices,
             CallbackInfo ci
     ) {
+        if (!TakeASeatEMFCompatClient.isEnabled()) return;
         if (MinecraftClient.getInstance().world == null) return;
 
         Entity entity = MinecraftClient.getInstance().world.getEntityById(state.id);

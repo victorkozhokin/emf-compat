@@ -29,6 +29,9 @@ public final class CarryOnRenderState {
     static {
         try {
             EMFAnimationApi.registerVanillaModelCondition(emfEntity -> {
+                if (!EMFCarryOnClient.isEnabled() || !EMFCarryOnClient.forceVanillaCarried()) {
+                    return false;
+                }
                 UUID uuid = emfEntity.etf$getUuid();
                 return uuid != null && CARRIED_ENTITIES.contains(uuid);
             });
@@ -58,10 +61,4 @@ public final class CarryOnRenderState {
         CARRIED_ENTITIES.clear();
     }
 
-    /**
-     * Removes all tracked data for the given player UUID.
-     */
-    public static void clear(UUID uuid) {
-        BodyPartSync.clear(uuid);
-    }
 }

@@ -18,6 +18,8 @@ import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 
 import java.util.UUID;
+import org.joml.Vector3f;
+import strm.emfcompat.carryon.EMFCarryOnClient;
 
 /**
  * Captures the arm poses set by Carry On at the end of {@link HumanoidModel#setupAnim}.
@@ -44,15 +46,24 @@ public class HumanoidModelMixin {
         if (!(entity instanceof Player player)) return;
 
         UUID uuid = player.getUUID();
-        if (!CarryOnCompat.isCarrying(player)) {
+        if (!EMFCarryOnClient.isEnabled() || !CarryOnCompat.isCarrying(player)) {
             PoseManager.clearPoses(uuid, SOURCE);
-            CarryOnRenderState.clear(uuid);
+            BodyPartSync.clear(uuid);
             return;
         }
 
-        PoseManager.savePoses(uuid, SOURCE, new PoseSnapshot(model.leftArm), new PoseSnapshot(model.rightArm));
-
-        // Capture the base body pose so carried objects can follow torso animation.
-        BodyPartSync.captureBase(uuid, "body", model.body);
+        if (EMFCarryOnClient.isBodyFollow()) {
+            // Body-follow: arms keep their exact pose and track the torso; the carried object
+            // follows via the core's published body-follow delta (translation only).
+            PoseManager.savePoses(uuid, SOURCE,
+                    new PoseSnapshot(model.leftArm), new PoseSnapshot(model.rightArm), null,
+                    new Vector3f(model.body.x, model.body.y, model.body.z));
+        } else {
+            // Legacy: arms restored rotation-only, and the carried object synced to the torso
+            // the old way via BodyPartSync (translation + rotation). Capture the base body here;
+            // the current body is captured after EMF animate (EMFModelPartRootMixin).
+            PoseManager.savePoses(uuid, SOURCE, new PoseSnapshot(model.leftArm), new PoseSnapshot(model.rightArm));
+            BodyPartSync.captureBase(uuid, "body", model.body);
+        }
     }
 }

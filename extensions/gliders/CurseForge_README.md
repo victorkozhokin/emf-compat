@@ -15,6 +15,4 @@ Tested with **[Fresh Animations: Player Extension](https://www.curseforge.com/mi
 - Head tracking keeps working while gliding.
 - Should work with most player animation resource packs using EMF.
 
-## Compatability
-
 enjoy ^_^

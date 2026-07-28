@@ -10,6 +10,7 @@ import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 
 import java.util.UUID;
+import strm.emfcompat.carryon.EMFCarryOnClient;
 
 /**
  * Captures the EMF-animated torso pose after EMF animation has run.
@@ -21,6 +22,10 @@ public class EMFModelPartRootMixin {
 
     @Inject(method = "animate", at = @At("RETURN"))
     private void carryonemfcompat$captureCurrentBodyPose(CallbackInfo ci) {
+        if (!EMFCarryOnClient.isEnabled() || EMFCarryOnClient.isBodyFollow()) {
+            return;
+        }
+
         var state = EMFAnimationEntityContext.getEmfState();
         if (state == null || state.emfEntity() == null) return;
 
