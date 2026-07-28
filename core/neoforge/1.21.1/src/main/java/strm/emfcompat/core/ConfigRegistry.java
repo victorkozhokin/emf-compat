@@ -11,6 +11,11 @@ import java.util.Map;
  * tabs. The core registers a {@code "core"} section (shown first, selected by default); each
  * addon registers its own section and options at mod construction, keeping the core decoupled
  * from addon-specific settings. Values live in {@link EMFCompatConfig}, keyed by option id.
+ *
+ * <p><b>Naming rule:</b> an addon's master on/off option must be named {@code <addon>.enabled}
+ * and must gate everything that addon does. The core's global switch works by forcing every key
+ * with that suffix to read as off, so an addon whose master option is named differently would
+ * keep running after the user turns compatibility off. See {@link EMFCompatConfig#getBoolean}.</p>
  */
 public final class ConfigRegistry {
 

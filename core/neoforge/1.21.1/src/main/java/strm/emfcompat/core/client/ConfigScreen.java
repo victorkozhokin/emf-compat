@@ -79,7 +79,9 @@ public class ConfigScreen extends Screen {
                 addRenderableWidget(CycleButton.<Boolean>builder(
                                 v -> Component.literal(v ? opt.onText : opt.offText))
                         .withValues(Boolean.TRUE, Boolean.FALSE)
-                        .withInitialValue(EMFCompatConfig.getBoolean(opt.key, opt.defaultValue))
+                        // Raw: show what each option is actually set to, even when the global
+                        // switch is currently forcing every addon off.
+                        .withInitialValue(EMFCompatConfig.getBooleanRaw(opt.key, opt.defaultValue))
                         .withTooltip(v -> Tooltip.create(Component.literal(v ? opt.onTooltip : opt.offTooltip)))
                         .create(optX, optY, optW, ROW_HEIGHT, Component.literal(opt.label),
                                 (btn, value) -> EMFCompatConfig.setBoolean(opt.key, value)));

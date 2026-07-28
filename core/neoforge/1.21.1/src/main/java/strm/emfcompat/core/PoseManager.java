@@ -78,6 +78,7 @@ public final class PoseManager {
      * Consumers can apply the same delta to hand-attached objects to keep them in sync.
      */
     public static org.joml.Vector3f getBodyFollowDelta(UUID uuid) {
+        if (!EMFCompatCore.isCompatEnabled()) return null;
         return bodyFollowDelta.get(uuid);
     }
 
@@ -221,6 +222,7 @@ public final class PoseManager {
      * whole upper body while an action controls the arms.
      */
     public static boolean hasArmPoseExcept(UUID uuid, String excludeSource) {
+        if (!EMFCompatCore.isCompatEnabled()) return false;
         SavedPoses def = entitySavedPoses.get(uuid);
         if (def != null && emfcompat$armPosed(def)) {
             return true;
@@ -254,10 +256,20 @@ public final class PoseManager {
      * overrides a riding-seat parts pose for the arms while the seat keeps the legs/body.</p>
      */
     public static SavedPoses getSavedPoses(UUID uuid) {
+        // Global switch: hand out nothing, so every restore site becomes a no-op even if an
+        // addon keeps capturing.
+        if (!EMFCompatCore.isCompatEnabled()) return null;
         SavedPoses defaultPoses = entitySavedPoses.get(uuid);
         Map<String, SavedPoses> sources = entitySavedPosesBySource.get(uuid);
         if (sources == null || sources.isEmpty()) {
             return defaultPoses;
+        }
+        // Fast path (the common active case): a single named source and no default — return it
+        // directly, no allocation or sort. A single-source merge produces the same result, and no
+        // addon poses an arm through both the slot and the parts map at once. Consumers only read
+        // the result, so sharing the reference is safe.
+        if (defaultPoses == null && sources.size() == 1) {
+            return sources.values().iterator().next();
         }
 
         Map<String, PoseSnapshot> parts = new HashMap<>();
@@ -273,12 +285,19 @@ public final class PoseManager {
             bodyBase = defaultPoses.bodyBase();
         }
 
-        List<Map.Entry<String, SavedPoses>> ordered = new ArrayList<>(sources.entrySet());
-        // Ascending priority; ties broken by source name so the merge is fully deterministic
-        // (never relies on HashMap iteration order).
-        ordered.sort(Comparator
-                .comparingInt((Map.Entry<String, SavedPoses> e) -> priorityOf(e.getKey()))
-                .thenComparing(Map.Entry::getKey));
+        // Only allocate + sort when there's actually more than one named source to order.
+        Collection<Map.Entry<String, SavedPoses>> ordered;
+        if (sources.size() > 1) {
+            List<Map.Entry<String, SavedPoses>> list = new ArrayList<>(sources.entrySet());
+            // Ascending priority; ties broken by source name so the merge is fully deterministic
+            // (never relies on HashMap iteration order).
+            list.sort(Comparator
+                    .comparingInt((Map.Entry<String, SavedPoses> e) -> priorityOf(e.getKey()))
+                    .thenComparing(Map.Entry::getKey));
+            ordered = list;
+        } else {
+            ordered = sources.entrySet();
+        }
 
         for (Map.Entry<String, SavedPoses> entry : ordered) {
             SavedPoses poses = entry.getValue();
@@ -314,6 +333,7 @@ public final class PoseManager {
      * captured specifically for that source (for example the live EMF-animated arm pose).
      */
     public static SavedPoses getSavedPoses(UUID uuid, String source) {
+        if (!EMFCompatCore.isCompatEnabled()) return null;
         if (DEFAULT_SOURCE.equals(source)) {
             return entitySavedPoses.get(uuid);
         }

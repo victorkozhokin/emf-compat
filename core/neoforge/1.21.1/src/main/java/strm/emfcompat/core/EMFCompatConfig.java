@@ -27,6 +27,9 @@ public final class EMFCompatConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger("emf_compat");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
+    /** Naming convention for an addon's master option; see {@link #getBoolean}. */
+    private static final String ENABLED_SUFFIX = ".enabled";
+
     /** Bumped when the schema changes so a future upgrader can migrate old files. */
     public int configVersion = 1;
 
@@ -43,13 +46,36 @@ public final class EMFCompatConfig {
         return instance;
     }
 
+    /**
+     * Reads a boolean option, honouring the global switch.
+     *
+     * <p>By convention every addon's master option is named {@code <addon>.enabled} and gates all
+     * of that addon's behaviour. So while {@link EMFCompatCore#isCompatEnabled()} is off, those
+     * keys all read as {@code false} and the addons turn themselves off — mod-specific extras
+     * (first-person vanilla-model conditions, EMF un-pausing, animation spoofs) included. New
+     * addons must follow the same naming to be covered. Use {@link #getBooleanRaw} to read the
+     * stored value regardless (the config screen does, so it shows real settings).</p>
+     */
     public static boolean getBoolean(String key, boolean defaultValue) {
+        if (!EMFCompatCore.isCompatEnabled()
+                && key.endsWith(ENABLED_SUFFIX)
+                && !EMFCompatCore.KEY_COMPAT_ENABLED.equals(key)) {
+            return false;
+        }
+        return getBooleanRaw(key, defaultValue);
+    }
+
+    /** Reads the stored value of an option, ignoring the global switch. */
+    public static boolean getBooleanRaw(String key, boolean defaultValue) {
         Boolean v = instance.booleans.get(key);
         return v != null ? v : defaultValue;
     }
 
     public static void setBoolean(String key, boolean value) {
         instance.booleans.put(key, value);
+        if (EMFCompatCore.KEY_COMPAT_ENABLED.equals(key)) {
+            EMFCompatCore.setCompatEnabled(value);
+        }
     }
 
     /** Binds the config file and loads it (writing defaults if absent). */
@@ -72,6 +98,8 @@ public final class EMFCompatConfig {
                 LOGGER.warn("[emf_compat] Failed to read config {}, using defaults", file, e);
             }
         }
+        // Mirror the global switch into the core, which reads it on the render path.
+        EMFCompatCore.setCompatEnabled(getBooleanRaw(EMFCompatCore.KEY_COMPAT_ENABLED, true));
         save();
     }
 
