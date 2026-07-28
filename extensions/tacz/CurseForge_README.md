@@ -24,8 +24,6 @@ The body and legs always stay under EMF's control, so resource-pack walk and idl
 - Your hands stay on the gun instead of falling back to the resource-pack idle animation.
 - Aiming, reloading and shooting poses stay visible in third person.
 - The head follows your aim while TACZ animates it, and keeps its resource-pack motion otherwise.
-- Arms follow your moving torso, so the gun doesn't drift away from your body while you walk.
-- Works for other players too, so everyone holds their guns properly.
-- Your own first-person view is left untouched.
+- Works for other players too, so everyone holds their big irons.
 
 enjoy ^_^

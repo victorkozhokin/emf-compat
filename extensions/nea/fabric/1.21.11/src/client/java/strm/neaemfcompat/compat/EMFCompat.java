@@ -15,6 +15,7 @@ import dev.tr7zw.notenoughanimations.animations.hands.PetAnimation;
 import dev.tr7zw.notenoughanimations.versionless.NEABaseMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import strm.neaemfcompat.NEAEMFCompatClient;
 import traben.entity_model_features.EMFAnimationApi;
 import traben.entity_model_features.utils.EMFEntity;
 
@@ -45,6 +46,10 @@ public class EMFCompat {
     }
 
     private static boolean shouldForceVanillaModel(EMFEntity emfEntity) {
+        // Checked here rather than at registration time, so the toggle applies immediately.
+        if (!NEAEMFCompatClient.isEnabled()) {
+            return false;
+        }
         if (emfEntity.etf$isBlockEntity()) {
             return false;
         }

@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.PoseManager;
+import strm.neaemfcompat.NEAEMFCompatClient;
 import strm.emfcompat.core.PoseSnapshot;
 
 @Mixin(PlayerEntityModel.class)
@@ -22,6 +23,7 @@ public class PlayerEntityModelMixin {
             at = @At("HEAD")
     )
     private void neaemfcompat$restoreArmPoseForItem(PlayerEntityRenderState state, Arm arm, MatrixStack matrices, CallbackInfo ci) {
+        if (!NEAEMFCompatClient.isEnabled()) return;
         if (MinecraftClient.getInstance().world == null) return;
         Entity entity = MinecraftClient.getInstance().world.getEntityById(state.id);
         if (!(entity instanceof AbstractClientPlayerEntity player)) return;
