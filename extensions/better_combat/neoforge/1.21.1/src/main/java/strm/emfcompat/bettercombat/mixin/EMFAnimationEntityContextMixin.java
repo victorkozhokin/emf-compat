@@ -53,6 +53,12 @@ public class EMFAnimationEntityContextMixin {
         if (AttackPauseOverride.isUnpaused(uuid)) {
             return false;
         }
-        return PoseManager.getSavedPoses(uuid, SOURCE) == null;
+        // Unpause for a Better Combat attack pose OR a generic (Spell Engine / RPG Series) capture,
+        // so the body/legs keep their EMF animations while the arms are restored afterwards.
+        if (PoseManager.getSavedPoses(uuid, SOURCE) != null
+                || PoseManager.getSavedPoses(uuid, EMFCompatBetterCombatMod.GENERIC_SOURCE) != null) {
+            return false;
+        }
+        return original;
     }
 }

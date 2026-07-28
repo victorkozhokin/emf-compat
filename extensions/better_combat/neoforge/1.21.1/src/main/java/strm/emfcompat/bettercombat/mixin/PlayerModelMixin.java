@@ -16,6 +16,9 @@ import strm.emfcompat.bettercombat.compat.BetterCombatCompat;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Captures the arms during an active Better Combat attack.
  * The body, head, legs and jacket remain under EMF's control so that resource-pack animations there keep running.
@@ -28,6 +31,10 @@ public class PlayerModelMixin {
 
     @Unique
     private static final String SOURCE = "better_combat";
+
+    /** Below this limb-swing amount the player counts as stationary (legs get the attack step). */
+    @Unique
+    private static final float LEG_MOVE_THRESHOLD = 0.15f;
 
     @Inject(method = "setupAnim", at = @At("RETURN"))
     private void emfcompat$captureBetterCombatArmPose(LivingEntity entity, float limbSwing, float limbSwingAmount,
@@ -58,11 +65,23 @@ public class PlayerModelMixin {
         Vector3f bodyBase = EMFCompatBetterCombatMod.isBodyFollow()
                 ? new Vector3f(model.body.x, model.body.y, model.body.z)
                 : null;
+
+        // Optionally restore the legs so an attack's step survives EMF. Two safeguards:
+        //  - rotation-only: keeps the legs pivoted at the hip (absolute position detached them);
+        //  - only while roughly stationary: when walking/running, leave the legs to EMF so they
+        //    keep the walk cycle instead of freezing on the attack step.
+        Map<String, PoseSnapshot> parts = null;
+        if (EMFCompatBetterCombatMod.isAttackLegs() && limbSwingAmount < LEG_MOVE_THRESHOLD) {
+            parts = new HashMap<>();
+            parts.put("left_leg", new PoseSnapshot(model.leftLeg, true));
+            parts.put("right_leg", new PoseSnapshot(model.rightLeg, true));
+        }
+
         PoseManager.savePoses(
                 player.getUUID(), SOURCE,
                 new PoseSnapshot(model.leftArm),
                 new PoseSnapshot(model.rightArm),
-                null,
+                parts,
                 bodyBase
         );
     }
