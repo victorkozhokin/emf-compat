@@ -1,5 +1,7 @@
 # EMF Compat: WATUT
 
+![Sleep..](https://cdn.modrinth.com/data/PIxeWxJ0/images/3969d7c7e9ec076fa0a1fa20e6eafbec2b072705.gif)
+
 A small client-side mod that makes **[What Are They Up To](https://www.curseforge.com/minecraft/mc-mods/what-are-they-up-to-watut)** status poses work correctly with **[Entity Model Features](https://www.curseforge.com/minecraft/mc-mods/entity-model-features)** player models.
 
 Tested with **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)** and **[Detailed Animations](https://www.curseforge.com/minecraft/texture-packs/detailed-animations)** but it should work with any player animation resource pack.

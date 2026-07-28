@@ -1,5 +1,7 @@
 # EMF Compat: Take a Seat
 
+![Sit](https://cdn.modrinth.com/data/npIU8sEo/images/b4049d7e82ed9288114e2d86ce049671914dd2fd.gif)
+
 A small client-side mod that makes **[Take a Seat](https://modrinth.com/mod/take-a-seat)** sitting poses work correctly with **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player models.
 
 Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.
@@ -18,12 +20,11 @@ The head stays under EMF's control, so you can still look around naturally while
 
 - Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**.
 - Sitting poses stay visible instead of being overwritten by the resource-pack animation.
-- Held items and your first-person hands match the seated pose.
-- Works for other players too, so everyone actually sits on the furniture.
-- Your character stands back up cleanly when you leave the seat.
+- Works for other players too, so everyone actually sits.
 
 ## Known issues
 
-On 1.21.11+, armour can sit slightly loose on the body while you move or crouch, so skin layers may poke through it. This comes from how EMF sizes the armour model and is not specific to this addon.
+On 1.21.11+, armour can sit slightly loose on the body while you move or crouch, so skin layers may poke through it. 
+This comes from how EMF sizes the armour model and is not specific to this addon.
 
 enjoy ^_^

@@ -1,6 +1,8 @@
 # EMF Compat: TACZ
 
-A small client-side mod that makes **[Timeless and Classics Zero](https://www.curseforge.com/minecraft/mc-mods/timeless-and-classics-zero)** gun poses work correctly with **[Entity Model Features](https://www.curseforge.com/minecraft/mc-mods/entity-model-features)** player models.
+![Fresh Reload](https://cdn.modrinth.com/data/vPnbqVkb/images/52102bc3f265f42e31aef6517048cedb3f30e865.gif)
+
+A small client-side mod that makes **[Timeless and Classics Zero](https://www.curseforge.com/minecraft/mc-mods/tacz-1-21-1)** gun poses work correctly with **[Entity Model Features](https://www.curseforge.com/minecraft/mc-mods/entity-model-features)** player models.
 
 Tested with **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)** and **[Detailed Animations](https://www.curseforge.com/minecraft/texture-packs/detailed-animations)** but it should work with any player animation resource pack.
 

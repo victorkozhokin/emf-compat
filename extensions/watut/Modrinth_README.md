@@ -1,5 +1,7 @@
 # EMF Compat: WATUT
 
+![Sleep..](https://cdn.modrinth.com/data/PIxeWxJ0/images/3969d7c7e9ec076fa0a1fa20e6eafbec2b072705.gif)
+
 A small client-side mod that makes **[What Are They Up To](https://modrinth.com/mod/what-are-they-up-to)** status poses work correctly with **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player models.
 
 Tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and **[Detailed Animations](https://modrinth.com/resourcepack/detailed-animations)** but it should work with any player animation resource pack.

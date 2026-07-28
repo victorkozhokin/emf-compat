@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import strm.CreateFlyEmfCompatClient;
 import strm.createFlyEmfCompat.compat.SkyhookHelper;
 
 @Mixin(value = ItemSwapAnimation.class, remap = false)
@@ -14,6 +15,9 @@ public class ItemSwapAnimationMixin {
 
     @Inject(method = "isValid", at = @At("RETURN"), cancellable = true, remap = false)
     private void createFlyEmfCompat$disableSwapWhileSkyhooking(AbstractClientPlayerEntity player, PlayerData data, CallbackInfoReturnable<Boolean> cir) {
+        if (!CreateFlyEmfCompatClient.isEnabled() || !CreateFlyEmfCompatClient.isNeaItemSwapFix()) {
+            return;
+        }
         if (cir.getReturnValue() && SkyhookHelper.isSkyhooking(player.getUuid())) {
             cir.setReturnValue(false);
         }

@@ -1,5 +1,7 @@
 # EMF Compat: Iron's Spells 'n Spellbooks
 
+![Fresh Spells](https://cdn.modrinth.com/data/rk0DMjc3/images/e8b26a70aa5f41b2e2b5b248ceb221799df35315.gif)
+
 A small client-side mod that makes **[Iron's Spells 'n Spellbooks](https://www.curseforge.com/minecraft/mc-mods/irons-spells-n-spellbooks)** casting poses work correctly with **[Entity Model Features](https://www.curseforge.com/minecraft/mc-mods/entity-model-features)** player models.
 
 Tested with **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)** and **[Detailed Animations](https://www.curseforge.com/minecraft/texture-packs/detailed-animations)** but it should work with any player animation resource pack.

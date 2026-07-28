@@ -42,7 +42,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    implementation project(":core-fabric-1.21.11")
+    modImplementation project(":core-fabric-1.21.11")
 
     compileOnly "maven.modrinth:create-fly:${create_fly_version}"
 

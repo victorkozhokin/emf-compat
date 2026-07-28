@@ -1,5 +1,7 @@
 # EMF Compat: Take a Seat
 
+![Sit](https://cdn.modrinth.com/data/npIU8sEo/images/b4049d7e82ed9288114e2d86ce049671914dd2fd.gif)
+
 A small client-side mod that makes **[Take a Seat](https://www.curseforge.com/minecraft/mc-mods/take-a-seat)** sitting poses work correctly with **[Entity Model Features](https://www.curseforge.com/minecraft/mc-mods/entity-model-features)** player models.
 
 Tested with **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)** and **[Detailed Animations](https://www.curseforge.com/minecraft/texture-packs/detailed-animations)** but it should work with any player animation resource pack.

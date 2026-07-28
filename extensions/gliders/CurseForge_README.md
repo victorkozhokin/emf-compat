@@ -1,5 +1,7 @@
 # EMF Compat: Gliders
 
+![Gliders](https://cdn.modrinth.com/data/PsGWhwc8/images/fe7e0cc2e8e585bfe083833edbb90953abb23e02.gif)
+
 A small client-side mod that makes gliding poses work correctly with **[Entity Model Features](https://www.curseforge.com/minecraft/mc-mods/entity-model-features)** player models.
 
 Supports three glider mods — **[Paragliders](https://www.curseforge.com/minecraft/mc-mods/paragliders)**, **[Gliders](https://www.curseforge.com/minecraft/mc-mods/gliders)** and **Reliable Gliders** — any combination of them, each with its own toggle.
@@ -9,11 +11,10 @@ Tested with **[Fresh Animations: Player Extension](https://www.curseforge.com/mi
 ## Features
 
 - Compatible with **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)**.
-- Your gliding pose stays visible instead of being overwritten by the resource pack.
-- If your pack has a flying animation, it plays while you glide — with all three glider mods.
-- The glider's opening animation plays in full: your body and legs swing under it, and only then do you settle into the flying pose.
-- The head stays under EMF control, so head tracking keeps working while gliding.
-- Works for other players too, not just you.
+- Arms and legs keep the gliding pose over EMF animations while paragliding.
+- Head tracking keeps working while gliding.
 - Should work with most player animation resource packs using EMF.
+
+## Compatability
 
 enjoy ^_^

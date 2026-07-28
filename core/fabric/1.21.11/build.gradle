@@ -23,6 +23,10 @@ loom {
 
 repositories {
     mavenLocal()
+    maven {
+        name = "TerraformersMC"
+        url = "https://maven.terraformersmc.com/releases"
+    }
     exclusiveContent {
         forRepository {
             maven {
@@ -44,6 +48,9 @@ dependencies {
 
     modCompileOnly "maven.modrinth:entity-model-features:${emf_version}-fabric-${minecraft_version}"
     modCompileOnly "maven.modrinth:entitytexturefeatures:${etf_version}-fabric-${minecraft_version}"
+    // Optional: the settings screen is reached through Mod Menu. Compile-only, so the
+    // core works without it — there is just no button in the mod list.
+    modCompileOnly "com.terraformersmc:modmenu:${modmenu_version}"
 }
 
 processResources {

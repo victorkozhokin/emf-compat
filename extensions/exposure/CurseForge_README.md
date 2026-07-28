@@ -1,5 +1,7 @@
 # EMF Compat: Exposure
 
+![Kitty](https://cdn.modrinth.com/data/mHqWFw6Z/images/d53d779ef2229f141e16db690df60d6b2bce82ff.gif)
+
 A small client-side mod that makes **[Exposure](https://www.curseforge.com/minecraft/mc-mods/exposure)** camera poses work correctly with **[Entity Model Features](https://www.curseforge.com/minecraft/mc-mods/entity-model-features)** player models.
 
 Tested with **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)** and **[Detailed Animations](https://www.curseforge.com/minecraft/texture-packs/detailed-animations)** but it should work with any player animation resource pack.
