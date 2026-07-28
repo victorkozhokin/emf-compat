@@ -34,7 +34,7 @@ public class NBTMethodLambdaMixin {
 
         accessor.gliders$setSupplier(() -> {
             if (FlightAnimationSupport.isPackFlightAware()
-                    && GlidingState.isCurrentEmfEntityGliding()) {
+                    && GlidingState.isCurrentEmfEntityInFlightPose()) {
                 // EMF encodes boolean animation values as +/-Infinity, not 1f/0f.
                 return MathValue.fromBoolean(expectOne);
             }

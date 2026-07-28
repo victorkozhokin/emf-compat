@@ -39,17 +39,18 @@ public class GlidersEMFCompat {
                         "Gliding arm poses keep only their rotation.");
         if (GlidingState.isParaglidersLoaded()) {
             section.addBoolean(KEY_PARAGLIDER, "Paragliders", true,
-                    "On", "Hold the paragliding arm pose over EMF.",
+                    "On", "Hold the paragliding pose, and play your pack's flight animation while gliding.",
                     "Off", "Leave paragliding to EMF.");
         }
         if (GlidingState.isVcGlidersLoaded()) {
             section.addBoolean(KEY_VC_GLIDERS, "Gliders (vc)", true,
-                    "On", "Hold the VC glider arm pose over EMF and play the flight animation.",
+                    "On", "Play the glider's opening animation in full, then hold the gliding pose "
+                            + "and your pack's flight animation.",
                     "Off", "Leave VC gliding to EMF.");
         }
         if (GlidingState.isReliableGlidersLoaded()) {
             section.addBoolean(KEY_RELIABLE_GLIDERS, "Reliable Gliders", true,
-                    "On", "Hold the Reliable Gliders arm pose over EMF.",
+                    "On", "Hold the Reliable Gliders pose, and play your pack's flight animation while gliding.",
                     "Off", "Leave Reliable Gliders to EMF.");
         }
     }

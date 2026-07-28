@@ -25,7 +25,7 @@ public class NBTMethodMixin {
     private static void gliders$spoofGliding(String key, String expected, CallbackInfoReturnable<Boolean> cir) {
         if (!"abilities.flying".equals(key.trim())) return;
         if (!FlightAnimationSupport.isPackFlightAware()) return;
-        if (GlidingState.isCurrentEmfEntityGliding()) {
+        if (GlidingState.isCurrentEmfEntityInFlightPose()) {
             // Pretend abilities.flying == 1: true only when the animation expects "1".
             cir.setReturnValue("1".equals(expected.trim()));
         }

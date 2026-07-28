@@ -71,6 +71,28 @@ public final class GlidingState {
     }
 
     /**
+     * Whether the glider is still opening — the swinging deploy animation is playing and the
+     * player should not be treated as in flight yet.
+     *
+     * <p>Only VC Gliders has a deploy animation: it plays a full-body Player Animator clip that
+     * starts with the glider snapping open. Paragliders and Reliable Gliders just pose the arms
+     * in {@code setupAnim} with nothing to wait for, so they are never "deploying".</p>
+     */
+    public static boolean isDeploying(Player player) {
+        return VC_GLIDERS_LOADED && GlidersEMFCompat.isEnabled() && GlidersEMFCompat.isVcGlidersEnabled()
+                && VCGlidersCompat.isDeploying(player);
+    }
+
+    /**
+     * Whether the player should be shown in the flight pose — gliding, and past any deploy
+     * animation. This is what drives the {@code abilities.flying} spoof, so the pack's flight
+     * animation only takes over once the glider has finished opening.
+     */
+    public static boolean isInFlightPose(Player player) {
+        return isGliding(player) && !isDeploying(player);
+    }
+
+    /**
      * Resolves the entity currently being animated by EMF and checks it for
      * gliding with any supported mod. Never throws: EMF disables ALL animations
      * of a model if an exception escapes animation evaluation.
@@ -79,6 +101,19 @@ public final class GlidingState {
         try {
             var state = EMFAnimationEntityContext.getEmfState();
             return state != null && state.emfEntity() instanceof Player player && isGliding(player);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /**
+     * {@link #isInFlightPose(Player)} for the entity currently being animated by EMF. Never
+     * throws, for the same reason as {@link #isCurrentEmfEntityGliding()}.
+     */
+    public static boolean isCurrentEmfEntityInFlightPose() {
+        try {
+            var state = EMFAnimationEntityContext.getEmfState();
+            return state != null && state.emfEntity() instanceof Player player && isInFlightPose(player);
         } catch (Throwable t) {
             return false;
         }
