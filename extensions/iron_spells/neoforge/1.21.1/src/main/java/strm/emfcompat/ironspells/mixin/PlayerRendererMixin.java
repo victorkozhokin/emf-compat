@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 import strm.emfcompat.core.SavedPoses;
+import strm.emfcompat.ironspells.EMFCompatIronSpellsMod;
 
 /**
  * Applies the saved Iron's Spells arm pose to the first-person hand model.
@@ -24,7 +25,7 @@ import strm.emfcompat.core.SavedPoses;
 public class PlayerRendererMixin {
 
     @Unique
-    private static final String SOURCE = "iron_spells";
+    private static final String SOURCE = EMFCompatIronSpellsMod.SOURCE;
 
     @Inject(
             method = "renderHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;Lnet/minecraft/client/model/geom/ModelPart;Lnet/minecraft/client/model/geom/ModelPart;)V",

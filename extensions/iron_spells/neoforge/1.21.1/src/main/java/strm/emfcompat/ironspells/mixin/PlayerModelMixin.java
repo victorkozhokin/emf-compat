@@ -28,7 +28,7 @@ import strm.emfcompat.ironspells.compat.IronSpellsCompat;
 public class PlayerModelMixin {
 
     @Unique
-    private static final String SOURCE = "iron_spells";
+    private static final String SOURCE = EMFCompatIronSpellsMod.SOURCE;
 
     @Inject(method = "setupAnim", at = @At("RETURN"))
     private void emfcompat$captureIronSpellsCastingPose(LivingEntity entity, float limbSwing, float limbSwingAmount,

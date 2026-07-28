@@ -14,6 +14,7 @@ import traben.entity_model_features.utils.EMFEntity;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.EMFCompatCore;
+import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.ironspells.compat.IronSpellsCompat;
 
 import java.util.UUID;
@@ -26,7 +27,19 @@ public class EMFCompatIronSpellsMod {
     public static final String KEY_ENABLED = "ironspells.enabled";
     public static final String KEY_BODY_FOLLOW_ARMS = "ironspells.bodyFollowArms";
 
+    /** Pose source name for the casting pose. */
+    public static final String SOURCE = "iron_spells";
+
+    /**
+     * Merge priority for the casting pose. Above the default 0 used by the gun/weapon addons
+     * (TACZ in particular): casting a spell while holding a gun is an odd combination, but it is
+     * possible, and there the spell pose is the more specific one, so it takes the arms.
+     */
+    private static final int SOURCE_PRIORITY = 10;
+
     public EMFCompatIronSpellsMod(IEventBus modEventBus, ModContainer modContainer) {
+        PoseManager.setSourcePriority(SOURCE, SOURCE_PRIORITY);
+
         ConfigRegistry.section(MOD_ID, "Iron's Spells")
                 .addBoolean(KEY_ENABLED, "EMF compatibility", true,
                         "On", "Apply EMF compatibility to Iron's Spells casting poses.",
