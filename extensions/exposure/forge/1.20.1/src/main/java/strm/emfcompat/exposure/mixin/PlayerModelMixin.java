@@ -8,10 +8,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
+import strm.emfcompat.exposure.EMFCompatExposureMod;
 import strm.emfcompat.exposure.compat.ExposureCompat;
 
 import java.util.Map;
@@ -46,6 +48,14 @@ public class PlayerModelMixin {
         if (!(entity instanceof Player player)) return;
         if (EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) return;
 
+        if (!EMFCompatExposureMod.isEnabled()) {
+            PoseManager.clearPoses(player.getUUID(), AIMING_SOURCE);
+            PoseManager.clearPoses(player.getUUID(), STAND_SOURCE);
+            PoseManager.clearPoses(player.getUUID(), DISASSEMBLED_SOURCE);
+            PoseManager.clearPoses(player.getUUID(), SELFIE_SOURCE);
+            return;
+        }
+
         PlayerModel<?> model = (PlayerModel<?>) (Object) this;
         ExposureCompat.CameraPose pose = ExposureCompat.getCameraPose(player);
 
@@ -58,10 +68,13 @@ public class PlayerModelMixin {
             PoseSnapshot cameraArm = arm == HumanoidArm.LEFT
                     ? new PoseSnapshot(model.leftArm)
                     : new PoseSnapshot(model.rightArm);
+            Vector3f bodyBase = EMFCompatExposureMod.isBodyFollow()
+                    ? new Vector3f(model.body.x, model.body.y, model.body.z)
+                    : null;
             if (arm == HumanoidArm.LEFT) {
-                PoseManager.savePoses(player.getUUID(), SELFIE_SOURCE, cameraArm, null);
+                PoseManager.savePoses(player.getUUID(), SELFIE_SOURCE, cameraArm, null, null, bodyBase);
             } else {
-                PoseManager.savePoses(player.getUUID(), SELFIE_SOURCE, null, cameraArm);
+                PoseManager.savePoses(player.getUUID(), SELFIE_SOURCE, null, cameraArm, null, bodyBase);
             }
         } else {
             PoseManager.clearPoses(player.getUUID(), SELFIE_SOURCE);
@@ -78,11 +91,15 @@ public class PlayerModelMixin {
             // The hat layer must be saved explicitly (under both EMF namings): the 1.20.1
             // core has no head->headwear sync, so without this the hair detaches from the head.
             PoseSnapshot hatPose = new PoseSnapshot(model.hat, true);
+            Vector3f bodyBase = EMFCompatExposureMod.isBodyFollow()
+                    ? new Vector3f(model.body.x, model.body.y, model.body.z)
+                    : null;
             PoseManager.savePoses(player.getUUID(), source,
                     new PoseSnapshot(model.leftArm), new PoseSnapshot(model.rightArm),
                     Map.of("head", new PoseSnapshot(model.head, true),
                             "hat", hatPose,
-                            "headwear", hatPose));
+                            "headwear", hatPose),
+                    bodyBase);
         } else {
             PoseManager.clearPoses(player.getUUID(), source);
         }

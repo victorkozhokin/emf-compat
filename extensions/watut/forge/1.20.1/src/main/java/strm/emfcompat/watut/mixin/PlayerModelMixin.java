@@ -7,10 +7,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
+import strm.emfcompat.watut.EMFCompatWatutMod;
 import strm.emfcompat.watut.compat.WatutCompat;
 
 import java.util.Map;
@@ -39,6 +41,11 @@ public class PlayerModelMixin {
         if (!(entity instanceof Player player)) return;
         if (EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) return;
 
+        if (!EMFCompatWatutMod.isEnabled()) {
+            PoseManager.clearPoses(player.getUUID(), SOURCE);
+            return;
+        }
+
         WatutCompat.WatutPose pose = WatutCompat.getPosedParts(player);
         if (pose == null) {
             PoseManager.clearPoses(player.getUUID(), SOURCE);
@@ -59,6 +66,11 @@ public class PlayerModelMixin {
                     "headwear", hatPose);
         }
 
-        PoseManager.savePoses(player.getUUID(), SOURCE, leftArm, rightArm, parts);
+        // Body-follow arms (keep the reach pose and follow the torso) when enabled and arms are
+        // posed; otherwise rotation-only. The head stays rotation-only regardless.
+        Vector3f bodyBase = (pose.arms() && EMFCompatWatutMod.isBodyFollow())
+                ? new Vector3f(model.body.x, model.body.y, model.body.z)
+                : null;
+        PoseManager.savePoses(player.getUUID(), SOURCE, leftArm, rightArm, parts, bodyBase);
     }
 }

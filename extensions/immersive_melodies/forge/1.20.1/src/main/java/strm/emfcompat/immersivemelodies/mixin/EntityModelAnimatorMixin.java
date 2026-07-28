@@ -11,10 +11,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
+import strm.emfcompat.immersivemelodies.ImmersiveMelodiesEMFCompat;
 import strm.emfcompat.immersivemelodies.compat.ImmersiveMelodiesCompat;
 
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Captures the arm poses set by Immersive Melodies after it has animated the player model.
@@ -33,26 +33,30 @@ public class EntityModelAnimatorMixin {
             return;
         }
 
-        UUID uuid = player.getUUID();
-        if (EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) {
-            PoseManager.clearPoses(uuid, SOURCE);
+        if (!ImmersiveMelodiesEMFCompat.isEnabled()) {
+            PoseManager.clearPoses(player.getUUID(), SOURCE);
+            return;
+        }
+
+        if (EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) {
+            PoseManager.clearPoses(player.getUUID(), SOURCE);
             return;
         }
 
         if (!ImmersiveMelodiesCompat.hasInstrument(player)) {
-            PoseManager.clearPoses(uuid, SOURCE);
+            PoseManager.clearPoses(player.getUUID(), SOURCE);
             return;
         }
 
         Optional<ModelPart> leftArm = accessor.getLeftArm();
         Optional<ModelPart> rightArm = accessor.getRightArm();
         if (leftArm.isEmpty() && rightArm.isEmpty()) {
-            PoseManager.clearPoses(uuid, SOURCE);
+            PoseManager.clearPoses(player.getUUID(), SOURCE);
             return;
         }
 
         PoseManager.savePoses(
-                uuid,
+                player.getUUID(),
                 SOURCE,
                 leftArm.map(PoseSnapshot::new).orElse(null),
                 rightArm.map(PoseSnapshot::new).orElse(null)
