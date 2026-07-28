@@ -20,13 +20,11 @@ The head stays under EMF's control, so you can still look around naturally while
 
 - Compatible with **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)**.
 - Sitting poses stay visible instead of being overwritten by the resource-pack animation.
-- **Armour sits with you** — chestplate, leggings and boots follow the pose instead of floating in a standing position.
-- Held items and your first-person hands match the seated pose.
-- Works for other players too, so everyone actually sits on the furniture.
-- Your character stands back up cleanly when you leave the seat.
+- Works for other players too, so everyone actually sits.
 
 ## Known issues
 
-On Fabric, armour can sit slightly loose on the body while you move or crouch, so skin layers may poke through it. This comes from how EMF sizes the armour model and is not specific to this addon.
+On 1.21.11+, armour can sit slightly loose on the body while you move or crouch, so skin layers may poke through it.
+This comes from how EMF sizes the armour model and is not specific to this addon.
 
 enjoy ^_^

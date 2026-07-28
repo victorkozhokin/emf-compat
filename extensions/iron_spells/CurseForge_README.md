@@ -18,10 +18,8 @@ The head, body and legs always stay under EMF's control, so resource-pack animat
 
 ## Features
 
-- Compatible with **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)**.
+- Compatible with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**.
 - Casting poses stay visible instead of being overwritten by the resource-pack animation.
-- Arms follow your moving torso, so the pose stays attached to your body while you walk.
-- Casting stays visible in first person, so your own hands match the spell you're casting.
 - Works for other players too — you can see what everyone is casting.
 - Should work with most player animation resource packs using EMF.
 
