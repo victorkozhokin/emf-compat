@@ -20,6 +20,7 @@ import traben.entity_model_features.utils.EMFEntity;
 
 import java.util.HashMap;
 import java.util.Map;
+import strm.emfcompat.takeaseat.TakeASeatEMFCompatClient;
 
 @Mixin(EMFModelPartRoot.class)
 public class EMFModelPartRootMixin {
@@ -29,6 +30,7 @@ public class EMFModelPartRootMixin {
 
     @Inject(method = "animate", at = @At("HEAD"))
     private void takeaseat$capturePoses(CallbackInfo ci) {
+        if (!TakeASeatEMFCompatClient.isEnabled()) return;
         if (!FabricLoader.getInstance().isModLoaded("seatify")) return;
 
         EMFEntity emfEntity = EMFAnimationApi.getCurrentEntity();
@@ -75,6 +77,7 @@ public class EMFModelPartRootMixin {
 
     @Inject(method = "animate", at = @At("TAIL"))
     private void takeaseat$restorePoses(CallbackInfo ci) {
+        if (!TakeASeatEMFCompatClient.isEnabled()) return;
         Map<EMFModelPartVanilla, PoseSnapshot> snaps = TAKEASEAT$SNAPSHOTS.get();
         if (snaps.isEmpty()) return;
 

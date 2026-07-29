@@ -1,5 +1,7 @@
 package strm.createFlyEmfCompat.compat;
 
+import strm.CreateFlyEmfCompatClient;
+
 import traben.entity_model_features.EMFAnimationApi;
 
 public class EMFCompat {
@@ -10,14 +12,16 @@ public class EMFCompat {
                     return false;
                 }
 
-                return SkyhookHelper.isSkyhooking(emfEntity.etf$getUuid());
+                return CreateFlyEmfCompatClient.isEnabled()
+                        && SkyhookHelper.isSkyhooking(emfEntity.etf$getUuid());
             });
             EMFAnimationApi.registerVanillaModelCondition(emfEntity -> {
                 if (emfEntity.etf$isBlockEntity()) {
                     return false;
                 }
 
-                return SkyhookHelper.isSkyhooking(emfEntity.etf$getUuid());
+                return CreateFlyEmfCompatClient.isEnabled()
+                        && SkyhookHelper.isSkyhooking(emfEntity.etf$getUuid());
             });
         } catch (Exception e) {
             throw new RuntimeException(e);

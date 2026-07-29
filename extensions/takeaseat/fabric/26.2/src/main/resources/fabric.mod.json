@@ -9,7 +9,11 @@
   "license": "${mod_license}",
   "icon": "icon.png",
   "environment": "client",
-  "entrypoints": {},
+  "entrypoints": {
+    "client": [
+      "strm.emfcompat.takeaseat.TakeASeatEMFCompatClient"
+    ]
+  },
   "mixins": [
     "emf_compat_takeaseat.client.mixins.json"
   ],

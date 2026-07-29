@@ -24,6 +24,7 @@ import traben.entity_texture_features.features.state.HoldsETFRenderState;
 
 import java.util.UUID;
 import java.util.function.Function;
+import strm.emfcompat.takeaseat.TakeASeatEMFCompatClient;
 
 @Mixin(HumanoidArmorLayer.class)
 public class ArmorFeatureRendererMixin {
@@ -42,6 +43,7 @@ public class ArmorFeatureRendererMixin {
             int light,
             HumanoidRenderState state
     ) {
+        if (!TakeASeatEMFCompatClient.isEnabled()) return model;
         if (!(state instanceof HoldsETFRenderState)) return model;
 
         EMFEntityRenderState emfState = EMFEntityRenderState.from(state);

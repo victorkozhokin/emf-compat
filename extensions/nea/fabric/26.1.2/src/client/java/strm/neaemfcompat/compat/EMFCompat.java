@@ -15,6 +15,7 @@ import dev.tr7zw.notenoughanimations.animations.hands.PetAnimation;
 import dev.tr7zw.notenoughanimations.versionless.NEABaseMod;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import strm.neaemfcompat.NEAEMFCompatClient;
 import traben.entity_model_features.EMFAnimationApi;
 import traben.entity_model_features.utils.EMFEntity;
 
@@ -50,6 +51,10 @@ public class EMFCompat {
             return false;
         }
         Entity entity = (Entity) emfEntity;
+        // Checked here rather than at registration time, so the toggle applies immediately.
+        if (!NEAEMFCompatClient.isEnabled()) {
+            return false;
+        }
         if (!(entity instanceof Player player)) {
             return false;
         }

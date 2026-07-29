@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 import strm.emfcompat.core.SavedPoses;
+import strm.emfcompat.takeaseat.TakeASeatEMFCompatClient;
 
 @Mixin(HumanoidModel.class)
 public class HumanoidModelMixin {
@@ -37,6 +38,7 @@ public class HumanoidModelMixin {
             PoseStack poseStack,
             CallbackInfo ci
     ) {
+        if (!TakeASeatEMFCompatClient.isEnabled()) return;
         if (!((Object) this instanceof PlayerModel)) return;
         PlayerModel model = (PlayerModel) (Object) this;
         if (!(state instanceof AvatarRenderState avatarState)) return;
