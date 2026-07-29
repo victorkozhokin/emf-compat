@@ -1,5 +1,6 @@
 package strm.emfcompat.core.mixin;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -17,17 +18,22 @@ import strm.emfcompat.core.SavedPoses;
 import java.util.Map;
 import java.util.UUID;
 
+@SuppressWarnings("deprecation")
 @Mixin(EMFModelPartRoot.class)
 public class EMFModelPartRootMixin {
 
-    @Unique
-    private long emfcompat$lastRestoreFrame = -1;
-
     @Inject(method = "animate", at = @At("RETURN"))
     private void emfcompat$restorePosesAfterAnimate(CallbackInfo ci) {
-        if (emfcompat$lastRestoreFrame == PoseManager.currentFrame) return;
-        emfcompat$lastRestoreFrame = PoseManager.currentFrame;
+        emfcompat$doRestore();
+    }
 
+    @Inject(method = "triggerManualAnimation(Lcom/mojang/blaze3d/vertex/PoseStack;)V", at = @At("RETURN"))
+    private void emfcompat$restorePosesAfterManualAnimation(PoseStack pose, CallbackInfo ci) {
+        emfcompat$doRestore();
+    }
+
+    @Unique
+    private void emfcompat$doRestore() {
         PoseManager.cleanupIfNeeded();
 
         var state = EMFAnimationEntityContext.getEmfState();
@@ -40,6 +46,10 @@ public class EMFModelPartRootMixin {
         if (savedPoses == null) return;
 
         EMFModelPartRoot root = (EMFModelPartRoot) (Object) this;
+        // Packs can animate the root itself, which moves every part — arms included — while each
+        // part's own coordinates stay put. Publish it so hand-attached objects can follow.
+        PoseManager.setRootPose(uuid, new PoseSnapshot(root));
+
         EMFModelPartVanilla headPart = null;
         EMFModelPartVanilla headwearPart = null;
         EMFModelPartVanilla leftArmPart = null;
@@ -69,8 +79,14 @@ public class EMFModelPartRootMixin {
             switch (name) {
                 case "head" -> headPart = part;
                 case "headwear", "hat" -> headwearPart = part;
-                case "left_arm" -> leftArmPart = part;
-                case "right_arm" -> rightArmPart = part;
+                case "left_arm" -> {
+                    state.setLeftArmOverride(null);
+                    leftArmPart = part;
+                }
+                case "right_arm" -> {
+                    state.setRightArmOverride(null);
+                    rightArmPart = part;
+                }
                 case "left_sleeve" -> leftSleeve = part;
                 case "right_sleeve" -> rightSleeve = part;
                 case "left_leg" -> leftLegPart = part;

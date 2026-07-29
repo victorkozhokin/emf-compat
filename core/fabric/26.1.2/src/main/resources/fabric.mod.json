@@ -12,6 +12,9 @@
   "entrypoints": {
     "client": [
       "strm.emfcompat.core.fabric.EMFCompatCoreFabric"
+    ],
+    "modmenu": [
+      "strm.emfcompat.core.fabric.ModMenuIntegration"
     ]
   },
   "mixins": [
