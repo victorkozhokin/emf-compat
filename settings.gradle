@@ -104,6 +104,18 @@ project(":better-combat-forge-1.20.1").projectDir = file("extensions/better_comb
 include("better-combat-fabric-1.21.11")
 project(":better-combat-fabric-1.21.11").projectDir = file("extensions/better_combat/fabric/1.21.11")
 
+include("better-combat-fabric-26.1.2")
+project(":better-combat-fabric-26.1.2").projectDir = file("extensions/better_combat/fabric/26.1.2")
+
+include("better-combat-fabric-26.2")
+project(":better-combat-fabric-26.2").projectDir = file("extensions/better_combat/fabric/26.2")
+
+include("gliders-fabric-26.1.2")
+project(":gliders-fabric-26.1.2").projectDir = file("extensions/gliders/fabric/26.1.2")
+
+include("gliders-fabric-26.2")
+project(":gliders-fabric-26.2").projectDir = file("extensions/gliders/fabric/26.2")
+
 // Quark addon.
 include("quark-neoforge-1.21.1")
 project(":quark-neoforge-1.21.1").projectDir = file("extensions/quark/neoforge/1.21.1")
