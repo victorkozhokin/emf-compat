@@ -14,14 +14,7 @@ public class EMFCarryOnClient implements ClientModInitializer {
 
     /** Master switch: apply EMF compatibility to Carry On at all. */
     public static final String KEY_ENABLED = "carryon.enabled";
-    /**
-     * Arm-sync mode: body-follow (new) vs the legacy rotation-only system.
-     *
-     * <p>Defaults to legacy on Fabric: with body-follow the carried object is moved only by the
-     * body's translation delta, and on this version that leaves it sitting still while the arms
-     * move. The legacy path also applies the torso's rotation, which is what actually carries the
-     * object along here. Body-follow stays selectable for testing.</p>
-     */
+    /** Arm-sync mode: body-follow (new) vs the legacy rotation-only system. */
     public static final String KEY_BODY_FOLLOW_ARMS = "carryon.bodyFollowArms";
     /** Force a carried mob to render with its vanilla model (no EMF animation). */
     public static final String KEY_FORCE_VANILLA_CARRIED = "carryon.forceVanillaCarriedModel";
@@ -32,7 +25,7 @@ public class EMFCarryOnClient implements ClientModInitializer {
                 .addBoolean(KEY_ENABLED, "EMF compatibility", true,
                         "On", "Apply EMF compatibility to Carry On (arm pose and carried-object sync).",
                         "Off", "Disable all EMF compatibility for Carry On (plain Carry On behaviour).")
-                .addBoolean(KEY_BODY_FOLLOW_ARMS, "Arm sync", false,
+                .addBoolean(KEY_BODY_FOLLOW_ARMS, "Arm sync", true,
                         "Body-follow (new)",
                         "Arms keep their exact raised pose and follow the moving torso; the carried object follows with them.",
                         "Rotation-only (legacy)",
@@ -49,7 +42,7 @@ public class EMFCarryOnClient implements ClientModInitializer {
     }
 
     public static boolean isBodyFollow() {
-        return EMFCompatConfig.getBoolean(KEY_BODY_FOLLOW_ARMS, false);
+        return EMFCompatConfig.getBoolean(KEY_BODY_FOLLOW_ARMS, true);
     }
 
     public static boolean forceVanillaCarried() {

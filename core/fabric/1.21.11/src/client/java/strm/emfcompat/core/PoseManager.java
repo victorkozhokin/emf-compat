@@ -38,6 +38,12 @@ public final class PoseManager {
     // attached to the hands by the same amount, keeping them in sync with the arms.
     private static final Map<UUID, org.joml.Vector3f> bodyFollowDelta = new HashMap<>();
 
+    // The animated pose of the model's root part. Every model part hangs off the root, so a pack
+    // animating it moves the whole player — arms included — without changing any part's own
+    // coordinates. Objects attached to the hands are drawn from the entity matrix instead and see
+    // none of that, so they have to re-apply this transform themselves to stay in the hands.
+    private static final Map<UUID, PoseSnapshot> rootPose = new HashMap<>();
+
     private static int cleanupCounter = 0;
 
     /**
@@ -55,6 +61,7 @@ public final class PoseManager {
         entitySavedPoses.keySet().retainAll(activeUUIDs);
         entitySavedPosesBySource.keySet().retainAll(activeUUIDs);
         bodyFollowDelta.keySet().retainAll(activeUUIDs);
+        rootPose.keySet().retainAll(activeUUIDs);
         // The inner maps are removed along with their owning UUID entries above.
         // Do NOT call retainAll on the inner keySets here: their keys are source
         // names (Strings), not UUIDs, so that would incorrectly wipe all named
@@ -81,6 +88,29 @@ public final class PoseManager {
     public static org.joml.Vector3f getBodyFollowDelta(UUID uuid) {
         if (!EMFCompatCore.isCompatEnabled()) return null;
         return bodyFollowDelta.get(uuid);
+    }
+
+    /**
+     * Records the animated pose of the player's model root. Passing {@code null} clears it.
+     * Called by the core restore once EMF has animated the model.
+     */
+    public static void setRootPose(UUID uuid, PoseSnapshot pose) {
+        if (pose == null) {
+            rootPose.remove(uuid);
+        } else {
+            rootPose.put(uuid, pose);
+        }
+    }
+
+    /**
+     * Returns the animated pose of the player's model root this frame, or {@code null} if none was
+     * published. Consumers rendering hand-attached objects should apply it the same way a
+     * {@code ModelPart} applies its own transform — translate by {@code x/16, y/16, z/16}, then
+     * rotate ZYX — before their own transforms, so the object shares the model's root frame.
+     */
+    public static PoseSnapshot getRootPose(UUID uuid) {
+        if (!EMFCompatCore.isCompatEnabled()) return null;
+        return rootPose.get(uuid);
     }
 
     /**

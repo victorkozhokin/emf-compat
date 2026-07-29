@@ -46,6 +46,10 @@ public class EMFModelPartRootMixin {
         if (savedPoses == null) return;
 
         EMFModelPartRoot root = (EMFModelPartRoot) (Object) this;
+        // Packs can animate the root itself, which moves every part — arms included — while each
+        // part's own coordinates stay put. Publish it so hand-attached objects can follow.
+        PoseManager.setRootPose(uuid, new PoseSnapshot(root));
+
         EMFModelPartVanilla headPart = null;
         EMFModelPartVanilla headwearPart = null;
         EMFModelPartVanilla leftArmPart = null;

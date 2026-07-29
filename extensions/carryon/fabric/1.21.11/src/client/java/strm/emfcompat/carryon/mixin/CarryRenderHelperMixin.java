@@ -15,22 +15,23 @@ import strm.emfcompat.core.BodyPartSync;
 import tschipp.carryon.client.render.CarryRenderHelper;
 import strm.emfcompat.carryon.EMFCarryOnClient;
 import strm.emfcompat.core.PoseManager;
+import strm.emfcompat.core.PoseSnapshot;
 
 /**
  * Keeps the carried block/entity attached to the hands and registers carried entities for
  * EMF's vanilla-model condition.
  *
  * <p>In body-follow mode the carried object is shifted by the exact translation the core applies
- * to the player's arms this frame ({@link PoseManager#getBodyFollowDelta}). Because the object and
- * the arms move by the same amount, they stay in sync — translation only, so the object no longer
- * swings independently of the raised arm pose.</p>
+ * to the player's arms this frame ({@link PoseManager#getBodyFollowDelta}) and then turned by the
+ * torso's rotation delta, so it tracks the arms instead of swinging independently of the raised
+ * pose. Legacy mode drives both from {@link BodyPartSync} alone.</p>
+ *
+ * <p>Note that Carry On 2.9.0 renamed the entry points to {@code setup*Transformations(…, boolean
+ * firstPerson)}; in third person those still call the {@code apply*Transformations} methods hooked
+ * here, so the injection points below are the live ones.</p>
  */
 @Mixin(CarryRenderHelper.class)
 public class CarryRenderHelperMixin {
-
-    // Body-follow: our translate runs inside Carry On's matrix, already scaled by 0.6, so we
-    // divide by 0.6 to make the object's world movement match the arms' (raw model pixels).
-    private static final float BODY_FOLLOW_SCALE = 1.0f / 16.0f / 0.6f;
 
     // Legacy: original BodyPartSync scale (0.6/16), kept as-is to reproduce the old look.
     private static final float LEGACY_SCALE = 0.6f / 16.0f;
@@ -80,25 +81,78 @@ public class CarryRenderHelperMixin {
             CallbackInfo ci
     ) {
         CarryOnRenderState.markCarried(entity);
+        emfcompat$applyRootTransform(poseStack, player);
+    }
+
+    @Inject(
+            method = "applyBlockTransformations(Lnet/minecraft/world/entity/player/Player;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/level/block/Block;)V",
+            at = @At("HEAD")
+    )
+    private static void emfcompat$applyRootTransformForBlock(
+            Player player,
+            PoseStack poseStack,
+            Block block,
+            CallbackInfo ci
+    ) {
+        emfcompat$applyRootTransform(poseStack, player);
+    }
+
+    /**
+     * Reproduces, for the carried object, the transforms the arms receive from the model.
+     *
+     * <p>Must run at HEAD, before Carry On's own transforms: at that point the matrix is still the
+     * model's own frame, with the origin at the root pivot, so both steps below can be applied
+     * verbatim in model units — no axis flips, no sign conversion, no undoing Carry On's 0.6
+     * scale. Both are laid down in the same order the model applies them, so the object ends up
+     * rigidly attached to the arms:</p>
+     *
+     * <ol>
+     *   <li><b>Root pose</b>, exactly the way a {@link net.minecraft.client.model.geom.ModelPart}
+     *       applies its own transform. Packs animate the root to lean and sway the whole player;
+     *       the arms inherit that as children, the object (drawn from the entity matrix) would
+     *       otherwise miss it entirely. Root yaw reaches ~13°, which at the object's reach
+     *       dominates everything else.</li>
+     *   <li><b>Body-follow delta</b>, the offset the core adds to the arms' own position inside
+     *       that root frame ({@code part.x = snap.x + delta}). Applying it here in model pixels is
+     *       what actually keeps the object with the arms as the torso shifts back and forth.</li>
+     * </ol>
+     */
+    private static void emfcompat$applyRootTransform(PoseStack poseStack, Player player) {
+        if (!EMFCarryOnClient.isEnabled()) return;
+
+        PoseSnapshot root = PoseManager.getRootPose(player.getUUID());
+        if (root != null) {
+            poseStack.translate(root.x / 16.0f, root.y / 16.0f, root.z / 16.0f);
+            if (root.xRot != 0.0f || root.yRot != 0.0f || root.zRot != 0.0f) {
+                poseStack.mulPose(new Quaternionf().rotationZYX(root.zRot, root.yRot, root.xRot));
+            }
+            if (root.xScale != 1.0f || root.yScale != 1.0f || root.zScale != 1.0f) {
+                poseStack.scale(root.xScale, root.yScale, root.zScale);
+            }
+        }
+
+        if (EMFCarryOnClient.isBodyFollow()) {
+            Vector3f delta = PoseManager.getBodyFollowDelta(player.getUUID());
+            if (delta != null) {
+                poseStack.translate(delta.x / 16.0f, delta.y / 16.0f, delta.z / 16.0f);
+            }
+        }
     }
 
     private static void applyBodyDelta(PoseStack poseStack, Player player) {
         if (!EMFCarryOnClient.isEnabled()) return;
 
-        // Model part positions are in pixels (1/16 block). Y and Z are inverted because model
-        // space and PoseStack space differ: model Y+ is down / Z+ is back, PoseStack Y+ is up /
-        // Z+ is forward.
+        // Body-follow does all of its work at HEAD, in model space — see
+        // emfcompat$applyRootTransform. Only the legacy path runs here, where the matrix has
+        // already been scaled by 0.6 and re-oriented, hence its own scale and inverted axes.
         if (EMFCarryOnClient.isBodyFollow()) {
-            // Body-follow: shift by the same delta the core applied to the arms (translation only).
-            Vector3f delta = PoseManager.getBodyFollowDelta(player.getUUID());
-            if (delta == null) return;
-            poseStack.translate(
-                    delta.x * BODY_FOLLOW_SCALE,
-                    -delta.y * BODY_FOLLOW_SCALE,
-                    -delta.z * BODY_FOLLOW_SCALE
-            );
-        } else {
-            // Legacy: BodyPartSync translation + rotation of the torso.
+            return;
+        }
+
+        {
+            // Legacy: BodyPartSync translation + rotation of the torso. Model part positions are
+            // in pixels (1/16 block); Y and Z are inverted because model space and PoseStack space
+            // differ — model Y+ is down / Z+ is back, PoseStack Y+ is up / Z+ is forward.
             if (!BodyPartSync.hasDelta(player.getUUID(), "body")) return;
             Vector3f translation = BodyPartSync.getTranslationDelta(player.getUUID(), "body");
             Vector3f rotation = BodyPartSync.getRotationDelta(player.getUUID(), "body");

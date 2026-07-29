@@ -54,7 +54,7 @@ public class HumanoidModelMixin {
 
         if (EMFCarryOnClient.isBodyFollow()) {
             // Body-follow: arms keep their exact pose and track the torso; the carried object
-            // follows via the core's published body-follow delta (translation only).
+            // follows via the core's published body-follow delta (translation).
             PoseManager.savePoses(uuid, SOURCE,
                     new PoseSnapshot(model.leftArm), new PoseSnapshot(model.rightArm), null,
                     new Vector3f(model.body.x, model.body.y, model.body.z));
