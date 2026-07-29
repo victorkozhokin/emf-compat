@@ -38,8 +38,23 @@ public class EMFCompatBetterCombatMod {
      */
     public static final String KEY_RPG_SERIES = "bettercombat.rpgSeriesAnim";
 
+    /**
+     * Keep Better Combat's weapon stances (spear, trident, claymore…) over EMF. Off by default:
+     * unlike an attack this is a permanent override of both arms for as long as the weapon is
+     * held, and on this loader nothing is broken without it — Better Combat drives the stance
+     * through kosmx Player Animator, which EMF does not pause for, so EMF just animates over it.
+     */
+    public static final String KEY_WEAPON_STANCES = "bettercombat.weaponStances";
+
     /** Low-priority pose source for the generic capture (a dedicated addon would override it). */
     public static final String GENERIC_SOURCE = "playeranim_base";
+
+    /**
+     * Pose source for the weapon stances, kept apart from the attack source: a stance lasts for as
+     * long as the weapon is held, so it must lose the arms to an actual attack, and it must not
+     * drag the first-person vanilla-model override along with it for that whole time.
+     */
+    public static final String POSE_SOURCE = "better_combat_pose";
 
     /** Spell Engine mod id — the common dependency of the whole RPG Series. */
     private static final String SPELL_ENGINE_ID = "spell_engine";
@@ -49,6 +64,8 @@ public class EMFCompatBetterCombatMod {
         // The generic capture is a low-priority base; Better Combat's own attack capture (and any
         // future dedicated addon) overrides it per the pose merge.
         PoseManager.setSourcePriority(GENERIC_SOURCE, -20);
+        // Below the attack capture (default 0) so an attack takes the arms from the stance.
+        PoseManager.setSourcePriority(POSE_SOURCE, -10);
         spellEnginePresent = ModList.get().isLoaded(SPELL_ENGINE_ID);
 
         ConfigRegistry.section(MOD_ID, "Better Combat")
@@ -63,6 +80,9 @@ public class EMFCompatBetterCombatMod {
                 .addBoolean(KEY_ATTACK_LEGS, "Attack legs", true,
                         "On", "Restore the legs during attacks and RPG Series casts while standing still (rotation only, stays attached); moving keeps EMF's walk cycle.",
                         "Off", "Leave the legs to EMF (arms only).")
+                .addBoolean(KEY_WEAPON_STANCES, "Weapon stances", false,
+                        "On", "Keep Better Combat's two-handed weapon stances (spear, trident, claymore...) over EMF. Overrides both arms for as long as the weapon is held.",
+                        "Off", "Leave the stance to EMF — the resource pack's idle arm animation plays instead.")
                 .addBoolean(KEY_RPG_SERIES, "RPG Series & other animations", true,
                         "On", "Keep arm poses from Spell Engine / RPG Series casts (and other Player Animator animations) over EMF. Only active when Spell Engine is installed.",
                         "Off", "Leave those animations to EMF.");
@@ -79,6 +99,10 @@ public class EMFCompatBetterCombatMod {
 
     public static boolean isAttackLegs() {
         return EMFCompatConfig.getBoolean(KEY_ATTACK_LEGS, true);
+    }
+
+    public static boolean isWeaponStances() {
+        return EMFCompatConfig.getBoolean(KEY_WEAPON_STANCES, false);
     }
 
     public static boolean isGenericPlayerAnim() {

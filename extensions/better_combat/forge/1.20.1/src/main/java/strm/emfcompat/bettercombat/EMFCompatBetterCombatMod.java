@@ -30,8 +30,25 @@ public class EMFCompatBetterCombatMod {
     public static final String KEY_BODY_FOLLOW_ARMS = "bettercombat.bodyFollowArms";
     /** Also restore the legs during an attack (experimental — keeps a step/lunge over EMF). */
     public static final String KEY_ATTACK_LEGS = "bettercombat.attackLegs";
+    /**
+     * Keep Better Combat's weapon stances (spear, trident, claymore…) over EMF. Off by default:
+     * unlike an attack this is a permanent override of both arms for as long as the weapon is
+     * held, and on this loader nothing is broken without it — Better Combat drives the stance
+     * through kosmx Player Animator, which EMF does not pause for, so EMF just animates over it.
+     */
+    public static final String KEY_WEAPON_STANCES = "bettercombat.weaponStances";
+
+    /**
+     * Pose source for the weapon stances, kept apart from the attack source: a stance lasts for as
+     * long as the weapon is held, so it must lose the arms to an actual attack, and it must not
+     * drag the first-person vanilla-model override along with it for that whole time.
+     */
+    public static final String POSE_SOURCE = "better_combat_pose";
 
     public EMFCompatBetterCombatMod() {
+        // Below the attack capture (default 0) so an attack takes the arms from the stance.
+        PoseManager.setSourcePriority(POSE_SOURCE, -10);
+
         ConfigRegistry.section(MOD_ID, "Better Combat")
                 .addBoolean(KEY_ENABLED, "EMF compatibility", true,
                         "On", "Apply EMF compatibility to Better Combat (attack arm poses, torso-tilt fixes).",
@@ -43,7 +60,10 @@ public class EMFCompatBetterCombatMod {
                         "Attack arm poses keep only their rotation.")
                 .addBoolean(KEY_ATTACK_LEGS, "Attack legs", true,
                         "On", "Restore the legs during attacks while standing still (rotation only, stays attached); moving keeps EMF's walk cycle.",
-                        "Off", "Leave the legs to EMF (arms only).");
+                        "Off", "Leave the legs to EMF (arms only).")
+                .addBoolean(KEY_WEAPON_STANCES, "Weapon stances", false,
+                        "On", "Keep Better Combat's two-handed weapon stances (spear, trident, claymore...) over EMF. Overrides both arms for as long as the weapon is held.",
+                        "Off", "Leave the stance to EMF — the resource pack's idle arm animation plays instead.");
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::clientSetup);
@@ -59,6 +79,10 @@ public class EMFCompatBetterCombatMod {
 
     public static boolean isAttackLegs() {
         return EMFCompatConfig.getBoolean(KEY_ATTACK_LEGS, true);
+    }
+
+    public static boolean isWeaponStances() {
+        return EMFCompatConfig.getBoolean(KEY_WEAPON_STANCES, false);
     }
 
     private void clientSetup(FMLClientSetupEvent event) {

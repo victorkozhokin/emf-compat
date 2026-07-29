@@ -32,6 +32,9 @@ public class PlayerModelMixin {
     @Unique
     private static final String SOURCE = "better_combat";
 
+    @Unique
+    private static final String POSE_SOURCE = EMFCompatBetterCombatMod.POSE_SOURCE;
+
     /** Below this limb-swing amount the player counts as stationary (legs get the attack step). */
     @Unique
     private static final float LEG_MOVE_THRESHOLD = 0.15f;
@@ -46,8 +49,18 @@ public class PlayerModelMixin {
 
         if (!EMFCompatBetterCombatMod.isEnabled()) {
             PoseManager.clearPoses(player.getUUID(), SOURCE);
+            PoseManager.clearPoses(player.getUUID(), POSE_SOURCE);
             return;
         }
+
+        PlayerModel<AbstractClientPlayer> model = (PlayerModel<AbstractClientPlayer>) (Object) this;
+
+        // Weapon stance (spear, trident, claymore...): a Better Combat pose stack holds the player
+        // in it for as long as the weapon is held, independently of any attack. Opt-in here — see
+        // KEY_WEAPON_STANCES. Captured under its own lower-priority source so an attack still wins
+        // the arms; arms only, since the player walks around in this pose and the legs must keep
+        // EMF's walk cycle.
+        emfcompat$captureWeaponStance(model, player);
 
         AttackHand attackHand = BetterCombatCompat.getAttackHand(player);
         if (attackHand == null) {
@@ -57,8 +70,6 @@ public class PlayerModelMixin {
         }
 
         AttackPauseOverride.markAttackActive(player.getUUID());
-
-        PlayerModel<AbstractClientPlayer> model = (PlayerModel<AbstractClientPlayer>) (Object) this;
 
         // Body-follow: attack arm poses keep their shape and follow the torso (bodyBase = the
         // body's position at capture). Rotation-only (legacy): no bodyBase, arms keep only rotation.
@@ -82,6 +93,26 @@ public class PlayerModelMixin {
                 new PoseSnapshot(model.leftArm),
                 new PoseSnapshot(model.rightArm),
                 parts,
+                bodyBase
+        );
+    }
+
+    @Unique
+    private static void emfcompat$captureWeaponStance(PlayerModel<AbstractClientPlayer> model, AbstractClientPlayer player) {
+        if (!EMFCompatBetterCombatMod.isWeaponStances() || !BetterCombatCompat.isPoseStackActive(player)) {
+            PoseManager.clearPoses(player.getUUID(), POSE_SOURCE);
+            return;
+        }
+
+        Vector3f bodyBase = EMFCompatBetterCombatMod.isBodyFollow()
+                ? new Vector3f(model.body.x, model.body.y, model.body.z)
+                : null;
+
+        PoseManager.savePoses(
+                player.getUUID(), POSE_SOURCE,
+                new PoseSnapshot(model.leftArm),
+                new PoseSnapshot(model.rightArm),
+                null,
                 bodyBase
         );
     }
