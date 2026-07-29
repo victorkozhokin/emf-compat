@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import strm.emfcompat.bettercombat.EMFCompatBetterCombatClient;
 import strm.emfcompat.bettercombat.compat.AttackPauseOverride;
 import strm.emfcompat.core.PoseManager;
 
@@ -30,6 +31,9 @@ public class EMFAnimationEntityContextMixin {
         if (!original) {
             return false;
         }
+        if (!EMFCompatBetterCombatClient.isEnabled()) {
+            return original;
+        }
 
         var state = EMFAnimationEntityContext.getEmfState();
         if (state == null || state.emfEntity() == null) {
@@ -48,6 +52,9 @@ public class EMFAnimationEntityContextMixin {
         if (AttackPauseOverride.isUnpaused(uuid)) {
             return false;
         }
-        return PoseManager.getSavedPoses(uuid, SOURCE) == null;
+        // Weapon stances go through their own source and keep PAL active for as long as the weapon
+        // is held, so they have to lift the pause too — otherwise EMF stays frozen the whole time.
+        return PoseManager.getSavedPoses(uuid, SOURCE) == null
+                && PoseManager.getSavedPoses(uuid, EMFCompatBetterCombatClient.POSE_SOURCE) == null;
     }
 }

@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import strm.emfcompat.bettercombat.EMFCompatBetterCombatClient;
 import strm.emfcompat.bettercombat.compat.BetterCombatCompat;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
@@ -42,6 +43,9 @@ public class HumanoidModelMixin {
             com.mojang.blaze3d.vertex.PoseStack poseStack,
             CallbackInfo ci
     ) {
+        if (!EMFCompatBetterCombatClient.isEnabled()) {
+            return;
+        }
         if (!((Object) this instanceof PlayerModel)) {
             return;
         }

@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import strm.emfcompat.bettercombat.EMFCompatBetterCombatClient;
 
 import java.util.Map;
 
@@ -34,6 +35,9 @@ public class BetterCombatOneHandedSlamMixin {
             ordinal = 0
     )
     private static Identifier emfcompat$redirectOneHandedSlam(Identifier id) {
+        if (!EMFCompatBetterCombatClient.isEnabled()) {
+            return id;
+        }
         Identifier redirect = REDIRECTS.get(id);
         return redirect != null ? redirect : id;
     }

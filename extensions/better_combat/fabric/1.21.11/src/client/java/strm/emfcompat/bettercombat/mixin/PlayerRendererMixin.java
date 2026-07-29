@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import strm.emfcompat.bettercombat.EMFCompatBetterCombatClient;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 import strm.emfcompat.core.SavedPoses;
@@ -47,6 +48,8 @@ public class PlayerRendererMixin {
     }
 
     private void emfcompat$restoreArmPose(ModelPart armPart) {
+        if (!EMFCompatBetterCombatClient.isEnabled()) return;
+
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 

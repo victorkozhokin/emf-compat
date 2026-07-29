@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import strm.emfcompat.bettercombat.EMFCompatBetterCombatClient;
 
 import java.lang.reflect.Field;
 import java.util.Optional;
@@ -50,6 +51,9 @@ public class AttackAnimationStackMixin {
             remap = false
     )
     private void emfcompat$reduceGlobalAttackAdjustment(CallbackInfoReturnable<AdjustmentModifier> cir) {
+        if (!EMFCompatBetterCombatClient.isEnabled()) {
+            return;
+        }
         AdjustmentModifier original = cir.getReturnValue();
         BiFunction<String, AnimationData, Optional<AdjustmentModifier.PartModifier>> source = getAdjustmentSource(original);
         if (source == null) {
