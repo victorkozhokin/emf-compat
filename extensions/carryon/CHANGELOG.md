@@ -1,6 +1,7 @@
 # EMF Compat: Carry On — Changelog
 
-## 1.0.1
+## 1.1.0
 
-- Carried blocks and mobs now follow your arms more closely while you move
 - Added a config tab with arm sync and a toggle for the carried mob's model
+- The carried block or mob stays in your hands while you move, including with resource packs that lean and sway the whole body
+- Needs Core 1.1.0

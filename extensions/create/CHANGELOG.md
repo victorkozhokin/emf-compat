@@ -1,9 +1,18 @@
 # EMF Compat: Create — Changelog
 
-## 1.3.1
+## 1.4.0 — NeoForge (Create)
 
+- Added a config tab with a toggle for every supported add-on
+- Added built-in support for Create Cosmonautics and Create Stuff 'N Additions — the separate addons can be removed
 - Fixed Skyhook on Create 6.x — half the body no longer slides out of the hanging pose
 - Grappling hooks reworked the same way, poses stay correct while you swing
 - Your character keeps its expressions and idle motion while skyhooking or grappling
-- Create Cosmonautics and Create Stuff 'N Additions support is now built in — the separate addons can be removed
-- Added a config tab with a toggle for every supported add-on
+
+## 1.4.0 — Fabric (Create Fly)
+
+- Added a config tab with a master toggle and the NotEnoughAnimations item-swap fix
+- You keep the Skyhook hanging pose while riding chains and ropes, instead of half your body sliding back into the resource-pack animation
+
+Known limitation: while skyhooking, the model falls back to the vanilla one, so expression and
+idle animations from your pack pause for the duration. The NeoForge build already keeps them —
+Fabric will follow.
