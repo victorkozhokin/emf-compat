@@ -24,6 +24,10 @@ The head stays under EMF's control, so you can still look around naturally while
 - Works for other players too, so everyone actually sits on the furniture.
 - Your character stands back up cleanly when you leave the seat.
 
+## On Fabric 1.21.11+
+
+Entity Model Features already pauses its own animations while Take a Seat plays its pose, so sitting itself looks right without this addon. What it still fixes there is the **armour** — chestplate, leggings and boots follow the seated pose instead of staying in a standing position.
+
 ## Config
 
 Open the in-game config screen (Mods → EMF Compat Core → Config) and pick the **Take a Seat** tab:

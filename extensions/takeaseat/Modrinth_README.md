@@ -22,6 +22,10 @@ The head stays under EMF's control, so you can still look around naturally while
 - Sitting poses stay visible instead of being overwritten by the resource-pack animation.
 - Works for other players too, so everyone actually sits.
 
+## On Fabric 1.21.11+
+
+Entity Model Features already pauses its own animations while Take a Seat plays its pose, so sitting itself looks right without this addon. What it still fixes there is the **armour** — chestplate, leggings and boots follow the seated pose instead of staying in a standing position.
+
 ## Known issues
 
 On 1.21.11+, armour can sit slightly loose on the body while you move or crouch, so skin layers may poke through it. 
