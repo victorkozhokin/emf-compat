@@ -25,7 +25,6 @@ project(":core-neoforge-1.21.1").projectDir = file("core/neoforge/1.21.1")
 include("core-fabric-1.21.11")
 project(":core-fabric-1.21.11").projectDir = file("core/fabric/1.21.11")
 
-
 include("core-fabric-26.1.2")
 project(":core-fabric-26.1.2").projectDir = file("core/fabric/26.1.2")
 
@@ -68,7 +67,6 @@ project(":nea-forge-1.20.1").projectDir = file("extensions/nea/forge/1.20.1")
 
 include("nea-fabric-1.21.11")
 project(":nea-fabric-1.21.11").projectDir = file("extensions/nea/fabric/1.21.11")
-
 
 include("nea-fabric-26.1.2")
 project(":nea-fabric-26.1.2").projectDir = file("extensions/nea/fabric/26.1.2")
@@ -141,8 +139,6 @@ include("watut-forge-1.20.1")
 project(":watut-forge-1.20.1").projectDir = file("extensions/watut/forge/1.20.1")
 
 // Instant Death addon.
-include("instantdeath-neoforge-1.21.1")
-project(":instantdeath-neoforge-1.21.1").projectDir = file("extensions/instant_death/neoforge/1.21.1")
 
 // Take a Seat addon.
 include("takeaseat-neoforge-1.21.1")
