@@ -22,6 +22,6 @@
     "fabric-api": "*",
     "minecraft": ">=${minecraft_version}",
     "entity_model_features": ">=${emf_version}",
-    "emf_compat_core": ">=1.0.0"
+    "emf_compat_core": ">=1.1.0"
   }
 }
