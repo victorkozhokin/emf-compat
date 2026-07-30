@@ -157,6 +157,9 @@ project(":takeaseat-fabric-26.1.2").projectDir = file("extensions/takeaseat/fabr
 include("takeaseat-fabric-26.2")
 project(":takeaseat-fabric-26.2").projectDir = file("extensions/takeaseat/fabric/26.2")
 
+include("takeaseat-forge-1.20.1")
+project(":takeaseat-forge-1.20.1").projectDir = file("extensions/takeaseat/forge/1.20.1")
+
 // Gliders addon.
 include("gliders-neoforge-1.21.1")
 project(":gliders-neoforge-1.21.1").projectDir = file("extensions/gliders/neoforge/1.21.1")
@@ -168,3 +171,6 @@ project(":gliders-forge-1.20.1").projectDir = file("extensions/gliders/forge/1.2
 // TACZ addon.
 include("tacz-neoforge-1.21.1")
 project(":tacz-neoforge-1.21.1").projectDir = file("extensions/tacz/neoforge/1.21.1")
+
+include("tacz-forge-1.20.1")
+project(":tacz-forge-1.20.1").projectDir = file("extensions/tacz/forge/1.20.1")
