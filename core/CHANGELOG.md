@@ -1,5 +1,9 @@
 # EMF Compat Core — Changelog
 
+## 1.1.1
+
+- Fixed a crash on startup with several addons installed — they registered their settings tabs at the same moment and tripped over each other
+
 ## 1.1.0
 
 - Added an in-game settings screen with a tab for every installed addon

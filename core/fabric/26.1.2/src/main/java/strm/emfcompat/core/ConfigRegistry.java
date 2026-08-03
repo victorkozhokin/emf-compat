@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Registry of configuration sections, one per compat mod, that the config screen renders as
@@ -48,7 +49,7 @@ public final class ConfigRegistry {
     public static final class Section {
         public final String id;
         public final String title;
-        public final List<BooleanOption> booleans = new ArrayList<>();
+        public final List<BooleanOption> booleans = new CopyOnWriteArrayList<>();
 
         Section(String id, String title) {
             this.id = id;
@@ -63,6 +64,13 @@ public final class ConfigRegistry {
         }
     }
 
+    // Forge and NeoForge construct mods in parallel on a ForkJoinPool, and every addon registers
+    // its section from its constructor — so this map is written from several threads at once. A
+    // plain LinkedHashMap threw ConcurrentModificationException inside computeIfAbsent once enough
+    // addons were installed to collide. The lock keeps registration atomic while preserving
+    // registration order, which the tab list depends on.
+    private static final Object LOCK = new Object();
+
     private static final Map<String, Section> SECTIONS = new LinkedHashMap<>();
 
     private ConfigRegistry() {
@@ -70,23 +78,29 @@ public final class ConfigRegistry {
 
     /** Returns the section for {@code id}, creating it with {@code title} on first use. */
     public static Section section(String id, String title) {
-        return SECTIONS.computeIfAbsent(id, k -> new Section(id, title));
+        synchronized (LOCK) {
+            return SECTIONS.computeIfAbsent(id, k -> new Section(id, title));
+        }
     }
 
     public static Section get(String id) {
-        return SECTIONS.get(id);
+        synchronized (LOCK) {
+            return SECTIONS.get(id);
+        }
     }
 
     /** All sections with the core section first, then the rest in registration order. */
     public static Collection<Section> orderedSections() {
         List<Section> ordered = new ArrayList<>();
-        Section core = SECTIONS.get(CORE_ID);
-        if (core != null) {
-            ordered.add(core);
-        }
-        for (Section s : SECTIONS.values()) {
-            if (!s.id.equals(CORE_ID)) {
-                ordered.add(s);
+        synchronized (LOCK) {
+            Section core = SECTIONS.get(CORE_ID);
+            if (core != null) {
+                ordered.add(core);
+            }
+            for (Section s : SECTIONS.values()) {
+                if (!s.id.equals(CORE_ID)) {
+                    ordered.add(s);
+                }
             }
         }
         return ordered;
