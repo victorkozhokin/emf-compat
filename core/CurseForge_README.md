@@ -24,6 +24,12 @@ When another mod plays its own player animation — such as Create's Skyhook, Be
 - **[EMF Compat: Immersive Melodies](https://www.curseforge.com/minecraft/mc-mods/emf-compat-immersive-melodies)**
 - **[EMF Compat: Quark](https://www.curseforge.com/minecraft/mc-mods/emf-compat-quark)**
 - **[EMF Compat: Supplementaries](https://www.curseforge.com/minecraft/mc-mods/emf-compat-supplementaries)**
+- **[EMF Compat: Exposure](https://www.curseforge.com/minecraft/mc-mods/emf-compat-exposure)**
+- **[EMF Compat: Gliders](https://www.curseforge.com/minecraft/mc-mods/emf-compat-gliders)**
+- **[EMF Compat: Iron's Spells 'n Spellbooks](https://www.curseforge.com/minecraft/mc-mods/emf-compat-irons-spells-n-spellbooks)**
+- **[EMF Compat: TACZ](https://www.curseforge.com/minecraft/mc-mods/emf-compat-tacz)**
+- **[EMF Compat: Take a Seat](https://www.curseforge.com/minecraft/mc-mods/emf-compat-take-a-seat)**
+- **[EMF Compat: WATUT](https://www.curseforge.com/minecraft/mc-mods/emf-compat-watut)**
 
 
 <div class="spoiler">
@@ -33,5 +39,11 @@ When another mod plays its own player animation — such as Create's Skyhook, Be
 ![Better Combat](https://cdn.modrinth.com/data/Smytm33T/images/a8c92fd948fda83e1d1a57666baaf538901bea74.gif)
 ![Quark Emotes](https://cdn.modrinth.com/data/UvuFGp0l/images/444839c0908ae3322a66ab7a8b28eec190659c2b.gif)
 ![Immersive Melodies](https://cdn.modrinth.com/data/XLUpeCri/images/78a59aa9b67148fdd8a1da72ba2c0ae9610ba0b7.gif)
+![Exposure](https://cdn.modrinth.com/data/mHqWFw6Z/images/d53d779ef2229f141e16db690df60d6b2bce82ff.gif)
+![Gliders](https://cdn.modrinth.com/data/PsGWhwc8/images/fe7e0cc2e8e585bfe083833edbb90953abb23e02.gif)
+![Iron's Spells](https://cdn.modrinth.com/data/rk0DMjc3/images/e8b26a70aa5f41b2e2b5b248ceb221799df35315.gif)
+![TACZ](https://cdn.modrinth.com/data/vPnbqVkb/images/52102bc3f265f42e31aef6517048cedb3f30e865.gif)
+![Take a Seat](https://cdn.modrinth.com/data/npIU8sEo/images/b4049d7e82ed9288114e2d86ce049671914dd2fd.gif)
+![WATUT](https://cdn.modrinth.com/data/PIxeWxJ0/images/3969d7c7e9ec076fa0a1fa20e6eafbec2b072705.gif)
 
 enjoy ^_^
