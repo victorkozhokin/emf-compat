@@ -58,6 +58,12 @@ project(":carryon-forge-1.20.1").projectDir = file("extensions/carryon/forge/1.2
 include("carryon-fabric-1.21.11")
 project(":carryon-fabric-1.21.11").projectDir = file("extensions/carryon/fabric/1.21.11")
 
+include("carryon-fabric-26.1.2")
+project(":carryon-fabric-26.1.2").projectDir = file("extensions/carryon/fabric/26.1.2")
+
+include("carryon-fabric-26.2")
+project(":carryon-fabric-26.2").projectDir = file("extensions/carryon/fabric/26.2")
+
 // NotEnoughAnimations addon.
 include("nea-neoforge-1.21.1")
 project(":nea-neoforge-1.21.1").projectDir = file("extensions/nea/neoforge/1.21.1")
