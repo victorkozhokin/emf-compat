@@ -1,5 +1,9 @@
 # EMF Compat: Create — Changelog
 
+## 1.4.1 — Fabric (Create Fly)
+
+- Fixed the addon not listing Create Fly as required, which crashed the game on startup when it was installed on its own
+
 ## 1.4.0 — NeoForge (Create)
 
 - Added a config tab with a toggle for every supported add-on
