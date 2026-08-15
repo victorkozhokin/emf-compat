@@ -29,10 +29,23 @@ versionRange="${forge_version_range}"
 ordering="NONE"
 side="CLIENT"
 
+# Sitting+ is the 1.20.1 target (Take a Seat is a fork of it and has no 1.20.1 build).
+# 2.0.2 is the first release under this mod id — 2.0.1 and older are "sitmod", and they
+# also register their animations under a different namespace than SittingPlusCompat matches.
 [[dependencies.${mod_id}]]
-modId="bettercombat"
+modId="sittingplus"
 mandatory=true
-versionRange="[1.8.4,)"
+versionRange="[2.0.2,)"
+ordering="AFTER"
+side="CLIENT"
+
+# Sitting+ drives its poses through Player Animator but declares no dependency on it, and our
+# accessors mix into its classes — without it the mixin fails instead of reporting a missing mod.
+# The bound stays below 1.0.2 on purpose: "1.0.2-rc1+1.20" sorts under 1.0.2 as a release candidate.
+[[dependencies.${mod_id}]]
+modId="playeranimator"
+mandatory=true
+versionRange="[1.0.1,)"
 ordering="AFTER"
 side="CLIENT"
 
