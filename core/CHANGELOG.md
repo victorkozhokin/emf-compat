@@ -1,5 +1,9 @@
 # EMF Compat Core — Changelog
 
+## 1.1.2
+
+- Fixed a frame rate drop in first person — the check for First Person Model ran over and over while drawing the player instead of once, and got slower the more mods were installed (thanks to YEETSKIE1 for the profiling)
+
 ## 1.1.1
 
 - Fixed a crash on startup with several addons installed — they registered their settings tabs at the same moment and tripped over each other
