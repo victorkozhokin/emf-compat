@@ -1,5 +1,9 @@
 # EMF Compat: TACZ — Changelog
 
+## 1.0.1
+
+- Forge 1.20.1: fixed the addon asking for Better Combat instead of TACZ, so it no longer refuses to start without a mod it never used
+
 ## 1.0.0
 
 - First release

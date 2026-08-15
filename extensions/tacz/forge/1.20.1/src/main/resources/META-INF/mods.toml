@@ -29,10 +29,12 @@ versionRange="${forge_version_range}"
 ordering="NONE"
 side="CLIENT"
 
+# 1.1.4 is the first release with com.tacz.guns.client.resource.GunDisplayInstance,
+# which TACZCompat needs; hotfix builds (1.1.x-hotfix) sort above 1.1.x, so they match too.
 [[dependencies.${mod_id}]]
-modId="bettercombat"
+modId="tacz"
 mandatory=true
-versionRange="[1.8.4,)"
+versionRange="[1.1.4,)"
 ordering="AFTER"
 side="CLIENT"
 
