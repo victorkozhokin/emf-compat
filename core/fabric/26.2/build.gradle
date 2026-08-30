@@ -37,6 +37,20 @@ repositories {
     }
 }
 
+// Picks up an unreleased EMF / ETF jar from <repo>/libs, newest name last, or null when the
+// folder holds none. Kept as a plain lookup so a clean checkout without the jars still builds.
+def betaJar = { String prefix ->
+    def matches = rootProject.file('libs').listFiles()
+            ?.findAll { it.name.startsWith(prefix) && it.name.endsWith('.jar') }
+            ?.sort { it.name }
+    if (!matches) return null
+    def jar = matches.last()
+    logger.lifecycle("${project.name}: building against ${jar.name} from libs/")
+    return jar
+}
+def emfBetaJar = betaJar('entity_model_features-')
+def etfBetaJar = betaJar('entity_texture_features-')
+
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${loader_version}"
@@ -47,8 +61,19 @@ dependencies {
     compileOnly fabricApi.module("fabric-renderer-api-v1", project.fabric_version)
     compileOnly fabricApi.module("fabric-model-loading-api-v1", project.fabric_version)
 
-    compileOnly "maven.modrinth:entity-model-features:${emf_version}-fabric-${minecraft_version}"
-    compileOnly "maven.modrinth:entitytexturefeatures:${etf_version}-fabric-${minecraft_version}"
+    // Unreleased EMF / ETF builds dropped into <repo>/libs take precedence over the pinned
+    // Modrinth releases, so the core can be built against API that is not published yet.
+    // See libs/README.md; with the folder empty this falls back to the releases below.
+    if (emfBetaJar != null) {
+        compileOnly files(emfBetaJar)
+    } else {
+        compileOnly "maven.modrinth:entity-model-features:${emf_version}-fabric-${minecraft_version}"
+    }
+    if (etfBetaJar != null) {
+        compileOnly files(etfBetaJar)
+    } else {
+        compileOnly "maven.modrinth:entitytexturefeatures:${etf_version}-fabric-${minecraft_version}"
+    }
     // Optional: the settings screen is reached through Mod Menu. Compile-only, so the
     // core works without it — there is just no button in the mod list.
     compileOnly "com.terraformersmc:modmenu:${modmenu_version}"
