@@ -26,6 +26,6 @@
     "bettercombat": ">=3.0.0",
     "player_animation_library": ">=1.1.5",
     "entity_model_features": ">=3.2.4",
-    "emf_compat_core": ">=1.1.0"
+    "emf_compat_core": ">=1.2.0"
   }
 }

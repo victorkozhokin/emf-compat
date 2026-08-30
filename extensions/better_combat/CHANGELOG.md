@@ -1,5 +1,9 @@
 # EMF Compat: Better Combat — Changelog
 
+## 1.1.1
+
+- Added support for Entity Model Features 3.3 (needs EMF Compat Core 1.2.0)
+
 ## 1.1.0
 
 - Added a config tab with toggles for arm sync, attack legs, weapon stances and the RPG Series support

@@ -1,12 +1,12 @@
 package strm.emfcompat.bettercombat.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import strm.emfcompat.bettercombat.EMFCompatBetterCombatMod;
 import strm.emfcompat.bettercombat.compat.AttackPauseOverride;
+import strm.emfcompat.core.EMFStateAccess;
 import strm.emfcompat.core.PoseManager;
 
 import java.util.UUID;
@@ -35,19 +35,18 @@ public class EMFAnimationEntityContextMixin {
             return original;
         }
 
-        var state = EMFAnimationEntityContext.getEmfState();
-        if (state == null || state.emfEntity() == null) {
+        var state = EMFStateAccess.current();
+        if (state == null) {
             return original;
         }
 
-        Entity entity = (Entity) state.emfEntity();
-        UUID uuid = entity.getUUID();
+        UUID uuid = state.uuid();
         if (uuid == null) {
             return original;
         }
 
         // Do not override an explicit per-entity pause from another mod (e.g. a debug/cutscene freeze).
-        if (EMFAnimationEntityContext.entitiesPaused.contains(uuid)) {
+        if (EMFStateAccess.isPausedExplicitly(uuid)) {
             return original;
         }
         if (AttackPauseOverride.isUnpaused(uuid)) {

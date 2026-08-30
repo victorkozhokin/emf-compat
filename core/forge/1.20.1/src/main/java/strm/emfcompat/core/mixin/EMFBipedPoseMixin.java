@@ -6,9 +6,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.state.EMFBipedPose;
 import strm.emfcompat.core.EMFCompatCore;
+import strm.emfcompat.core.EMFStateAccess;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 import strm.emfcompat.core.SavedPoses;
@@ -21,10 +21,11 @@ public class EMFBipedPoseMixin {
 
     @Inject(method = "applyTo", at = @At("RETURN"), remap = false)
     private void emfcompat$restoreArmorPose(HumanoidModel<?> model, CallbackInfo ci) {
-        var state = EMFAnimationEntityContext.getEmfState();
-        if (state == null || state.emfEntity() == null) return;
+        var state = EMFStateAccess.current();
+        if (state == null) return;
 
-        UUID uuid = state.emfEntity().etf$getUuid();
+        UUID uuid = state.uuid();
+        if (uuid == null) return;
         if (EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
 
         SavedPoses savedPoses = PoseManager.getSavedPoses(uuid);

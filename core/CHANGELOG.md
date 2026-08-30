@@ -1,5 +1,10 @@
 # EMF Compat Core — Changelog
 
+## 1.2.0
+
+- Added support for Entity Model Features 3.3, which moved the state the core reads to restore poses — without this the game crashes the moment a player is drawn
+- Still works with EMF 3.2.x, so nothing has to be updated in lockstep
+
 ## 1.1.2
 
 - Fixed a frame rate drop in first person — the check for First Person Model ran over and over while drawing the player instead of once, and got slower the more mods were installed (thanks to YEETSKIE1 for the profiling)
