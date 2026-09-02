@@ -45,5 +45,7 @@ public class EMFHorseSync {
 
     private void onClientSetup(FMLClientSetupEvent event) {
         EMFCompat.init();
+        // EMF calls this back once per rendered entity, right after the pack animation.
+        HorseSyncAnimationHook.register();
     }
 }

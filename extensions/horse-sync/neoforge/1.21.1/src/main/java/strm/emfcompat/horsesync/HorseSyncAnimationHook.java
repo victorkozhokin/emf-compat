@@ -1,39 +1,47 @@
-package strm.emfcompat.horsesync.mixin;
+package strm.emfcompat.horsesync;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import strm.emfcompat.horsesync.EMFHorseSync;
 import strm.emfcompat.horsesync.compat.EMFCompat;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import strm.emfcompat.horsesync.mixin.AbstractHorseRendererAccessor;
+import traben.entity_model_features.EMFAnimationApi;
+import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@Mixin(EMFModelPartRoot.class)
-public class EMFModelPartRootMixin {
+/**
+ * Records how far a resource pack has moved the horse's body, so the rider can be moved with it.
+ *
+ * <p>Reads the pose through EMF's animation hook, which fires once per rendered entity right
+ * after the pack animation has been applied — where the addon's mixin on
+ * {@code EMFModelPartRoot#animate} used to sit.</p>
+ */
+public final class HorseSyncAnimationHook extends EMFAnimationApi.EMFAnimationHook {
 
-    @Unique
-    private static int emfhorsesync$cleanupCounter = 0;
+    private static int cleanupCounter = 0;
 
-    @Inject(method = "animate", at = @At("RETURN"))
-    private void emfhorsesync$captureHorseBodyOffset(CallbackInfo ci) {
+    private HorseSyncAnimationHook() {
+    }
 
-        //Temporary disabled. Prepare to delete
-        //        if (!Config.ENABLED.get()) {
-        //            EMFCompat.horseBodyOffsets.clear();
-        //            return;
-        //        }
+    public static void register() {
+        try {
+            EMFAnimationApi.registerAnimationHook(new HorseSyncAnimationHook());
+        } catch (Throwable t) {
+            System.err.println("[EMF Compat: Horse Sync] could not register the EMF animation hook: " + t);
+        }
+    }
 
-        if (++emfhorsesync$cleanupCounter % 200 == 0) {
+    @Override
+    public void onAnimationEnd(AnimationContext context, boolean wasCancelledByHook) {
+        // The hook runs once per rendered entity, so this counter now measures entity renders
+        // rather than model parts - roughly two hundred of them between sweeps.
+        if (++cleanupCounter % 200 == 0) {
             var mc = Minecraft.getInstance();
             if (mc.level != null) {
                 var activeHorses = StreamSupport.stream(mc.level.entitiesForRendering().spliterator(), false)
@@ -44,8 +52,8 @@ public class EMFModelPartRootMixin {
             }
         }
 
-        var state = EMFAnimationEntityContext.getEmfState();
-        if (state == null || state.emfEntity() == null) return;
+        EMFEntityRenderState state = context.activeState();
+        if (state == null) return;
         if (!(state.emfEntity() instanceof Entity entity)) return;
         if (!(entity instanceof AbstractHorse horse)) return;
 
@@ -54,17 +62,11 @@ public class EMFModelPartRootMixin {
             return;
         }
 
-        EMFModelPartRoot root = (EMFModelPartRoot) (Object) this;
+        EMFModelPartRoot root = context.animatingModelRoot();
         if (!root.isMainModel) return;
-        if (EMFAnimationEntityContext.isLayerPhase()) return;
+        if (EMFState.isLayerPhase) return;
 
-        EMFModelPartVanilla bodyPart = null;
-        for (EMFModelPartVanilla part : root.getAllVanillaPartsEMF()) {
-            if ("[vanilla part body]".equals(part.toStringShort())) {
-                bodyPart = part;
-                break;
-            }
-        }
+        EMFModelPartVanilla bodyPart = root.getAllVanillaPartsByNameEMF().get("body");
         if (bodyPart == null) return;
 
         // The value we inherit is the horse's CEM body.ty (the body bone's animated Y translation).
