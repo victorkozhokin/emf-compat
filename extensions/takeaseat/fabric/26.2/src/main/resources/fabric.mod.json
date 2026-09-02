@@ -23,6 +23,6 @@
     "minecraft": ">=${minecraft_version}",
     "entity_model_features": ">=${emf_version}",
     "takeaseat": "*",
-    "emf_compat_core": ">=1.1.0"
+    "emf_compat_core": ">=2.0.0"
   }
 }

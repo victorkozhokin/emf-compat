@@ -64,8 +64,8 @@ repositories {
 dependencies {
     implementation project(':core-forge-1.20.1')
 
-    compileOnly 'maven.modrinth:entity-model-features:3.2.4-forge-1.20.1'
-    compileOnly 'maven.modrinth:entitytexturefeatures:7.1-forge-1.20.1'
+    compileOnly 'maven.modrinth:entity-model-features:3.3.2-forge-1.20.1'
+    compileOnly 'maven.modrinth:entitytexturefeatures:7.2.1-forge-1.20.1'
     // Sitting+ is the 1.20.1 target: Take a Seat is a fork of it and has no 1.20.1 build.
     compileOnly 'maven.modrinth:sitting+:tPFfQxMv' // 2.0.5-1.20.1 (forge)
     compileOnly 'dev.kosmx.player-anim:player-animation-lib-forge:1.0.2-rc1+1.20'

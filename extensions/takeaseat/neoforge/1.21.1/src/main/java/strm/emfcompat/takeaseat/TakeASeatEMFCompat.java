@@ -27,5 +27,7 @@ public class TakeASeatEMFCompat {
 
     private void onClientSetup(FMLClientSetupEvent event) {
         EMFCompat.init();
+        // EMF calls these back around each entity's animation pass.
+        TakeASeatAnimationHook.register();
     }
 }

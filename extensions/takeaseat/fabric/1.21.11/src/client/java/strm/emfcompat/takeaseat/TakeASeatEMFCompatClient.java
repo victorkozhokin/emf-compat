@@ -16,6 +16,9 @@ public class TakeASeatEMFCompatClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        // EMF calls these back around each entity's animation pass.
+        TakeASeatAnimationHook.register();
+
         ConfigRegistry.section(MOD_ID, "Take a Seat")
                 .addBoolean(KEY_ENABLED, "EMF compatibility", true,
                         "On", "Apply EMF compatibility to Take a Seat sitting poses.",
