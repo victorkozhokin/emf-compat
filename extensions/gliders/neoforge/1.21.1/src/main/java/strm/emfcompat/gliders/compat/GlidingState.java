@@ -3,7 +3,7 @@ package strm.emfcompat.gliders.compat;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.ModList;
 import strm.emfcompat.gliders.GlidersEMFCompat;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.state.EMFState;
 
 /**
  * Central dispatcher for gliding detection across the supported glider mods.
@@ -99,7 +99,7 @@ public final class GlidingState {
      */
     public static boolean isCurrentEmfEntityGliding() {
         try {
-            var state = EMFAnimationEntityContext.getEmfState();
+            var state = EMFState.state();
             return state != null && state.emfEntity() instanceof Player player && isGliding(player);
         } catch (Throwable t) {
             return false;
@@ -112,7 +112,7 @@ public final class GlidingState {
      */
     public static boolean isCurrentEmfEntityInFlightPose() {
         try {
-            var state = EMFAnimationEntityContext.getEmfState();
+            var state = EMFState.state();
             return state != null && state.emfEntity() instanceof Player player && isInFlightPose(player);
         } catch (Throwable t) {
             return false;

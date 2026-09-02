@@ -3,7 +3,7 @@ package strm.emfcompat.create.flight;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.ModList;
 import strm.emfcompat.create.EMFCompatCreateMod;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.state.EMFState;
 
 /**
  * Unified jetpack-flight dispatcher for the Create ecosystem. Both Create Cosmonautics
@@ -33,7 +33,7 @@ public final class FlightCompat {
             if (!EMFCompatCreateMod.isEnabled()) {
                 return false;
             }
-            var state = EMFAnimationEntityContext.getEmfState();
+            var state = EMFState.state();
             if (state == null || !(state.emfEntity() instanceof Player player)) {
                 return false;
             }

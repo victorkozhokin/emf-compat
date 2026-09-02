@@ -1,5 +1,10 @@
 # EMF Compat: Gliders — Changelog
 
+## 2.0.0
+
+- Now requires Entity Model Features 3.3.2 and EMF Compat Core 2.0.0
+- Updated for EMF 3.3, which moved the render state the addon reads to decide whether you are gliding
+
 ## 1.0.0
 
 - First release

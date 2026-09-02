@@ -32,14 +32,14 @@ side="CLIENT"
 [[dependencies.${mod_id}]]
 modId="entity_model_features"
 type="required"
-versionRange="[3.2.4,)"
+versionRange="[3.3.2,)"
 ordering="AFTER"
 side="CLIENT"
 
 [[dependencies.${mod_id}]]
 modId="emf_compat_core"
 type="required"
-versionRange="[1.0.0,)"
+versionRange="[2.0.0,)"
 ordering="AFTER"
 side="CLIENT"
 

@@ -3,7 +3,7 @@ package strm.emfcompat.gliders.compat;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.entity.player.Player;
 import strm.emfcompat.gliders.GlidersEMFCompat;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.state.EMFState;
 
 /**
  * Gliding detection. Reliable Gliders is a soft dependency: its classes are only touched when the
@@ -40,7 +40,7 @@ public final class GlidingState {
      */
     public static boolean isCurrentEmfEntityInFlightPose() {
         try {
-            var state = EMFAnimationEntityContext.getEmfState();
+            var state = EMFState.state();
             return state != null && state.emfEntity() instanceof Player player && isGliding(player);
         } catch (Throwable t) {
             return false;

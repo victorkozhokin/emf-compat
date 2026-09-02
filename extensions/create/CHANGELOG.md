@@ -1,5 +1,10 @@
 # EMF Compat: Create — Changelog
 
+## 2.0.0
+
+- Now requires Entity Model Features 3.3.2 and EMF Compat Core 2.0.0
+- Updated for EMF 3.3: the jetpack jump-suppression hooks the animation variable in its new home, and the flight check reads the new render state
+
 ## 1.4.1 — Fabric (Create Fly)
 
 - Fixed the addon not listing Create Fly as required, which crashed the game on startup when it was installed on its own
