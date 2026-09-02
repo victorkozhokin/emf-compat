@@ -68,8 +68,8 @@ dependencies {
     // loader artifact, so we pin the Forge 1.20.1 upload by version id.
     compileOnly 'maven.modrinth:exposure:ob6nJLBU' // exposure-forge-1.20.1-1.9.21.jar
 
-    compileOnly 'maven.modrinth:entity-model-features:3.2.4-forge-1.20.1'
-    compileOnly 'maven.modrinth:entitytexturefeatures:7.1-forge-1.20.1'
+    compileOnly 'maven.modrinth:entity-model-features:3.3.2-forge-1.20.1'
+    compileOnly 'maven.modrinth:entitytexturefeatures:7.2.1-forge-1.20.1'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
