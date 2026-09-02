@@ -7,7 +7,7 @@
   "client": [
     "PlayerModelMixin",
     "PlayerRendererMixin",
-    "EMFAnimationEntityContextMixin"
+    "EMFAnimationPauseHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

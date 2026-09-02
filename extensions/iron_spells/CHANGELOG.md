@@ -1,5 +1,10 @@
 # EMF Compat: Iron's Spells 'n Spellbooks — Changelog
 
+## 2.0.0
+
+- Now requires Entity Model Features 3.3.2 and EMF Compat Core 2.0.0
+- Fixed the player freezing during a cast: EMF 3.3 moved the decision that pauses its animations, and the addon was lifting the pause in a place that is no longer consulted
+
 ## 1.0.0
 
 - First release
