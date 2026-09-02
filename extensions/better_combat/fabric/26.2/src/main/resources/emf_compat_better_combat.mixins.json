@@ -9,7 +9,7 @@
     "PlayerRendererMixin",
     "AttackAnimationStackMixin",
     "BetterCombatOneHandedSlamMixin",
-    "EMFAnimationEntityContextMixin",
+    "EMFAnimationPauseHandlerMixin",
     "HumanoidModelMixin"
   ],
   "injectors": {

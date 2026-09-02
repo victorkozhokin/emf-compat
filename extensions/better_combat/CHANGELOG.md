@@ -1,5 +1,10 @@
 # EMF Compat: Better Combat — Changelog
 
+## 2.0.0
+
+- Now requires Entity Model Features 3.3.2 and EMF Compat Core 2.0.0
+- Fixed the body and legs freezing during an attack: EMF 3.3 moved the decision that pauses its animations, and the addon was lifting the pause in a place that is no longer consulted
+
 ## 1.1.1
 
 - Added support for Entity Model Features 3.3 (needs EMF Compat Core 1.2.0)

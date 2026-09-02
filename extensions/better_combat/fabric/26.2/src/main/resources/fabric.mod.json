@@ -25,7 +25,7 @@
     "minecraft": "${minecraft_version}",
     "bettercombat": ">=3.0.0",
     "player_animation_library": ">=1.1.5",
-    "entity_model_features": ">=3.2.4",
-    "emf_compat_core": ">=1.2.0"
+    "entity_model_features": ">=3.3.2",
+    "emf_compat_core": ">=2.0.0"
   }
 }

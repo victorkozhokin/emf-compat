@@ -8,7 +8,7 @@
     "PlayerModelMixin",
     "PlayerRendererMixin",
     "AttackAnimationSubStackMixin",
-    "EMFAnimationEntityContextMixin"
+    "EMFAnimationPauseHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

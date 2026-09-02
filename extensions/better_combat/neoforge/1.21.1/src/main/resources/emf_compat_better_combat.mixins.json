@@ -10,7 +10,7 @@
     "PlayerRendererMixin",
     "AttackAnimationSubStackMixin",
     "BetterCombatOneHandedSlamMixin",
-    "EMFAnimationEntityContextMixin"
+    "EMFAnimationPauseHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
