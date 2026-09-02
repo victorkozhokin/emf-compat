@@ -72,6 +72,5 @@ noteforai.md
 Test-Cases.md
 documentation.md
 
-# EMF / ETF beta jars from Traben, dropped in to build against unreleased API.
-# Not ours to redistribute - see libs/README.md.
+# Local EMF / ETF pre-release jars, never ours to redistribute.
 libs/*.jar

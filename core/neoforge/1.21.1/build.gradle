@@ -61,8 +61,8 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'maven.modrinth:entity-model-features:3.2.4-neoforge-1.21'
-    compileOnly 'maven.modrinth:entitytexturefeatures:7.1-neoforge-1.21'
+    compileOnly 'maven.modrinth:entity-model-features:3.3.2-neoforge-1.21'
+    compileOnly 'maven.modrinth:entitytexturefeatures:7.2.1-neoforge-1.21'
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

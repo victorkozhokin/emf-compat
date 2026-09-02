@@ -23,6 +23,8 @@ public class EMFCompatCoreMod {
                                 + "as if only EMF and your resource pack were installed. "
                                 + "Applies immediately, no restart needed.");
         if (FMLEnvironment.dist == Dist.CLIENT) {
+            // EMF calls this back once per entity render, right after the pack animation.
+            EMFCompatAnimationHook.register();
             EMFCompatCoreClient.registerConfigScreen(container);
         }
     }

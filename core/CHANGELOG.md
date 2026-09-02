@@ -1,5 +1,11 @@
 # EMF Compat Core — Changelog
 
+## 2.0.0
+
+- Now requires Entity Model Features 3.3.2 or newer
+- Rebuilt on EMF's own animation hooks instead of patching its internals, so pose restoring no longer breaks every time EMF moves something around
+- Poses are restored once per rendered player instead of once per body part, which takes work off the render thread
+
 ## 1.2.0
 
 - Added support for Entity Model Features 3.3, which moved the state the core reads to restore poses — without this the game crashes the moment a player is drawn
