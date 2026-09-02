@@ -19,6 +19,7 @@ Resource-pack animations through EMF override everything the player model does, 
 | [Immersive Melodies](extensions/immersive_melodies/README.md) | Playing instruments | [link](https://modrinth.com/project/emf-compat-immersive-melodies) |
 | [Iron's Spells 'n Spellbooks](extensions/iron_spells/README.md) | Spellcasting poses | [link](https://modrinth.com/project/emf-compat-irons-spells-n-spellbooks) |
 | [Not Enough Animations](extensions/nea/README.md) | Eating, rowing, riding, petting and more | [link](https://modrinth.com/project/emf-compat-not-enough-animations) |
+| [ParCool](extensions/parcool/README.md) | Vaults, wall runs, rolls, climbing | not published yet |
 | [Quark](extensions/quark/README.md) | Quark emotes | [link](https://modrinth.com/project/emf-compat-quark) |
 | [Supplementaries](extensions/supplementaries/README.md) | Flute, slingshot, bubble blower | [link](https://modrinth.com/project/emf-compat-supplementaries) |
 | [TACZ](extensions/tacz/README.md) | Holding, aiming and reloading guns | [link](https://modrinth.com/project/emf-compat-tacz) |

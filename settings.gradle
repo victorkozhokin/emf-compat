@@ -176,3 +176,7 @@ project(":tacz-neoforge-1.21.1").projectDir = file("extensions/tacz/neoforge/1.2
 
 include("tacz-forge-1.20.1")
 project(":tacz-forge-1.20.1").projectDir = file("extensions/tacz/forge/1.20.1")
+
+// ParCool addon.
+include("parcool-neoforge-1.21.1")
+project(":parcool-neoforge-1.21.1").projectDir = file("extensions/parcool/neoforge/1.21.1")

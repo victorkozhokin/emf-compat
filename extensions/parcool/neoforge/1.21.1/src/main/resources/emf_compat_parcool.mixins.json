@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "strm.emfcompat.parcool.mixin",
+  "plugin": "strm.emfcompat.parcool.mixin.EMFCompatParCoolMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [],
+  "client": [
+    "ParCool3AnimationMixin",
+    "ParCool4PlayerModelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "emf_compat_parcool.refmap.json"
+}
