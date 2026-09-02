@@ -44,8 +44,8 @@ dependencies {
     modImplementation project(':core-fabric-1.21.11')
 
     modCompileOnly 'maven.modrinth:carry-on:2.9.0'
-    modCompileOnly 'maven.modrinth:entity-model-features:3.2.4-fabric-1.21.11'
-    modCompileOnly 'maven.modrinth:entitytexturefeatures:7.1-fabric-1.21.11'
+    modCompileOnly 'maven.modrinth:entity-model-features:3.3.2-fabric-1.21.11'
+    modCompileOnly 'maven.modrinth:entitytexturefeatures:7.2.1-fabric-1.21.11'
 }
 
 processResources {

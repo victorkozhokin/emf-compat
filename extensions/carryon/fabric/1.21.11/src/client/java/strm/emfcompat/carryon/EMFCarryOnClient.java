@@ -21,6 +21,8 @@ public class EMFCarryOnClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        // EMF calls this back once per entity render, right after the pack animation.
+        CarryOnAnimationHook.register();
         ConfigRegistry.section(MOD_ID, "Carry On")
                 .addBoolean(KEY_ENABLED, "EMF compatibility", true,
                         "On", "Apply EMF compatibility to Carry On (arm pose and carried-object sync).",

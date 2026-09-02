@@ -7,7 +7,6 @@
   "client": [
     "HumanoidModelMixin",
     "PlayerRendererMixin",
-    "EMFModelPartRootMixin",
     "CarryRenderHelperMixin",
     "CarriedObjectRenderMixin",
     "CarriedObjectRenderAccessor",

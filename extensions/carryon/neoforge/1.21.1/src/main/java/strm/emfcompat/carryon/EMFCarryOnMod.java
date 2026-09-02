@@ -1,6 +1,8 @@
 package strm.emfcompat.carryon;
 
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import strm.emfcompat.core.ConfigRegistry;
@@ -32,7 +34,10 @@ public class EMFCarryOnMod {
                         "Force carried mobs to render with their vanilla model (no EMF/resource-pack animation).",
                         "EMF",
                         "Let carried mobs keep their EMF-animated model while being carried.");
-        // All rendering work is done by the client-side mixins.
+        // EMF calls this back once per entity render, right after the pack animation.
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            CarryOnAnimationHook.register();
+        }
     }
 
     public static boolean isEnabled() {
