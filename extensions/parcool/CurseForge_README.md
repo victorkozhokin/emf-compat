@@ -20,7 +20,7 @@ Tested with **[Fresh Animations: Player Extension](https://www.curseforge.com/mi
 
 ## Fresh Animations module
 
-The mod includes an optional animation module for **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)**, made with **[FreshLX's](https://modrinth.com/user/FreshLX)** permission.
+The mod includes an optional animation module for **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)**, made with **[FreshLX's]([https://modrinth.com/user/FreshLX](https://www.curseforge.com/members/freshlx/projects))** permission.
 
 This pack gives ParCool moves animations that match the Fresh Animations style, including fast running, jumping, ledge and bar movement, climbing, crawling and swimming.
 
@@ -28,11 +28,11 @@ To use it, enable **EMF Compat: ParCool Animations** in the resource-pack list a
 
 ## Hands and Legs IK
 
-[IK](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/parcoolIK.webp?raw=true)
+![IK](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/parcoolIK.webp?raw=true)
 
 ## Turning while hanging
 
-[Turn](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/parcoolHangTurn.webp?raw=true)
+![Turn](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/parcoolHangTurn.webp?raw=true)
 
 ## Config
 

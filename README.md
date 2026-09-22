@@ -8,24 +8,24 @@ Resource-pack animations through EMF override everything the player model does, 
 
 ## Addons
 
-| Addon | Makes these work with EMF | Modrinth                                                                |
-|---|---|-------------------------------------------------------------------------|
-| [Better Combat](extensions/better_combat/README.md) | Weapon swings, attack poses, RPG Series spellcasting | [link](https://modrinth.com/project/emf-compat-better-combat)           |
-| [Carry On](extensions/carryon/README.md) | Carrying blocks, chests and mobs | [link](https://modrinth.com/project/emf-compat-carry-on)                |
-| [Create](extensions/create/README.md) | Skyhook, grappling hooks, handles, jetpacks, physics objects | [link](https://modrinth.com/project/emf-compat-create)                  |
-| [Exposure](extensions/exposure/README.md) | Photos, selfies and tripod cameras | [link](https://modrinth.com/project/emf-compat-exposure)                |
-| [Gliders](extensions/gliders/README.md) | Paragliders, Gliders, Reliable Gliders | [link](https://modrinth.com/project/emf-compat-gliders)                 |
-| [Hackers 'n Slashers](extensions/hackers_and_slashers/README.md) | Attacks, blocks, rolls and weapon stances | [link](https://modrinth.com/project/emf-compat-hackers-n-slashers)      |
-| [Horse Sync](extensions/horse-sync/README.md) *(archived)* | Sitting steady on an animated horse | not published / not maintained                                          |
-| [Immersive Melodies](extensions/immersive_melodies/README.md) | Playing instruments | [link](https://modrinth.com/project/emf-compat-immersive-melodies)      |
-| [Iron's Spells 'n Spellbooks](extensions/iron_spells/README.md) | Spellcasting poses | [link](https://modrinth.com/project/emf-compat-irons-spells-n-spellbooks) |
-| [Not Enough Animations](extensions/nea/README.md) | Eating, rowing, riding, petting and more | [link](https://modrinth.com/project/emf-compat-not-enough-animations)   |
-| [ParCool](extensions/parcool/README.md) | Vaults, wall runs, rolls, climbing | [link](https://modrinth.com/project/emf-compat-parcool)                 |
-| [Quark](extensions/quark/README.md) | Quark emotes | [link](https://modrinth.com/project/emf-compat-quark)                   |
-| [Supplementaries](extensions/supplementaries/README.md) | Flute, slingshot, bubble blower | [link](https://modrinth.com/project/emf-compat-supplementaries)         |
-| [TACZ](extensions/tacz/README.md) | Holding, aiming and reloading guns | [link](https://modrinth.com/project/emf-compat-tacz)                    |
-| [Take a Seat](extensions/takeaseat/README.md) | Sitting on chairs and benches | [link](https://modrinth.com/project/emf-compat-take-a-seat)             |
-| [WATUT](extensions/watut/README.md) | Typing, menu and idle status poses | [link](https://modrinth.com/project/emf-compat-watut)                   |
+| Addon | Makes these work with EMF | Modrinth                                                                | CurseForge |
+|---|---|-------------------------------------------------------------------------|------------|
+| [Better Combat](extensions/better_combat/README.md) | Weapon swings, attack poses, RPG Series spellcasting | [link](https://modrinth.com/project/emf-compat-better-combat)           | [link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-better-combat)   |
+| [Carry On](extensions/carryon/README.md) | Carrying blocks, chests and mobs | [link](https://modrinth.com/project/emf-compat-carry-on)                |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-carry-on)            |
+| [Create](extensions/create/README.md) | Skyhook, grappling hooks, handles, jetpacks, physics objects | [link](https://modrinth.com/project/emf-compat-create)                  |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-create)            |
+| [Exposure](extensions/exposure/README.md) | Photos, selfies and tripod cameras | [link](https://modrinth.com/project/emf-compat-exposure)                |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-exposure)            |
+| [Gliders](extensions/gliders/README.md) | Paragliders, Gliders, Reliable Gliders | [link](https://modrinth.com/project/emf-compat-gliders)                 |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-gliders)            |
+| [Hackers 'n Slashers](extensions/hackers_and_slashers/README.md) | Attacks, blocks, rolls and weapon stances | [link](https://modrinth.com/project/emf-compat-hackers-n-slashers)      |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-hackers-n-slashers)            |
+| [Immersive Melodies](extensions/immersive_melodies/README.md) | Playing instruments | [link](https://modrinth.com/project/emf-compat-immersive-melodies)      |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-immersive-melodies)            |
+| [Iron's Spells 'n Spellbooks](extensions/iron_spells/README.md) | Spellcasting poses | [link](https://modrinth.com/project/emf-compat-irons-spells-n-spellbooks) |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-irons-spells-n-spellbooks)           |
+| [Not Enough Animations](extensions/nea/README.md) | Eating, rowing, riding, petting and more | [link](https://modrinth.com/project/emf-compat-not-enough-animations)   |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-not-enough-animations)           |
+| [ParCool](extensions/parcool/README.md) | Vaults, wall runs, rolls, climbing | [link](https://modrinth.com/project/emf-compat-parcool)                 |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-parcool)            |
+| [Quark](extensions/quark/README.md) | Quark emotes | [link](https://modrinth.com/project/emf-compat-quark)                   |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-quark)            |
+| [Supplementaries](extensions/supplementaries/README.md) | Flute, slingshot, bubble blower | [link](https://modrinth.com/project/emf-compat-supplementaries)         |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-supplementaries)            |
+| [TACZ](extensions/tacz/README.md) | Holding, aiming and reloading guns | [link](https://modrinth.com/project/emf-compat-tacz)                    |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-tacz)            |
+| [Take a Seat](extensions/takeaseat/README.md) | Sitting on chairs and benches | [link](https://modrinth.com/project/emf-compat-take-a-seat)             |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-take-a-seat)            |
+| [WATUT](extensions/watut/README.md) | Typing, menu and idle status poses | [link](https://modrinth.com/project/emf-compat-watut)                   |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-watut)            |
+| [Horse Sync](extensions/horse-sync/README.md) *(archived)* | Sitting steady on an animated horse | not published / not maintained                                          |not published / not maintained            |
 
 ## Build
 

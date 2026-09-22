@@ -34,6 +34,8 @@ When another mod plays its own player animation — such as Create's Skyhook, Be
 - **[EMF Compat: TACZ](https://modrinth.com/project/emf-compat-tacz)**
 - **[EMF Compat: Take a Seat](https://modrinth.com/project/emf-compat-take-a-seat)**
 - **[EMF Compat: WATUT](https://modrinth.com/project/emf-compat-watut)**
+- **[EMF Compat: Parcool](https://modrinth.com/project/emf-compat-parcool)** Currently unavailable
+- **[EMF Compat: Hackers 'n Slashers](https://modrinth.com/project/emf-compat-hackers-n-slashers)** Currently unavailable
 
 <details>
 <summary>Spoiler</summary>
@@ -50,7 +52,8 @@ When another mod plays its own player animation — such as Create's Skyhook, Be
 ![TACZ](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/tacz.webp?raw=true)
 ![Take a Seat](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/take-a-seat.webp?raw=true)
 ![WATUT](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/watut.webp?raw=true)
-
+![Parcool](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/parcool.webp?raw=true)
+![Hackers 'n Slashers](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/hackers-and-slashers.webp?raw=true)
 
 </details>
 
