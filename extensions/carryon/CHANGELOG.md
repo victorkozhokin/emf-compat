@@ -8,6 +8,10 @@
 - Fixed carried objects drifting away from the hands in the mirrored third-person camera
 - Frozen now keeps a per-entity EMF pose in both first and third person, so another visible mob of the same type cannot animate the carried model
 - Animated keeps the carried mob's own EMF animation while normalising Carry On's render interpolation to prevent shaking
+- Animated mobs are actually alive in your hands now, in first person too: Carry On redraws a fresh copy of the mob every frame, which left its animation clock stuck at zero
+- Frozen now holds on Fabric 1.21.11, 26.1.2 and 26.2, in both views, and carried mobs are handled in first person there
+- Fixed a crash on Forge 1.20.1 when a carried mob was drawn in first person
+- Carried mobs face the way Carry On means them to, whatever way they were facing when picked up
 
 ## 1.1.0
 

@@ -4,6 +4,8 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.joml.Vector3f;
+
+import java.util.UUID;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -33,27 +35,35 @@ public class HumanoidModelMixin {
         if (!(entity instanceof Player player)) return;
         if (player.level() == null) return;
 
-        if (!EMFCarryOnClient.isEnabled() || !CarryOnCompat.isCarrying(player)) {
-            PoseManager.clearPoses(player.getUUID(), SOURCE);
-            BodyPartSync.clear(player.getUUID());
+        UUID uuid = player.getUUID();
+        if (!EMFCarryOnClient.isEnabled() || !CarryOnCompat.shouldRenderCarryPose(player)) {
+            PoseManager.clearPoses(uuid, SOURCE);
+            BodyPartSync.clear(uuid);
+            return;
+        }
+
+        CarryOnCompat.ActiveArms activeArms = CarryOnCompat.activeArms(player);
+        if (!activeArms.left() && !activeArms.right()) {
+            PoseManager.clearPoses(uuid, SOURCE);
+            BodyPartSync.clear(uuid);
             return;
         }
 
         HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
-        PoseSnapshot leftArm = new PoseSnapshot(model.leftArm);
-        PoseSnapshot rightArm = new PoseSnapshot(model.rightArm);
+        PoseSnapshot leftArm = activeArms.left() ? new PoseSnapshot(model.leftArm) : null;
+        PoseSnapshot rightArm = activeArms.right() ? new PoseSnapshot(model.rightArm) : null;
 
         if (EMFCarryOnClient.isBodyFollow()) {
             // Body-follow: arms keep their exact pose and track the torso; the carried object
             // follows via the core's published body-follow delta (translation only).
-            PoseManager.savePoses(player.getUUID(), SOURCE, leftArm, rightArm, null,
+            PoseManager.savePoses(uuid, SOURCE, leftArm, rightArm, null,
                     new Vector3f(model.body.x, model.body.y, model.body.z));
         } else {
             // Legacy: arms restored rotation-only, and the carried object synced to the torso
             // the old way via BodyPartSync (translation + rotation). Capture the base body here;
             // the current body is captured after EMF animate (EMFModelPartRootMixin).
-            PoseManager.savePoses(player.getUUID(), SOURCE, leftArm, rightArm);
-            BodyPartSync.captureBase(player.getUUID(), "body", model.body);
+            PoseManager.savePoses(uuid, SOURCE, leftArm, rightArm);
+            BodyPartSync.captureBase(uuid, "body", model.body);
         }
 
         // FirstPersonModel hides empty hands in first person. While carrying, force the arms

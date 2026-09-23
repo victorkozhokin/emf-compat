@@ -13,7 +13,7 @@ The same combat animation and correctly attached held items are preserved in fir
 | Attacks, blocks, rolls and other actions | Both arms, and the legs while standing still |
 | Weapon stance (off by default) | Both arms |
 
-The head and body always stay under EMF's control, so resource-pack animations keep playing while you fight.
+The body always stays under EMF's control, so resource-pack animations keep playing while you fight. During attacks and blocks the head keeps looking where you aim, even while the swing twists the torso.
 
 ## Config
 
@@ -25,6 +25,7 @@ Open the in-game config screen (Mods → EMF Compat Core → Config) and pick th
 | Arm sync | **Body-follow** keeps the pose attached to your moving torso. **Rotation-only** is the older, simpler behaviour, but in some cases it gives smoother animations. |
 | Action legs | Holds the legs too while you stand still, so a lunge or a roll keeps its stance. Moving always keeps the pack's walk cycle. |
 | Weapon stances | Holds the stance a carried weapon puts you in. Off by default: it takes both arms for as long as the weapon is held. |
+| Head during attacks | **Follows the camera** keeps the head on where you look while an attack or a block twists the body. **Follows the animation** lets the head turn with the body, as the attack animation keys it. |
 
 ## Notes
 

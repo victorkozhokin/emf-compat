@@ -8,7 +8,8 @@
 - The pose follows your moving torso, so it stays attached to the body your pack is animating
 - Your stance holds while you stand still, so a lunge or a roll keeps its footing; walking keeps the pack's own walk cycle
 - Optional weapon stances (off by default), only for weapons that have one
-- Head and body keep your pack's animation while you fight
+- Your head keeps looking where you aim during attacks and blocks, even while the swing twists your body (can be switched back to the animation's own head)
+- The body keeps your pack's animation while you fight
 - Third person only: Hackers 'n Slashers keeps its own first-person pose layer, so your own hands are left to it
-- A config tab with a master switch, the arm sync mode, and switches for the action legs and the weapon stances
+- A config tab with a master switch, the arm sync mode, and switches for the action legs, the weapon stances and the head during attacks
 - Requires EMF Compat Core 2.1.0 and Entity Model Features 3.3.2

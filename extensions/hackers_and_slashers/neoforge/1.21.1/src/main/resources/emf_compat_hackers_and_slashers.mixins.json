@@ -6,7 +6,8 @@
   "mixins": [],
   "client": [
     "PlayerAnimatorMixin",
-    "PlayerModelMixin"
+    "PlayerModelMixin",
+    "HnSModelPoseMixin"
   ],
   "injectors": {
     "defaultRequire": 1

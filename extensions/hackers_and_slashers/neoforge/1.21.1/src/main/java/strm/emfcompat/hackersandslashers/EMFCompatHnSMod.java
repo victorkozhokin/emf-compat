@@ -45,6 +45,7 @@ public class EMFCompatHnSMod {
     public static final String KEY_BODY_FOLLOW_ARMS = "hackersandslashers.bodyFollowArms";
     public static final String KEY_ACTION_LEGS = "hackersandslashers.actionLegs";
     public static final String KEY_STANCES = "hackersandslashers.stances";
+    public static final String KEY_HEAD_LOOK = "hackersandslashers.headLook";
 
     /** Pose source for attacks, blocks, rolls — anything with a beginning and an end. */
     public static final String SOURCE = "hackers_and_slashers";
@@ -73,7 +74,10 @@ public class EMFCompatHnSMod {
                         "Off", "Leave the legs to EMF (arms only).")
                 .addBoolean(KEY_STANCES, "Weapon stances", false,
                         "On", "Hold the stance a carried weapon puts you in. Takes both arms for as long as the weapon is held.",
-                        "Off", "Leave the stance to EMF — the pack's idle arm animation plays instead.");
+                        "Off", "Leave the stance to EMF — the pack's idle arm animation plays instead.")
+                .addBoolean(KEY_HEAD_LOOK, "Head during attacks", true,
+                        "Follows the camera", "The head keeps looking where you look while an attack or a block twists the body.",
+                        "Follows the animation", "The head turns with the body, as the attack animation keys it.");
         modEventBus.addListener(this::clientSetup);
     }
 
@@ -91,6 +95,10 @@ public class EMFCompatHnSMod {
 
     public static boolean isStances() {
         return EMFCompatConfig.getBoolean(KEY_STANCES, false);
+    }
+
+    public static boolean isHeadLook() {
+        return EMFCompatConfig.getBoolean(KEY_HEAD_LOOK, true);
     }
 
     private void clientSetup(FMLClientSetupEvent event) {

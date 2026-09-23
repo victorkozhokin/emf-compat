@@ -11,7 +11,7 @@ public class EMFCarryOnClient implements ClientModInitializer {
     public static final String KEY_ENABLED = "carryon.enabled";
     /** Arm-sync mode: body-follow (new) vs the legacy rotation-only system. */
     public static final String KEY_BODY_FOLLOW_ARMS = "carryon.bodyFollowArms";
-    /** Force a carried mob to render with its vanilla model (no EMF animation). */
+    /** Legacy config key: now pauses EMF animation without replacing the resource-pack model. */
     public static final String KEY_FORCE_VANILLA_CARRIED = "carryon.forceVanillaCarriedModel";
 
     @Override
@@ -25,11 +25,11 @@ public class EMFCarryOnClient implements ClientModInitializer {
                         "Arms keep their exact raised pose and follow the moving torso; the carried object follows with them.",
                         "Rotation-only (legacy)",
                         "Arms keep only their rotation; the carried object is synced to the torso the old way (with rotation).")
-                .addBoolean(KEY_FORCE_VANILLA_CARRIED, "Carried mob model", true,
-                        "Vanilla",
-                        "Force carried mobs to render with their vanilla model (no EMF/resource-pack animation).",
-                        "EMF",
-                        "Let carried mobs keep their EMF-animated model while being carried.");
+                .addBoolean(KEY_FORCE_VANILLA_CARRIED, "Carried mob animation", true,
+                        "Frozen",
+                        "Hold an independent resource-pack pose that other mobs of the same type cannot overwrite.",
+                        "Animated",
+                        "Keep the carried mob's own EMF animation with stable render interpolation.");
         // EMF calls this back once per entity render, right after the pack animation.
         CarryOnAnimationHook.register();
     }
@@ -42,7 +42,7 @@ public class EMFCarryOnClient implements ClientModInitializer {
         return EMFCompatConfig.getBoolean(KEY_BODY_FOLLOW_ARMS, true);
     }
 
-    public static boolean forceVanillaCarried() {
+    public static boolean pauseCarriedAnimations() {
         return EMFCompatConfig.getBoolean(KEY_FORCE_VANILLA_CARRIED, true);
     }
 }

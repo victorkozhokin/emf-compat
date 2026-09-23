@@ -194,6 +194,10 @@ metadata, and a copy of `Driver.java`. `mctest.py` finds it by the folder name
   the hitbox is within ~0.2 of the ledge and the wall within 0.15: for a wall topping out at y=-56,
   `tp @s <x> -57.8 <wall face + 0.35>` while holding the hang key. A chat screen releases ParCool's
   own key state, so a hang ends when chat opens.
+- **`look` straight after `tp` is lost.** The teleport's rotation reaches the client later and
+  resets the pitch, so the player looks level whatever `look` said. Put a `{"wait": 20}` between them.
+- **A carry survives `clear @s`**, and a new pick-up while one is held does nothing. Start a Carry On
+  script with `carryon clear @s`.
 - **A pack that fails EMF's ASM compile is dropped whole**, and `latest.log` only says
   "Failure parsing ASM". The reason goes to stdout: read `run/mctest/<profile>/mctest/launcher.out`
   (e.g. "a variable was used both as a number and a boolean" for `!var.x`). `launch --emf-log`

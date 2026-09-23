@@ -64,6 +64,15 @@ public final class HnSCompat {
     }
 
     /**
+     * {@code true} while a swing or a block is playing - the moves that twist the torso while the
+     * player keeps aiming, so the head should stay on the camera. Rolls, dashes and the other
+     * parkour-like actions are left to the animation: there the whole body, head included, turns.
+     */
+    public static boolean isAimedActionActive(AbstractClientPlayer player) {
+        return isLayerActive(player, ATTACK_LAYER) || isLayerActive(player, DEFENSE_LAYER);
+    }
+
+    /**
      * {@code true} while H&amp;S wants Player Animation Library to draw the third-person player
      * model in the first-person pass.
      *

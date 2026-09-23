@@ -1,6 +1,7 @@
 package strm.emfcompat.hackersandslashers.mixin;
 
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.Entity;
 import org.joml.Vector3f;
@@ -14,6 +15,7 @@ import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 import strm.emfcompat.hackersandslashers.EMFCompatHnSMod;
 import strm.emfcompat.hackersandslashers.compat.HnSCompat;
+import strm.emfcompat.hackersandslashers.compat.HnSHeadLook;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,9 +53,32 @@ public class PlayerModelMixin {
     @Unique
     private static final String POSE_SOURCE = EMFCompatHnSMod.POSE_SOURCE;
 
-    /** Below this limb-swing amount the player counts as stationary, and the legs may be held. */
+    /**
+     * When the legs are held: the player counts as standing still below {@link #LEGS_HOLD_BELOW}
+     * blocks per tick of horizontal movement and as moving above {@link #LEGS_FREE_ABOVE}, and
+     * between the two keeps whatever it was.
+     *
+     * <p>This used to read {@code limbSwingAmount < 0.15}, which is the wrong question: it is the
+     * smoothed amplitude of the stride, not speed, and H&amp;S slows the player during a swing, so
+     * it wandered between 0.06 and 0.23 while sneaking forward and across 0.15 on every stride -
+     * the legs flipped between the stance and the pack's walk cycle, and any threshold high enough
+     * to stop that held the legs of a player who was walking. Measured speed has no such overlap:
+     * exactly 0 standing (with or without a swing, crouched or not), 0.011-0.061 sneaking forward
+     * through swings, 0.037 and up walking.</p>
+     */
     @Unique
-    private static final float LEG_MOVE_THRESHOLD = 0.15f;
+    private static final double LEGS_HOLD_BELOW = 0.005;
+
+    @Unique
+    private static final double LEGS_FREE_ABOVE = 0.010;
+
+    /** A switch has to be wanted this long first, so a one-frame spike does not flip the legs. */
+    @Unique
+    private static final long LEGS_SWITCH_NANOS = 100_000_000L;
+
+    /** Per player during an action: {legs held 1/0, since when a switch is wanted or 0}. */
+    @Unique
+    private static final Map<UUID, long[]> LEG_GATES = new HashMap<>();
 
     @Inject(method = "setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V", at = @At("RETURN"))
     private void emfcompat$captureHnSPose(Entity entity, float limbSwing, float limbSwingAmount,
@@ -86,6 +111,9 @@ public class PlayerModelMixin {
 
         if (!HnSCompat.isActionActive(player)) {
             PoseManager.clearPoses(uuid, SOURCE);
+            // Each action decides afresh: a gate left from the last swing would hold the legs of
+            // a player who has started running since.
+            LEG_GATES.remove(uuid);
             return;
         }
 
@@ -94,10 +122,20 @@ public class PlayerModelMixin {
         // keeps the legs pivoted at the hip rather than detaching them, and only while roughly
         // stationary, so a moving player keeps EMF's walk cycle.
         Map<String, PoseSnapshot> parts = null;
-        if (EMFCompatHnSMod.isActionLegs() && limbSwingAmount < LEG_MOVE_THRESHOLD) {
+        if (EMFCompatHnSMod.isActionLegs() && emfcompat$legsHeld(uuid, player)) {
             parts = new HashMap<>();
             parts.put("left_leg", new PoseSnapshot(model.leftLeg, true));
             parts.put("right_leg", new PoseSnapshot(model.rightLeg, true));
+        }
+
+        // The head stays on the camera while a swing twists the torso (see HnSHeadLook).
+        // Rotation-only: where the head sits is the pack's to decide.
+        if (EMFCompatHnSMod.isHeadLook() && HnSCompat.isAimedActionActive(player)) {
+            float[] look = HnSHeadLook.headRotation(player);
+            if (look != null) {
+                if (parts == null) parts = new HashMap<>();
+                parts.put("head", emfcompat$aimed(model.head, look));
+            }
         }
 
         PoseManager.savePoses(
@@ -107,6 +145,50 @@ public class PlayerModelMixin {
                 parts,
                 bodyBase
         );
+    }
+
+    /** Whether the legs are held this frame: standing still, with hysteresis and a short hold. */
+    @Unique
+    private static boolean emfcompat$legsHeld(UUID uuid, AbstractClientPlayer player) {
+        // Last tick's horizontal movement; the same for remote players, whose position is
+        // interpolated tick by tick.
+        double speed = Math.hypot(player.getX() - player.xo, player.getZ() - player.zo);
+        long[] gate = LEG_GATES.get(uuid);
+        if (gate == null) {
+            if (LEG_GATES.size() > 64) LEG_GATES.clear();
+            gate = new long[]{speed <= LEGS_FREE_ABOVE ? 1 : 0, 0};
+            LEG_GATES.put(uuid, gate);
+        }
+        boolean held = gate[0] == 1;
+        boolean wantsSwitch = held ? speed > LEGS_FREE_ABOVE : speed < LEGS_HOLD_BELOW;
+        if (!wantsSwitch) {
+            gate[1] = 0;
+            return held;
+        }
+        // Time, not calls: setupAnim runs more than once a frame (inventory, other views).
+        long now = System.nanoTime();
+        if (gate[1] == 0) {
+            gate[1] = now;
+        } else if (now - gate[1] >= LEGS_SWITCH_NANOS) {
+            gate[0] = held ? 0 : 1;
+            gate[1] = 0;
+            return !held;
+        }
+        return held;
+    }
+
+    /** A rotation-only snapshot of the head turned to {x, y, z}; the part itself is left as it was. */
+    @Unique
+    private static PoseSnapshot emfcompat$aimed(ModelPart head, float[] look) {
+        float xRot = head.xRot, yRot = head.yRot, zRot = head.zRot;
+        head.xRot = look[0];
+        head.yRot = look[1];
+        head.zRot = look[2];
+        PoseSnapshot aimed = new PoseSnapshot(head, true);
+        head.xRot = xRot;
+        head.yRot = yRot;
+        head.zRot = zRot;
+        return aimed;
     }
 
     @Unique

@@ -31,17 +31,23 @@ public class HumanoidModelMixin {
     private void emfcompat$captureCarryOnPose(LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
         if (!(entity instanceof Player player)) return;
         if (player.level() == null) return;
-
         UUID uuid = player.getUUID();
-        if (!EMFCarryOnMod.isEnabled() || !CarryOnCompat.isCarrying(player)) {
+        if (!EMFCarryOnMod.isEnabled() || !CarryOnCompat.shouldRenderCarryPose(player)) {
+            PoseManager.clearPoses(uuid, SOURCE);
+            BodyPartSync.clear(uuid);
+            return;
+        }
+
+        CarryOnCompat.ActiveArms activeArms = CarryOnCompat.activeArms(player);
+        if (!activeArms.left() && !activeArms.right()) {
             PoseManager.clearPoses(uuid, SOURCE);
             BodyPartSync.clear(uuid);
             return;
         }
 
         HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
-        PoseSnapshot leftArm = new PoseSnapshot(model.leftArm);
-        PoseSnapshot rightArm = new PoseSnapshot(model.rightArm);
+        PoseSnapshot leftArm = activeArms.left() ? new PoseSnapshot(model.leftArm) : null;
+        PoseSnapshot rightArm = activeArms.right() ? new PoseSnapshot(model.rightArm) : null;
 
         if (EMFCarryOnMod.isBodyFollow()) {
             // Body-follow: arms keep their exact pose and track the torso; the carried object

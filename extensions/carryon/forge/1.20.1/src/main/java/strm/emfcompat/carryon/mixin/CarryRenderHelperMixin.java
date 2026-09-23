@@ -92,6 +92,16 @@ public class CarryRenderHelperMixin {
         CarryOnRenderState.markCarried(entity);
     }
 
+    @Inject(
+            method = "applyEntityTransformations(Lnet/minecraft/world/entity/player/Player;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/entity/Entity;)V",
+            at = @At("RETURN")
+    )
+    private static void emfcompat$stabilizeAnimatedEntity(
+            Player player, float partialTicks, PoseStack poseStack, Entity entity, CallbackInfo ci
+    ) {
+        CarryOnRenderState.stabilizeAnimated(entity);
+    }
+
     private static void applyBodyDelta(PoseStack poseStack, Player player) {
         if (!EMFCarryOnMod.isEnabled()) return;
 
@@ -102,10 +112,13 @@ public class CarryRenderHelperMixin {
             // Body-follow: shift by the same delta the core applied to the arms (translation only).
             Vector3f delta = PoseManager.getBodyFollowDelta(player.getUUID());
             if (delta == null) return;
+            // Carry On adds an extra 180-degree local Y rotation for the mirrored (front)
+            // third-person camera. Undo it for the hand-attachment delta.
+            float mirror = CarryRenderHelper.getPerspective() == 2 ? -1.0f : 1.0f;
             poseStack.translate(
-                    delta.x * BODY_FOLLOW_SCALE,
+                    delta.x * mirror * BODY_FOLLOW_SCALE,
                     -delta.y * BODY_FOLLOW_SCALE,
-                    -delta.z * BODY_FOLLOW_SCALE
+                    -delta.z * mirror * BODY_FOLLOW_SCALE
             );
         } else {
             // Legacy: BodyPartSync translation + rotation of the torso.

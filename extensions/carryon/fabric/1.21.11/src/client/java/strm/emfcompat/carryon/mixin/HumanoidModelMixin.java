@@ -43,25 +43,33 @@ public class HumanoidModelMixin {
 
         Entity entity = mc.level.getEntity(avatarState.id);
         if (!(entity instanceof Player player)) return;
-
         UUID uuid = player.getUUID();
-        if (!EMFCarryOnClient.isEnabled() || !CarryOnCompat.isCarrying(player)) {
+        if (!EMFCarryOnClient.isEnabled() || !CarryOnCompat.shouldRenderCarryPose(player)) {
             PoseManager.clearPoses(uuid, SOURCE);
             BodyPartSync.clear(uuid);
             return;
         }
 
+        CarryOnCompat.ActiveArms activeArms = CarryOnCompat.activeArms(player);
+        if (!activeArms.left() && !activeArms.right()) {
+            PoseManager.clearPoses(uuid, SOURCE);
+            BodyPartSync.clear(uuid);
+            return;
+        }
+        PoseSnapshot leftArm = activeArms.left() ? new PoseSnapshot(model.leftArm) : null;
+        PoseSnapshot rightArm = activeArms.right() ? new PoseSnapshot(model.rightArm) : null;
+
         if (EMFCarryOnClient.isBodyFollow()) {
             // Body-follow: arms keep their exact pose and track the torso; the carried object
             // follows via the core's published body-follow delta (translation).
             PoseManager.savePoses(uuid, SOURCE,
-                    new PoseSnapshot(model.leftArm), new PoseSnapshot(model.rightArm), null,
+                    leftArm, rightArm, null,
                     new Vector3f(model.body.x, model.body.y, model.body.z));
         } else {
             // Legacy: arms restored rotation-only, and the carried object synced to the torso
             // the old way via BodyPartSync (translation + rotation). Capture the base body here;
             // the current body is captured after EMF animate (EMFModelPartRootMixin).
-            PoseManager.savePoses(uuid, SOURCE, new PoseSnapshot(model.leftArm), new PoseSnapshot(model.rightArm));
+            PoseManager.savePoses(uuid, SOURCE, leftArm, rightArm);
             BodyPartSync.captureBase(uuid, "body", model.body);
         }
     }

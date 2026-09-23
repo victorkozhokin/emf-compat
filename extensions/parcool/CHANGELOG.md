@@ -7,6 +7,7 @@
 - Works with both ParCool 3.4.x and ParCool 4, picking the right path by itself
 - On ParCool 4 only the limbs an action actually moves are held, so the rest of your pack's animation keeps playing
 - On ParCool 4 moves ease in and out of your pack's animation at ParCool's own pace instead of snapping — vaults and other moves that start at full weight included, so a vault out of a pack-animated fast run no longer jumps to ParCool's run pose first
+- While your hands are full with a Carry On block or mob or a Barehanded structure, the moves that need hands are off: grabbing a ledge or a bar, climbing up, vaults, dodges, flips, crawling and the landing roll
 - Attack with Better Combat, play an Immersive Melodies instrument or eat while fast running, crawling or charging a jump: the arms do the action, the legs keep running
 - Resource packs can animate the moves themselves through new EMF variables — fast run, charge jump, hanging, the bar swing, and the arm and leg angles the addon works out
 - A Fresh Animations: Player Extension module ships inside the jar, with FreshLX's permission: turn on "EMF Compat: ParCool Animations" in the resource pack list, above FA+Player
