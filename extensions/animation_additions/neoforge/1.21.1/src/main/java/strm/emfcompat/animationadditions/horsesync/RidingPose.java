@@ -1,4 +1,4 @@
-package strm.emfcompat.horsesync;
+package strm.emfcompat.animationadditions.horsesync;
 
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;

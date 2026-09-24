@@ -1,4 +1,4 @@
-package strm.emfcompat.horsesync.compat;
+package strm.emfcompat.animationadditions.horsesync.compat;
 
 import java.util.HashMap;
 import java.util.Map;

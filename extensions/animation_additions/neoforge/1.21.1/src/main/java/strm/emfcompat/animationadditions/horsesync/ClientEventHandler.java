@@ -1,4 +1,4 @@
-package strm.emfcompat.horsesync;
+package strm.emfcompat.animationadditions.horsesync;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
@@ -8,12 +8,13 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
-import strm.emfcompat.horsesync.compat.EMFCompat;
+import strm.emfcompat.animationadditions.EMFCompatAnimationAdditionsMod;
+import strm.emfcompat.animationadditions.horsesync.compat.EMFCompat;
 
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@EventBusSubscriber(modid = EMFHorseSync.MOD_ID)
+@EventBusSubscriber(modid = EMFCompatAnimationAdditionsMod.MOD_ID)
 public class ClientEventHandler {
 
     private static int cleanupCounter = 0;
@@ -25,7 +26,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Pre event) {
-        if (!EMFHorseSync.isEnabled()) {
+        if (!HorseSync.isEnabled()) {
             EMFCompat.horseBodyOffsets.clear();
             return;
         }
@@ -47,7 +48,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public static void onRenderPlayerPre(RenderPlayerEvent.Pre event) {
-        if (!EMFHorseSync.isEnabled()) return;
+        if (!HorseSync.isEnabled()) return;
         if (!(event.getEntity().getVehicle() instanceof AbstractHorse horse)) return;
 
         Float offset = EMFCompat.horseBodyOffsets.get(horse.getUUID());
@@ -63,7 +64,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public static void onRenderPlayerPost(RenderPlayerEvent.Post event) {
-        if (!EMFHorseSync.isEnabled()) return;
+        if (!HorseSync.isEnabled()) return;
         if (!(event.getEntity().getVehicle() instanceof AbstractHorse horse)) return;
 
         Float offset = EMFCompat.horseBodyOffsets.get(horse.getUUID());

@@ -1,4 +1,4 @@
-package strm.emfcompat.horsesync;
+package strm.emfcompat.animationadditions.horsesync;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;

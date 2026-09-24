@@ -1,4 +1,4 @@
-package strm.emfcompat.horsesync;
+package strm.emfcompat.animationadditions.horsesync;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -6,8 +6,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import strm.emfcompat.horsesync.compat.EMFCompat;
-import strm.emfcompat.horsesync.mixin.AbstractHorseRendererAccessor;
+import strm.emfcompat.animationadditions.horsesync.compat.EMFCompat;
+import strm.emfcompat.animationadditions.mixin.horsesync.AbstractHorseRendererAccessor;
 import traben.entity_model_features.EMFAnimationApi;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.animation.state.EMFState;
@@ -61,7 +61,7 @@ public final class HorseSyncAnimationHook extends EMFAnimationApi.EMFAnimationHo
         if (!(state.emfEntity() instanceof Entity entity)) return;
         if (!(entity instanceof AbstractHorse horse)) return;
 
-        if (!EMFHorseSync.isEnabled()) {
+        if (!HorseSync.isEnabled()) {
             EMFCompat.horseBodyOffsets.remove(horse.getUUID());
             return;
         }

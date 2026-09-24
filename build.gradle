@@ -207,7 +207,7 @@ tasks.register('copyToAeronautics', Copy) {
         ':quark-neoforge-1.21.1',
         ':supplementaries-neoforge-1.21.1',
         ':create-neoforge-1.21.1',
-        ':horse-sync-neoforge-1.21.1',
+        ':animation-additions-neoforge-1.21.1',
         ':nea-neoforge-1.21.1',
         ':takeaseat-neoforge-1.21.1'
     ]

@@ -57,9 +57,6 @@ project(":create-fabric-26.2").projectDir = file("extensions/create/fabric/26.2"
 include("horse-sync-fabric-1.21.1")
 project(":horse-sync-fabric-1.21.1").projectDir = file("extensions/horse-sync/fabric/1.21.1")
 
-include("horse-sync-neoforge-1.21.1")
-project(":horse-sync-neoforge-1.21.1").projectDir = file("extensions/horse-sync/neoforge/1.21.1")
-
 // Carry On addon.
 include("carryon-neoforge-1.21.1")
 project(":carryon-neoforge-1.21.1").projectDir = file("extensions/carryon/neoforge/1.21.1")
@@ -234,3 +231,7 @@ project(":tacz-forge-1.20.1").projectDir = file("extensions/tacz/forge/1.20.1")
 // ParCool addon.
 include("parcool-neoforge-1.21.1")
 project(":parcool-neoforge-1.21.1").projectDir = file("extensions/parcool/neoforge/1.21.1")
+
+// Animation Additions addon: Horse Sync (NeoForge) + Foot IK.
+include("animation-additions-neoforge-1.21.1")
+project(":animation-additions-neoforge-1.21.1").projectDir = file("extensions/animation_additions/neoforge/1.21.1")

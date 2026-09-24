@@ -1,4 +1,4 @@
-package strm.emfcompat.horsesync.mixin;
+package strm.emfcompat.animationadditions.mixin.horsesync;
 
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
-import strm.emfcompat.horsesync.EMFHorseSync;
-import strm.emfcompat.horsesync.RidingPose;
+import strm.emfcompat.animationadditions.horsesync.HorseSync;
+import strm.emfcompat.animationadditions.horsesync.RidingPose;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +26,7 @@ import java.util.Map;
 @Mixin(value = PlayerModel.class, priority = 2500)
 public class PlayerModelMixin {
 
-    private static final String SOURCE = EMFHorseSync.RIDING_SOURCE;
+    private static final String SOURCE = HorseSync.RIDING_SOURCE;
 
     @Inject(method = "setupAnim", at = @At("RETURN"))
     private void horsesync$applyRidingPose(LivingEntity entity, float limbSwing, float limbSwingAmount,
@@ -37,7 +37,7 @@ public class PlayerModelMixin {
             return;
         }
 
-        if (!EMFHorseSync.isEnabled() || !EMFHorseSync.isRidingAnimation()
+        if (!HorseSync.isEnabled() || !HorseSync.isRidingAnimation()
                 || !(player.getVehicle() instanceof AbstractHorse horse)) {
             PoseManager.clearPoses(player.getUUID(), SOURCE);
             return;
@@ -47,7 +47,7 @@ public class PlayerModelMixin {
 
         // If another (action) pose owns the arms — a gun aim, a melee swing — yield the whole upper
         // body to it and pose only the leg seat, so the rider aims/attacks naturally while still
-        // straddling the horse. The seat itself stays a low-priority base (see EMFHorseSync).
+        // straddling the horse. The seat itself stays a low-priority base (see HorseSync).
         boolean upperBody = !PoseManager.hasArmPoseExcept(player.getUUID(), SOURCE);
 
         // Drive the bob from the horse's gait (the passenger's own limb swing is ~0), so the rider

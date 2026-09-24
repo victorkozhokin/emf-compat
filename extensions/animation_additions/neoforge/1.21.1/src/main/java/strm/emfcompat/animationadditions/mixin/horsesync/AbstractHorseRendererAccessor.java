@@ -1,4 +1,4 @@
-package strm.emfcompat.horsesync.mixin;
+package strm.emfcompat.animationadditions.mixin.horsesync;
 
 import net.minecraft.client.renderer.entity.AbstractHorseRenderer;
 import org.spongepowered.asm.mixin.Mixin;
