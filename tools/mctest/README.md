@@ -203,7 +203,7 @@ metadata, and a copy of `Driver.java`. `mctest.py` finds it by the folder name
   (e.g. "a variable was used both as a number and a boolean" for `!var.x`). `launch --emf-log`
   also turns on EMF's model-creation and ASM logs in the sandbox's config copy.
 - **The default skin and a cape hide limbs in shots.** `launch --no-cape` turns the player's cape
-  off in the sandbox's options; `--name NAME --uuid UUID` plays as that account (UUID from
+  off in the sandbox's options; `--name NAME --uuid UUID` (MCP: `mc_launch(name=, uuid=)`) plays as that account (UUID from
   `api.mojang.com/users/profiles/minecraft/NAME`), and the game fetches its skin. `--name` alone
   picks another default skin (`--name Player` is the wide Steve).
 - **WATUT marks a scripted player as AFK** ("zZ") and bows its head; shoot animations with

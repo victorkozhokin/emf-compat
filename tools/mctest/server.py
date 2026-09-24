@@ -125,7 +125,8 @@ def mc_profiles() -> str:
 @tool
 def mc_launch(profile: str, world: str | None = None, fresh_world: bool = False,
               wait: bool = True, timeout: int = 300, enable: list[str] | None = None,
-              disable: list[str] | None = None) -> str:
+              disable: list[str] | None = None, name: str | None = None,
+              uuid: str | None = None) -> str:
     """Rebuilds the sandbox for a profile and starts the game offline.
 
     Our emf_compat jars are replaced by the newest builds in upload/ (run the Gradle build
@@ -134,8 +135,11 @@ def mc_launch(profile: str, world: str | None = None, fresh_world: bool = False,
     `enable` names mods the profile keeps as `.disabled` (any part of the file name) and
     switches them on for this sandbox only — the profile itself is never changed. `disable` does
     the opposite for mods the profile runs (e.g. one that takes over first-person hands).
+    `name` is the offline player name (default "Dev"); `uuid` a real account's UUID, which makes
+    the game fetch that account's skin.
     """
-    report = mctest.launch(profile, world, fresh_world=fresh_world, enable=enable, disable=disable)
+    report = mctest.launch(profile, world, fresh_world=fresh_world, enable=enable, disable=disable,
+                           player_name=name or mctest.OFFLINE_NAME, player_uuid=uuid)
     if wait and world:
         report["ready"] = mctest.wait_ready(profile, timeout)
     return json.dumps(report, indent=1)
