@@ -63,6 +63,12 @@ public final class FootGrounding {
     /** How far forward (pitch) a raised leg turns at most; the rest of the rise is the hip moving up. */
     private static final double MAX_BEND = Math.toRadians(12);
 
+    /** A raised leg steps forward a little, and out from the body, model pixels... */
+    private static final float STEP_FORWARD = 2f;
+    private static final float STEP_OUT = 1.5f;
+    /** ...in full once the hip has slid up this far. */
+    private static final float STEP_FULL_AT = 3f;
+
     private static final double LOWER_SECONDS = 0.05;
     private static final double BEND_SECONDS = 0.02;
     private static final long SOLVE_EVERY_NANOS = 2_000_000L;
@@ -192,13 +198,20 @@ public final class FootGrounding {
 
     /** Adds the leg offsets on top of the animated legs. Called after the pack has animated. */
     public static void apply(UUID uuid, Function<String, ModelPart> parts) {
-        offset(parts.apply("right_leg"), legOffset(uuid, true));
-        offset(parts.apply("left_leg"), legOffset(uuid, false));
+        offset(parts.apply("right_leg"), legOffset(uuid, true), -1f);
+        offset(parts.apply("left_leg"), legOffset(uuid, false), 1f);
     }
 
-    private static void offset(ModelPart leg, float[] offset) {
+    /**
+     * A raised leg also steps forward a little and out from the body, so the top
+     * of the leg sliding up does not go into the torso. {@code side} is -1 right, +1 left (model x).
+     */
+    private static void offset(ModelPart leg, float[] offset, float side) {
         if (leg == null || offset == null) return;
+        float step = Math.min(1f, offset[1] / STEP_FULL_AT);
         leg.xRot += offset[0];
         leg.y -= offset[1];
+        leg.z -= STEP_FORWARD * step;
+        leg.x += side * STEP_OUT * step;
     }
 }

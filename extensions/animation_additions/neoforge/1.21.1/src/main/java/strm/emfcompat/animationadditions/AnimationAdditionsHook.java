@@ -5,6 +5,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import strm.emfcompat.animationadditions.footgrounding.compat.FootGrounding;
+import strm.emfcompat.animationadditions.footgrounding.compat.HorseFootGrounding;
 import strm.emfcompat.animationadditions.lookat.LookAt;
 import strm.emfcompat.animationadditions.plantreach.PlantReach;
 import strm.emfcompat.animationadditions.wallhand.WallHand;
@@ -98,6 +99,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
 
     private static void applyAll(UUID uuid, Function<String, ModelPart> parts) {
         FootGrounding.apply(uuid, parts);
+        HorseFootGrounding.apply(uuid, parts);
         PlantReach.apply(uuid, parts);
         WallHand.apply(uuid, parts);
         LookAt.apply(uuid, parts);

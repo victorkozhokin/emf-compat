@@ -6,11 +6,13 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.animationadditions.footgrounding.compat.FootGrounding;
+import strm.emfcompat.animationadditions.footgrounding.compat.HorseFootGrounding;
 import strm.emfcompat.animationadditions.lookat.LookAt;
 import strm.emfcompat.animationadditions.plantreach.PlantReach;
 import strm.emfcompat.animationadditions.wallhand.WallHand;
@@ -30,6 +32,10 @@ public class AnimationAdditionsRenderMixin {
     private void emfcompat$animationAdditionsBeforeAnimating(LivingEntity entity, float yaw, float partialTick,
                                                             PoseStack stack, MultiBufferSource buffers, int light,
                                                             CallbackInfo ci) {
+        if (HorseFootGrounding.handles(entity)) {
+            HorseFootGrounding.modelPose((AbstractHorse) entity, stack, partialTick);
+            return;
+        }
         if (!(entity instanceof AbstractClientPlayer player)) return;
         FootGrounding.modelPose(player, stack);
         IKFrame frame = IKFrame.capture(stack.last().pose(),
