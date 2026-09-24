@@ -7,7 +7,7 @@
   "client": [
     "horsesync.AbstractHorseRendererAccessor",
     "horsesync.PlayerModelMixin",
-    "footgrounding.FootGroundingRenderMixin"
+    "AnimationAdditionsRenderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

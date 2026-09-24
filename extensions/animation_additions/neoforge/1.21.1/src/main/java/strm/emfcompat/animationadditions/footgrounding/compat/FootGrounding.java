@@ -2,6 +2,7 @@ package strm.emfcompat.animationadditions.footgrounding.compat;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Pose;
@@ -19,6 +20,7 @@ import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
 /**
  * Finds the floor under each foot and plants both feet on it.
@@ -38,7 +40,7 @@ import java.util.UUID;
  * bone, and bending it the full way looked far worse.</p>
  *
  * <p>Whatever animation plays - walking, crouching, another addon's pose - the leg offset is added
- * on top of it after the pack has animated ({@link FootGroundingHook}), so nothing is replaced.</p>
+ * on top of it after the pack has animated ({@link #apply}), so nothing is replaced.</p>
  */
 public final class FootGrounding {
 
@@ -186,5 +188,17 @@ public final class FootGrounding {
         // What the slight bend leaves, the hip takes: the leg slides up into the torso.
         float lift = Math.max(0f, bend - LEG * (1f - (float) Math.cos(theta)));
         return new float[]{-(float) theta, lift};
+    }
+
+    /** Adds the leg offsets on top of the animated legs. Called after the pack has animated. */
+    public static void apply(UUID uuid, Function<String, ModelPart> parts) {
+        offset(parts.apply("right_leg"), legOffset(uuid, true));
+        offset(parts.apply("left_leg"), legOffset(uuid, false));
+    }
+
+    private static void offset(ModelPart leg, float[] offset) {
+        if (leg == null || offset == null) return;
+        leg.xRot += offset[0];
+        leg.y -= offset[1];
     }
 }

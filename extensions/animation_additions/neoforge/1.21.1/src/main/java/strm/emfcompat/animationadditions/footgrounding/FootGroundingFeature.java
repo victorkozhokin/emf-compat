@@ -3,7 +3,6 @@ package strm.emfcompat.animationadditions.footgrounding;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.animationadditions.footgrounding.compat.FootGrounding;
-import strm.emfcompat.animationadditions.footgrounding.compat.FootGroundingHook;
 
 /**
  * Foot IK (experimental).
@@ -23,12 +22,10 @@ public final class FootGroundingFeature {
     private FootGroundingFeature() {
     }
 
-    /** Client only: the hook is an EMF animation hook. */
     public static void register(ConfigRegistry.Section config) {
         config.addBoolean(KEY_ENABLED, "Foot IK (experimental)", true,
                 "On", "On uneven ground (steps, slabs) lower the body and raise the leg on the step, so both feet stand.",
                 "Off", "Leave the legs to EMF; one foot may hang in the air.");
-        FootGroundingHook.register();
     }
 
     public static boolean isEnabled() {
