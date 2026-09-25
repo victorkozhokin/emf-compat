@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import strm.emfcompat.animationadditions.footgrounding.compat.FootGrounding;
 import strm.emfcompat.animationadditions.footgrounding.compat.HorseFootGrounding;
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
+import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.PoseSnapshot;
 import traben.entity_model_features.EMFAnimationApi;
@@ -37,7 +38,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
 
     /** Each outer-layer part and the limb it covers. */
     private static final String[][] LAYERS = {
-            {"hat", "head"}, {"right_sleeve", "right_arm"}, {"left_sleeve", "left_arm"},
+            {"hat", "head"}, {"jacket", "body"}, {"right_sleeve", "right_arm"}, {"left_sleeve", "left_arm"},
             {"right_pants", "right_leg"}, {"left_pants", "left_leg"}};
 
     private AnimationAdditionsHook() {
@@ -99,6 +100,8 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
     private static void applyAll(UUID uuid, Function<String, ModelPart> parts) {
         FootGrounding.apply(uuid, parts);
         HorseFootGrounding.apply(uuid, parts);
+        // The torso before the arm aims: a hand on a wall aims from where the shoulder has gone.
+        TorsoLean.apply(uuid, parts);
         InteractionRuntime.apply(uuid, parts);
     }
 }

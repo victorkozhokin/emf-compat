@@ -174,6 +174,15 @@ public final class InteractionRuntime {
         }
     }
 
+    /** A part's aim and how much of it shows, {xRot, yRot, weight}; {@code null} when nobody has it. */
+    public static float[] aim(UUID uuid, Effector effector) {
+        PlayerState state = STATES.fresh(uuid);
+        if (state == null) return null;
+        Slot slot = state.slots.get(effector);
+        if (slot.aim == null || slot.weight < 1e-3f) return null;
+        return new float[]{slot.aim[0], slot.aim[1], slot.weight};
+    }
+
     /** How much of a part the runtime has this frame, 0 to 1. */
     public static float weight(UUID uuid, Effector effector) {
         PlayerState state = STATES.fresh(uuid);

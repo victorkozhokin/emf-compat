@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.animationadditions.footgrounding.compat.FootGrounding;
 import strm.emfcompat.animationadditions.footgrounding.compat.HorseFootGrounding;
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
+import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.core.ik.IKFrame;
 
 /**
@@ -39,5 +40,6 @@ public class AnimationAdditionsRenderMixin {
         IKFrame frame = IKFrame.capture(stack.last().pose(),
                 Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
         InteractionRuntime.modelPose(player, frame);
+        TorsoLean.modelPose(player);
     }
 }

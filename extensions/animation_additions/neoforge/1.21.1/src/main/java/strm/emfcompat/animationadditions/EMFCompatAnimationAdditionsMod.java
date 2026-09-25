@@ -13,6 +13,7 @@ import strm.emfcompat.animationadditions.horsesync.HorseSync;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.animationadditions.lookat.LookAt;
+import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.animationadditions.plantreach.PlantReach;
 import strm.emfcompat.animationadditions.wallhand.WallHand;
 
@@ -42,6 +43,7 @@ public class EMFCompatAnimationAdditionsMod {
             WallHand.register(config);
             PlantReach.register(config);
             LookAt.register(config);
+            TorsoLean.register(config);
             // Order is only the log's order; who wins is the arbiter's call.
             InteractionRuntime.register(WallHand.INSTANCE);
             InteractionRuntime.register(PlantReach.INSTANCE);

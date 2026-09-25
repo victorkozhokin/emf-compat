@@ -113,6 +113,8 @@ public final class FootGrounding {
         float lastRightX = Float.NaN, lastLeftX = Float.NaN;
         /** How much of the weight is on the right foot, 0 to 1, while walking. */
         float support = 0.5f;
+        /** Whether the last solve was a walking one (the weight shifting with the stride). */
+        boolean walking;
         /** A leg reaching for a step standing still: {pitch, roll} of each, smoothed. */
         final float[] rightReach = new float[2], leftReach = new float[2];
         String logged = "";
@@ -165,6 +167,7 @@ public final class FootGrounding {
             decided = targetLower > 0f ? "lowered" : "flat";
 
             Stride stride = stride(player, frame, state, rawRight, rawLeft, dt);
+            state.walking = stride != null;
             if (stride != null) {
                 // Walking: the body stands on the foot that carries the weight. The weight goes
                 // over with the stride, so the body rises onto the step with the foot on it and
@@ -425,6 +428,32 @@ public final class FootGrounding {
             lift = Math.max(0f, bend - LEG * (1f - (float) Math.cos(theta)));
         }
         return new float[]{-(float) theta + reach[0], lift, reach[1]};
+    }
+
+    /**
+     * What the feet ask of the torso: {side, climb, reach}. {@code side} is where the weight is,
+     * -1 on the right foot to +1 on the left (model x); {@code climb} 0..1 how far a foot is up on
+     * a step; {@code reach} 0..1 how far a foot reaches forwards for one. {@code null} when the
+     * feet are left alone.
+     */
+    public static float[] torsoHint(UUID uuid) {
+        State state = STATES.fresh(uuid);
+        if (state == null) return null;
+        float up = Math.max(state.rightBend, state.leftBend);
+        float side;
+        if (state.walking) {
+            side = 1f - 2f * state.support;
+        } else {
+            // Standing with one foot up, the weight is on the straight leg.
+            side = Math.max(-1f, Math.min(1f, (state.rightBend - state.leftBend) / MAX_STEP));
+            if (up < MIN_STEP) side = 0f;
+        }
+        float climb = Math.min(1f, up / MAX_STEP);
+        float reach = Math.min(1f, Math.max(-state.rightReach[0], -state.leftReach[0]) / 0.5f);
+        if (up < MIN_STEP && reach <= 0f && !state.walking) return null;
+        // Walking on the flat, the stride sways nothing: only a step makes the weight count.
+        if (state.walking && climb <= 0f) side = 0f;
+        return new float[]{side, climb, Math.max(0f, reach)};
     }
 
     /** Adds the leg offsets on top of the animated legs. Called after the pack has animated. */
