@@ -6,9 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import strm.emfcompat.animationadditions.footgrounding.compat.FootGrounding;
 import strm.emfcompat.animationadditions.footgrounding.compat.HorseFootGrounding;
-import strm.emfcompat.animationadditions.lookat.LookAt;
-import strm.emfcompat.animationadditions.plantreach.PlantReach;
-import strm.emfcompat.animationadditions.wallhand.WallHand;
+import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.PoseSnapshot;
 import traben.entity_model_features.EMFAnimationApi;
@@ -101,8 +99,6 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
     private static void applyAll(UUID uuid, Function<String, ModelPart> parts) {
         FootGrounding.apply(uuid, parts);
         HorseFootGrounding.apply(uuid, parts);
-        PlantReach.apply(uuid, parts);
-        WallHand.apply(uuid, parts);
-        LookAt.apply(uuid, parts);
+        InteractionRuntime.apply(uuid, parts);
     }
 }

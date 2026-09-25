@@ -1,6 +1,5 @@
 package strm.emfcompat.animationadditions.wallhand;
 
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.ClipContext;
@@ -8,21 +7,20 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import strm.emfcompat.animationadditions.interaction.Candidate;
+import strm.emfcompat.animationadditions.interaction.Category;
+import strm.emfcompat.animationadditions.interaction.Effector;
+import strm.emfcompat.animationadditions.interaction.InteractionContext;
+import strm.emfcompat.animationadditions.interaction.InteractionProvider;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
-import strm.emfcompat.core.EMFCompatCore;
-import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.ik.IKFrame;
-import strm.emfcompat.core.ik.IKMath;
 import strm.emfcompat.core.ik.IKResult;
 import strm.emfcompat.core.ik.OneBoneIK;
 
-import java.util.HashMap;
+import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.function.Function;
 
 /**
  * Hand on the wall: standing (or walking slowly) facing a wall, both palms rest on it; with a wall
@@ -30,13 +28,18 @@ import java.util.function.Function;
  * shoulder.
  *
  * <p>Rays go ahead and sideways from each shoulder; a wall face square to the ray and in reach of
- * the arm is aimed at with {@link OneBoneIK} - a wall ahead first, else the nearer one beside. The arm
- * fades in over the pack's animation and back out when the wall is gone, the player swings or
- * uses an item, or another addon poses the arms.</p>
+ * the arm is aimed at with {@link OneBoneIK} - a wall ahead first, else the nearer one beside.</p>
+ *
+ * <p>A passive-contact provider: it only offers the aims. Both hands on a wall ahead are one
+ * group - they go on together or not at all. The runtime fades them in and out and gives the arms
+ * up to anything stronger (a swing, an item in use, another addon's pose).</p>
  */
-public final class WallHand {
+public final class WallHand implements InteractionProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatWallHand");
+    public static final WallHand INSTANCE = new WallHand();
+    /** Above the plants in the passive band: an arm on a wall stays there. */
+    private static final int PRIORITY = 20;
+    private static final Candidate.Timing TIMING = new Candidate.Timing(0.18, 0.1, 0);
 
     public static final String KEY_ENABLED = "wallhand.enabled";
 
@@ -62,22 +65,7 @@ public final class WallHand {
     private static final float MAX_REACH = 1.0f;
     /** Faster than this, blocks per tick, the player walks past walls rather than leaning on one. */
     private static final double SLOW_BELOW = 0.08;
-    private static final double FADE_IN_SECONDS = 0.18;
-    private static final double FADE_OUT_SECONDS = 0.1;
-    private static final long SOLVE_EVERY_NANOS = 2_000_000L;
-    private static final long STALE_NANOS = 200_000_000L;
-
-    private static final Map<UUID, State> STATES = new HashMap<>();
-
     private WallHand() {
-    }
-
-    private static final class State {
-        /** Per arm, right then left: the aimed {x, y} and how much of it shows. */
-        final float[][] aim = new float[2][2];
-        final float[] weight = new float[2];
-        long solvedAt, seenAt;
-        String logged = "";
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -86,70 +74,54 @@ public final class WallHand {
                 "Off", "Leave the arms to EMF.");
     }
 
-    public static boolean isEnabled() {
+    @Override
+    public String id() {
+        return "WallHand";
+    }
+
+    @Override
+    public boolean isEnabled() {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }
 
-    /** Called with the model's space right before it is animated. */
-    public static void modelPose(AbstractClientPlayer player, IKFrame frame) {
-        UUID uuid = player.getUUID();
-        long now = System.nanoTime();
-        if (STATES.size() > 64) STATES.clear();
-        State state = STATES.computeIfAbsent(uuid, k -> new State());
-        state.seenAt = now;
-        if (state.solvedAt != 0 && now - state.solvedAt < SOLVE_EVERY_NANOS) return;
-        double dt = state.solvedAt == 0 ? 0 : Math.min(0.1, (now - state.solvedAt) / 1e9);
-        state.solvedAt = now;
-
-        float[][] aims = new float[2][];
-        String decided = ineligible(player);
-        if (decided == null) {
-            // Facing a wall: both hands on it. Otherwise the nearer wall beside a shoulder.
-            IKResult frontRight = ahead(player, frame, RIGHT_SHOULDER);
-            IKResult frontLeft = ahead(player, frame, LEFT_SHOULDER);
-            if (frontRight != null || frontLeft != null) {
-                aims[0] = angles(frontRight);
-                aims[1] = angles(frontLeft);
-                decided = frontRight != null && frontLeft != null ? "front" : "front-corner";
-            } else {
-                IKResult right = beside(player, frame, RIGHT_SHOULDER, -1f);
-                IKResult left = beside(player, frame, LEFT_SHOULDER, 1f);
-                if (right != null && (left == null || right.reach() <= left.reach())) {
-                    aims[0] = angles(right);
-                    decided = "right";
-                } else if (left != null) {
-                    aims[1] = angles(left);
-                    decided = "left";
-                } else {
-                    decided = "none";
-                }
-            }
+    @Override
+    public void collect(InteractionContext context, List<Candidate> out) {
+        AbstractClientPlayer player = context.player();
+        IKFrame frame = context.frame();
+        String why = ineligible(player);
+        if (why != null) {
+            context.decide(why);
+            return;
         }
-
-        for (int arm = 0; arm < 2; arm++) {
-            boolean on = aims[arm] != null;
-            if (on) state.aim[arm] = aims[arm];
-            double tau = on ? FADE_IN_SECONDS : FADE_OUT_SECONDS;
-            float k = dt == 0 ? (on ? 0f : 1f) : (float) (1 - Math.exp(-dt / tau));
-            state.weight[arm] += ((on ? 1f : 0f) - state.weight[arm]) * k;
+        // Facing a wall: both hands on it. Otherwise the nearer wall beside a shoulder.
+        IKResult frontRight = ahead(player, frame, RIGHT_SHOULDER);
+        IKResult frontLeft = ahead(player, frame, LEFT_SHOULDER);
+        if (frontRight != null || frontLeft != null) {
+            Map<Effector, float[]> aims = new EnumMap<>(Effector.class);
+            if (frontRight != null) aims.put(Effector.RIGHT_ARM, angles(frontRight));
+            if (frontLeft != null) aims.put(Effector.LEFT_ARM, angles(frontLeft));
+            out.add(Candidate.of(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, aims));
+            context.decide(aims.size() == 2 ? "front" : "front-corner");
+            return;
         }
-
-        if (!decided.equals(state.logged)) {
-            LOGGER.info("[WallHand] {} {}", player.getName().getString(), decided);
-            state.logged = decided;
+        IKResult right = beside(player, frame, RIGHT_SHOULDER, -1f);
+        IKResult left = beside(player, frame, LEFT_SHOULDER, 1f);
+        if (right != null && (left == null || right.reach() <= left.reach())) {
+            out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.RIGHT_ARM, angles(right)));
+            context.decide("right");
+        } else if (left != null) {
+            out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.LEFT_ARM, angles(left)));
+            context.decide("left");
+        } else {
+            context.decide("none");
         }
     }
 
     private static String ineligible(AbstractClientPlayer player) {
-        if (!isEnabled() || !EMFCompatCore.isCompatEnabled()) return "off:disabled";
-        if (EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) return "off:first-person";
         if (!player.onGround() || player.isPassenger() || player.isSleeping()
                 || player.isInWaterOrBubble()) return "off:state";
         if (player.getPose() != Pose.STANDING && player.getPose() != Pose.CROUCHING) return "off:pose";
-        if (player.swinging || player.isUsingItem()) return "off:busy";
         if (Math.hypot(player.getX() - player.xo, player.getZ() - player.zo) > SLOW_BELOW) return "off:moving";
-        // Another addon posing the arms owns them.
-        if (PoseManager.hasArmPoseExcept(player.getUUID(), "")) return "off:arm-pose";
         return null;
     }
 
@@ -231,27 +203,5 @@ public final class WallHand {
     private static IKResult aim(IKFrame frame, Vector3f shoulder, Vec3 palm) {
         IKResult result = OneBoneIK.solveXY(frame, shoulder, palm, ARM, 0f, 0f);
         return result == null || result.reach() > MAX_REACH ? null : result;
-    }
-
-    /** How much of an arm the wall has, 0 to 1; {@code right} picks the arm. */
-    public static float weight(UUID uuid, boolean right) {
-        State state = STATES.get(uuid);
-        if (state == null || System.nanoTime() - state.seenAt > STALE_NANOS) return 0f;
-        return state.weight[right ? 0 : 1];
-    }
-
-    /** Blends each arm towards its aim on the wall, over whatever it was animated to. */
-    public static void apply(UUID uuid, Function<String, ModelPart> parts) {
-        State state = STATES.get(uuid);
-        if (state == null || System.nanoTime() - state.seenAt > STALE_NANOS) return;
-        blend(parts.apply("right_arm"), state.aim[0], state.weight[0]);
-        blend(parts.apply("left_arm"), state.aim[1], state.weight[1]);
-    }
-
-    private static void blend(ModelPart arm, float[] aim, float weight) {
-        if (arm == null || weight < 1e-3f) return;
-        arm.xRot += IKMath.wrap(aim[0] - arm.xRot) * weight;
-        arm.yRot += IKMath.wrap(aim[1] - arm.yRot) * weight;
-        arm.zRot += IKMath.wrap(0f - arm.zRot) * weight;
     }
 }

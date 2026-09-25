@@ -1,6 +1,5 @@
 package strm.emfcompat.animationadditions.plantreach;
 
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Pose;
@@ -11,22 +10,19 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Vector3f;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import strm.emfcompat.animationadditions.wallhand.WallHand;
+import strm.emfcompat.animationadditions.interaction.Candidate;
+import strm.emfcompat.animationadditions.interaction.Category;
+import strm.emfcompat.animationadditions.interaction.Effector;
+import strm.emfcompat.animationadditions.interaction.InteractionContext;
+import strm.emfcompat.animationadditions.interaction.InteractionProvider;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
-import strm.emfcompat.core.EMFCompatCore;
-import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.ik.IKFrame;
-import strm.emfcompat.core.ik.IKMath;
 import strm.emfcompat.core.ik.IKResult;
 import strm.emfcompat.core.ik.OneBoneIK;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Function;
+import java.util.List;
+
 
 /**
  * Hands brushing plants: standing in or walking through grass, ferns, flowers, crops and the like,
@@ -40,12 +36,15 @@ import java.util.function.Function;
  * hand's side counts: in a dense field or on the edge between two blocks the hands reached for the
  * feet.</p>
  *
- * <p>The aim is smoothed, since the plant changes as the player walks; an arm on a wall
- * ({@link WallHand}) is left to it.</p>
+ * <p>A passive-contact provider, one candidate per hand, below a wall in priority: an arm on a
+ * wall stays on it, and the arbiter settles that - this class knows nothing about walls. The aim
+ * is smoothed by the runtime, since the plant changes as the player walks.</p>
  */
-public final class PlantReach {
+public final class PlantReach implements InteractionProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatPlantReach");
+    public static final PlantReach INSTANCE = new PlantReach();
+    private static final int PRIORITY = 10;
+    private static final Candidate.Timing TIMING = new Candidate.Timing(0.15, 0.2, 0.08);
 
     public static final String KEY_ENABLED = "plantreach.enabled";
 
@@ -64,26 +63,8 @@ public final class PlantReach {
     private static final double BEHIND = 0.1;
     /** A plant on the wrong side of the body by more than this, blocks, is the other hand's. */
     private static final double ACROSS = 0.05;
-    private static final double FADE_IN_SECONDS = 0.15;
-    private static final double FADE_OUT_SECONDS = 0.2;
-    /** How quickly the aim follows as the reached plant changes. */
-    private static final double AIM_SECONDS = 0.08;
-    /** Above this much of an arm on a wall, the plants leave it alone. */
-    private static final float WALL_TAKES_ARM = 0.05f;
-    private static final long SOLVE_EVERY_NANOS = 2_000_000L;
-    private static final long STALE_NANOS = 200_000_000L;
-
-    private static final Map<UUID, State> STATES = new HashMap<>();
 
     private PlantReach() {
-    }
-
-    private static final class State {
-        /** Per arm, right then left: the aimed {x, y} and how much of it shows. */
-        final float[][] aim = new float[2][];
-        final float[] weight = new float[2];
-        long solvedAt, seenAt;
-        String logged = "";
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -92,59 +73,34 @@ public final class PlantReach {
                 "Off", "Leave the arms to EMF.");
     }
 
-    public static boolean isEnabled() {
+    @Override
+    public String id() {
+        return "PlantReach";
+    }
+
+    @Override
+    public boolean isEnabled() {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }
 
-    /** Called with the model's space right before it is animated. */
-    public static void modelPose(AbstractClientPlayer player, IKFrame frame) {
-        UUID uuid = player.getUUID();
-        long now = System.nanoTime();
-        if (STATES.size() > 64) STATES.clear();
-        State state = STATES.computeIfAbsent(uuid, k -> new State());
-        state.seenAt = now;
-        if (state.solvedAt != 0 && now - state.solvedAt < SOLVE_EVERY_NANOS) return;
-        double dt = state.solvedAt == 0 ? 0 : Math.min(0.1, (now - state.solvedAt) / 1e9);
-        state.solvedAt = now;
-
-        float[][] aims = new float[2][];
-        String decided = ineligible(player);
-        if (decided == null) {
-            if (WallHand.weight(uuid, true) < WALL_TAKES_ARM) aims[0] = reach(player, frame, RIGHT_SHOULDER, -1f);
-            if (WallHand.weight(uuid, false) < WALL_TAKES_ARM) aims[1] = reach(player, frame, LEFT_SHOULDER, 1f);
-            decided = (aims[0] != null ? "R" : "-") + (aims[1] != null ? "L" : "-");
+    @Override
+    public void collect(InteractionContext context, List<Candidate> out) {
+        AbstractClientPlayer player = context.player();
+        String why = ineligible(player);
+        if (why != null) {
+            context.decide(why);
+            return;
         }
-
-        float kAim = dt == 0 ? 1f : (float) (1 - Math.exp(-dt / AIM_SECONDS));
-        for (int arm = 0; arm < 2; arm++) {
-            boolean on = aims[arm] != null;
-            if (on) {
-                if (state.aim[arm] == null || state.weight[arm] < 1e-3f) {
-                    state.aim[arm] = aims[arm];
-                } else {
-                    state.aim[arm][0] += IKMath.wrap(aims[arm][0] - state.aim[arm][0]) * kAim;
-                    state.aim[arm][1] += IKMath.wrap(aims[arm][1] - state.aim[arm][1]) * kAim;
-                }
-            }
-            double tau = on ? FADE_IN_SECONDS : FADE_OUT_SECONDS;
-            float k = dt == 0 ? (on ? 0f : 1f) : (float) (1 - Math.exp(-dt / tau));
-            state.weight[arm] += ((on ? 1f : 0f) - state.weight[arm]) * k;
-        }
-
-        if (!decided.equals(state.logged)) {
-            LOGGER.info("[PlantReach] {} {}", player.getName().getString(), decided);
-            state.logged = decided;
-        }
+        float[] right = reach(player, context.frame(), RIGHT_SHOULDER, -1f);
+        float[] left = reach(player, context.frame(), LEFT_SHOULDER, 1f);
+        if (right != null) out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 0.5f, TIMING, Effector.RIGHT_ARM, right));
+        if (left != null) out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 0.5f, TIMING, Effector.LEFT_ARM, left));
+        context.decide((right != null ? "R" : "-") + (left != null ? "L" : "-"));
     }
 
     private static String ineligible(AbstractClientPlayer player) {
-        if (!isEnabled() || !EMFCompatCore.isCompatEnabled()) return "off:disabled";
-        if (EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) return "off:first-person";
         if (player.isPassenger() || player.isSleeping() || player.isInWaterOrBubble()) return "off:state";
         if (player.getPose() != Pose.STANDING && player.getPose() != Pose.CROUCHING) return "off:pose";
-        if (player.swinging || player.isUsingItem()) return "off:busy";
-        // Another addon posing the arms owns them.
-        if (PoseManager.hasArmPoseExcept(player.getUUID(), "")) return "off:arm-pose";
         return null;
     }
 
@@ -227,20 +183,5 @@ public final class PlantReach {
             }
         }
         return null;
-    }
-
-    /** Blends each arm towards its plant, over whatever it was animated to. */
-    public static void apply(UUID uuid, Function<String, ModelPart> parts) {
-        State state = STATES.get(uuid);
-        if (state == null || System.nanoTime() - state.seenAt > STALE_NANOS) return;
-        blend(parts.apply("right_arm"), state.aim[0], state.weight[0]);
-        blend(parts.apply("left_arm"), state.aim[1], state.weight[1]);
-    }
-
-    private static void blend(ModelPart arm, float[] aim, float weight) {
-        if (arm == null || aim == null || weight < 1e-3f) return;
-        arm.xRot += IKMath.wrap(aim[0] - arm.xRot) * weight;
-        arm.yRot += IKMath.wrap(aim[1] - arm.yRot) * weight;
-        arm.zRot += IKMath.wrap(0f - arm.zRot) * weight;
     }
 }
