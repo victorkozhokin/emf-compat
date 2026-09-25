@@ -27,6 +27,11 @@ public final class Smoothing {
 
     /** A fade out: done at once on the very first frame (dt 0) - nothing to fade from. */
     public static float fadeOut(double dt, double seconds) {
+        return snapFirst(dt, seconds);
+    }
+
+    /** Settling on a value: straight to it on the very first frame (dt 0), then smoothly. */
+    public static float snapFirst(double dt, double seconds) {
         return dt == 0 ? 1f : step(dt, seconds);
     }
 }

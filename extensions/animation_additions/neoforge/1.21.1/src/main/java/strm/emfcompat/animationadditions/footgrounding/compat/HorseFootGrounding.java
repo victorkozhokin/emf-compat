@@ -18,11 +18,11 @@ import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
+import strm.emfcompat.animationadditions.interaction.EntityStates;
+import strm.emfcompat.animationadditions.interaction.Smoothing;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.ik.IKFrame;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -67,10 +67,8 @@ public final class HorseFootGrounding {
     private static final double LOWER_SECONDS = 0.15;
     private static final double TILT_SECONDS = 0.25;
     private static final double LIFT_SECONDS = 0.03;
-    private static final long SOLVE_EVERY_NANOS = 2_000_000L;
-    private static final long STALE_NANOS = 200_000_000L;
 
-    private static final Map<UUID, State> STATES = new HashMap<>();
+    private static final EntityStates<State> STATES = new EntityStates<>(State::new);
 
     private HorseFootGrounding() {
     }
@@ -85,7 +83,6 @@ public final class HorseFootGrounding {
         final Vector3f pivot = new Vector3f(), shift = new Vector3f();
         final Matrix3f turn = new Matrix3f();
         boolean moved;
-        long solvedAt, seenAt;
         String logged = "";
     }
 
@@ -97,15 +94,10 @@ public final class HorseFootGrounding {
     public static void modelPose(AbstractHorse horse, PoseStack stack, float partialTick) {
         UUID uuid = horse.getUUID();
         long now = System.nanoTime();
-        if (STATES.size() > 128) STATES.clear();
-        State state = STATES.computeIfAbsent(uuid, k -> new State());
-        state.seenAt = now;
-
-        if (state.solvedAt == 0 || now - state.solvedAt >= SOLVE_EVERY_NANOS) {
-            double dt = state.solvedAt == 0 ? 0 : Math.min(0.1, (now - state.solvedAt) / 1e9);
-            state.solvedAt = now;
-            solve(horse, stack, state, dt);
-        }
+        EntityStates.Entry<State> entry = STATES.seen(uuid, now);
+        State state = entry.value;
+        double dt = EntityStates.due(entry, now);
+        if (dt >= 0) solve(horse, stack, state, dt);
 
         state.moved = Math.abs(state.lower) > 1e-3f || Math.abs(state.tilt) > 1e-4f;
         if (state.moved) worldMove(horse, stack, state, partialTick);
@@ -180,11 +172,11 @@ public final class HorseFootGrounding {
             }
         }
 
-        float kLower = dt == 0 ? 1f : (float) (1 - Math.exp(-dt / LOWER_SECONDS));
+        float kLower = Smoothing.snapFirst(dt, LOWER_SECONDS);
         state.lower += (targetLower - state.lower) * kLower;
-        float kTilt = dt == 0 ? 1f : (float) (1 - Math.exp(-dt / TILT_SECONDS));
+        float kTilt = Smoothing.snapFirst(dt, TILT_SECONDS);
         state.tilt += (targetTilt - state.tilt) * kTilt;
-        float kLift = dt == 0 ? 1f : (float) (1 - Math.exp(-dt / LIFT_SECONDS));
+        float kLift = Smoothing.snapFirst(dt, LIFT_SECONDS);
         for (int i = 0; i < 4; i++) state.lift[i] += (targetLift[i] - state.lift[i]) * kLift;
 
         if (!decided.equals(state.logged)) {
@@ -227,8 +219,8 @@ public final class HorseFootGrounding {
 
     /** Slides each raised leg up into the body, on top of its animation. */
     public static void apply(UUID uuid, Function<String, ModelPart> parts) {
-        State state = STATES.get(uuid);
-        if (state == null || System.nanoTime() - state.seenAt > STALE_NANOS) return;
+        State state = STATES.fresh(uuid);
+        if (state == null) return;
         for (int i = 0; i < 4; i++) {
             if (state.lift[i] < 0.05f) continue;
             for (String name : LEGS[i]) {
@@ -244,8 +236,8 @@ public final class HorseFootGrounding {
      */
     public static boolean moveRider(AbstractHorse horse, net.minecraft.world.entity.Entity rider,
                                     PoseStack stack, float partialTick) {
-        State state = STATES.get(horse.getUUID());
-        if (state == null || !state.moved || System.nanoTime() - state.seenAt > STALE_NANOS) return false;
+        State state = STATES.fresh(horse.getUUID());
+        if (state == null || !state.moved) return false;
         Vec3 offset = horse.getPosition(partialTick).subtract(rider.getPosition(partialTick));
         Vector3f pivot = new Vector3f(state.pivot).add((float) offset.x, (float) offset.y, (float) offset.z);
         stack.translate(pivot.x + state.shift.x, pivot.y + state.shift.y, pivot.z + state.shift.z);

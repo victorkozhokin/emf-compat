@@ -5,9 +5,12 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
 import strm.emfcompat.animationadditions.horsesync.HorseSync;
+import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.animationadditions.lookat.LookAt;
 import strm.emfcompat.animationadditions.plantreach.PlantReach;
@@ -44,6 +47,8 @@ public class EMFCompatAnimationAdditionsMod {
             InteractionRuntime.register(PlantReach.INSTANCE);
             InteractionRuntime.register(LookAt.INSTANCE);
             AnimationAdditionsHook.register();
+            // Leaving a world drops every feature's per-entity state with it.
+            NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut event) -> EntityStates.clearAll());
         }
     }
 }

@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.ik.IKFrame;
 import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
+import strm.emfcompat.animationadditions.interaction.EntityStates;
+import strm.emfcompat.animationadditions.interaction.Smoothing;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -80,10 +80,8 @@ public final class FootGrounding {
     private static final double LOWER_SECONDS = 0.12;
     private static final double RAISE_SECONDS = 0.05;
     private static final double SETTLE_SECONDS = 0.15;
-    private static final long SOLVE_EVERY_NANOS = 2_000_000L;
-    private static final long STALE_NANOS = 200_000_000L;
 
-    private static final Map<UUID, State> STATES = new HashMap<>();
+    private static final EntityStates<State> STATES = new EntityStates<>(State::new);
 
     private FootGrounding() {
     }
@@ -92,26 +90,20 @@ public final class FootGrounding {
         float lower, rightBend, leftBend;
         /** The legs as the animation left them last frame, {xRot, yRot, zRot}; null before one. */
         float[] rightPose, leftPose;
-        long solvedAt, seenAt;
         String logged = "";
     }
 
     /**
      * Called with the pose stack right before the model is animated: solves (at most every
-     * {@link #SOLVE_EVERY_NANOS}) and lowers the model by the current amount.
+     * {@link EntityStates#SOLVE_EVERY_NANOS}) and lowers the model by the current amount.
      */
     public static void modelPose(AbstractClientPlayer player, PoseStack stack) {
         UUID uuid = player.getUUID();
         long now = System.nanoTime();
-        if (STATES.size() > 64) STATES.clear();
-        State state = STATES.computeIfAbsent(uuid, k -> new State());
-        state.seenAt = now;
-
-        if (state.solvedAt == 0 || now - state.solvedAt >= SOLVE_EVERY_NANOS) {
-            double dt = state.solvedAt == 0 ? 0 : Math.min(0.1, (now - state.solvedAt) / 1e9);
-            state.solvedAt = now;
-            solve(player, stack, state, dt);
-        }
+        EntityStates.Entry<State> entry = STATES.seen(uuid, now);
+        State state = entry.value;
+        double dt = EntityStates.due(entry, now);
+        if (dt >= 0) solve(player, stack, state, dt);
 
         if (state.lower > 1e-3f) {
             // Model space: +y is down, one unit is 16 pixels.
@@ -152,12 +144,12 @@ public final class FootGrounding {
         // Body and legs both from their targets, not the legs from the smoothed body: the legs
         // neither lag the body nor keep turning after it has settled. A foot goes up onto a step
         // quickly, so it does not sink into it, and comes back down gently.
-        float k = smoothing(dt, LOWER_SECONDS);
+        float k = Smoothing.snapFirst(dt, LOWER_SECONDS);
         state.lower += (targetLower - state.lower) * k;
         state.rightBend += (plantRight - state.rightBend)
-                * smoothing(dt, plantRight > state.rightBend ? RAISE_SECONDS : SETTLE_SECONDS);
+                * Smoothing.snapFirst(dt, plantRight > state.rightBend ? RAISE_SECONDS : SETTLE_SECONDS);
         state.leftBend += (plantLeft - state.leftBend)
-                * smoothing(dt, plantLeft > state.leftBend ? RAISE_SECONDS : SETTLE_SECONDS);
+                * Smoothing.snapFirst(dt, plantLeft > state.leftBend ? RAISE_SECONDS : SETTLE_SECONDS);
         // Per-frame trace while the feet do anything; debug only.
         if (FootGroundingFeature.isTrace() && why == null && (state.lower > 0.05f || state.rightBend > 0.05f || state.leftBend > 0.05f
                 || plantRight > 0.05f || plantLeft > 0.05f)) {
@@ -194,10 +186,6 @@ public final class FootGrounding {
             if (ahead < under - MIN_STEP) plant = Math.max(plant, Math.max(0f, Math.min(MAX_STEP, lower - ahead)));
         }
         return plant;
-    }
-
-    private static float smoothing(double dt, double seconds) {
-        return dt == 0 ? 1f : (float) (1 - Math.exp(-dt / seconds));
     }
 
     /** Why the feet are left alone this frame, or {@code null} when they are grounded. */
@@ -245,7 +233,7 @@ public final class FootGrounding {
      * under the feet where they really are. Called from the main model's animation only.
      */
     public static void recordAnimated(UUID uuid, Function<String, ModelPart> parts) {
-        State state = STATES.get(uuid);
+        State state = STATES.fresh(uuid);
         if (state == null) return;
         state.rightPose = pose(parts.apply("right_leg"));
         state.leftPose = pose(parts.apply("left_leg"));
@@ -261,8 +249,8 @@ public final class FootGrounding {
      * is left as animated.
      */
     public static float[] legOffset(UUID uuid, boolean right) {
-        State state = STATES.get(uuid);
-        if (state == null || System.nanoTime() - state.seenAt > STALE_NANOS) return null;
+        State state = STATES.fresh(uuid);
+        if (state == null) return null;
         float bend = right ? state.rightBend : state.leftBend;
         if (bend < 0.05f) return null;
         double theta = Math.min(MAX_BEND, Math.acos(Math.max(0f, (LEG - bend) / LEG)));

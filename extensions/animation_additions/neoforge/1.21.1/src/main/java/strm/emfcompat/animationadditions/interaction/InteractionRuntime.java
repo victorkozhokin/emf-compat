@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,30 +22,24 @@ import java.util.function.Function;
 /**
  * Runs the interaction providers for each rendered player and puts the result on the model.
  *
- * <p>Per frame (at most every {@link #SOLVE_EVERY_NANOS}): every enabled provider offers
+ * <p>Per frame (at most every {@link EntityStates#SOLVE_EVERY_NANOS}): every enabled provider offers
  * candidates, the {@link Arbiter} gives each part to one of them, and each part's slot fades its
  * weight towards 1 for a part with an owner and towards 0 for one without, and moves its aim
  * towards the owner's. A part changing hands mid-way does not jump: the aim glides over for
  * {@link #HANDOFF_SECONDS}. After the pack has animated, {@link #apply} blends each part towards
  * its slot's aim by its weight - on the model, and again on the armour model.</p>
  *
- * <p>All state lives here, per player, and is dropped when the player has not been drawn for
- * {@link #FORGET_NANOS}.</p>
+ * <p>All state lives here, per player, in an {@link EntityStates}: providers keep theirs in it
+ * too, and it goes with the player.</p>
  */
 public final class InteractionRuntime {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatInteraction");
 
-    private static final long SOLVE_EVERY_NANOS = 2_000_000L;
-    /** Not drawn for this long, the result is no longer put on the model. */
-    private static final long STALE_NANOS = 200_000_000L;
-    /** Not drawn for this long, the player's state is dropped. */
-    private static final long FORGET_NANOS = 5_000_000_000L;
     private static final double HANDOFF_SECONDS = 0.12;
-    private static final int MAX_PLAYERS = 64;
 
     private static final List<InteractionProvider> PROVIDERS = new ArrayList<>();
-    private static final Map<UUID, PlayerState> STATES = new HashMap<>();
+    private static final EntityStates<PlayerState> STATES = new EntityStates<>(PlayerState::new);
 
     private InteractionRuntime() {
     }
@@ -69,7 +62,6 @@ public final class InteractionRuntime {
         final Map<String, String> decided = new HashMap<>();
         final Map<String, String> logged = new HashMap<>();
         String reservedLogged = "";
-        long solvedAt, seenAt;
 
         PlayerState() {
             for (Effector effector : Effector.values()) slots.put(effector, new Slot());
@@ -80,12 +72,10 @@ public final class InteractionRuntime {
     public static void modelPose(AbstractClientPlayer player, IKFrame frame) {
         UUID uuid = player.getUUID();
         long now = System.nanoTime();
-        forgetOld(now);
-        PlayerState state = STATES.computeIfAbsent(uuid, k -> new PlayerState());
-        state.seenAt = now;
-        if (state.solvedAt != 0 && now - state.solvedAt < SOLVE_EVERY_NANOS) return;
-        double dt = state.solvedAt == 0 ? 0 : Math.min(0.1, (now - state.solvedAt) / 1e9);
-        state.solvedAt = now;
+        EntityStates.Entry<PlayerState> entry = STATES.seen(uuid, now);
+        double dt = EntityStates.due(entry, now);
+        if (dt < 0) return;
+        PlayerState state = entry.value;
 
         List<Candidate> candidates = new ArrayList<>();
         InteractionContext context = new InteractionContext(player, frame, now, dt, state.data, state.decided);
@@ -171,8 +161,8 @@ public final class InteractionRuntime {
 
     /** Blends each owned part towards its aim, over whatever it was animated to. */
     public static void apply(UUID uuid, Function<String, ModelPart> parts) {
-        PlayerState state = STATES.get(uuid);
-        if (state == null || System.nanoTime() - state.seenAt > STALE_NANOS) return;
+        PlayerState state = STATES.fresh(uuid);
+        if (state == null) return;
         for (Map.Entry<Effector, Slot> e : state.slots.entrySet()) {
             Slot slot = e.getValue();
             if (slot.aim == null || slot.weight < 1e-3f) continue;
@@ -186,16 +176,9 @@ public final class InteractionRuntime {
 
     /** How much of a part the runtime has this frame, 0 to 1. */
     public static float weight(UUID uuid, Effector effector) {
-        PlayerState state = STATES.get(uuid);
-        if (state == null || System.nanoTime() - state.seenAt > STALE_NANOS) return 0f;
+        PlayerState state = STATES.fresh(uuid);
+        if (state == null) return 0f;
         return state.slots.get(effector).weight;
-    }
-
-    private static void forgetOld(long now) {
-        if (STATES.size() <= MAX_PLAYERS / 2) return;
-        Iterator<PlayerState> it = STATES.values().iterator();
-        while (it.hasNext()) if (now - it.next().seenAt > FORGET_NANOS) it.remove();
-        if (STATES.size() > MAX_PLAYERS) STATES.clear();
     }
 
     private static void log(AbstractClientPlayer player, String what) {
