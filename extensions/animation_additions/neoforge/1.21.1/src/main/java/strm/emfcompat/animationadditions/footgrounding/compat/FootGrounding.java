@@ -86,6 +86,10 @@ public final class FootGrounding {
     private static final float REACH_STEP = 0.5f;
     /** Directions a foot reaches in, model {x, z} per unit, for the right leg (x mirrored for the left). */
     private static final float[][] REACH_WAYS = {{0f, -1f}, {-0.707f, -0.707f}, {-1f, 0f}};
+    /** A rise lower than this, model pixels (farmland against grass is ~1), is not worth a foot. */
+    private static final float REACH_MIN_RISE = 3f;
+    /** Standing still the ground does not change: the step is looked for this often, not every frame. */
+    private static final long REACH_EVERY_NANOS = 100_000_000L;
 
     /** Faster than this, blocks per tick, the player walks and the weight shifts with the stride. */
     private static final double WALKING = 0.02;
@@ -97,6 +101,16 @@ public final class FootGrounding {
     private static final double LOWER_SECONDS = 0.12;
     /** Walking, the body follows the weight between the feet: quick enough to keep up with a step. */
     private static final double STRIDE_LOWER_SECONDS = 0.05;
+    /**
+     * Walking, each foot stands where the body as drawn puts it, and changes over quickly both
+     * ways: one smoothing slower than the other left both feet up while the weight went over.
+     */
+    private static final double STRIDE_LEG_SECONDS = 0.03;
+    /**
+     * Walking with both feet on one level again, the body catches up at once: slowly, both legs
+     * slid up to keep the feet down - with one-bone legs that reads as both feet lifted.
+     */
+    private static final double LEVEL_LOWER_SECONDS = 0.025;
     private static final double RAISE_SECONDS = 0.05;
     private static final double SETTLE_SECONDS = 0.15;
 
@@ -111,12 +125,22 @@ public final class FootGrounding {
         float[] rightPose, leftPose;
         /** The legs' pitch at the last solve, to see which way each swings. */
         float lastRightX = Float.NaN, lastLeftX = Float.NaN;
+        /**
+         * The last three floors read under each foot while walking: the median is used, so a foot
+         * right on an edge flickering over it for one frame does not flip the body.
+         */
+        final float[] rightFloors = {Float.NaN, Float.NaN, Float.NaN}, leftFloors = {Float.NaN, Float.NaN, Float.NaN};
         /** How much of the weight is on the right foot, 0 to 1, while walking. */
         float support = 0.5f;
         /** Whether the last solve was a walking one (the weight shifting with the stride). */
         boolean walking;
         /** A leg reaching for a step standing still: {pitch, roll} of each, smoothed. */
         final float[] rightReach = new float[2], leftReach = new float[2];
+        /** The last step looked for standing still, and when; the same spot keeps it. */
+        Reach reachFound;
+        long reachAt;
+        double reachX, reachY, reachZ;
+        float reachYaw;
         String logged = "";
     }
 
@@ -176,17 +200,30 @@ public final class FootGrounding {
                 // not climbed yet is the foot's to go up onto, as before.
                 float onFeet = state.support * stride.right + (1f - state.support) * stride.left;
                 targetLower = Math.max(0f, Math.min(MAX_LOWER, onFeet));
-                plantRight = Math.max(0f, Math.min(MAX_STEP, targetLower - stride.right));
-                plantLeft = Math.max(0f, Math.min(MAX_STEP, targetLower - stride.left));
-                decided = targetLower > 0f || plantRight > 0f || plantLeft > 0f ? "stride" : "flat";
+                // The feet are placed below, against the body as it is drawn this frame.
+                decided = "stride";
                 footRight = stride.right;
                 footLeft = stride.left;
             } else {
                 plantRight = plant(player, frame, RIGHT_HIP, state.rightPose, targetLower, rawRight);
                 plantLeft = plant(player, frame, LEFT_HIP, state.leftPose, targetLower, rawLeft);
-                // The hitbox rests on a step neither foot is over: one foot reaches over to it.
-                if (right >= MIN_STEP && left >= MIN_STEP && right <= MAX_STEP && left <= MAX_STEP) {
-                    Reach reach = reach(player, frame, rawRight, rawLeft);
+                // Both feet on one level with a step next to them - the hitbox resting on it (none
+                // of the feet over it) or the player standing in front of it: one foot goes up.
+                boolean level = Math.abs(right - left) < MIN_STEP && right <= MAX_STEP;
+                if (level) {
+                    long now = System.nanoTime();
+                    boolean same = now - state.reachAt < REACH_EVERY_NANOS && player.getX() == state.reachX
+                            && player.getY() == state.reachY && player.getZ() == state.reachZ
+                            && player.yBodyRot == state.reachYaw;
+                    if (!same) {
+                        state.reachFound = reach(player, frame, rawRight, rawLeft);
+                        state.reachAt = now;
+                        state.reachX = player.getX();
+                        state.reachY = player.getY();
+                        state.reachZ = player.getZ();
+                        state.reachYaw = player.yBodyRot;
+                    }
+                    Reach reach = state.reachFound;
                     if (reach != null) {
                         float[] angles = reach.right ? reachRight : reachLeft;
                         angles[0] = reach.pitch;
@@ -203,12 +240,23 @@ public final class FootGrounding {
         // Body and legs both from their targets, not the legs from the smoothed body: the legs
         // neither lag the body nor keep turning after it has settled. A foot goes up onto a step
         // quickly, so it does not sink into it, and comes back down gently.
-        float k = Smoothing.snapFirst(dt, decided.equals("stride") ? STRIDE_LOWER_SECONDS : LOWER_SECONDS);
+        boolean striding = decided.equals("stride");
+        boolean level = striding && Math.abs(footRight - footLeft) < MIN_STEP;
+        float k = Smoothing.snapFirst(dt, level ? LEVEL_LOWER_SECONDS : striding ? STRIDE_LOWER_SECONDS : LOWER_SECONDS);
         state.lower += (targetLower - state.lower) * k;
-        state.rightBend += (plantRight - state.rightBend)
-                * Smoothing.snapFirst(dt, plantRight > state.rightBend ? RAISE_SECONDS : SETTLE_SECONDS);
-        state.leftBend += (plantLeft - state.leftBend)
-                * Smoothing.snapFirst(dt, plantLeft > state.leftBend ? RAISE_SECONDS : SETTLE_SECONDS);
+        if (striding) {
+            plantRight = Math.max(0f, Math.min(MAX_STEP, state.lower - footRight));
+            plantLeft = Math.max(0f, Math.min(MAX_STEP, state.lower - footLeft));
+            float kLeg = Smoothing.snapFirst(dt, STRIDE_LEG_SECONDS);
+            state.rightBend += (plantRight - state.rightBend) * kLeg;
+            state.leftBend += (plantLeft - state.leftBend) * kLeg;
+            if (state.lower < 0.05f && plantRight < 0.05f && plantLeft < 0.05f) decided = "flat";
+        } else {
+            state.rightBend += (plantRight - state.rightBend)
+                    * Smoothing.snapFirst(dt, plantRight > state.rightBend ? RAISE_SECONDS : SETTLE_SECONDS);
+            state.leftBend += (plantLeft - state.leftBend)
+                    * Smoothing.snapFirst(dt, plantLeft > state.leftBend ? RAISE_SECONDS : SETTLE_SECONDS);
+        }
         for (int i = 0; i < 2; i++) {
             state.rightReach[i] += (reachRight[i] - state.rightReach[i])
                     * Smoothing.snapFirst(dt, reachRight[i] != 0f ? RAISE_SECONDS : SETTLE_SECONDS);
@@ -279,7 +327,7 @@ public final class FootGrounding {
                 for (float d = REACH_MIN; d <= REACH_MAX && d < bestDistance; d += REACH_STEP) {
                     float dx = way[0] * mirror * d, dz = way[1] * d;
                     float floor = dropAt(player, frame, hip, dx, dz) - shift;
-                    if (floor > Math.max(0f, hipDrop) - MIN_STEP || floor < -MAX_STEP) continue;
+                    if (floor > Math.max(0f, hipDrop) - REACH_MIN_RISE || floor < -MAX_STEP) continue;
                     float pitch = (float) Math.asin(Math.max(-1f, Math.min(1f, dz / LEG)));
                     // Roll: +z rotation carries the sole towards -x.
                     float roll = (float) Math.asin(Math.max(-1f, Math.min(1f, -dx / LEG)));
@@ -319,6 +367,8 @@ public final class FootGrounding {
             state.lastRightX = Float.NaN;
             state.lastLeftX = Float.NaN;
             state.support = 0.5f;
+            java.util.Arrays.fill(state.rightFloors, Float.NaN);
+            java.util.Arrays.fill(state.leftFloors, Float.NaN);
             return null;
         }
         float swingRight = Float.isNaN(state.lastRightX) ? 0f : r[0] - state.lastRightX;
@@ -335,9 +385,19 @@ public final class FootGrounding {
         }
         // Each foot's floor where the animation puts it, from the floor under its hip so a model
         // shifted down cancels out. Over a drop-off or a wall, the floor under the hip stands in.
-        float right = footFloor(player, frame, RIGHT_HIP, r, rawRight);
-        float left = footFloor(player, frame, LEFT_HIP, l, rawLeft);
+        float right = median(state.rightFloors, footFloor(player, frame, RIGHT_HIP, r, rawRight));
+        float left = median(state.leftFloors, footFloor(player, frame, LEFT_HIP, l, rawLeft));
         return new Stride(right, left);
+    }
+
+    /** Pushes {@code value} into the last three and returns their median (fewer at the start). */
+    private static float median(float[] last, float value) {
+        last[0] = last[1];
+        last[1] = last[2];
+        last[2] = value;
+        if (Float.isNaN(last[0])) return Float.isNaN(last[1]) ? value : Math.max(last[1], value);
+        float a = last[0], b = last[1], c = last[2];
+        return Math.max(Math.min(a, b), Math.min(Math.max(a, b), c));
     }
 
     private static float footFloor(AbstractClientPlayer player, IKFrame frame, Vector3f hip, float[] pose,
