@@ -1,0 +1,1052 @@
+[
+ {
+  "hideGui": true
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "cmd": "gamemode survival"
+ },
+ {
+  "cmd": "difficulty peaceful"
+ },
+ {
+  "cmd": "effect give @s resistance infinite 10 true"
+ },
+ {
+  "cmd": "effect give @s saturation infinite 10 true"
+ },
+ {
+  "cmd": "parcool action unlock @s all"
+ },
+ {
+  "cmd": "clear @s"
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 304.85 151.5 7.0 0 0"
+ },
+ {
+  "look": [
+   0,
+   0
+  ]
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 3
+ },
+ {
+  "release": "forward"
+ },
+ {
+  "wait": 5
+ },
+ {
+  "orbit": [
+   150,
+   5,
+   3
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa foot/slab-edge"
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "foot-slab"
+  }
+ },
+ {
+  "config": {
+   "footgrounding.enabled": false
+  }
+ },
+ {
+  "wait": 6
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "foot-slab-off"
+  }
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true
+  }
+ },
+ {
+  "wait": 6
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 308.85 151.25 7.0 0 0"
+ },
+ {
+  "look": [
+   0,
+   0
+  ]
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 3
+ },
+ {
+  "release": "forward"
+ },
+ {
+  "wait": 5
+ },
+ {
+  "orbit": [
+   150,
+   5,
+   3
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa foot/snow-edge"
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "foot-snow"
+  }
+ },
+ {
+  "config": {
+   "footgrounding.enabled": false
+  }
+ },
+ {
+  "wait": 6
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "foot-snow-off"
+  }
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true
+  }
+ },
+ {
+  "wait": 6
+ },
+ {
+  "cmd": "item replace entity @s armor.legs with minecraft:iron_leggings"
+ },
+ {
+  "cmd": "item replace entity @s armor.feet with minecraft:iron_boots"
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 304.85 151.5 7.0 0 0"
+ },
+ {
+  "look": [
+   0,
+   0
+  ]
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 3
+ },
+ {
+  "release": "forward"
+ },
+ {
+  "wait": 5
+ },
+ {
+  "orbit": [
+   150,
+   5,
+   3
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa foot/slab-edge-armour"
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "foot-armour"
+  }
+ },
+ {
+  "cmd": "clear @s"
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 302.5 151 14.99 -90 0"
+ },
+ {
+  "look": [
+   -90,
+   0
+  ]
+ },
+ {
+  "orbit": [
+   90,
+   5,
+   3.5
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa foot/stairs-walk"
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 2
+ },
+ {
+  "burst": {
+   "count": 40,
+   "every": 1,
+   "name": "stairs"
+  }
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 302.5 151 18.99 -90 0"
+ },
+ {
+  "look": [
+   -90,
+   0
+  ]
+ },
+ {
+  "orbit": [
+   90,
+   5,
+   3.5
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa foot/slab-stairs-walk"
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 2
+ },
+ {
+  "burst": {
+   "count": 40,
+   "every": 1,
+   "name": "slabstairs"
+  }
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 315.5 151 25.5 -90 0"
+ },
+ {
+  "look": [
+   -90,
+   0
+  ]
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 3
+ },
+ {
+  "release": "forward"
+ },
+ {
+  "wait": 5
+ },
+ {
+  "orbit": [
+   150,
+   5,
+   3
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa foot/crouch-flat"
+ },
+ {
+  "hold": "sneak"
+ },
+ {
+  "wait": 30
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "crouch"
+  }
+ },
+ {
+  "config": {
+   "footgrounding.enabled": false
+  }
+ },
+ {
+  "wait": 6
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "crouch-off"
+  }
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true
+  }
+ },
+ {
+  "wait": 6
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 323.5 151 6.7 180 0"
+ },
+ {
+  "look": [
+   180,
+   0
+  ]
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 3
+ },
+ {
+  "release": "forward"
+ },
+ {
+  "wait": 5
+ },
+ {
+  "orbit": [
+   90,
+   10,
+   3.5
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa wall/front"
+ },
+ {
+  "wait": 10
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "wall-front"
+  }
+ },
+ {
+  "config": {
+   "wallhand.enabled": false
+  }
+ },
+ {
+  "wait": 6
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "wall-front-off"
+  }
+ },
+ {
+  "config": {
+   "wallhand.enabled": true
+  }
+ },
+ {
+  "wait": 6
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 324.5 151 6.6 90 0"
+ },
+ {
+  "look": [
+   90,
+   0
+  ]
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 3
+ },
+ {
+  "release": "forward"
+ },
+ {
+  "wait": 5
+ },
+ {
+  "orbit": [
+   -30,
+   15,
+   3.5
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa wall/side-with-wheat"
+ },
+ {
+  "wait": 10
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "wall-side"
+  }
+ },
+ {
+  "config": {
+   "wallhand.enabled": false
+  }
+ },
+ {
+  "wait": 6
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "wall-side-off"
+  }
+ },
+ {
+  "config": {
+   "wallhand.enabled": true
+  }
+ },
+ {
+  "wait": 6
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 333.5 150.9375 8.0 0 0"
+ },
+ {
+  "look": [
+   0,
+   0
+  ]
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 3
+ },
+ {
+  "release": "forward"
+ },
+ {
+  "wait": 5
+ },
+ {
+  "orbit": [
+   150,
+   5,
+   3
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa plants/field-centre"
+ },
+ {
+  "wait": 10
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "field"
+  }
+ },
+ {
+  "config": {
+   "plantreach.enabled": false
+  }
+ },
+ {
+  "wait": 6
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "field-off"
+  }
+ },
+ {
+  "config": {
+   "plantreach.enabled": true
+  }
+ },
+ {
+  "wait": 6
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 330.5 150.9375 5.5 0 0"
+ },
+ {
+  "look": [
+   0,
+   0
+  ]
+ },
+ {
+  "orbit": [
+   90,
+   5,
+   3.5
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa plants/field-walk"
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 4
+ },
+ {
+  "burst": {
+   "count": 8,
+   "every": 2,
+   "name": "field-walk"
+  }
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 333.5 151 16.0 0 0"
+ },
+ {
+  "look": [
+   0,
+   0
+  ]
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 3
+ },
+ {
+  "release": "forward"
+ },
+ {
+  "wait": 5
+ },
+ {
+  "orbit": [
+   150,
+   5,
+   3
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa lookat/idle"
+ },
+ {
+  "wait": 80
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "lookat-idle"
+  }
+ },
+ {
+  "look": [
+   40,
+   0
+  ]
+ },
+ {
+  "wait": 10
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "lookat-reset"
+  }
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 343.5 151 10.5 -90 0"
+ },
+ {
+  "look": [
+   -90,
+   0
+  ]
+ },
+ {
+  "orbit": [
+   60,
+   10,
+   7
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa horse/standing"
+ },
+ {
+  "wait": 10
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "horses"
+  }
+ },
+ {
+  "config": {
+   "footgrounding.horses": false
+  }
+ },
+ {
+  "wait": 6
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "horses-off"
+  }
+ },
+ {
+  "config": {
+   "footgrounding.horses": true
+  }
+ },
+ {
+  "wait": 6
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 343.5 151 4.4 -90 0"
+ },
+ {
+  "look": [
+   -90,
+   0
+  ]
+ },
+ {
+  "orbit": [
+   90,
+   5,
+   3.5
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa horse/rider-tilt"
+ },
+ {
+  "cmd": "ride @s mount @e[type=horse,tag=aa_tilt,limit=1]"
+ },
+ {
+  "wait": 20
+ },
+ {
+  "orbit": [
+   90,
+   5,
+   5
+  ]
+ },
+ {
+  "wait": 5
+ },
+ {
+  "burst": {
+   "count": 1,
+   "every": 2,
+   "name": "rider-tilt"
+  }
+ },
+ {
+  "cmd": "ride @s dismount"
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 302.5 151 14.5 -90 0"
+ },
+ {
+  "look": [
+   -90,
+   0
+  ]
+ },
+ {
+  "orbit": [
+   90,
+   5,
+   3.5
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa horse/ride-stairs"
+ },
+ {
+  "cmd": "kill @e[type=horse,tag=aa_ride]"
+ },
+ {
+  "cmd": "summon horse 302.5 151 14.5 {Tame:1b,Variant:2,Rotation:[-90f,0f],SaddleItem:{id:\"minecraft:saddle\",count:1},Tags:[\"aa\",\"aa_ride\"],Attributes:[{id:\"minecraft:generic.movement_speed\",base:0.2d}]}"
+ },
+ {
+  "wait": 5
+ },
+ {
+  "cmd": "ride @s mount @e[type=horse,tag=aa_ride,limit=1]"
+ },
+ {
+  "wait": 20
+ },
+ {
+  "orbit": [
+   90,
+   5,
+   6
+  ]
+ },
+ {
+  "wait": 5
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 2
+ },
+ {
+  "burst": {
+   "count": 16,
+   "every": 3,
+   "name": "ride-stairs"
+  }
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "cmd": "ride @s dismount"
+ },
+ {
+  "cmd": "kill @e[type=horse,tag=aa_ride]"
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "log": "aa done"
+ }
+]
