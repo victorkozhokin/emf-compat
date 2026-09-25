@@ -24,6 +24,7 @@ public final class FootGroundingFeature {
 
     public static final String KEY_ENABLED = "footgrounding.enabled";
     public static final String KEY_HORSES = "footgrounding.horses";
+    public static final String KEY_TRACE = "footgrounding.trace";
 
     /** Whether the rider being drawn was moved with its horse, so the post event undoes it. */
     private static boolean riderMoved;
@@ -37,11 +38,18 @@ public final class FootGroundingFeature {
                 "Off", "Leave the legs to EMF; one foot may hang in the air.")
                 .addBoolean(KEY_HORSES, "Foot IK for horses", true,
                         "On", "Horses, donkeys and mules also stand on uneven ground: the body is lowered and pitched, and the rider goes down with it.",
-                        "Off", "Only players.");
+                        "Off", "Only players.")
+                .addBoolean(KEY_TRACE, "Foot IK trace (debug)", false,
+                        "On", "Log what the feet measure and do every frame they do anything - for debugging only, it floods the log.",
+                        "Off", "Log only when the decision changes.");
         // Innermost: after everyone else has moved the rider (a cancelled draw never reaches the
         // lowest listener), and undone first, so the push and pop pair up with no one in between.
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, FootGroundingFeature::onRenderPlayerPre);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, FootGroundingFeature::onRenderPlayerPost);
+    }
+
+    public static boolean isTrace() {
+        return EMFCompatConfig.getBoolean(KEY_TRACE, false);
     }
 
     public static boolean isHorsesEnabled() {

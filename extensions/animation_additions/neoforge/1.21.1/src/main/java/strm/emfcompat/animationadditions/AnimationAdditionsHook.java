@@ -61,6 +61,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
             UUID uuid = state.uuid();
             if (uuid == null) return;
             Map<String, EMFModelPartVanilla> parts = context.animatingModelRoot().getAllVanillaPartsByNameEMF();
+            if (context.animatingModelRoot().isMainModel) FootGrounding.recordAnimated(uuid, parts::get);
             applyAll(uuid, parts::get);
             for (String[] layer : LAYERS) {
                 ModelPart outer = parts.get(layer[0]);
