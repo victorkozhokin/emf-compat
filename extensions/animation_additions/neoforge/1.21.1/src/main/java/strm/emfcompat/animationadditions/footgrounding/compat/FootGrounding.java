@@ -77,7 +77,16 @@ public final class FootGrounding {
     /** A leg swung forward past this, radians, looks for a step ahead of it. */
     private static final float SWING_FORWARD = 0.1f;
 
+    /** Faster than this, blocks per tick, the player walks and the weight shifts with the stride. */
+    private static final double WALKING = 0.02;
+    /** How quickly the weight goes over to the other foot. */
+    private static final double SUPPORT_SECONDS = 0.08;
+    /** A leg turning slower than this, radians per solve, is not telling which way it swings. */
+    private static final float SWING_EPSILON = 1e-3f;
+
     private static final double LOWER_SECONDS = 0.12;
+    /** Walking, the body follows the weight between the feet: quick enough to keep up with a step. */
+    private static final double STRIDE_LOWER_SECONDS = 0.05;
     private static final double RAISE_SECONDS = 0.05;
     private static final double SETTLE_SECONDS = 0.15;
 
@@ -90,6 +99,10 @@ public final class FootGrounding {
         float lower, rightBend, leftBend;
         /** The legs as the animation left them last frame, {xRot, yRot, zRot}; null before one. */
         float[] rightPose, leftPose;
+        /** The legs' pitch at the last solve, to see which way each swings. */
+        float lastRightX = Float.NaN, lastLeftX = Float.NaN;
+        /** How much of the weight is on the right foot, 0 to 1, while walking. */
+        float support = 0.5f;
         String logged = "";
     }
 
@@ -114,6 +127,7 @@ public final class FootGrounding {
     private static void solve(AbstractClientPlayer player, PoseStack stack, State state, double dt) {
         float targetLower = 0f, right = 0f, left = 0f;
         float plantRight = 0f, plantLeft = 0f;
+        float footRight = Float.NaN, footLeft = Float.NaN;
         String decided;
 
         String why = ineligible(player);
@@ -137,14 +151,30 @@ public final class FootGrounding {
             if (low >= MIN_STEP && low <= MAX_STEP) targetLower = Math.min(low, MAX_LOWER);
             decided = targetLower > 0f ? "lowered" : "flat";
 
-            plantRight = plant(player, frame, RIGHT_HIP, state.rightPose, targetLower, rawRight);
-            plantLeft = plant(player, frame, LEFT_HIP, state.leftPose, targetLower, rawLeft);
+            Stride stride = stride(player, frame, state, rawRight, rawLeft, dt);
+            if (stride != null) {
+                // Walking: the body stands on the foot that carries the weight. The weight goes
+                // over with the stride, so the body rises onto the step with the foot on it and
+                // sinks with the foot below; the swinging foot is in the air and is not held to
+                // its floor. The body never goes above the hitbox: a step ahead the hitbox has
+                // not climbed yet is the foot's to go up onto, as before.
+                float onFeet = state.support * stride.right + (1f - state.support) * stride.left;
+                targetLower = Math.max(0f, Math.min(MAX_LOWER, onFeet));
+                plantRight = Math.max(0f, Math.min(MAX_STEP, targetLower - stride.right));
+                plantLeft = Math.max(0f, Math.min(MAX_STEP, targetLower - stride.left));
+                decided = targetLower > 0f || plantRight > 0f || plantLeft > 0f ? "stride" : "flat";
+                footRight = stride.right;
+                footLeft = stride.left;
+            } else {
+                plantRight = plant(player, frame, RIGHT_HIP, state.rightPose, targetLower, rawRight);
+                plantLeft = plant(player, frame, LEFT_HIP, state.leftPose, targetLower, rawLeft);
+            }
         }
 
         // Body and legs both from their targets, not the legs from the smoothed body: the legs
         // neither lag the body nor keep turning after it has settled. A foot goes up onto a step
         // quickly, so it does not sink into it, and comes back down gently.
-        float k = Smoothing.snapFirst(dt, LOWER_SECONDS);
+        float k = Smoothing.snapFirst(dt, decided.equals("stride") ? STRIDE_LOWER_SECONDS : LOWER_SECONDS);
         state.lower += (targetLower - state.lower) * k;
         state.rightBend += (plantRight - state.rightBend)
                 * Smoothing.snapFirst(dt, plantRight > state.rightBend ? RAISE_SECONDS : SETTLE_SECONDS);
@@ -153,9 +183,12 @@ public final class FootGrounding {
         // Per-frame trace while the feet do anything; debug only.
         if (FootGroundingFeature.isTrace() && why == null && (state.lower > 0.05f || state.rightBend > 0.05f || state.leftBend > 0.05f
                 || plantRight > 0.05f || plantLeft > 0.05f)) {
-            LOGGER.info("[FootTrace] x={} y={} R={} L={} low={} tl={} pr={} pl={} rb={} lb={} rp={} lp={}",
+            LOGGER.info("[FootTrace] x={} y={} z={} R={} L={} fR={} fL={} w={} low={} tl={} pr={} pl={} rb={} lb={} rp={} lp={}",
                     String.format("%.3f", player.getX()), String.format("%.3f", player.getY()),
+                    String.format("%.3f", player.getZ()),
                     String.format("%.2f", right), String.format("%.2f", left),
+                    String.format("%.2f", footRight), String.format("%.2f", footLeft),
+                    String.format("%.2f", state.support),
                     String.format("%.2f", state.lower), String.format("%.2f", targetLower),
                     String.format("%.2f", plantRight), String.format("%.2f", plantLeft),
                     String.format("%.2f", state.rightBend), String.format("%.2f", state.leftBend),
@@ -186,6 +219,56 @@ public final class FootGrounding {
             if (ahead < under - MIN_STEP) plant = Math.max(plant, Math.max(0f, Math.min(MAX_STEP, lower - ahead)));
         }
         return plant;
+    }
+
+    /** Where each foot's floor is while walking, model pixels below the ground level. */
+    private record Stride(float right, float left) {
+    }
+
+    /**
+     * Walking: finds which foot carries the weight and moves {@code state.support} towards it, and
+     * returns the floor under each foot where the animation puts it. {@code null} standing still,
+     * or before the animation has been seen.
+     *
+     * <p>The foot on the ground is the one the leg sweeps backwards (walking forwards: its pitch
+     * grows); the other swings through the air. Read off the pack's own animation, so the weight
+     * shifts in time with whatever stride the pack draws.</p>
+     */
+    private static Stride stride(AbstractClientPlayer player, IKFrame frame, State state,
+                                 float rawRight, float rawLeft, double dt) {
+        float[] r = state.rightPose, l = state.leftPose;
+        Vec3 motion = new Vec3(player.getX() - player.xo, 0, player.getZ() - player.zo);
+        if (r == null || l == null || motion.length() < WALKING) {
+            state.lastRightX = Float.NaN;
+            state.lastLeftX = Float.NaN;
+            state.support = 0.5f;
+            return null;
+        }
+        float swingRight = Float.isNaN(state.lastRightX) ? 0f : r[0] - state.lastRightX;
+        float swingLeft = Float.isNaN(state.lastLeftX) ? 0f : l[0] - state.lastLeftX;
+        state.lastRightX = r[0];
+        state.lastLeftX = l[0];
+        // Backwards, the foot on the ground sweeps forwards instead.
+        Vec3 facing = Vec3.directionFromRotation(0, player.yBodyRot);
+        float way = motion.dot(facing) >= 0 ? 1f : -1f;
+        float difference = (swingRight - swingLeft) * way;
+        if (Math.abs(difference) > SWING_EPSILON) {
+            float target = difference > 0 ? 1f : 0f;
+            state.support += (target - state.support) * Smoothing.snapFirst(dt, SUPPORT_SECONDS);
+        }
+        // Each foot's floor where the animation puts it, from the floor under its hip so a model
+        // shifted down cancels out. Over a drop-off or a wall, the floor under the hip stands in.
+        float right = footFloor(player, frame, RIGHT_HIP, r, rawRight);
+        float left = footFloor(player, frame, LEFT_HIP, l, rawLeft);
+        return new Stride(right, left);
+    }
+
+    private static float footFloor(AbstractClientPlayer player, IKFrame frame, Vector3f hip, float[] pose,
+                                   float hipDrop) {
+        float shift = Math.min(0f, hipDrop);
+        float foot = drop(player, frame, hip, pose) - shift;
+        if (foot > MAX_STEP || foot < -MAX_STEP) foot = Math.max(0f, hipDrop);
+        return foot;
     }
 
     /** Why the feet are left alone this frame, or {@code null} when they are grounded. */

@@ -164,6 +164,14 @@ def all_shots():
     s += case("foot/slab-edge-armour", 304.85, Y + 0.5, 7.0, 0, orbit=(150, 5, 3), settle=True) + shots("foot-armour", 1)
     s += [cmd("clear @s")]
 
+    # Onto the slab facing it, and along its edge with one foot up: the weight goes over with the
+    # stride. Frame by frame, with the per-frame trace on.
+    s += case("foot/slab-step-on", 302.5, Y, 7.5, -90) + [{"config": {"footgrounding.trace": True}}] + \
+        walk("slab-on", 1, 24, 1) + [{"config": {"footgrounding.trace": False}}]
+    s += case("foot/slab-along", 304.85, Y, 2.5, 0, orbit=(120, 5, 3.5)) + \
+        [{"config": {"footgrounding.trace": True}}] + walk("slab-along", 1, 30, 1) + \
+        [{"config": {"footgrounding.trace": False}}]
+
     # Stairs facing them, up and over and down; then the slab climb. Frame by frame.
     s += case("foot/stairs-walk", 302.5, Y, 14.99, -90) + walk("stairs", 2, 40, 1)
     s += case("foot/slab-stairs-walk", 302.5, Y, 18.99, -90) + walk("slabstairs", 2, 40, 1)

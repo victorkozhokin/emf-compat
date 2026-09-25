@@ -262,6 +262,132 @@
   }
  },
  {
+  "cmd": "tp @s 302.5 151 7.5 -90 0"
+ },
+ {
+  "look": [
+   -90,
+   0
+  ]
+ },
+ {
+  "orbit": [
+   90,
+   5,
+   3.5
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa foot/slab-step-on"
+ },
+ {
+  "config": {
+   "footgrounding.trace": true
+  }
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "burst": {
+   "count": 24,
+   "every": 1,
+   "name": "slab-on"
+  }
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "config": {
+   "footgrounding.trace": false
+  }
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
+  "cmd": "tp @s 304.85 151 2.5 0 0"
+ },
+ {
+  "look": [
+   0,
+   0
+  ]
+ },
+ {
+  "orbit": [
+   120,
+   5,
+   3.5
+  ]
+ },
+ {
+  "wait": 20
+ },
+ {
+  "log": "aa foot/slab-along"
+ },
+ {
+  "config": {
+   "footgrounding.trace": true
+  }
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "burst": {
+   "count": 30,
+   "every": 1,
+   "name": "slab-along"
+  }
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "config": {
+   "footgrounding.trace": false
+  }
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "orbit": false
+ },
+ {
+  "config": {
+   "footgrounding.enabled": true,
+   "footgrounding.horses": true,
+   "wallhand.enabled": true,
+   "plantreach.enabled": true,
+   "lookat.enabled": true
+  }
+ },
+ {
   "cmd": "tp @s 302.5 151 14.99 -90 0"
  },
  {
