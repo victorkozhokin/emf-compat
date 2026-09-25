@@ -77,6 +77,16 @@ public final class FootGrounding {
     /** A leg swung forward past this, radians, looks for a step ahead of it. */
     private static final float SWING_FORWARD = 0.1f;
 
+    /**
+     * Standing where the hitbox rests on a step neither foot is over, a foot reaches for it: this
+     * far from the sole at most, model pixels, forwards or out to its own side, never behind.
+     */
+    private static final float REACH_MIN = 2.5f;
+    private static final float REACH_MAX = 6f;
+    private static final float REACH_STEP = 0.5f;
+    /** Directions a foot reaches in, model {x, z} per unit, for the right leg (x mirrored for the left). */
+    private static final float[][] REACH_WAYS = {{0f, -1f}, {-0.707f, -0.707f}, {-1f, 0f}};
+
     /** Faster than this, blocks per tick, the player walks and the weight shifts with the stride. */
     private static final double WALKING = 0.02;
     /** How quickly the weight goes over to the other foot. */
@@ -103,6 +113,8 @@ public final class FootGrounding {
         float lastRightX = Float.NaN, lastLeftX = Float.NaN;
         /** How much of the weight is on the right foot, 0 to 1, while walking. */
         float support = 0.5f;
+        /** A leg reaching for a step standing still: {pitch, roll} of each, smoothed. */
+        final float[] rightReach = new float[2], leftReach = new float[2];
         String logged = "";
     }
 
@@ -128,6 +140,7 @@ public final class FootGrounding {
         float targetLower = 0f, right = 0f, left = 0f;
         float plantRight = 0f, plantLeft = 0f;
         float footRight = Float.NaN, footLeft = Float.NaN;
+        float[] reachRight = new float[2], reachLeft = new float[2];
         String decided;
 
         String why = ineligible(player);
@@ -168,6 +181,19 @@ public final class FootGrounding {
             } else {
                 plantRight = plant(player, frame, RIGHT_HIP, state.rightPose, targetLower, rawRight);
                 plantLeft = plant(player, frame, LEFT_HIP, state.leftPose, targetLower, rawLeft);
+                // The hitbox rests on a step neither foot is over: one foot reaches over to it.
+                if (right >= MIN_STEP && left >= MIN_STEP && right <= MAX_STEP && left <= MAX_STEP) {
+                    Reach reach = reach(player, frame, rawRight, rawLeft);
+                    if (reach != null) {
+                        float[] angles = reach.right ? reachRight : reachLeft;
+                        angles[0] = reach.pitch;
+                        angles[1] = reach.roll;
+                        float lift = Math.max(0f, Math.min(MAX_STEP, targetLower - reach.floor));
+                        if (reach.right) plantRight = lift;
+                        else plantLeft = lift;
+                        decided = reach.right ? "reach-R" : "reach-L";
+                    }
+                }
             }
         }
 
@@ -180,6 +206,13 @@ public final class FootGrounding {
                 * Smoothing.snapFirst(dt, plantRight > state.rightBend ? RAISE_SECONDS : SETTLE_SECONDS);
         state.leftBend += (plantLeft - state.leftBend)
                 * Smoothing.snapFirst(dt, plantLeft > state.leftBend ? RAISE_SECONDS : SETTLE_SECONDS);
+        for (int i = 0; i < 2; i++) {
+            state.rightReach[i] += (reachRight[i] - state.rightReach[i])
+                    * Smoothing.snapFirst(dt, reachRight[i] != 0f ? RAISE_SECONDS : SETTLE_SECONDS);
+            state.leftReach[i] += (reachLeft[i] - state.leftReach[i])
+                    * Smoothing.snapFirst(dt, reachLeft[i] != 0f ? RAISE_SECONDS : SETTLE_SECONDS);
+        }
+
         // Per-frame trace while the feet do anything; debug only.
         if (FootGroundingFeature.isTrace() && why == null && (state.lower > 0.05f || state.rightBend > 0.05f || state.leftBend > 0.05f
                 || plantRight > 0.05f || plantLeft > 0.05f)) {
@@ -219,6 +252,47 @@ public final class FootGrounding {
             if (ahead < under - MIN_STEP) plant = Math.max(plant, Math.max(0f, Math.min(MAX_STEP, lower - ahead)));
         }
         return plant;
+    }
+
+    /** A foot reaching for a step: which, how the leg turns, and the step's floor (model pixels). */
+    private record Reach(boolean right, float pitch, float roll, float floor) {
+    }
+
+    /**
+     * The nearest step a foot can put itself on by turning the leg, forwards or out to its own
+     * side - never behind, never across the other leg - or {@code null}. The leg is one straight
+     * bone from the hip, so a sole moved {@code d} pixels means the leg turned by asin(d / leg).
+     */
+    private static Reach reach(AbstractClientPlayer player, IKFrame frame, float rawRight, float rawLeft) {
+        Reach best = null;
+        float bestDistance = Float.MAX_VALUE;
+        for (int leg = 0; leg < 2; leg++) {
+            boolean isRight = leg == 0;
+            Vector3f hip = isRight ? RIGHT_HIP : LEFT_HIP;
+            float hipDrop = isRight ? rawRight : rawLeft;
+            float shift = Math.min(0f, hipDrop);
+            float mirror = isRight ? 1f : -1f;
+            for (float[] way : REACH_WAYS) {
+                for (float d = REACH_MIN; d <= REACH_MAX && d < bestDistance; d += REACH_STEP) {
+                    float dx = way[0] * mirror * d, dz = way[1] * d;
+                    float floor = dropAt(player, frame, hip, dx, dz) - shift;
+                    if (floor > Math.max(0f, hipDrop) - MIN_STEP || floor < -MAX_STEP) continue;
+                    float pitch = (float) Math.asin(Math.max(-1f, Math.min(1f, dz / LEG)));
+                    // Roll: +z rotation carries the sole towards -x.
+                    float roll = (float) Math.asin(Math.max(-1f, Math.min(1f, -dx / LEG)));
+                    best = new Reach(isRight, pitch, roll, floor);
+                    bestDistance = d;
+                    break;
+                }
+            }
+        }
+        return best;
+    }
+
+    /** {@link #drop} for a sole moved {dx, dz} model pixels from under the straight leg. */
+    private static float dropAt(AbstractClientPlayer player, IKFrame frame, Vector3f hip, float dx, float dz) {
+        // A hip moved along with the sole keeps its height, so the drop is from the same ground.
+        return drop(player, frame, new Vector3f(hip).add(dx, 0f, dz), null);
     }
 
     /** Where each foot's floor is while walking, model pixels below the ground level. */
@@ -335,11 +409,22 @@ public final class FootGrounding {
         State state = STATES.fresh(uuid);
         if (state == null) return null;
         float bend = right ? state.rightBend : state.leftBend;
-        if (bend < 0.05f) return null;
-        double theta = Math.min(MAX_BEND, Math.acos(Math.max(0f, (LEG - bend) / LEG)));
-        // What the slight bend leaves, the hip takes: the leg slides up into the torso.
-        float lift = Math.max(0f, bend - LEG * (1f - (float) Math.cos(theta)));
-        return new float[]{-(float) theta, lift};
+        float[] reach = right ? state.rightReach : state.leftReach;
+        boolean reaching = Math.abs(reach[0]) > 1e-3f || Math.abs(reach[1]) > 1e-3f;
+        if (bend < 0.05f && !reaching) return null;
+        double theta;
+        float lift;
+        if (reaching) {
+            // Turned out to the step: the turn raises the sole a little, the hip takes the rest.
+            double cos = Math.cos(reach[0]) * Math.cos(reach[1]);
+            theta = 0;
+            lift = Math.max(0f, bend - LEG * (1f - (float) cos));
+        } else {
+            theta = Math.min(MAX_BEND, Math.acos(Math.max(0f, (LEG - bend) / LEG)));
+            // What the slight bend leaves, the hip takes: the leg slides up into the torso.
+            lift = Math.max(0f, bend - LEG * (1f - (float) Math.cos(theta)));
+        }
+        return new float[]{-(float) theta + reach[0], lift, reach[1]};
     }
 
     /** Adds the leg offsets on top of the animated legs. Called after the pack has animated. */
@@ -356,6 +441,7 @@ public final class FootGrounding {
         if (leg == null || offset == null) return;
         float step = Math.min(1f, offset[1] / STEP_FULL_AT);
         leg.xRot += offset[0];
+        leg.zRot += offset[2];
         leg.y -= offset[1];
         leg.z -= STEP_FORWARD * step;
         leg.x += side * STEP_OUT * step;
