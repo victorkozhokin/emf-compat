@@ -76,13 +76,15 @@ A driver change needs `./gradlew -p tools/mctest/driver build`. Neither is run a
 
 ## Animation Additions baseline
 
-Taken 25.09.2026 on `experimental/animations-additions` (after `893a5d0`), NeoForge 1.21.1,
-profile `Test` launched with `--name STRadaT --uuid e750dfddf54d418babd46776ce404f09
---disable icys-better-horses,watut,emf_compat_watut`, packs Fresh Animations + FA+Player +
-the ParCool pack. Contact sheets are in `baseline/animation-additions/` (`still.jpg` - every
-standing case with the feature on and off, `stairs.jpg` / `slabstairs.jpg` - the climbs every
-second tick, `motion.jpg` - the wheat walk and riding up the stairs). Before refactoring anything,
-run the two scripts again and compare with these.
+Retaken 25.09.2026 on `experimental/animations-additions` at `66f1ed7` (first taken at `893a5d0`),
+NeoForge 1.21.1, profile `Test` launched with `--name STRadaT --uuid
+e750dfddf54d418babd46776ce404f09 --disable icys-better-horses,watut,emf_compat_watut`, packs Fresh
+Animations + FA+Player + the ParCool pack. Contact sheets are in `baseline/animation-additions/`:
+`still.jpg` - every standing case with the feature on and off; `stairs.jpg` / `slabstairs.jpg` -
+the climbs every second tick; `slab-on.jpg` / `slab-along.jpg` - onto a slab facing it and along its
+edge, every tick; `motion.jpg` - the wheat walk and riding up the stairs. Before changing anything,
+run the two scripts again and compare with these. Per-frame numbers: turn on
+`footgrounding.trace` (a `config` step) and read `[FootTrace]` in `latest.log`.
 
 What each case shows, and what the log said (`[FootGrounding]` etc. print on every change):
 
@@ -90,20 +92,25 @@ What each case shows, and what the log said (`[FootGrounding]` etc. print on eve
 |---|---|---|
 | `foot/slab-edge` | one foot on the slab, the body lowered onto the other | `lowered (R=8.55 L=0.02)` |
 | `foot/snow-edge` | the same over 3 snow layers (collision 4 px) | `lowered (R=4.28 L=0.02)` |
-| `foot/slab-edge-armour` | leggings and boots follow the raised leg | **flaky**: this run logged `flat` - both feet read the slab, so nothing to follow. Needs a rerun or a mark 0.05 further off the edge |
-| `foot/stairs-walk`, `foot/slab-stairs-walk` | the swung-forward foot goes up onto the next step; the body follows the floor under the hips | alternating `lowered`/`flat`, 0.9-3.8 px: the hitbox climbs every half block |
+| `foot/slab-edge-armour` | leggings and boots follow the raised leg | the mark lands in the dead zone (hitbox on the slab, both soles off it): `reach-R` - a foot reaches out onto it |
+| `foot/slab-step-on` | walking onto the slab: the leading foot up first, the body rises as the weight goes over | `stride`; the weight share (`w` in the trace) swings 0..1 with the stride |
+| `foot/slab-along` | along the edge: the body rises onto the upper foot while it carries the weight and sinks with the lower one | `stride`; body 0..8.5 px with each step |
+| `foot/stairs-walk`, `foot/slab-stairs-walk` | the foot on the next step carries the body up; never both feet lifted | `stride`; both legs up by more than 1.5 px in 0-4 frames a climb, at most ~1.8 px (was 5-16 frames, 3.3 px) |
 | `foot/crouch-flat` | the crouch leaves the legs to the pack (the render offset is not a floor) | `flat (R=0.00 L=0.00)` |
 | `wall/front` | both palms on the wall | `front` |
-| `wall/side-with-wheat` | the wall hand on the wall, the other in the wheat | `right` (wall) + PlantReach `-L` |
+| `wall/side-with-wheat` | the wall hand on the wall, the other in the wheat | `right`, then `right_arm: WallHand -> PlantReach` when the wall is lost |
 | `plants/field-centre` | both hands in the wheat | `RL` |
 | `plants/field-walk` | hands follow the wheat walking | `--` at the start (the frames are at the field edge) |
-| `lookat/idle` | after 3 s idle the head turns to the villager, then back when the camera moves | `-> Villager`, then `camera` |
+| `lookat/idle` | after 3 s idle the head turns to the villager, the torso a little after it; back when the camera moves | `-> Villager`, then `camera` |
 | `horse/standing` | across the edge: body pitched; along it: the left legs slide up | the tilted horse is fine; the other logged `body=-90` - see below |
 | `horse/rider-tilt` | the rider pitches with the horse | seen in the frame |
-| `horse/ride-stairs` | the horse pitches up the stairs, the rider with it | `tilted ... tilt=11.0`, then `flat (RH=17.18)` at the top |
+| `horse/ride-stairs` | the horse pitches up the stairs, the rider with it | `lowered`, `tilted ... tilt=11.0` |
 
 Known defects and traps found while taking it:
 
+- **Dead zone:** the hitbox is 0.6 wide and rests on a step its edge touches, while the soles
+  (near the body's axis) are both off it. Standing there, a foot now reaches out to the step -
+  forwards or out to its own side, never behind. Marks near an edge land in it easily.
 - **A teleport turns the head only.** The body keeps its old heading until the player moves, and
   the feet, the wall hand and the plant reach all measure along the body. The cases take a
   3-tick step first (`settle`); a mark a few hundredths too far from an edge still reads both
