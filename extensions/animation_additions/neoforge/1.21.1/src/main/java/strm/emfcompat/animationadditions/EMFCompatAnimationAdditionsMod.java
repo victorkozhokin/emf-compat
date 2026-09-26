@@ -15,6 +15,7 @@ import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.animationadditions.lookat.LookAt;
 import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
 import strm.emfcompat.animationadditions.doorhold.DoorHold;
+import strm.emfcompat.animationadditions.furniture.Furniture;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.animationadditions.plantreach.PlantReach;
 import strm.emfcompat.animationadditions.wallhand.WallHand;
@@ -30,8 +31,9 @@ import strm.emfcompat.animationadditions.wallhand.WallHand;
  *   <li>{@code wallhand} - standing at a wall, the hands rest on it;</li>
  *   <li>{@code plantreach} - in grass or crops, the hands brush the plants;</li>
  *   <li>{@code lookat} - standing idle, the head turns to a creature nearby;</li>
- *   <li>{@code buttonpress} - the right hand reaches for a button, a lever or a door handle about to be used, a foot stamps on a button on the floor;</li>
- *   <li>{@code doorhold} - going through an open door, the hand on its side holds it.</li>
+ *   <li>{@code buttonpress} - the right hand reaches for a button or a lever about to be used, a foot stamps on a button on the floor;</li>
+ *   <li>{@code doorhold} - near a door the hands go to its handles and hold it going through;</li>
+ *   <li>{@code furniture} - looking at a lectern or a chest close by, both hands go to it.</li>
  * </ul>
  */
 @Mod(EMFCompatAnimationAdditionsMod.MOD_ID)
@@ -50,12 +52,14 @@ public class EMFCompatAnimationAdditionsMod {
             TorsoLean.register(config);
             ButtonPress.register(config);
             DoorHold.register(config);
+            Furniture.register(config);
             // Order is only the log's order; who wins is the arbiter's call.
             InteractionRuntime.register(WallHand.INSTANCE);
             InteractionRuntime.register(PlantReach.INSTANCE);
             InteractionRuntime.register(LookAt.INSTANCE);
             InteractionRuntime.register(ButtonPress.INSTANCE);
             InteractionRuntime.register(DoorHold.INSTANCE);
+            InteractionRuntime.register(Furniture.INSTANCE);
             AnimationAdditionsHook.register();
             // Leaving a world drops every feature's per-entity state with it.
             NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut event) -> EntityStates.clearAll());
