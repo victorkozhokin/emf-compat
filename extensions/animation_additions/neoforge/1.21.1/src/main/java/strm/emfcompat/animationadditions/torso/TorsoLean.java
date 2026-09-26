@@ -4,6 +4,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
 import strm.emfcompat.animationadditions.footgrounding.compat.FootGrounding;
 import strm.emfcompat.animationadditions.interaction.Effector;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
@@ -39,8 +40,8 @@ public final class TorsoLean {
     private static final float SHIFT = 1.0f;
     private static final float ROLL = (float) Math.toRadians(4);
     /** Forwards over a foot up on a step, and over a foot reaching for one. */
-    private static final float CLIMB_PITCH = (float) Math.toRadians(5);
-    private static final float REACH_PITCH = (float) Math.toRadians(3);
+    private static final float CLIMB_PITCH = (float) Math.toRadians(8);
+    private static final float REACH_PITCH = (float) Math.toRadians(5);
     private static final double SECONDS = 0.12;
     /** The waist, where the torso turns: the bottom of the 12 px torso below the neck pivot. */
     private static final float WAIST = 12f;
@@ -82,10 +83,16 @@ public final class TorsoLean {
                 target[0] += head[0] * FOLLOW_PITCH * head[2];
                 target[1] += Math.max(-MAX_YAW, Math.min(MAX_YAW, head[1] * FOLLOW_YAW)) * head[2];
             }
+            float[] press = ButtonPress.torsoHint(uuid);
+            if (press != null) {
+                target[0] += press[0];
+                target[1] += press[1];
+                target[2] += press[2];
+            }
             float[] feet = FootGrounding.torsoHint(uuid);
             if (feet != null) {
-                // Leaning forward is -xRot; over the left foot (+x) the torso rolls left (-zRot).
-                target[0] -= feet[1] * CLIMB_PITCH + feet[2] * REACH_PITCH;
+                // Leaning forward is +xRot (as the vanilla crouch); over the left foot (+x) the torso rolls left (-zRot).
+                target[0] += feet[1] * CLIMB_PITCH + feet[2] * REACH_PITCH;
                 target[2] -= feet[0] * ROLL;
                 target[3] += feet[0] * SHIFT;
             }

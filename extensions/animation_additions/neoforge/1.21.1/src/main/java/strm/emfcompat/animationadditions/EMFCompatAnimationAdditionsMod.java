@@ -13,6 +13,7 @@ import strm.emfcompat.animationadditions.horsesync.HorseSync;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.animationadditions.lookat.LookAt;
+import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.animationadditions.plantreach.PlantReach;
 import strm.emfcompat.animationadditions.wallhand.WallHand;
@@ -27,7 +28,8 @@ import strm.emfcompat.animationadditions.wallhand.WallHand;
  *   <li>{@code footgrounding} - Foot IK: both feet stand on uneven ground;</li>
  *   <li>{@code wallhand} - standing at a wall, the hands rest on it;</li>
  *   <li>{@code plantreach} - in grass or crops, the hands brush the plants;</li>
- *   <li>{@code lookat} - standing idle, the head turns to a creature nearby.</li>
+ *   <li>{@code lookat} - standing idle, the head turns to a creature nearby;</li>
+ *   <li>{@code buttonpress} - a hand reaches for a button about to be pressed, a foot stamps on one on the floor.</li>
  * </ul>
  */
 @Mod(EMFCompatAnimationAdditionsMod.MOD_ID)
@@ -44,10 +46,12 @@ public class EMFCompatAnimationAdditionsMod {
             PlantReach.register(config);
             LookAt.register(config);
             TorsoLean.register(config);
+            ButtonPress.register(config);
             // Order is only the log's order; who wins is the arbiter's call.
             InteractionRuntime.register(WallHand.INSTANCE);
             InteractionRuntime.register(PlantReach.INSTANCE);
             InteractionRuntime.register(LookAt.INSTANCE);
+            InteractionRuntime.register(ButtonPress.INSTANCE);
             AnimationAdditionsHook.register();
             // Leaving a world drops every feature's per-entity state with it.
             NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut event) -> EntityStates.clearAll());

@@ -19,6 +19,7 @@ public final class InteractionContext {
     private final Map<String, Object> data;
     private final Map<String, String> decided;
     private String provider;
+    private boolean armsClaimed;
 
     InteractionContext(AbstractClientPlayer player, IKFrame frame, long now, double dt,
                        Map<String, Object> data, Map<String, String> decided) {
@@ -56,6 +57,18 @@ public final class InteractionContext {
     @SuppressWarnings("unchecked")
     public <T> T data(Supplier<T> make) {
         return (T) data.computeIfAbsent(provider, k -> make.get());
+    }
+
+    /**
+     * The arms are this provider's even through a swing: the swing is part of what it shows
+     * (a hand pressing a button swings it).
+     */
+    public void claimArms() {
+        armsClaimed = true;
+    }
+
+    boolean armsClaimed() {
+        return armsClaimed;
     }
 
     /** What this provider decided, in a word; the runtime logs it when it changes. */

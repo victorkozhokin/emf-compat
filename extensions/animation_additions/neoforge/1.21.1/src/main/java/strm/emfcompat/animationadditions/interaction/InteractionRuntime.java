@@ -94,7 +94,7 @@ public final class InteractionRuntime {
             }
         }
 
-        Set<Effector> reserved = reserved(player);
+        Set<Effector> reserved = reserved(player, context.armsClaimed());
         Map<Effector, String> holders = new EnumMap<>(Effector.class);
         state.slots.forEach((effector, slot) -> {
             if (slot.owner != null) holders.put(effector, slot.owner);
@@ -149,10 +149,10 @@ public final class InteractionRuntime {
     }
 
     /** Parts something outside the runtime owns this frame. */
-    private static Set<Effector> reserved(AbstractClientPlayer player) {
+    private static Set<Effector> reserved(AbstractClientPlayer player, boolean swingClaimed) {
         Set<Effector> reserved = EnumSet.noneOf(Effector.class);
         // A swing, an item in use or another addon's arm pose owns the arms.
-        if (player.swinging || player.isUsingItem() || PoseManager.hasArmPoseExcept(player.getUUID(), "")) {
+        if (player.swinging && !swingClaimed || player.isUsingItem() || PoseManager.hasArmPoseExcept(player.getUUID(), "")) {
             reserved.add(Effector.RIGHT_ARM);
             reserved.add(Effector.LEFT_ARM);
         }
@@ -188,6 +188,14 @@ public final class InteractionRuntime {
         PlayerState state = STATES.fresh(uuid);
         if (state == null) return 0f;
         return state.slots.get(effector).weight;
+    }
+
+    /** How much of a part the named provider has this frame, 0 when another has it or nobody. */
+    public static float weight(UUID uuid, Effector effector, String source) {
+        PlayerState state = STATES.fresh(uuid);
+        if (state == null) return 0f;
+        Slot slot = state.slots.get(effector);
+        return source.equals(slot.owner) ? slot.weight : 0f;
     }
 
     private static void log(AbstractClientPlayer player, String what) {
