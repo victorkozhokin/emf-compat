@@ -145,5 +145,38 @@
  },
  {
   "wait": 5
+ },
+ {
+  "cmd": "fill 351 151 28 358 153 28 stone_bricks"
+ },
+ {
+  "cmd": "setblock 353 152 27 oak_button[face=wall,facing=north]"
+ },
+ {
+  "cmd": "setblock 356 152 27 lever[face=wall,facing=north]"
+ },
+ {
+  "cmd": "setblock 350 151 22 oak_button[face=floor,facing=north]"
+ },
+ {
+  "cmd": "setblock 352 151 24 oak_door[half=lower,facing=north,hinge=left,open=false]"
+ },
+ {
+  "cmd": "setblock 352 152 24 oak_door[half=upper,facing=north,hinge=left,open=false]"
+ },
+ {
+  "cmd": "setblock 353 151 24 oak_door[half=lower,facing=north,hinge=right,open=false]"
+ },
+ {
+  "cmd": "setblock 353 152 24 oak_door[half=upper,facing=north,hinge=right,open=false]"
+ },
+ {
+  "cmd": "setblock 356 151 21 chest[facing=north]"
+ },
+ {
+  "cmd": "setblock 359 151 21 lectern[facing=north]"
+ },
+ {
+  "wait": 5
  }
 ]

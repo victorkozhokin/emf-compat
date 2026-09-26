@@ -17,6 +17,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
 import strm.emfcompat.animationadditions.interaction.Candidate;
 import strm.emfcompat.animationadditions.interaction.Category;
 import strm.emfcompat.animationadditions.interaction.Effector;
@@ -275,7 +276,8 @@ public final class ButtonPress implements InteractionProvider {
             Vec3 to = grip(player, pos, block).subtract(eye);
             if (to.length() > SCAN_RADIUS + 0.5) continue;
             double dot = to.normalize().dot(view) + (pos.equals(state.target) ? 0.03 : 0);
-            if (dot > viewDot) {
+            // With the trace on, what was looked at and how far it was, when nothing is in reach.
+            if (dot > viewDot && FootGroundingFeature.isTrace()) {
                 viewDot = dot;
                 Vector3f rel = frame.relativeToJoint(grip(player, pos, block), RIGHT_SHOULDER);
                 state.why = String.format("none (in view: %s at %.1f px from the shoulder, %.1f,%.1f,%.1f)",

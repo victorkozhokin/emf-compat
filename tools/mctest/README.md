@@ -80,7 +80,8 @@ Retaken 25.09.2026 on `experimental/animations-additions` at `66f1ed7` (first ta
 NeoForge 1.21.1, profile `Test` launched with `--name STRadaT --uuid
 e750dfddf54d418babd46776ce404f09 --disable icys-better-horses,watut,emf_compat_watut`, packs Fresh
 Animations + FA+Player + the ParCool pack. Contact sheets are in `baseline/animation-additions/`:
-`still.jpg` - every standing case with the feature on and off; `stairs.jpg` / `slabstairs.jpg` -
+`still.jpg` - every standing case with the feature on and off; `contact.jpg` - hands on things
+(the `contact/*` cases, taken 26.09.2026 at `e35bf32`, run alone with `aa-contact.json`); `stairs.jpg` / `slabstairs.jpg` -
 the climbs every second tick; `slab-on.jpg` / `slab-along.jpg` - onto a slab facing it and along its
 edge, every tick; `motion.jpg` - the wheat walk and riding up the stairs. Before changing anything,
 run the two scripts again and compare with these. Per-frame numbers: turn on
@@ -105,6 +106,13 @@ What each case shows, and what the log said (`[FootGrounding]` etc. print on eve
 | `horse/standing` | across the edge: body pitched; along it: the left legs slide up | the tilted horse is fine; the other logged `body=-90` - see below |
 | `horse/rider-tilt` | the rider pitches with the horse | seen in the frame |
 | `horse/ride-stairs` | the horse pitches up the stairs, the rider with it | `lowered`, `tilted ... tilt=11.0` |
+| `contact/wall-button` | the right hand points at the button looked at, onto its middle pressed | `hover-R`, `press-R` |
+| `contact/lever` | the hand on the end of the handle, over with it both ways | `press-R` on each throw; the hover is not caught from this mark (the look is at the edge of the 30° cone) |
+| `contact/floor-button` | a foot over the button, down on it pressed | `foot-R`, `stamp-R` |
+| `contact/door-shut` | at a shut double door each hand on its leaf's handle | `both` |
+| `contact/door-through` | walking through the open double door both hands hold the leaves | `both` from the approach, `none` past the door |
+| `contact/chest` | the hands on the lid; open, the left one holds it up, the right one on the chest | `chest`, `chest-open` (the chest's screen hides the player: judged by the log) |
+| `contact/lectern` | the hands on the book | `lectern` |
 
 Known defects and traps found while taking it:
 
@@ -121,6 +129,8 @@ Known defects and traps found while taking it:
 - **Horse at the top of the stairs:** the hind hooves two steps down read 17 px, past
   `MAX_STEP`, and the horse goes `flat` for a moment - a visible drop.
 - **The ridden test horse bucks** (angry particles): tamed by NBT without an owner.
+- **The game pauses when its window loses focus** (the pause menu opens and nothing runs):
+  start a run with `{"closeScreen": true}`.
 - WATUT must be off (AFK "zZ" and a bowed head), `icys-better-horses` too (it needs modonomicon,
   which the profile lacks).
 - Hackers 'n Slashers flings the legs on attacks straight up or down - upstream, see the To-Do.

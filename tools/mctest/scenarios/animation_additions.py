@@ -7,6 +7,7 @@ with a burst of frames and, where it tells something, the same frames with the f
 
     aa-scene.json   the course
     aa-shots.json   the baseline shots (long: run it with `mctest.py steps`, not the MCP call)
+    aa-contact.json only the hands-on-things cases (buttons, lever, doors, chest, lectern)
 
 What each case shows and what was expected when the baseline was taken is in README.md
 ("Animation Additions baseline"). The features all read their toggles from the config, so the
@@ -100,15 +101,33 @@ def scene():
         cmd(f"summon horse 346.0 {Y + 0.5} 14.0 {{NoAI:1b,Tame:1b,Variant:3,Rotation:[0f,0f],"
             f"Tags:[\"aa\",\"aa_side\"]}}"),
         {"wait": 5},
+
+        # Hands on things (x 350..359, z 20..28): a wall at z 28 with an oak button and a lever on
+        # it, an oak button on the floor, a double door at z 24, a chest and a lectern.
+        fill(351, Y, 28, 358, Y + 2, 28, "stone_bricks"),
+        cmd(f"setblock 353 {Y + 1} 27 oak_button[face=wall,facing=north]"),
+        cmd(f"setblock 356 {Y + 1} 27 lever[face=wall,facing=north]"),
+        cmd(f"setblock 350 {Y} 22 oak_button[face=floor,facing=north]"),
+        *door(352, 24, "left"), *door(353, 24, "right"),
+        cmd(f"setblock 356 {Y} 21 chest[facing=north]"),
+        cmd(f"setblock 359 {Y} 21 lectern[facing=north]"),
+        {"wait": 5},
     ]
     return s
+
+
+def door(x, z, hinge, open=False):
+    state = f"facing=north,hinge={hinge},open={str(open).lower()}"
+    return [cmd(f"setblock {x} {Y} {z} oak_door[half=lower,{state}]"),
+            cmd(f"setblock {x} {Y + 1} {z} oak_door[half=upper,{state}]")]
 
 
 # ---------------------------------------------------------------------------------------------
 # The shots
 
 FEATURES = ["footgrounding.enabled", "footgrounding.horses", "wallhand.enabled",
-            "plantreach.enabled", "lookat.enabled"]
+            "plantreach.enabled", "lookat.enabled", "buttonpress.enabled", "doorhold.enabled",
+            "furniture.enabled"]
 
 
 def case(name, x, y, z, yaw, pitch=0, orbit=(90, 5, 3.5), settle=False):
@@ -216,8 +235,43 @@ def all_shots():
         {"orbit": [90, 5, 6]}, {"wait": 5},
     ] + walk("ride-stairs", 2, 16, 3) + [cmd("ride @s dismount"), cmd("kill @e[type=horse,tag=aa_ride]")]
 
+    s += contact_shots()
     s += [{"releaseAll": True}, {"orbit": False}, {"config": {f: True for f in FEATURES}},
           {"log": "aa done"}]
+    return s
+
+
+def contact_shots():
+    """Hands on things: buttons, a lever, doors, a chest, a lectern. Right-clicks need the
+    survival player and the crosshair on the block; a chest's screen hides the player, so the
+    open chest is judged by the log."""
+    s = [cmd("gamemode survival"), *door(352, 24, "left"), *door(353, 24, "right")]
+    # A button on the wall: the right hand points at it looked at, goes onto its middle pressed.
+    s += case("contact/wall-button", 353.5, Y, 27.2, 0, 10, orbit=(95, 0, 2.5), settle=True) + \
+        [{"look": [0, 10]}, {"wait": 10}] + shots("wall-button", 1) + [{"click": "use"}] + \
+        shots("wall-button-press", 3, 2) + without("buttonpress.enabled", "wall-button", 1)
+    # A lever: the hand on the end of the handle, over with it both ways.
+    s += case("contact/lever", 356.85, Y, 27.0, 0, 5, orbit=(-60, 5, 2.6), settle=True) + \
+        [{"look": [55, 5]}, {"wait": 10}] + shots("lever-off", 1) + [{"click": "use"}, {"wait": 12}] + \
+        shots("lever-on", 1) + [{"click": "use"}, {"wait": 12}]
+    # A button on the floor: a foot over it, down on it pressed.
+    s += case("contact/floor-button", 350.5, Y, 22.1, 0, 75, orbit=(90, 15, 3)) + \
+        [{"look": [0, 75]}, {"wait": 10}] + shots("floor-button", 1) + [{"click": "use"}] + \
+        shots("floor-button-press", 3, 2)
+    # A shut double door: each hand on its leaf's handle; then open, walking through.
+    s += case("contact/door-shut", 353.0, Y, 23.6, 0, -10, orbit=(-140, 10, 3.5)) + \
+        [{"wait": 10}] + shots("door-shut", 1) + without("doorhold.enabled", "door-shut", 1)
+    s += [*door(352, 24, "left", True), *door(353, 24, "right", True)]
+    s += case("contact/door-through", 353.0, Y, 22.3, 0, 10, orbit=(150, 15, 4.5)) + \
+        walk("door-through", 2, 8, 2)
+    s += [*door(352, 24, "left"), *door(353, 24, "right")]
+    # A chest: the hands on the lid; opened, the left one holds it up, the right one on the chest.
+    s += case("contact/chest", 356.5, Y, 20.3, 0, 50, orbit=(-70, 10, 3), settle=True) + \
+        [{"look": [0, 50]}, {"wait": 10}] + shots("chest", 1) + \
+        [{"click": "use"}, {"wait": 20}, {"log": "aa contact/chest-open"}, {"closeScreen": True}, {"wait": 20}]
+    # A lectern, from the side it is read from: the hands on the book.
+    s += case("contact/lectern", 359.5, Y, 20.3, 0, 35, orbit=(-70, 10, 3), settle=True) + \
+        [{"look": [0, 35]}, {"wait": 10}] + shots("lectern", 1) + without("furniture.enabled", "lectern", 1)
     return s
 
 
@@ -230,3 +284,5 @@ def write(name, steps):
 if __name__ == "__main__":
     write("aa-scene.json", scene())
     write("aa-shots.json", all_shots())
+    write("aa-contact.json", [{"hideGui": True}] + contact_shots() +
+          [{"releaseAll": True}, {"orbit": False}, {"log": "aa done"}])
