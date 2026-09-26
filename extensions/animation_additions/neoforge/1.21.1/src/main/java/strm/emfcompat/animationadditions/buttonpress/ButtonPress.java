@@ -39,8 +39,8 @@ import java.util.UUID;
 import java.util.function.Function;
 
 /**
- * Pressing a button or throwing a lever with the body: the right hand goes to a button or a lever,
- * a foot stamps on a button on the floor.
+ * Pressing a button or throwing a lever with the body: the right hand goes to a button or a
+ * lever's handle, a foot stamps on a button on the floor. Doors are {@code DoorHold}'s.
  *
  * <p>The press itself is instant, so the gesture starts before it: a button in reach near where
  * the player looks is the target, and the hand points at it (the foot lifts over it) while it is
@@ -181,9 +181,9 @@ public final class ButtonPress implements InteractionProvider {
             BlockPos pressed = null;
             for (int i = 0; i < state.nearby.size(); i++) {
                 BlockState block = level.getBlockState(state.nearby.get(i));
-                boolean on = isTarget(block) && block.getValue(BlockStateProperties.POWERED);
+                boolean on = isTarget(block) && on(block);
                 boolean was = state.powered.get(i);
-                if (block.getBlock() instanceof LeverBlock ? on != was : on && !was) pressed = state.nearby.get(i);
+                if (block.getBlock() instanceof ButtonBlock ? on && !was : on != was) pressed = state.nearby.get(i);
                 state.powered.set(i, on);
             }
             IKFrame frame = context.frame();
@@ -253,7 +253,7 @@ public final class ButtonPress implements InteractionProvider {
         List<Boolean> powered = new ArrayList<>();
         for (BlockPos pos : found) {
             int was = state.nearby.indexOf(pos);
-            powered.add(was >= 0 ? state.powered.get(was) : player.level().getBlockState(pos).getValue(BlockStateProperties.POWERED));
+            powered.add(was >= 0 ? state.powered.get(was) : on(player.level().getBlockState(pos)));
         }
         state.nearby.clear();
         state.nearby.addAll(found);
@@ -272,14 +272,14 @@ public final class ButtonPress implements InteractionProvider {
         for (BlockPos pos : state.nearby) {
             BlockState block = player.level().getBlockState(pos);
             if (!isTarget(block)) continue;
-            Vec3 to = centre(player.level(), pos, block).subtract(eye);
+            Vec3 to = grip(player, pos, block).subtract(eye);
             if (to.length() > SCAN_RADIUS + 0.5) continue;
             double dot = to.normalize().dot(view) + (pos.equals(state.target) ? 0.03 : 0);
             if (dot > viewDot) {
                 viewDot = dot;
-                Vector3f rel = frame.relativeToJoint(grip(player.level(), pos, block), RIGHT_SHOULDER);
+                Vector3f rel = frame.relativeToJoint(grip(player, pos, block), RIGHT_SHOULDER);
                 state.why = String.format("none (in view: %s at %.1f px from the shoulder, %.1f,%.1f,%.1f)",
-                        block.getBlock() instanceof LeverBlock ? "lever" : "button", rel.length(), rel.x, rel.y, rel.z);
+                        block.getBlock().getClass().getSimpleName(), rel.length(), rel.x, rel.y, rel.z);
             }
             if (dot > bestDot && reachable(player, frame, pos)) {
                 best = pos;
@@ -300,12 +300,18 @@ public final class ButtonPress implements InteractionProvider {
         return block.getBlock() instanceof ButtonBlock || block.getBlock() instanceof LeverBlock;
     }
 
+    /** Whether it is down or thrown. */
+    private static boolean on(BlockState block) {
+        return block.getValue(BlockStateProperties.POWERED);
+    }
+
     /**
      * Where the hand goes: a button's middle; the end of a lever's handle, which is up when it is
      * off and down when it is on (on a wall; on a floor or a ceiling it leans along its facing),
      * so the hand follows it over when it is thrown.
      */
-    private static Vec3 grip(Level level, BlockPos pos, BlockState block) {
+    private static Vec3 grip(AbstractClientPlayer player, BlockPos pos, BlockState block) {
+        Level level = player.level();
         Vec3 centre = centre(level, pos, block);
         if (!(block.getBlock() instanceof LeverBlock)) return centre;
         Vec3 out = centre.add(outwards(block).scale(LEVER_OUT / 16.0));
@@ -342,11 +348,11 @@ public final class ButtonPress implements InteractionProvider {
      * the torso turning for the press left the arm behind and the click's swing fought it.
      */
     private static Hand hand(AbstractClientPlayer player, IKFrame frame, BlockPos pos, BlockState block) {
-        Vec3 point = grip(player.level(), pos, block);
+        Vec3 point = grip(player, pos, block);
         Vector3f model = frame.relativeToJoint(point, new Vector3f());
         boolean right = true;
         Vector3f shoulder = RIGHT_SHOULDER;
-        // A lever is followed from further off: see LEVER_REACH.
+        // A lever is followed from further off (see LEVER_REACH); a button only in reach.
         float maxReach = block.getBlock() instanceof LeverBlock ? LEVER_REACH : 1f;
         // Turning towards the button's side: towards -x (the right) is a turn to the right, +yRot.
         float yawSign = model.x < 0 ? 1f : -1f;
