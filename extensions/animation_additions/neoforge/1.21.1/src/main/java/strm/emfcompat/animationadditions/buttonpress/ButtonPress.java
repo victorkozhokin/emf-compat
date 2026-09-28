@@ -56,6 +56,7 @@ public final class ButtonPress implements InteractionProvider {
 
     public static final ButtonPress INSTANCE = new ButtonPress();
     public static final String KEY_ENABLED = "buttonpress.enabled";
+    public static final String KEY_STRETCH = "buttonpress.stretch";
 
     /** Above everything passive: a press takes the hand off a wall or a plant. */
     private static final int PRIORITY = 10;
@@ -175,6 +176,9 @@ public final class ButtonPress implements InteractionProvider {
         config.addBoolean(KEY_ENABLED, "Press buttons", true,
                 "On", "The right hand reaches for a button or a lever in reach before it is used; a foot stamps on a button on the floor.",
                 "Off", "Leave the arms and legs to EMF.");
+        config.addBoolean(KEY_STRETCH, "Reaching pose", true,
+                "On", "Reaching past the arm's length, the torso leans after the hand, the left arm and leg go back to balance it.",
+                "Off", "Only the hand reaches.");
     }
 
     @Override
@@ -258,7 +262,7 @@ public final class ButtonPress implements InteractionProvider {
             }
             // Past the arm's length the whole body reaches: the torso leans towards the target,
             // forwards and to its side, as far as the reach asks.
-            if (hand.right) {
+            if (hand.right && EMFCompatConfig.getBoolean(KEY_STRETCH, true)) {
                 float reach = new Vector3f(hand.button).sub(RIGHT_SHOULDER).length() / ARM;
                 stretchTarget = Math.min(
                         Mth.clamp((STRETCH_FAR - reach) / (STRETCH_FAR - STRETCH_FULL), 0f, 1f),

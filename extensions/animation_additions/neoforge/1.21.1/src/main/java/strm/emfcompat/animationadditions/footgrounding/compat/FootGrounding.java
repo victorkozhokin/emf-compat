@@ -180,6 +180,11 @@ public final class FootGrounding {
         float progress;
         float lastPitch = Float.NaN;
 
+        /** In the air on the way to a lower floor than the one it left. */
+        boolean descending() {
+            return swinging && landingY < plantedY - MIN_STEP * SCALE / 16;
+        }
+
         void reset() {
             swinging = known = false;
             lastPitch = Float.NaN;
@@ -242,6 +247,11 @@ public final class FootGrounding {
                 // its floor. The body never goes above the hitbox: a step ahead the hitbox has
                 // not climbed yet is the foot's to go up onto, as before.
                 float onFeet = state.support * stride.right + (1f - state.support) * stride.left;
+                // Stepping down - off a slab, down a stair - the body goes down with the foot
+                // reaching for the lower floor, the other leg bending on the step: legs only get
+                // shorter, so held up by the foot behind, the front one hung in the air.
+                if (state.right.descending()) onFeet = Math.max(onFeet, stride.right);
+                if (state.left.descending()) onFeet = Math.max(onFeet, stride.left);
                 targetLower = Math.max(0f, Math.min(MAX_LOWER, onFeet));
                 // The feet are placed below, against the body as it is drawn this frame.
                 decided = "stride";
