@@ -89,6 +89,13 @@ public final class ButtonPress implements InteractionProvider {
     /** Within this many pixels above or below the shoulder a grip counts as at its height. */
     private static final float LEVEL_BAND = 6f;
     /**
+     * The same for a lever, smaller: the hand follows the end of its handle from well off, and
+     * holding it up close too felt like letting go early. Only a grip right beside the shoulder,
+     * where the arm would turn inside out, is left.
+     */
+    private static final float LEVER_MIN_AHEAD = 0.5f;
+    private static final float LEVER_LEVEL_BAND = 3f;
+    /**
      * How far past the arm's length a lever still counts as in reach, as a share of it. Well past
      * the hand's reach on purpose: the hand points at the end of the handle and follows it over,
      * as if it threw it from a distance - on a floor or a ceiling it could not reach otherwise.
@@ -361,7 +368,10 @@ public final class ButtonPress implements InteractionProvider {
         // Right up against it the grip is beside or behind the shoulder, at its height, and the arm
         // would turn inside out to reach it: leave it. Above or below the shoulder it is fine.
         Vector3f fromShoulder = frame.relativeToJoint(point, shoulder);
-        if (fromShoulder.z > -MIN_AHEAD && Math.abs(fromShoulder.y) < LEVEL_BAND) return null;
+        boolean lever = block.getBlock() instanceof LeverBlock;
+        float minAhead = lever ? LEVER_MIN_AHEAD : MIN_AHEAD;
+        float band = lever ? LEVER_LEVEL_BAND : LEVEL_BAND;
+        if (fromShoulder.z > -minAhead && Math.abs(fromShoulder.y) < band) return null;
         for (int i = 0; i <= LEAN_STEPS; i++) {
             float share = i / (float) LEAN_STEPS;
             float pitch = MAX_LEAN_PITCH * share;
