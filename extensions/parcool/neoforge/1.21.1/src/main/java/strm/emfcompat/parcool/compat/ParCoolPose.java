@@ -120,7 +120,17 @@ public final class ParCoolPose {
      * the shoulders - so a rotation-only capture would leave them hanging at EMF's pivots.
      */
     public static void capture(Player player, PlayerModel<?> model, Set<Part> owned) {
-        capture(player, model, owned, null, 1f);
+        capture(player, model, owned, null, 1f, false);
+    }
+
+    /**
+     * ParCool 3.4's capture: rotations only, so every part keeps the pivot EMF and the pack gave
+     * it. Nominal support - ParCool 3 poses a vanilla-shaped model, and its positions put on a
+     * pack's model (which moves the torso, and the head with it) tore the head and limbs off the
+     * body. Losing the few moves that shift a limb off its joint is the price.
+     */
+    public static void captureRotations(Player player, PlayerModel<?> model, Set<Part> owned) {
+        capture(player, model, owned, null, 1f, true);
     }
 
     /**
@@ -142,6 +152,11 @@ public final class ParCoolPose {
      */
     public static void capture(Player player, PlayerModel<?> model, Set<Part> owned,
                                @Nullable Target target, float weight) {
+        capture(player, model, owned, target, weight, false);
+    }
+
+    private static void capture(Player player, PlayerModel<?> model, Set<Part> owned,
+                                @Nullable Target target, float weight, boolean rotationOnly) {
         UUID uuid = player.getUUID();
 
         if (!EMFCompatParCoolMod.isEnabled() || owned.isEmpty()) {
@@ -166,7 +181,7 @@ public final class ParCoolPose {
                 continue;
             }
             if (target == null) {
-                parts.put(PART_NAMES.get(part), new PoseSnapshot(modelPart));
+                parts.put(PART_NAMES.get(part), new PoseSnapshot(modelPart, rotationOnly));
                 continue;
             }
             // Work out the target on the model itself, then put ParCool's frame back untouched.

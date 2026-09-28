@@ -4,7 +4,7 @@
 
 - First release
 - Vaults, wall runs, rolls, climbing, hanging and every other parkour move stay visible instead of being overwritten by your resource pack, for you and for everyone else on the server
-- Works with both ParCool 3.4.x and ParCool 4, picking the right path by itself
+- Works with both ParCool 3.4.x and ParCool 4, picking the right path by itself. ParCool 3.4 support is basic: the pose is held by rotation only, so limbs stay attached to your pack's body, without ParCool 4's blending and extras
 - On ParCool 4 only the limbs an action actually moves are held, so the rest of your pack's animation keeps playing
 - On ParCool 4 moves ease in and out of your pack's animation at ParCool's own pace instead of snapping — vaults and other moves that start at full weight included, so a vault out of a pack-animated fast run no longer jumps to ParCool's run pose first
 - While your hands are full with a Carry On block or mob or a Barehanded structure, the moves that need hands are off: grabbing a ledge or a bar, climbing up, vaults, dodges, flips, crawling and the landing roll

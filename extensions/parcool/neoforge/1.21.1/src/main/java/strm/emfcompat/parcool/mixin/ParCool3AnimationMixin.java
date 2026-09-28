@@ -21,6 +21,8 @@ import strm.emfcompat.parcool.compat.ParCoolPose;
  * the set its mode implies: a cancelled {@code setupAnim} means ParCool built the pose from a
  * reset model and owns all of it, while the post pass only adjusts a vanilla pose, so the
  * torso is left to the resource pack.</p>
+ *
+ * <p>Rotations only (see {@link ParCoolPose#captureRotations}): support for 3.4 is nominal.</p>
  */
 @Mixin(Animation.class)
 public class ParCool3AnimationMixin {
@@ -31,7 +33,7 @@ public class ParCool3AnimationMixin {
         // true means ParCool is about to cancel setupAnim: the pose it just built is final,
         // and its own post pass will not run for this frame either.
         if (!cir.getReturnValueZ()) return;
-        ParCoolPose.capture(player, transformer.getRawModel(), ParCoolPose.WHOLE_MODEL);
+        ParCoolPose.captureRotations(player, transformer.getRawModel(), ParCoolPose.WHOLE_MODEL);
     }
 
     @Inject(method = "animatePost", at = @At("RETURN"))
@@ -45,6 +47,6 @@ public class ParCool3AnimationMixin {
             ParCoolPose.clear(player);
             return;
         }
-        ParCoolPose.capture(player, transformer.getRawModel(), ParCoolPose.LIMBS_AND_HEAD);
+        ParCoolPose.captureRotations(player, transformer.getRawModel(), ParCoolPose.LIMBS_AND_HEAD);
     }
 }
