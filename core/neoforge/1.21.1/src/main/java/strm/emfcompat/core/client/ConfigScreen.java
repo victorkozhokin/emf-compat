@@ -35,6 +35,9 @@ public class ConfigScreen extends Screen {
     /** How many tabs are scrolled off the top of the column, and the current max. */
     private int tabScroll = 0;
     private int tabMaxScroll = 0;
+    /** The same for the options of the selected tab. */
+    private int optScroll = 0;
+    private int optMaxScroll = 0;
 
     public ConfigScreen(Screen parent) {
         super(Component.literal("EMF Compat"));
@@ -60,6 +63,7 @@ public class ConfigScreen extends Screen {
             ConfigRegistry.Section section = sections.get(i);
             Button tab = Button.builder(Component.literal(section.title), b -> {
                         selectedSectionId = section.id;
+                        optScroll = 0;
                         rebuildWidgets();
                     })
                     .bounds(tabX, tabY, TAB_WIDTH, TAB_HEIGHT)
@@ -75,7 +79,12 @@ public class ConfigScreen extends Screen {
         int optY = PANEL_TOP;
         ConfigRegistry.Section selected = ConfigRegistry.get(selectedSectionId);
         if (selected != null) {
-            for (ConfigRegistry.BooleanOption opt : selected.booleans) {
+            // Keep options between the header and the Done button; scroll the rest.
+            int optVisible = Math.max(1, (this.height - 40 - PANEL_TOP + ROW_GAP) / (ROW_HEIGHT + ROW_GAP));
+            optMaxScroll = Math.max(0, selected.booleans.size() - optVisible);
+            optScroll = Mth.clamp(optScroll, 0, optMaxScroll);
+            int optEnd = Math.min(selected.booleans.size(), optScroll + optVisible);
+            for (ConfigRegistry.BooleanOption opt : selected.booleans.subList(optScroll, optEnd)) {
                 addRenderableWidget(CycleButton.<Boolean>builder(
                                 v -> Component.literal(v ? opt.onText : opt.offText))
                         .withValues(Boolean.TRUE, Boolean.FALSE)
@@ -105,6 +114,15 @@ public class ConfigScreen extends Screen {
             }
             return true;
         }
+        // Anywhere else, scroll the options.
+        if (optMaxScroll > 0) {
+            int updated = Mth.clamp(optScroll - (int) Math.signum(scrollY), 0, optMaxScroll);
+            if (updated != optScroll) {
+                optScroll = updated;
+                rebuildWidgets();
+            }
+            return true;
+        }
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
@@ -120,6 +138,17 @@ public class ConfigScreen extends Screen {
                 graphics.drawCenteredString(this.font, Component.literal("▲"), cx, PANEL_TOP - 10, 0xFFFFFF);
             }
             if (tabScroll < tabMaxScroll) {
+                graphics.drawCenteredString(this.font, Component.literal("▼"), cx, this.height - 38, 0xFFFFFF);
+            }
+        }
+
+        // And that the options do.
+        if (optMaxScroll > 0) {
+            int cx = 12 + TAB_WIDTH + 16 + (this.width - 12 - TAB_WIDTH - 32) / 2;
+            if (optScroll > 0) {
+                graphics.drawCenteredString(this.font, Component.literal("▲"), cx, PANEL_TOP - 10, 0xFFFFFF);
+            }
+            if (optScroll < optMaxScroll) {
                 graphics.drawCenteredString(this.font, Component.literal("▼"), cx, this.height - 38, 0xFFFFFF);
             }
         }
