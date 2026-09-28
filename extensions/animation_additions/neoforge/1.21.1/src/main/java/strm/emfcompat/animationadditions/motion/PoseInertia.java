@@ -1,6 +1,8 @@
 package strm.emfcompat.animationadditions.motion;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
@@ -49,6 +51,8 @@ public final class PoseInertia {
     private static final float MAX_CARRY_TURN = 6f;
     private static final float MAX_CARRY_MOVE = 20f;
     private static final double MAX_FRAME = 0.1;
+    /** After crouching or standing up, seconds, nothing counts as a cut. */
+    private static final double CROUCH_SECONDS = 0.3;
     private static final int CHANNELS = 6;
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
@@ -58,8 +62,8 @@ public final class PoseInertia {
 
     private static final class State {
         float frame = Float.NaN;
-        long at;
-        boolean seen;
+        long at, crouchedAt;
+        boolean seen, crouching;
         /** Per part and channel (xRot, yRot, zRot, x, y, z): the pack's value last frame, its speed, the offset. */
         final float[][] last = new float[PARTS.length][CHANNELS];
         final float[][] speed = new float[PARTS.length][CHANNELS];
@@ -89,12 +93,21 @@ public final class PoseInertia {
             s.frame = frame;
             s.at = now;
             s.seen = true;
+            Player player = Minecraft.getInstance().level == null ? null
+                    : Minecraft.getInstance().level.getPlayerByUUID(uuid);
+            boolean crouching = player != null && player.isCrouching();
+            if (crouching != s.crouching) s.crouchedAt = now;
+            s.crouching = crouching;
         }
+        // Crouching and standing up the pack moves the head, the torso and the arms at once and on
+        // purpose, some by their pivots, some by their turns: settling each on its own tears the
+        // head off the torso, and crouching again and again piles the offsets up. No cuts then.
+        boolean noCuts = (now - s.crouchedAt) / 1e9 < CROUCH_SECONDS;
         for (int i = 0; i < PARTS.length; i++) {
             ModelPart part = parts.apply(PARTS[i]);
             if (part == null) continue;
             float[] value = {part.xRot, part.yRot, part.zRot, part.x, part.y, part.z};
-            if (advance) advance(s, i, value, dt, uuid);
+            if (advance) advance(s, i, value, dt, uuid, noCuts);
             Spring[] off = s.offset[i];
             part.xRot += off[0].value;
             part.yRot += off[1].value;
@@ -105,7 +118,7 @@ public final class PoseInertia {
         }
     }
 
-    private static void advance(State s, int i, float[] value, double dt, UUID uuid) {
+    private static void advance(State s, int i, float[] value, double dt, UUID uuid, boolean noCuts) {
         float[] last = s.last[i];
         float[] speed = s.speed[i];
         Spring[] off = s.offset[i];
@@ -124,7 +137,7 @@ public final class PoseInertia {
             boolean cut = turn
                     ? miss > CUT_TURN && Math.abs(rate) > CUT_TURN_SPEED
                     : miss > CUT_MOVE && Math.abs(rate) > CUT_MOVE_SPEED;
-            if (cut) {
+            if (cut && !noCuts) {
                 // Keep drawing where it was, going the way it went; the spring then lets it go.
                 float max = turn ? MAX_CARRY_TURN : MAX_CARRY_MOVE;
                 off[c].value -= change;
