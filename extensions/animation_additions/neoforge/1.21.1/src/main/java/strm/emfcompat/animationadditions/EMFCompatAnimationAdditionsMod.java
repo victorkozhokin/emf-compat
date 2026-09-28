@@ -16,6 +16,7 @@ import strm.emfcompat.animationadditions.lookat.LookAt;
 import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
 import strm.emfcompat.animationadditions.doorhold.DoorHold;
 import strm.emfcompat.animationadditions.furniture.Furniture;
+import strm.emfcompat.animationadditions.mining.Mining;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.animationadditions.plantreach.PlantReach;
 import strm.emfcompat.animationadditions.wallhand.WallHand;
@@ -33,7 +34,8 @@ import strm.emfcompat.animationadditions.wallhand.WallHand;
  *   <li>{@code lookat} - standing idle, the head turns to a creature nearby;</li>
  *   <li>{@code buttonpress} - the right hand reaches for a button or a lever about to be used, a foot stamps on a button on the floor;</li>
  *   <li>{@code doorhold} - near a door the hands go to its handles and hold it going through;</li>
- *   <li>{@code furniture} - looking at a lectern or a chest close by, both hands go to it.</li>
+ *   <li>{@code furniture} - looking at a lectern or a chest close by, both hands go to it;</li>
+ *   <li>{@code mining} - breaking a block, the swing brings the tool's head onto the point hit.</li>
  * </ul>
  */
 @Mod(EMFCompatAnimationAdditionsMod.MOD_ID)
@@ -53,6 +55,7 @@ public class EMFCompatAnimationAdditionsMod {
             ButtonPress.register(config);
             DoorHold.register(config);
             Furniture.register(config);
+            Mining.register(config);
             // Order is only the log's order; who wins is the arbiter's call.
             InteractionRuntime.register(WallHand.INSTANCE);
             InteractionRuntime.register(PlantReach.INSTANCE);
@@ -60,6 +63,7 @@ public class EMFCompatAnimationAdditionsMod {
             InteractionRuntime.register(ButtonPress.INSTANCE);
             InteractionRuntime.register(DoorHold.INSTANCE);
             InteractionRuntime.register(Furniture.INSTANCE);
+            InteractionRuntime.register(Mining.INSTANCE);
             AnimationAdditionsHook.register();
             // Leaving a world drops every feature's per-entity state with it.
             NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut event) -> EntityStates.clearAll());
