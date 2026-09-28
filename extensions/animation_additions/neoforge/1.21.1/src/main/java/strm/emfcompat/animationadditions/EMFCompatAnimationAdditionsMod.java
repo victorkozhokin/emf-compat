@@ -18,9 +18,6 @@ import strm.emfcompat.animationadditions.doorhold.DoorHold;
 import strm.emfcompat.animationadditions.furniture.Furniture;
 import strm.emfcompat.animationadditions.mining.Mining;
 import strm.emfcompat.animationadditions.motion.PoseInertia;
-import strm.emfcompat.animationadditions.stepassist.StepAssist;
-import strm.emfcompat.animationadditions.stepassist.StepAssistNetwork;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.animationadditions.plantreach.PlantReach;
 import strm.emfcompat.animationadditions.wallhand.WallHand;
@@ -40,7 +37,6 @@ import strm.emfcompat.animationadditions.wallhand.WallHand;
  *   <li>{@code doorhold} - near a door the hands go to its handles and hold it going through;</li>
  *   <li>{@code furniture} - looking at a lectern or a chest close by, both hands go to it;</li>
  *   <li>{@code motion} - how the player moves as smooth signals; the pack's pose cuts settle with inertia;</li>
- *   <li>{@code stepassist} - on stairs and slabs the stride is timed so each foot lands on a step of its own;</li>
  *   <li>{@code mining} - breaking a block, the swing brings the tool's head onto the point hit.</li>
  * </ul>
  */
@@ -50,8 +46,6 @@ public class EMFCompatAnimationAdditionsMod {
     public static final String MOD_ID = "emf_compat_animation_additions";
 
     public EMFCompatAnimationAdditionsMod(IEventBus modEventBus, ModContainer modContainer) {
-        // Both sides: a server with the mod lets its players' step assist work.
-        StepAssistNetwork.register(modEventBus);
         ConfigRegistry.Section config = ConfigRegistry.section(MOD_ID, "Animation Additions");
         HorseSync.register(config, modEventBus);
         if (FMLEnvironment.dist == Dist.CLIENT) {
@@ -61,8 +55,6 @@ public class EMFCompatAnimationAdditionsMod {
             LookAt.register(config);
             TorsoLean.register(config);
             PoseInertia.register(config);
-            StepAssist.register(config);
-            NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> StepAssist.tick());
             ButtonPress.register(config);
             DoorHold.register(config);
             Furniture.register(config);
@@ -77,10 +69,7 @@ public class EMFCompatAnimationAdditionsMod {
             InteractionRuntime.register(Mining.INSTANCE);
             AnimationAdditionsHook.register();
             // Leaving a world drops every feature's per-entity state with it.
-            NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut event) -> {
-                EntityStates.clearAll();
-                StepAssistNetwork.reset();
-            });
+            NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut event) -> EntityStates.clearAll());
         }
     }
 }
