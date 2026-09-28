@@ -2,7 +2,12 @@ package strm.emfcompat.animationadditions.stepassist;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
@@ -13,54 +18,93 @@ import org.slf4j.LoggerFactory;
 import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
 import strm.emfcompat.animationadditions.footgrounding.compat.FootGrounding;
 import strm.emfcompat.animationadditions.mixin.WalkAnimationStateAccessor;
+import strm.emfcompat.animationadditions.motion.Spring;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * Step matching: on stairs and slabs every step lands on a step of its own, on its middle.
+ * Stair climbing as a gait of its own: on stairs and slab steps every step lands on a step of its
+ * own, slowly enough to be seen.
  *
- * <p>The legs are not drawn from time but from the distance walked: the walk's phase
- * ({@code WalkAnimationState.position}, the pack's {@code limb_swing}) grows with every block
- * gone, so a foot comes down every ~1.2 blocks whatever the speed, and slowing the player down
- * slows the legs as much - the foot would land on the same spot. So the phase is what is tuned:
- * while a foot is in the air its swing is slowed down or sped up (at most {@link #MIN_RATE} ..
- * {@link #MAX_RATE} of its own pace) so that, at the player's speed, it comes down on the middle
- * of the next step - one up or down from the one the standing foot is on, never two. Stairs
- * are half a block a step, far shorter than the pack's stride, so there the legs go quicker. Only the drawing changes: the
- * player moves as in vanilla, for everyone watching too.</p>
+ * <p>Stairs are found ahead along the way: rises (or drops) one after another, each a step's length
+ * {@code L} apart - half a block for stairs, a block for slabs. On them:</p>
+ * <ul>
+ *   <li><b>The stride is one step long.</b> The legs are drawn from the distance walked (the walk's
+ *   phase, the pack's {@code limb_swing}, grows with every block), so a pack's step is always the
+ *   same length, ~1.2 blocks. On stairs the phase goes that much quicker - a steady rate, the pack's
+ *   step over {@code L} - so one step covers one step. A slow nudge of at most
+ *   {@link #NUDGE} brings the foot in the air onto the middle of its step.</li>
+ *   <li><b>The local player slows down</b> to {@link #CADENCE} steps a second (a transient
+ *   modifier on its movement speed): at the pack's pace a step every half block would be a blur.
+ *   Slower is never a problem for a server, so none is needed.</li>
+ * </ul>
+ * <p>Everyone watched gets the stride; their own game slows them down if they have the mod.</p>
  */
 public final class StepAssist {
 
     public static final String KEY_ENABLED = "stepassist.enabled";
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatStepAssist");
+    private static final ResourceLocation SPEED_ID =
+            ResourceLocation.fromNamespaceAndPath("emf_compat_animation_additions", "stairs");
 
-    /** How much slower or quicker a swing may go than its own pace. */
-    private static final float MIN_RATE = 0.5f;
-    private static final float MAX_RATE = 2.6f;
-    /** A landing this much higher or lower than the take-off is a step, blocks. */
+    /** Steps a second on stairs, walking and sprinting. */
+    private static final double CADENCE = 3.0;
+    private static final double SPRINT_CADENCE = 4.5;
+    /** The speed on stairs as a share of the usual, at least and at most. */
+    private static final double MIN_SPEED = 0.3;
+    private static final double MAX_SPEED = 1.0;
+    /** At most this much quicker or slower, for the foot to land on a step's middle. */
+    private static final float NUDGE = 0.15f;
+    /** A rise or a drop of the floor, blocks. */
     private static final double MIN_RISE = 0.2;
-    /** How far ahead of the player the next step is looked for, blocks, and how finely. */
-    private static final double LOOK_AHEAD = 1.6;
+    /** Steps this long at least and at most, blocks. */
+    private static final double MIN_TREAD = 0.3;
+    private static final double MAX_TREAD = 1.3;
+    /** The floor is read this far behind and ahead of the player, blocks, this finely. */
+    private static final double BEHIND = 0.4;
+    private static final double AHEAD = 2.2;
     private static final double SAMPLE = 1 / 16.0;
-    /** Nearer the middle than this, blocks, is on it. */
-    private static final double ON_MIDDLE = 0.04;
-    /** Players this far away and more are left alone, blocks. */
+    /** Half-lives, seconds: the stride's rate and the speed settle into stairs this smoothly. */
+    private static final double RATE_HALFLIFE = 0.12;
+    private static final double SPEED_HALFLIFE = 0.15;
+    private static final double TICK = 0.05;
     private static final double RANGE = 48;
+    /** Stairs lost sight of are kept this long, seconds: going down, the hitbox leaves the ground on every step. */
+    private static final double KEEP_SECONDS = 0.4;
 
-    private static final Map<UUID, Float> LAST = new HashMap<>();
-    private static final Map<UUID, String> LOGGED = new HashMap<>();
+    private static final class Walker {
+        float lastWalk = Float.NaN;
+        Stairs stairs;
+        long stairsAt;
+        final Spring rate = new Spring();
+        final Spring speed = new Spring();
+        String logged = "";
+
+        Walker() {
+            rate.set(1f);
+            speed.set(1f);
+        }
+    }
+
+    private static final Map<UUID, Walker> WALKERS = new HashMap<>();
 
     private StepAssist() {
     }
 
     public static void register(ConfigRegistry.Section config) {
-        config.addBoolean(KEY_ENABLED, "Step matching", true,
-                "On", "On stairs and slabs the stride is timed so each foot lands on a step of its own, on its middle.",
-                "Off", "The stride as the pack draws it.");
+        config.addBoolean(KEY_ENABLED, "Stair climbing", true,
+                "On", "On stairs and slab steps each foot lands on a step of its own, and you slow down enough to see it.",
+                "Off", "Stairs are walked like flat ground.");
+    }
+
+    /** Stairs ahead: how long a step is and where the next one's middle is, blocks along the way. */
+    private record Stairs(double tread, double nextMiddle, double nextY) {
     }
 
     /** Every client tick, after the players have moved and their walk has gone on. */
@@ -68,99 +112,122 @@ public final class StepAssist {
         Minecraft mc = Minecraft.getInstance();
         ClientLevel level = mc.level;
         if (level == null || mc.player == null) {
-            LAST.clear();
+            WALKERS.clear();
             return;
         }
         boolean on = EMFCompatConfig.getBoolean(KEY_ENABLED, true);
-        Map<UUID, Float> seen = new HashMap<>();
+        Map<UUID, Walker> seen = new HashMap<>();
         for (Player player : level.players()) {
             if (player.distanceToSqr(mc.player) > RANGE * RANGE) continue;
+            Walker w = WALKERS.computeIfAbsent(player.getUUID(), k -> new Walker());
+            seen.put(player.getUUID(), w);
+            Vec3 move = new Vec3(player.getX() - player.xo, 0, player.getZ() - player.zo);
+            Stairs stairs = on && player.onGround() && move.length() > 0.01 ? stairs(player, move.normalize()) : null;
+            // Going down the hitbox drops off every step, off the ground for a moment: the stairs stay.
+            long now = System.nanoTime();
+            if (stairs != null) {
+                w.stairs = stairs;
+                w.stairsAt = now;
+            } else if (on && w.stairs != null && move.length() > 0.01 && (now - w.stairsAt) / 1e9 < KEEP_SECONDS) {
+                stairs = w.stairs;
+            }
+
+            float rateTarget = 1f, speedTarget = 1f;
+            if (stairs != null) {
+                // The pack's step in the walk's units, over the step's length: units a block wanted.
+                float wanted = (float) (FootGrounding.walkPerStep(player.getUUID()) / stairs.tread);
+                float natural = naturalPerBlock(player, move.length());
+                rateTarget = wanted / natural;
+                rateTarget *= nudge(player, move.normalize(), stairs);
+                double cadence = player.isSprinting() ? SPRINT_CADENCE : CADENCE;
+                double usual = player.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) * 43.17
+                        * (player.isSprinting() ? 1.3 : 1.0);
+                speedTarget = (float) Math.max(MIN_SPEED, Math.min(MAX_SPEED, stairs.tread * cadence / usual));
+            }
+            w.rate.update(rateTarget, RATE_HALFLIFE, TICK);
+            w.speed.update(speedTarget, SPEED_HALFLIFE, TICK);
+
             WalkAnimationStateAccessor walk = (WalkAnimationStateAccessor) player.walkAnimation;
             float position = walk.emfcompat$position();
-            UUID uuid = player.getUUID();
-            Float last = LAST.get(uuid);
-            if (on && last != null) {
-                float gone = position - last;
-                float rate = rate(player);
-                if (gone > 0 && rate != 1f) {
-                    position = last + gone * rate;
+            if (!Float.isNaN(w.lastWalk) && Math.abs(w.rate.value - 1f) > 1e-3f) {
+                float gone = position - w.lastWalk;
+                if (gone > 0) {
+                    position = w.lastWalk + gone * w.rate.value;
                     walk.emfcompat$setPosition(position);
                 }
-                log(player, rate);
             }
-            seen.put(uuid, position);
+            w.lastWalk = position;
+            if (player == mc.player) speed(mc.player, w.speed.value);
+            log(player, w, stairs);
         }
-        LAST.clear();
-        LAST.putAll(seen);
+        WALKERS.keySet().retainAll(seen.keySet());
     }
 
-    /**
-     * How fast the swing goes this tick against its own pace: what brings the foot down on the
-     * middle of its step in the swing's time at the player's speed; 1 off steps.
-     */
-    private static float rate(Player player) {
-        if (!player.onGround()) return 1f;
+    /** The walk's phase per block the vanilla walk gives at this speed (blocks a tick): 4, capped at 1 a tick. */
+    private static float naturalPerBlock(Player player, double perTick) {
+        if (perTick < 1e-3) return 4f;
+        return (float) (Math.min(perTick * 4, 1.0) / perTick);
+    }
+
+    /** A little quicker or slower so the foot in the air lands on the next step's middle. */
+    private static float nudge(Player player, Vec3 dir, Stairs stairs) {
         float[] landing = FootGrounding.landing(player.getUUID());
         if (landing == null) return 1f;
-        Vec3 move = new Vec3(player.getX() - player.xo, 0, player.getZ() - player.zo);
-        double v = move.length() * 20;
-        if (v < 0.5) return 1f;
-        Vec3 dir = move.normalize();
-        Tread next = next(player, dir, landing[5]);
-        if (next == null) return 1f;
-        // Where the foot comes down now, along the way from the player.
         double land = (landing[0] - player.getX()) * dir.x + (landing[1] - player.getZ()) * dir.z;
-        double middle = next.middle - land;
-        if (FootGroundingFeature.isTrace()) {
-            LOGGER.info("[StepAssist] y={} stand={} next={}@{} land={} left={}s v={}", String.format("%.2f", player.getY()),
-                    String.format("%.2f", landing[5]), String.format("%.2f", next.y), String.format("%.2f", next.middle),
-                    String.format("%.2f", land), String.format("%.2f", landing[4]), String.format("%.2f", v));
-        }
-        if (Math.abs(middle) < ON_MIDDLE) return 1f;
-        // The foot comes down after going {left * v} more; it should go {left * v + middle}.
-        double planned = Math.max(0.05, landing[4] * v);
-        float rate = (float) (planned / Math.max(0.05, planned + middle));
-        return Math.max(MIN_RATE, Math.min(MAX_RATE, rate));
-    }
-
-    /** A step's top along the way: its floor, world y, and its middle, blocks from the player. */
-    private record Tread(double y, double middle) {
+        double error = stairs.nextMiddle - land;
+        // Landing short of the middle: a longer step, the legs slower; past it, quicker.
+        double share = error / stairs.tread;
+        return (float) Math.max(1 - NUDGE, Math.min(1 + NUDGE, 1 - share * NUDGE * 2));
     }
 
     /**
-     * The next step from the one the standing foot is on ({@code standY}): the first floor along the
-     * way, ahead of the player, that is higher or lower than it - one step, never two.
+     * Stairs along {@code dir}: two rises (or two drops) in a row ahead, a step's length apart;
+     * {@code null} on the flat or at a single step.
      */
-    private static Tread next(Player player, Vec3 dir, double standY) {
-        double start = Double.NaN, y = Double.NaN;
-        for (double t = 0; t <= LOOK_AHEAD; t += SAMPLE) {
-            double floor = floor(player, dir, t, standY);
-            if (Double.isNaN(start)) {
-                if (Double.isNaN(floor) || Math.abs(floor - standY) < MIN_RISE) continue;
-                start = t;
-                y = floor;
-            } else if (Double.isNaN(floor) || Math.abs(floor - y) > 0.05) {
-                return new Tread(y, (start + t - SAMPLE) / 2);
-            }
+    private static Stairs stairs(Player player, Vec3 dir) {
+        double base = player.getY();
+        List<double[]> edges = new ArrayList<>();
+        double last = Double.NaN;
+        for (double t = -BEHIND; t <= AHEAD; t += SAMPLE) {
+            double y = floor(player, dir, t, base);
+            if (Double.isNaN(y)) break;
+            if (!Double.isNaN(last) && Math.abs(y - last) > MIN_RISE) edges.add(new double[]{t, y - last, y});
+            last = y;
         }
-        return Double.isNaN(start) ? null : new Tread(y, (start + LOOK_AHEAD) / 2);
+        if (edges.size() < 2) return null;
+        double[] a = edges.get(0), b = edges.get(1);
+        if (Math.signum(a[1]) != Math.signum(b[1])) return null;
+        double tread = b[0] - a[0];
+        if (tread < MIN_TREAD || tread > MAX_TREAD) return null;
+        // The next step: the first edge ahead of the player's feet.
+        double[] next = a[0] > 0.05 ? a : b;
+        return new Stairs(tread, next[0] + tread / 2, next[2]);
     }
 
-    /** The floor at {@code t} blocks along the way from the player, within a step of {@code near}; NaN when none. */
+    /** The floor under {@code t} blocks along the way, within two steps of {@code near}; NaN when none. */
     private static double floor(Player player, Vec3 dir, double t, double near) {
         Vec3 at = new Vec3(player.getX() + dir.x * t, near, player.getZ() + dir.z * t);
-        BlockHitResult hit = player.level().clip(new ClipContext(at.add(0, 0.8, 0), at.add(0, -0.8, 0),
+        BlockHitResult hit = player.level().clip(new ClipContext(at.add(0, 1.1, 0), at.add(0, -1.1, 0),
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
         if (hit.getType() != HitResult.Type.BLOCK || hit.getDirection() != Direction.UP) return Double.NaN;
-        if (hit.getLocation().y >= at.y + 0.8 - 1e-3) return Double.NaN;
+        if (hit.getLocation().y >= at.y + 1.1 - 1e-3) return Double.NaN;
         return hit.getLocation().y;
     }
 
-    private static void log(Player player, float rate) {
-        String now = rate == 1f ? "free" : "matching";
-        if (FootGroundingFeature.isTrace() ? rate != 1f : !now.equals(LOGGED.get(player.getUUID()))) {
-            LOGGER.info("[StepAssist] {} {} stride x{}", player.getName().getString(), now, String.format("%.2f", rate));
+    private static void speed(LocalPlayer player, float factor) {
+        AttributeInstance speed = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (speed == null) return;
+        if (Math.abs(factor - 1f) < 1e-3f) speed.removeModifier(SPEED_ID);
+        else speed.addOrUpdateTransientModifier(new AttributeModifier(SPEED_ID, factor - 1f,
+                AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    }
+
+    private static void log(Player player, Walker w, Stairs stairs) {
+        String now = stairs == null ? "flat" : String.format("stairs %.2f", stairs.tread);
+        if (!now.equals(w.logged) || FootGroundingFeature.isTrace() && stairs != null) {
+            LOGGER.info("[StepAssist] {} {} stride x{} speed x{}", player.getName().getString(), now,
+                    String.format("%.2f", w.rate.value), String.format("%.2f", w.speed.value));
+            w.logged = now;
         }
-        LOGGED.put(player.getUUID(), now);
     }
 }

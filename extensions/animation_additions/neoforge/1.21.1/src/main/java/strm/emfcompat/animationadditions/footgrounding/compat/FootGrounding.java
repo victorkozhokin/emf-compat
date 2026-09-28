@@ -19,6 +19,7 @@ import strm.emfcompat.core.ik.IKFrame;
 import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
+import strm.emfcompat.animationadditions.mixin.WalkAnimationStateAccessor;
 
 import java.util.UUID;
 import java.util.function.Function;
@@ -102,6 +103,8 @@ public final class FootGrounding {
     private static final float HOLD_LANDING_AT = 0.5f;
     /** Over a rise, the swinging foot goes up this share of it more, at the middle of the swing. */
     private static final double ARC = 0.35;
+    /** Half of vanilla's leg cycle, cos(position * 0.6662): the walk's phase per step. */
+    private static final float VANILLA_WALK_PER_STEP = (float) (Math.PI / 0.6662);
     /** The player model's scale: model pixels are 1/16 of a block times this. */
     private static final float SCALE = 0.9375f;
 
@@ -144,6 +147,9 @@ public final class FootGrounding {
          * right on an edge flickering over it for one frame does not flip the body.
          */
         final float[] rightFloors = {Float.NaN, Float.NaN, Float.NaN}, leftFloors = {Float.NaN, Float.NaN, Float.NaN};
+        /** The walk's phase at the last touch-down, and how far it goes in a step. */
+        float lastTouchWalk = Float.NaN;
+        float walkPerStep = VANILLA_WALK_PER_STEP;
         /** Each foot's step cycle while walking. */
         final Leg right = new Leg(), left = new Leg();
         /** How much of the weight is on the right foot, 0 to 1, while walking. */
@@ -500,6 +506,7 @@ public final class FootGrounding {
             leg.swingSeconds = Math.max(MIN_SWING, Math.min(MAX_SWING, took));
             leg.amp = Math.max(MIN_AMP, -leg.minPitch);
             leg.plantedY = floorY(player, frame, hip, pose, Vec3.ZERO, hipDrop);
+            touchDown(player);
         }
         double y;
         if (leg.swinging) {
@@ -564,6 +571,31 @@ public final class FootGrounding {
         Vec3 ground = frame.jointWorld(new Vector3f(hip).add(0f, LEG, 0f));
         if (best == null) return ground.y - Math.max(0f, hipDrop) * SCALE / 16;
         return best.y;
+    }
+
+    /**
+     * A foot has come down: how far the walk's phase went since the last one is how long a step
+     * of the pack's is, in the walk's own units (kept as a running average).
+     */
+    private static void touchDown(AbstractClientPlayer player) {
+        State state = STATES.fresh(player.getUUID());
+        if (state == null) return;
+        float walk = ((WalkAnimationStateAccessor) player.walkAnimation).emfcompat$position();
+        if (!Float.isNaN(state.lastTouchWalk)) {
+            float step = walk - state.lastTouchWalk;
+            if (step > 1f && step < 12f) state.walkPerStep += (step - state.walkPerStep) * 0.3f;
+        }
+        state.lastTouchWalk = walk;
+        if (FootGroundingFeature.isTrace()) {
+            LOGGER.info("[FootStep] touch-down at x={} y={} walk/step={}", String.format("%.2f", player.getX()),
+                    String.format("%.2f", player.getY()), String.format("%.2f", state.walkPerStep));
+        }
+    }
+
+    /** How far the walk's phase goes in one step of the pack's; vanilla's half cycle until measured. */
+    public static float walkPerStep(UUID uuid) {
+        State state = STATES.fresh(uuid);
+        return state == null ? VANILLA_WALK_PER_STEP : state.walkPerStep;
     }
 
     /** A floor at world y under the foot as {@link #footFloor} gives it: model pixels below the ground level. */
