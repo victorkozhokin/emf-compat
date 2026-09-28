@@ -40,7 +40,7 @@ import strm.emfcompat.animationadditions.wallhand.WallHand;
  *   <li>{@code doorhold} - near a door the hands go to its handles and hold it going through;</li>
  *   <li>{@code furniture} - looking at a lectern or a chest close by, both hands go to it;</li>
  *   <li>{@code motion} - how the player moves as smooth signals; the pack's pose cuts settle with inertia;</li>
- *   <li>{@code stepassist} - on a server with the mod, the speed on steps is tuned so each foot lands on a step's middle;</li>
+ *   <li>{@code stepassist} - on stairs and slabs the stride is timed so each foot lands on a step of its own;</li>
  *   <li>{@code mining} - breaking a block, the swing brings the tool's head onto the point hit.</li>
  * </ul>
  */
@@ -62,7 +62,7 @@ public class EMFCompatAnimationAdditionsMod {
             TorsoLean.register(config);
             PoseInertia.register(config);
             StepAssist.register(config);
-            NeoForge.EVENT_BUS.addListener((ClientTickEvent.Pre event) -> StepAssist.tick());
+            NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> StepAssist.tick());
             ButtonPress.register(config);
             DoorHold.register(config);
             Furniture.register(config);
