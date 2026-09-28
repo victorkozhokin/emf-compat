@@ -54,10 +54,10 @@ public final class StepAssist {
             ResourceLocation.fromNamespaceAndPath("emf_compat_animation_additions", "stairs");
 
     /** Steps a second on stairs, walking and sprinting. */
-    private static final double CADENCE = 3.0;
-    private static final double SPRINT_CADENCE = 4.5;
+    private static final double CADENCE = 2.4;
+    private static final double SPRINT_CADENCE = 3.6;
     /** The speed on stairs as a share of the usual, at least and at most. */
-    private static final double MIN_SPEED = 0.3;
+    private static final double MIN_SPEED = 0.2;
     private static final double MAX_SPEED = 1.0;
     /** At most this much quicker or slower, for the foot to land on a step's middle. */
     private static final float NUDGE = 0.15f;
