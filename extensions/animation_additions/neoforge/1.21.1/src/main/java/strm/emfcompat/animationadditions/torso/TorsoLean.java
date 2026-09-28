@@ -10,6 +10,7 @@ import strm.emfcompat.animationadditions.interaction.Effector;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
+import strm.emfcompat.animationadditions.motion.MotionRuntime;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.EMFCompatCore;
@@ -31,6 +32,7 @@ import java.util.function.Function;
 public final class TorsoLean {
 
     public static final String KEY_ENABLED = "torso.enabled";
+    public static final String KEY_MOTION = "torso.motion";
 
     /** Share of the head's turn the torso takes, and the most it turns. */
     private static final float FOLLOW_YAW = 0.3f;
@@ -43,6 +45,13 @@ public final class TorsoLean {
     private static final float CLIMB_PITCH = (float) Math.toRadians(8);
     private static final float REACH_PITCH = (float) Math.toRadians(5);
     private static final double SECONDS = 0.12;
+    /**
+     * Leaning with the motion: forwards speeding up and back braking, degrees per block/s^2, and
+     * into a turn, degrees per (radian/s * block/s); each at most MOTION_MAX.
+     */
+    private static final float ACCEL_PITCH = (float) Math.toRadians(0.35);
+    private static final float TURN_ROLL = (float) Math.toRadians(0.4);
+    private static final float MOTION_MAX = (float) Math.toRadians(7);
     /** The waist, where the torso turns: the bottom of the 12 px torso below the neck pivot. */
     private static final float WAIST = 12f;
 
@@ -61,6 +70,9 @@ public final class TorsoLean {
         config.addBoolean(KEY_ENABLED, "Torso lean", true,
                 "On", "The torso turns a little after the head and leans over the foot that carries the weight.",
                 "Off", "Leave the torso to EMF.");
+        config.addBoolean(KEY_MOTION, "Lean with the motion", true,
+                "On", "The torso leans forwards speeding up, back braking, and into a turn.",
+                "Off", "No lean from how the player moves.");
     }
 
     public static boolean isEnabled() {
@@ -89,6 +101,12 @@ public final class TorsoLean {
                 target[1] += press[1];
                 target[2] += press[2];
             }
+            if (EMFCompatConfig.getBoolean(KEY_MOTION, true)) {
+                MotionRuntime.Motion m = MotionRuntime.get(uuid);
+                // Speeding up forwards is +xRot (forwards); a turn to the right leans right, +zRot.
+                target[0] += clamp(m.accelForward() * ACCEL_PITCH);
+                target[2] += clamp(m.turnRate() * m.speed() * TURN_ROLL);
+            }
             float[] feet = FootGrounding.torsoHint(uuid);
             if (feet != null) {
                 // Leaning forward is +xRot (as the vanilla crouch); over the left foot (+x) the torso rolls left (-zRot).
@@ -100,6 +118,10 @@ public final class TorsoLean {
         float k = Smoothing.snapFirst(dt, SECONDS);
         float[] lean = entry.value.lean;
         for (int i = 0; i < 4; i++) lean[i] += (target[i] - lean[i]) * k;
+    }
+
+    private static float clamp(float v) {
+        return Math.max(-MOTION_MAX, Math.min(MOTION_MAX, v));
     }
 
     /** Turns the torso, and carries the head and the arms with it. Called after the pack has animated. */

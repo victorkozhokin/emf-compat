@@ -17,6 +17,7 @@ import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
 import strm.emfcompat.animationadditions.doorhold.DoorHold;
 import strm.emfcompat.animationadditions.furniture.Furniture;
 import strm.emfcompat.animationadditions.mining.Mining;
+import strm.emfcompat.animationadditions.motion.PoseInertia;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.animationadditions.plantreach.PlantReach;
 import strm.emfcompat.animationadditions.wallhand.WallHand;
@@ -35,6 +36,7 @@ import strm.emfcompat.animationadditions.wallhand.WallHand;
  *   <li>{@code buttonpress} - the right hand reaches for a button or a lever about to be used, a foot stamps on a button on the floor;</li>
  *   <li>{@code doorhold} - near a door the hands go to its handles and hold it going through;</li>
  *   <li>{@code furniture} - looking at a lectern or a chest close by, both hands go to it;</li>
+ *   <li>{@code motion} - how the player moves as smooth signals; the pack's pose cuts settle with inertia;</li>
  *   <li>{@code mining} - breaking a block, the swing brings the tool's head onto the point hit.</li>
  * </ul>
  */
@@ -52,6 +54,7 @@ public class EMFCompatAnimationAdditionsMod {
             PlantReach.register(config);
             LookAt.register(config);
             TorsoLean.register(config);
+            PoseInertia.register(config);
             ButtonPress.register(config);
             DoorHold.register(config);
             Furniture.register(config);

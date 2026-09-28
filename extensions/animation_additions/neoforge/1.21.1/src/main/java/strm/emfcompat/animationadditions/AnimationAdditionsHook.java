@@ -9,6 +9,7 @@ import strm.emfcompat.animationadditions.footgrounding.compat.HorseFootGrounding
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
 import strm.emfcompat.animationadditions.mining.Mining;
+import strm.emfcompat.animationadditions.motion.PoseInertia;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.PoseSnapshot;
@@ -100,6 +101,8 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
     }
 
     private static void applyAll(UUID uuid, Function<String, ModelPart> parts) {
+        // First, on the pack's own pose: its cuts settle before anything corrects it.
+        PoseInertia.apply(uuid, parts, EMFState.getFrameCounter());
         FootGrounding.apply(uuid, parts);
         ButtonPress.apply(uuid, parts);
         HorseFootGrounding.apply(uuid, parts);
