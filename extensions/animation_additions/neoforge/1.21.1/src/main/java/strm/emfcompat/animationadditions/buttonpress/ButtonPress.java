@@ -274,8 +274,8 @@ public final class ButtonPress implements InteractionProvider {
 
     /**
      * The button in reach nearest the look, within the cone round it; the one already kept wins
-     * ties. A lever is found the way a door is, by the body rather than the eyes: across the
-     * ground, within {@link #LEVER_CONE} of where the body faces, measured from the shoulders -
+     * ties. A lever or a button on a wall is found the way a door is, by the body rather than the
+     * eyes: across the ground, within {@link #LEVER_CONE} of where the body faces, from the chest -
      * looking straight at one or past it no longer decides it.
      */
     private static BlockPos look(AbstractClientPlayer player, IKFrame frame, State state) {
@@ -291,10 +291,9 @@ public final class ButtonPress implements InteractionProvider {
         for (BlockPos pos : state.nearby) {
             BlockState block = player.level().getBlockState(pos);
             if (!isTarget(block)) continue;
-            boolean lever = block.getBlock() instanceof LeverBlock;
             Vec3 grip = grip(player, pos, block);
             double dot;
-            if (lever) {
+            if (fromAfar(block)) {
                 Vec3 flat = new Vec3(grip.x - chest.x, 0, grip.z - chest.z);
                 if (grip.subtract(chest).length() > SCAN_RADIUS + 0.5) continue;
                 // Right over or under the chest there is no way across: it counts as ahead.
@@ -326,6 +325,15 @@ public final class ButtonPress implements InteractionProvider {
         BlockState block = player.level().getBlockState(pos);
         if (!isTarget(block)) return false;
         return foot(player, frame, pos, block, null) != null || hand(player, frame, pos, block) != null;
+    }
+
+    /**
+     * A lever, or a button on a wall: found by the body and followed from well off, the hand
+     * pointing at it with no touch - as if thrown or pressed from a distance.
+     */
+    private static boolean fromAfar(BlockState block) {
+        return block.getBlock() instanceof LeverBlock
+                || block.getValue(FaceAttachedHorizontalDirectionalBlock.FACE) == AttachFace.WALL;
     }
 
     /** A button or a lever. */
@@ -385,16 +393,17 @@ public final class ButtonPress implements InteractionProvider {
         Vector3f model = frame.relativeToJoint(point, new Vector3f());
         boolean right = true;
         Vector3f shoulder = RIGHT_SHOULDER;
-        // A lever is followed from further off (see LEVER_REACH); a button only in reach.
-        float maxReach = block.getBlock() instanceof LeverBlock ? LEVER_REACH : 1f;
+        // A lever or a button on a wall is followed from further off (see LEVER_REACH); on a
+        // floor or a ceiling, a button only in reach.
+        boolean afar = fromAfar(block);
+        float maxReach = afar ? LEVER_REACH : 1f;
         // Turning towards the button's side: towards -x (the right) is a turn to the right, +yRot.
         float yawSign = model.x < 0 ? 1f : -1f;
         // Right up against it the grip is beside or behind the shoulder, at its height, and the arm
         // would turn inside out to reach it: leave it. Above or below the shoulder it is fine.
         Vector3f fromShoulder = frame.relativeToJoint(point, shoulder);
-        boolean lever = block.getBlock() instanceof LeverBlock;
-        float minAhead = lever ? LEVER_MIN_AHEAD : MIN_AHEAD;
-        float band = lever ? LEVER_LEVEL_BAND : LEVEL_BAND;
+        float minAhead = afar ? LEVER_MIN_AHEAD : MIN_AHEAD;
+        float band = afar ? LEVER_LEVEL_BAND : LEVEL_BAND;
         if (fromShoulder.z > -minAhead && Math.abs(fromShoulder.y) < band) return null;
         for (int i = 0; i <= LEAN_STEPS; i++) {
             float share = i / (float) LEAN_STEPS;
