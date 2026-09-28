@@ -88,8 +88,22 @@ public final class FootGrounding {
     private static final float[][] REACH_WAYS = {{0f, -1f}, {-0.707f, -0.707f}, {-1f, 0f}};
     /** A rise lower than this, model pixels (farmland against grass is ~1), is not worth a foot. */
     private static final float REACH_MIN_RISE = 3f;
+    /** The other foot takes the step over only this long after one went up, and when nearer by this much, model pixels. */
+    private static final long REACH_HOLD_NANOS = 1_500_000_000L;
+    private static final float REACH_KEEP = 1.5f;
     /** Standing still the ground does not change: the step is looked for this often, not every frame. */
     private static final long REACH_EVERY_NANOS = 100_000_000L;
+
+    /** A swing takes this long at least and at most, seconds; it reaches forwards this far at least, radians. */
+    private static final double MIN_SWING = 0.1;
+    private static final double MAX_SWING = 0.6;
+    private static final float MIN_AMP = 0.15f;
+    /** Past this share of the swing the landing is held. */
+    private static final float HOLD_LANDING_AT = 0.5f;
+    /** Over a rise, the swinging foot goes up this share of it more, at the middle of the swing. */
+    private static final double ARC = 0.35;
+    /** The player model's scale: model pixels are 1/16 of a block times this. */
+    private static final float SCALE = 0.9375f;
 
     /** Faster than this, blocks per tick, the player walks and the weight shifts with the stride. */
     private static final double WALKING = 0.02;
@@ -130,6 +144,8 @@ public final class FootGrounding {
          * right on an edge flickering over it for one frame does not flip the body.
          */
         final float[] rightFloors = {Float.NaN, Float.NaN, Float.NaN}, leftFloors = {Float.NaN, Float.NaN, Float.NaN};
+        /** Each foot's step cycle while walking. */
+        final Leg right = new Leg(), left = new Leg();
         /** How much of the weight is on the right foot, 0 to 1, while walking. */
         float support = 0.5f;
         /** Whether the last solve was a walking one (the weight shifting with the stride). */
@@ -138,10 +154,37 @@ public final class FootGrounding {
         final float[] rightReach = new float[2], leftReach = new float[2];
         /** The last step looked for standing still, and when; the same spot keeps it. */
         Reach reachFound;
-        long reachAt;
+        long reachAt, reachChosenAt;
+        /** The foot last put up on a step, standing: true right, null none. */
+        Boolean reachFoot;
         double reachX, reachY, reachZ;
         float reachYaw;
         String logged = "";
+    }
+
+    /**
+     * One foot's step while walking, in the world: where it stands, and while it swings, where it
+     * took off from and where it will come down. Heights are world y, so the hitbox stepping up
+     * or the body lowering does not move a planted foot.
+     */
+    private static final class Leg {
+        boolean swinging, known;
+        /** World y of the floor the foot stands on, or took off from; of where it will land. */
+        double plantedY, landingY;
+        /** The leg's pitch at take-off (forwards negative, walking direction folded in), its lowest in this swing. */
+        float liftPitch, minPitch;
+        /** How far the leg swings forwards, radians, and how long a swing takes, seconds: the last swing's. */
+        float amp = 0.5f;
+        double swingSeconds = 0.25;
+        long liftAt;
+        float progress;
+        float lastPitch = Float.NaN;
+
+        void reset() {
+            swinging = known = false;
+            lastPitch = Float.NaN;
+            progress = 0f;
+        }
     }
 
     /**
@@ -216,7 +259,8 @@ public final class FootGrounding {
                             && player.getY() == state.reachY && player.getZ() == state.reachZ
                             && player.yBodyRot == state.reachYaw;
                     if (!same) {
-                        state.reachFound = reach(player, frame, rawRight, rawLeft);
+                        state.reachFound = keep(state, reach(player, frame, rawRight, rawLeft, true),
+                                reach(player, frame, rawRight, rawLeft, false), now);
                         state.reachAt = now;
                         state.reachX = player.getX();
                         state.reachY = player.getY();
@@ -305,20 +349,47 @@ public final class FootGrounding {
         return plant;
     }
 
-    /** A foot reaching for a step: which, how the leg turns, and the step's floor (model pixels). */
-    private record Reach(boolean right, float pitch, float roll, float floor) {
+    /** A foot reaching for a step: which, how the leg turns, the step's floor (model pixels) and how far it reaches. */
+    private record Reach(boolean right, float pitch, float roll, float floor, float distance) {
     }
 
     /**
-     * The nearest step a foot can put itself on by turning the leg, forwards or out to its own
+     * Which foot goes up: the one already up keeps the step while it can still reach it, and the
+     * other takes over only when clearly nearer and not before {@link #REACH_HOLD_NANOS} - else a
+     * player settling on the spot put one foot up, then the other at once, and ended with both up.
+     */
+    private static Reach keep(State state, Reach right, Reach left, long now) {
+        Boolean was = state.reachFoot;
+        boolean held = was != null && now - state.reachChosenAt < REACH_HOLD_NANOS;
+        Reach mine = was == null ? null : was ? right : left;
+        Reach other = was == null ? null : was ? left : right;
+        Reach pick;
+        if (mine != null) {
+            boolean switchOver = !held && other != null && other.distance < mine.distance - REACH_KEEP;
+            pick = switchOver ? other : mine;
+        } else if (held) {
+            // The foot that went up has just lost the step: the other one waits all the same.
+            pick = null;
+        } else {
+            pick = right == null ? left : left == null ? right : right.distance <= left.distance ? right : left;
+        }
+        if (pick != null && (was == null || pick.right != was)) {
+            state.reachFoot = pick.right;
+            state.reachChosenAt = now;
+        }
+        if (pick == null && !held) state.reachFoot = null;
+        return pick;
+    }
+
+    /**
+     * The nearest step this foot can put itself on by turning the leg, forwards or out to its own
      * side - never behind, never across the other leg - or {@code null}. The leg is one straight
      * bone from the hip, so a sole moved {@code d} pixels means the leg turned by asin(d / leg).
      */
-    private static Reach reach(AbstractClientPlayer player, IKFrame frame, float rawRight, float rawLeft) {
+    private static Reach reach(AbstractClientPlayer player, IKFrame frame, float rawRight, float rawLeft, boolean isRight) {
         Reach best = null;
         float bestDistance = Float.MAX_VALUE;
-        for (int leg = 0; leg < 2; leg++) {
-            boolean isRight = leg == 0;
+        {
             Vector3f hip = isRight ? RIGHT_HIP : LEFT_HIP;
             float hipDrop = isRight ? rawRight : rawLeft;
             float shift = Math.min(0f, hipDrop);
@@ -331,7 +402,7 @@ public final class FootGrounding {
                     float pitch = (float) Math.asin(Math.max(-1f, Math.min(1f, dz / LEG)));
                     // Roll: +z rotation carries the sole towards -x.
                     float roll = (float) Math.asin(Math.max(-1f, Math.min(1f, -dx / LEG)));
-                    best = new Reach(isRight, pitch, roll, floor);
+                    best = new Reach(isRight, pitch, roll, floor, d);
                     bestDistance = d;
                     break;
                 }
@@ -367,8 +438,8 @@ public final class FootGrounding {
             state.lastRightX = Float.NaN;
             state.lastLeftX = Float.NaN;
             state.support = 0.5f;
-            java.util.Arrays.fill(state.rightFloors, Float.NaN);
-            java.util.Arrays.fill(state.leftFloors, Float.NaN);
+            state.right.reset();
+            state.left.reset();
             return null;
         }
         float swingRight = Float.isNaN(state.lastRightX) ? 0f : r[0] - state.lastRightX;
@@ -383,11 +454,122 @@ public final class FootGrounding {
             float target = difference > 0 ? 1f : 0f;
             state.support += (target - state.support) * Smoothing.snapFirst(dt, SUPPORT_SECONDS);
         }
-        // Each foot's floor where the animation puts it, from the floor under its hip so a model
-        // shifted down cancels out. Over a drop-off or a wall, the floor under the hip stands in.
-        float right = median(state.rightFloors, footFloor(player, frame, RIGHT_HIP, r, rawRight));
-        float left = median(state.leftFloors, footFloor(player, frame, LEFT_HIP, l, rawLeft));
+        // Blocks a second, for where a swinging foot will come down.
+        Vec3 velocity = motion.scale(20);
+        float right = step(player, frame, state.right, RIGHT_HIP, r, rawRight, way, velocity);
+        float left = step(player, frame, state.left, LEFT_HIP, l, rawLeft, way, velocity);
         return new Stride(right, left);
+    }
+
+    /**
+     * Moves one foot's step on by this frame and returns its floor, model pixels below the ground
+     * level, as {@link #footFloor}.
+     *
+     * <p>Read off the pack's leg: going forwards it swings, going back it stands. At take-off the
+     * landing is foreseen - the hip carried on by the player's speed for what is left of the swing,
+     * the foot out in front by the swing's reach - and the floor there is the one it comes down on;
+     * the guess is kept up to date for the first half of the swing, then held. In the air the foot
+     * goes from the floor it left to that one along the swing, up in an arc over a rise. Down, it
+     * stands on the floor that is really under it and keeps it until it lifts again: an edge the
+     * hitbox wobbles over no longer moves a planted foot.</p>
+     */
+    private static float step(AbstractClientPlayer player, IKFrame frame, Leg leg, Vector3f hip, float[] pose,
+                              float hipDrop, float way, Vec3 velocity) {
+        float pitch = pose[0] * way;
+        long now = System.nanoTime();
+        if (!leg.known) {
+            leg.plantedY = floorY(player, frame, hip, pose, Vec3.ZERO, hipDrop);
+            leg.known = true;
+        }
+        float turn = Float.isNaN(leg.lastPitch) ? 0f : pitch - leg.lastPitch;
+        leg.lastPitch = pitch;
+        if (!leg.swinging && turn < -SWING_EPSILON) {
+            // Take-off.
+            leg.swinging = true;
+            leg.liftAt = now;
+            leg.liftPitch = pitch;
+            leg.minPitch = pitch;
+            leg.progress = 0f;
+            leg.landingY = landing(player, frame, leg, hip, pose, hipDrop, velocity);
+        } else if (leg.swinging && turn > SWING_EPSILON) {
+            // Touch-down: what is really under the foot now.
+            leg.swinging = false;
+            double took = (now - leg.liftAt) / 1e9;
+            leg.swingSeconds = Math.max(MIN_SWING, Math.min(MAX_SWING, took));
+            leg.amp = Math.max(MIN_AMP, -leg.minPitch);
+            leg.plantedY = floorY(player, frame, hip, pose, Vec3.ZERO, hipDrop);
+        }
+        double y;
+        if (leg.swinging) {
+            leg.minPitch = Math.min(leg.minPitch, pitch);
+            float span = leg.liftPitch + leg.amp;
+            leg.progress = span < 1e-3f ? 1f : Math.max(leg.progress, Math.min(1f, (leg.liftPitch - pitch) / span));
+            if (leg.progress < HOLD_LANDING_AT) leg.landingY = landing(player, frame, leg, hip, pose, hipDrop, velocity);
+            float t = leg.progress * leg.progress * (3f - 2f * leg.progress);
+            y = leg.plantedY + (leg.landingY - leg.plantedY) * t;
+            // Over a rise the foot goes up in an arc, clearing the edge before it gets there.
+            double rise = leg.landingY - leg.plantedY;
+            if (rise > 0) y += rise * ARC * Math.sin(Math.PI * leg.progress);
+            y = Math.max(y, Math.min(leg.plantedY, leg.landingY));
+        } else {
+            y = leg.plantedY;
+        }
+        return floorBelow(frame, hip, pose, y, hipDrop);
+    }
+
+    /** The floor under where the swinging foot will come down, world y. */
+    private static double landing(AbstractClientPlayer player, IKFrame frame, Leg leg, Vector3f hip, float[] pose,
+                                  float hipDrop, Vec3 velocity) {
+        double left = leg.swingSeconds * (1f - leg.progress);
+        // The foot at the front of the swing, where it lands, against where it is now.
+        Vector3f now = sole(pose);
+        Vector3f front = new Vector3f(0f, LEG, 0f);
+        new Quaternionf().rotationX(-leg.amp).transform(front);
+        Vec3 from = frame.jointWorld(new Vector3f(hip).add(now.x, LEG, now.z));
+        Vec3 to = frame.jointWorld(new Vector3f(hip).add(front.x, LEG, front.z));
+        Vec3 ahead = new Vec3(to.x - from.x, 0, to.z - from.z).add(velocity.scale(left));
+        double y = floorY(player, frame, hip, pose, ahead, hipDrop);
+        return Double.isNaN(y) ? leg.plantedY : y;
+    }
+
+    /** Where the bottom of the leg is across the ground, model pixels from the hip. */
+    private static Vector3f sole(float[] pose) {
+        Vector3f sole = new Vector3f(0f, LEG, 0f);
+        if (pose != null) new Quaternionf().rotationZYX(pose[2], pose[1], pose[0]).transform(sole);
+        return sole;
+    }
+
+    /**
+     * The world y of the floor under the foot, moved {@code offset} blocks across the ground; the
+     * floor under the hip when there is none within a step.
+     */
+    private static double floorY(AbstractClientPlayer player, IKFrame frame, Vector3f hip, float[] pose,
+                                 Vec3 offset, float hipDrop) {
+        Vector3f sole = sole(pose);
+        Vector3f base = new Vector3f(hip).add(sole.x, LEG, sole.z);
+        Vec3 best = null;
+        for (float[] probe : PROBES) {
+            Vec3 foot = frame.jointWorld(new Vector3f(base).add(probe[0], 0f, probe[1])).add(offset);
+            BlockHitResult hit = player.level().clip(new ClipContext(
+                    foot.add(0, RAY_UP, 0), foot.add(0, -RAY_DOWN, 0),
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+            if (hit.getType() == HitResult.Type.MISS || hit.getDirection() != Direction.UP) continue;
+            if (hit.getLocation().y >= foot.y + RAY_UP - 1e-3) continue;
+            if (best == null || hit.getLocation().y > best.y) best = hit.getLocation();
+        }
+        Vec3 ground = frame.jointWorld(new Vector3f(hip).add(0f, LEG, 0f));
+        if (best == null) return ground.y - Math.max(0f, hipDrop) * SCALE / 16;
+        return best.y;
+    }
+
+    /** A floor at world y under the foot as {@link #footFloor} gives it: model pixels below the ground level. */
+    private static float floorBelow(IKFrame frame, Vector3f hip, float[] pose, double y, float hipDrop) {
+        Vector3f sole = sole(pose);
+        Vec3 centre = frame.jointWorld(new Vector3f(hip).add(sole.x, LEG, sole.z));
+        float drop = frame.relativeToJoint(new Vec3(centre.x, y, centre.z), hip).y - LEG;
+        float foot = drop - Math.min(0f, hipDrop);
+        if (foot > MAX_STEP || foot < -MAX_STEP) foot = Math.max(0f, hipDrop);
+        return foot;
     }
 
     /** Pushes {@code value} into the last three and returns their median (fewer at the start). */
