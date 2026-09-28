@@ -529,7 +529,9 @@ public final class FootGrounding {
         Vec3 to = frame.jointWorld(new Vector3f(hip).add(front.x, LEG, front.z));
         Vec3 ahead = new Vec3(to.x - from.x, 0, to.z - from.z).add(velocity.scale(left));
         double y = floorY(player, frame, hip, pose, ahead, hipDrop);
-        return Double.isNaN(y) ? leg.plantedY : y;
+        // More than a step up or down is a wall or a drop, not a place to land: the foot stays level.
+        if (Double.isNaN(y) || Math.abs(y - leg.plantedY) > MAX_STEP * SCALE / 16) return leg.plantedY;
+        return y;
     }
 
     /** Where the bottom of the leg is across the ground, model pixels from the hip. */
@@ -554,11 +556,11 @@ public final class FootGrounding {
                     foot.add(0, RAY_UP, 0), foot.add(0, -RAY_DOWN, 0),
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
             if (hit.getType() == HitResult.Type.MISS || hit.getDirection() != Direction.UP) continue;
-            if (hit.getLocation().y >= foot.y + RAY_UP - 1e-3) continue;
+            if (hit.isInside() || hit.getLocation().y >= foot.y + RAY_UP - 0.01) continue;
             if (best == null || hit.getLocation().y > best.y) best = hit.getLocation();
         }
         Vec3 ground = frame.jointWorld(new Vector3f(hip).add(0f, LEG, 0f));
-        if (best == null) return ground.y - Math.max(0f, hipDrop) * SCALE / 16;
+        if (best == null) return ground.y - standing(hipDrop) * SCALE / 16;
         return best.y;
     }
 
@@ -568,7 +570,7 @@ public final class FootGrounding {
         Vec3 centre = frame.jointWorld(new Vector3f(hip).add(sole.x, LEG, sole.z));
         float drop = frame.relativeToJoint(new Vec3(centre.x, y, centre.z), hip).y - LEG;
         float foot = drop - Math.min(0f, hipDrop);
-        if (foot > MAX_STEP || foot < -MAX_STEP) foot = Math.max(0f, hipDrop);
+        if (foot > MAX_STEP || foot < -MAX_STEP) foot = standing(hipDrop);
         return foot;
     }
 
@@ -586,8 +588,17 @@ public final class FootGrounding {
                                    float hipDrop) {
         float shift = Math.min(0f, hipDrop);
         float foot = drop(player, frame, hip, pose) - shift;
-        if (foot > MAX_STEP || foot < -MAX_STEP) foot = Math.max(0f, hipDrop);
+        if (foot > MAX_STEP || foot < -MAX_STEP) foot = standing(hipDrop);
         return foot;
+    }
+
+    /**
+     * The floor under the hip when a foot has none of its own, pixels below the ground level: none
+     * lower than a step - over a drop-off (the edge of a block, crouching on it) the foot stays at the
+     * ground level, as in vanilla, instead of the body sinking into the air after it.
+     */
+    private static float standing(float hipDrop) {
+        return hipDrop > MAX_STEP ? 0f : Math.max(0f, hipDrop);
     }
 
     /** Why the feet are left alone this frame, or {@code null} when they are grounded. */
@@ -620,7 +631,7 @@ public final class FootGrounding {
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
             if (hit.getType() == HitResult.Type.MISS || hit.getDirection() != Direction.UP) continue;
             // A ray that starts inside a block (a wall ahead) hits right where it starts.
-            if (hit.getLocation().y >= foot.y + RAY_UP - 1e-3) continue;
+            if (hit.isInside() || hit.getLocation().y >= foot.y + RAY_UP - 0.01) continue;
             if (best == null || hit.getLocation().y > best.y) best = hit.getLocation();
         }
         if (best == null) return (float) (RAY_DOWN * 16);
