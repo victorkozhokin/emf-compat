@@ -129,17 +129,21 @@ public final class ButtonPress implements InteractionProvider {
     private static final long NEVER = 0L;
 
     /**
-     * Reaching: from this far, in arm lengths, the body starts going with the hand, and is all the
-     * way in at the second. The torso leans towards the target this much at most; the left arm
-     * swings back and out and the left leg lifts back, radians.
+     * Reaching, in arm lengths from the right shoulder. Further than {@link #STRETCH_FAR} only the
+     * hand points; closer it goes over into the reaching pose, all of it from {@link #STRETCH_FULL}
+     * (where a lean does get the hand there) down to {@link #STRETCH_NEAR}, and out of it again by
+     * {@link #STRETCH_NONE}, where the arm reaches on its own.
      */
-    private static final float STRETCH_FROM = 0.95f;
+    private static final float STRETCH_FAR = 2.4f;
     private static final float STRETCH_FULL = 1.8f;
+    private static final float STRETCH_NEAR = 1.3f;
+    private static final float STRETCH_NONE = 0.95f;
+    /** The torso leans towards the target this much at most; the left arm goes up out to its side, a little back, and the left leg out and back, radians. */
     private static final float STRETCH_LEAN = (float) Math.toRadians(25);
-    private static final float STRETCH_ARM_BACK = (float) Math.toRadians(55);
-    private static final float STRETCH_ARM_OUT = (float) Math.toRadians(25);
-    private static final float STRETCH_LEG_BACK = (float) Math.toRadians(35);
-    private static final float STRETCH_LEG_OUT = (float) Math.toRadians(8);
+    private static final float STRETCH_ARM_BACK = (float) Math.toRadians(20);
+    private static final float STRETCH_ARM_OUT = (float) Math.toRadians(-70);
+    private static final float STRETCH_LEG_BACK = (float) Math.toRadians(25);
+    private static final float STRETCH_LEG_OUT = (float) Math.toRadians(-20);
     private static final double STRETCH_SECONDS = 0.2;
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
@@ -256,7 +260,9 @@ public final class ButtonPress implements InteractionProvider {
             // forwards and to its side, as far as the reach asks.
             if (hand.right) {
                 float reach = new Vector3f(hand.button).sub(RIGHT_SHOULDER).length() / ARM;
-                stretchTarget = Mth.clamp((reach - STRETCH_FROM) / (STRETCH_FULL - STRETCH_FROM), 0f, 1f);
+                stretchTarget = Math.min(
+                        Mth.clamp((STRETCH_FAR - reach) / (STRETCH_FAR - STRETCH_FULL), 0f, 1f),
+                        Mth.clamp((reach - STRETCH_NONE) / (STRETCH_NEAR - STRETCH_NONE), 0f, 1f));
                 Vector3f to = new Vector3f(hand.button).sub(WAIST);
                 float flat = (float) Math.hypot(to.x, to.z);
                 if (flat > 1e-3f && stretchTarget > 0f) {
@@ -557,7 +563,8 @@ public final class ButtonPress implements InteractionProvider {
         if (s < 1e-3f) return;
         ModelPart arm = parts.apply("left_arm");
         if (arm != null) {
-            // Back is +xRot; out, for the left arm, +zRot.
+            // Back is +xRot; out, for the left arm hanging down, -zRot (+zRot swings a hanging
+            // limb towards the model's right, -x).
             arm.xRot += (STRETCH_ARM_BACK - arm.xRot) * s;
             arm.zRot += (STRETCH_ARM_OUT - arm.zRot) * s;
         }
