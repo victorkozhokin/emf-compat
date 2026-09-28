@@ -93,8 +93,8 @@ public final class ButtonPress implements InteractionProvider {
      * holding it up close too felt like letting go early. Only a grip right beside the shoulder,
      * where the arm would turn inside out, is left.
      */
-    private static final float LEVER_MIN_AHEAD = 0.5f;
-    private static final float LEVER_LEVEL_BAND = 3f;
+    private static final float LEVER_MIN_AHEAD = -1.5f;
+    private static final float LEVER_LEVEL_BAND = 2f;
     /**
      * How far past the arm's length a lever still counts as in reach, as a share of it. Well past
      * the hand's reach on purpose: the hand points at the end of the handle and follows it over,
