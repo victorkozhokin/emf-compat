@@ -332,18 +332,19 @@ public final class ButtonPress implements InteractionProvider {
      * pointing at it with no touch - as if thrown or pressed from a distance.
      */
     private static boolean fromAfar(BlockState block) {
-        return block.getBlock() instanceof LeverBlock
+        return block.getBlock() instanceof LeverBlock || ThrottleLever.is(block)
                 || block.getValue(FaceAttachedHorizontalDirectionalBlock.FACE) == AttachFace.WALL;
     }
 
     /** A button or a lever. */
     private static boolean isTarget(BlockState block) {
-        return block.getBlock() instanceof ButtonBlock || block.getBlock() instanceof LeverBlock;
+        return block.getBlock() instanceof ButtonBlock || block.getBlock() instanceof LeverBlock || ThrottleLever.is(block);
     }
 
     /** Whether it is down or thrown. */
     private static boolean on(BlockState block) {
-        return block.getValue(BlockStateProperties.POWERED);
+        // A throttle lever has no on and off: it is dragged, and the hand goes along.
+        return block.hasProperty(BlockStateProperties.POWERED) && block.getValue(BlockStateProperties.POWERED);
     }
 
     /**
@@ -353,6 +354,10 @@ public final class ButtonPress implements InteractionProvider {
      */
     private static Vec3 grip(AbstractClientPlayer player, BlockPos pos, BlockState block) {
         Level level = player.level();
+        if (ThrottleLever.is(block)) {
+            Vec3 knob = ThrottleLever.knob(level, pos);
+            if (knob != null) return knob;
+        }
         Vec3 centre = centre(level, pos, block);
         if (!(block.getBlock() instanceof LeverBlock)) return centre;
         Vec3 out = centre.add(outwards(block).scale(LEVER_OUT / 16.0));
