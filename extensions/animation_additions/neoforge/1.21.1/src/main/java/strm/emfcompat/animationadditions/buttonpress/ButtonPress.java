@@ -100,9 +100,9 @@ public final class ButtonPress implements InteractionProvider {
      * the hand's reach on purpose: the hand points at the end of the handle and follows it over,
      * as if it threw it from a distance - on a floor or a ceiling it could not reach otherwise.
      */
-    private static final float LEVER_REACH = 3.5f;
+    private static final float LEVER_REACH = 4.0f;
     /** Buttons are looked for this far round the eyes, blocks, and this close to the look. */
-    private static final double SCAN_RADIUS = 2.0;
+    private static final double SCAN_RADIUS = 3.0;
     private static final double LOOK_CONE = Math.cos(Math.toRadians(30));
     private static final long SCAN_EVERY_NANOS = 100_000_000L;
     /** How long a press shows: the push in, then back to waiting. */
