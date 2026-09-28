@@ -104,6 +104,9 @@ public final class ButtonPress implements InteractionProvider {
     /** Buttons are looked for this far round the eyes, blocks, and this close to the look. */
     private static final double SCAN_RADIUS = 3.0;
     private static final double LOOK_CONE = Math.cos(Math.toRadians(30));
+    /** A lever: within this of where the body faces, across the ground, from this high over the feet. */
+    private static final double LEVER_CONE = Math.cos(Math.toRadians(60));
+    private static final double CHEST = 1.3;
     private static final long SCAN_EVERY_NANOS = 100_000_000L;
     /** How long a press shows: the push in, then back to waiting. */
     private static final double PRESS_SECONDS = 0.3;
@@ -269,24 +272,45 @@ public final class ButtonPress implements InteractionProvider {
         state.powered.addAll(powered);
     }
 
-    /** The button in reach nearest the look, within the cone round it; the one already kept wins ties. */
+    /**
+     * The button in reach nearest the look, within the cone round it; the one already kept wins
+     * ties. A lever is found the way a door is, by the body rather than the eyes: across the
+     * ground, within {@link #LEVER_CONE} of where the body faces, measured from the shoulders -
+     * looking straight at one or past it no longer decides it.
+     */
     private static BlockPos look(AbstractClientPlayer player, IKFrame frame, State state) {
         Vec3 eye = player.getEyePosition();
         Vec3 view = player.getViewVector(1f);
+        Vec3 chest = player.position().add(0, CHEST, 0);
+        double yaw = Math.toRadians(player.yBodyRot);
+        Vec3 facing = new Vec3(-Math.sin(yaw), 0, Math.cos(yaw));
         BlockPos best = null;
-        double bestDot = LOOK_CONE;
+        double bestDot = -2;
         state.why = "none";
-        double viewDot = LOOK_CONE;
+        double viewDot = -2;
         for (BlockPos pos : state.nearby) {
             BlockState block = player.level().getBlockState(pos);
             if (!isTarget(block)) continue;
-            Vec3 to = grip(player, pos, block).subtract(eye);
-            if (to.length() > SCAN_RADIUS + 0.5) continue;
-            double dot = to.normalize().dot(view) + (pos.equals(state.target) ? 0.03 : 0);
-            // With the trace on, what was looked at and how far it was, when nothing is in reach.
+            boolean lever = block.getBlock() instanceof LeverBlock;
+            Vec3 grip = grip(player, pos, block);
+            double dot;
+            if (lever) {
+                Vec3 flat = new Vec3(grip.x - chest.x, 0, grip.z - chest.z);
+                if (grip.subtract(chest).length() > SCAN_RADIUS + 0.5) continue;
+                // Right over or under the chest there is no way across: it counts as ahead.
+                dot = flat.length() < 0.2 ? 1 : flat.normalize().dot(facing);
+                if (dot <= LEVER_CONE) continue;
+            } else {
+                Vec3 to = grip.subtract(eye);
+                if (to.length() > SCAN_RADIUS + 0.5) continue;
+                dot = to.normalize().dot(view);
+                if (dot <= LOOK_CONE) continue;
+            }
+            dot += pos.equals(state.target) ? 0.03 : 0;
+            // With the trace on, what was nearest and how far it was, when nothing is in reach.
             if (dot > viewDot && FootGroundingFeature.isTrace()) {
                 viewDot = dot;
-                Vector3f rel = frame.relativeToJoint(grip(player, pos, block), RIGHT_SHOULDER);
+                Vector3f rel = frame.relativeToJoint(grip, RIGHT_SHOULDER);
                 state.why = String.format("none (in view: %s at %.1f px from the shoulder, %.1f,%.1f,%.1f)",
                         block.getBlock().getClass().getSimpleName(), rel.length(), rel.x, rel.y, rel.z);
             }
