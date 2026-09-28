@@ -171,6 +171,8 @@ public final class FootGrounding {
         boolean swinging, known;
         /** World y of the floor the foot stands on, or took off from; of where it will land. */
         double plantedY, landingY;
+        /** Where it will land across the ground, world x and z. */
+        double landX, landZ;
         /** The leg's pitch at take-off (forwards negative, walking direction folded in), its lowest in this swing. */
         float liftPitch, minPitch;
         /** How far the leg swings forwards, radians, and how long a swing takes, seconds: the last swing's. */
@@ -528,6 +530,8 @@ public final class FootGrounding {
         Vec3 from = frame.jointWorld(new Vector3f(hip).add(now.x, LEG, now.z));
         Vec3 to = frame.jointWorld(new Vector3f(hip).add(front.x, LEG, front.z));
         Vec3 ahead = new Vec3(to.x - from.x, 0, to.z - from.z).add(velocity.scale(left));
+        leg.landX = from.x + ahead.x;
+        leg.landZ = from.z + ahead.z;
         double y = floorY(player, frame, hip, pose, ahead, hipDrop);
         return Double.isNaN(y) ? leg.plantedY : y;
     }
@@ -570,6 +574,19 @@ public final class FootGrounding {
         float foot = drop - Math.min(0f, hipDrop);
         if (foot > MAX_STEP || foot < -MAX_STEP) foot = Math.max(0f, hipDrop);
         return foot;
+    }
+
+    /**
+     * Where the foot in the air comes down, while walking: {x, z, floor y, take-off floor y,
+     * seconds of the swing left}, world. {@code null} with no foot in the air.
+     */
+    public static float[] landing(UUID uuid) {
+        State state = STATES.fresh(uuid);
+        if (state == null || !state.walking) return null;
+        Leg leg = state.right.swinging ? state.right : state.left.swinging ? state.left : null;
+        if (leg == null || leg.progress >= 0.9f) return null;
+        return new float[]{(float) leg.landX, (float) leg.landZ, (float) leg.landingY, (float) leg.plantedY,
+                (float) (leg.swingSeconds * (1f - leg.progress))};
     }
 
     /** Pushes {@code value} into the last three and returns their median (fewer at the start). */
