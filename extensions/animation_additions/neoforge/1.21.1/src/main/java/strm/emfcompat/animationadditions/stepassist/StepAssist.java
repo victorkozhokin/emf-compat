@@ -29,7 +29,8 @@ import java.util.UUID;
  * slows the legs as much - the foot would land on the same spot. So the phase is what is tuned:
  * while a foot is in the air its swing is slowed down or sped up (at most {@link #MIN_RATE} ..
  * {@link #MAX_RATE} of its own pace) so that, at the player's speed, it comes down on the middle
- * of the step the foot steps ({@link FootGrounding}) foresee it on. Only the drawing changes: the
+ * of the next step - one up or down from the one the standing foot is on, never two. Stairs
+ * are half a block a step, far shorter than the pack's stride, so there the legs go quicker. Only the drawing changes: the
  * player moves as in vanilla, for everyone watching too.</p>
  */
 public final class StepAssist {
@@ -38,12 +39,12 @@ public final class StepAssist {
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatStepAssist");
 
     /** How much slower or quicker a swing may go than its own pace. */
-    private static final float MIN_RATE = 0.6f;
-    private static final float MAX_RATE = 1.5f;
+    private static final float MIN_RATE = 0.5f;
+    private static final float MAX_RATE = 2.6f;
     /** A landing this much higher or lower than the take-off is a step, blocks. */
     private static final double MIN_RISE = 0.2;
-    /** How far along the way the step is looked for from the landing, blocks, and how finely. */
-    private static final double SEARCH = 0.7;
+    /** How far ahead of the player the next step is looked for, blocks, and how finely. */
+    private static final double LOOK_AHEAD = 1.6;
     private static final double SAMPLE = 1 / 16.0;
     /** Nearer the middle than this, blocks, is on it. */
     private static final double ON_MIDDLE = 0.04;
@@ -100,24 +101,21 @@ public final class StepAssist {
     private static float rate(Player player) {
         if (!player.onGround()) return 1f;
         float[] landing = FootGrounding.landing(player.getUUID());
-        if (landing == null || Math.abs(landing[2] - landing[3]) < MIN_RISE) return 1f;
+        if (landing == null) return 1f;
         Vec3 move = new Vec3(player.getX() - player.xo, 0, player.getZ() - player.zo);
         double v = move.length() * 20;
         if (v < 0.5) return 1f;
         Vec3 dir = move.normalize();
-        double landY = landing[2];
-        // The run of floor at the landing's height along the way, around where the foot lands.
-        double back = Double.NaN, ahead = Double.NaN;
-        for (double t = 0; t <= SEARCH; t += SAMPLE) {
-            if (!onStep(player, landing, dir, t, landY)) break;
-            ahead = t;
+        Tread next = next(player, dir, landing[5]);
+        if (next == null) return 1f;
+        // Where the foot comes down now, along the way from the player.
+        double land = (landing[0] - player.getX()) * dir.x + (landing[1] - player.getZ()) * dir.z;
+        double middle = next.middle - land;
+        if (FootGroundingFeature.isTrace()) {
+            LOGGER.info("[StepAssist] y={} stand={} next={}@{} land={} left={}s v={}", String.format("%.2f", player.getY()),
+                    String.format("%.2f", landing[5]), String.format("%.2f", next.y), String.format("%.2f", next.middle),
+                    String.format("%.2f", land), String.format("%.2f", landing[4]), String.format("%.2f", v));
         }
-        for (double t = 0; t >= -SEARCH; t -= SAMPLE) {
-            if (!onStep(player, landing, dir, t, landY)) break;
-            back = t;
-        }
-        if (Double.isNaN(ahead) || Double.isNaN(back)) return 1f;
-        double middle = (ahead + back) / 2;
         if (Math.abs(middle) < ON_MIDDLE) return 1f;
         // The foot comes down after going {left * v} more; it should go {left * v + middle}.
         double planned = Math.max(0.05, landing[4] * v);
@@ -125,12 +123,37 @@ public final class StepAssist {
         return Math.max(MIN_RATE, Math.min(MAX_RATE, rate));
     }
 
-    private static boolean onStep(Player player, float[] landing, Vec3 dir, double t, double y) {
-        Vec3 at = new Vec3(landing[0] + dir.x * t, y, landing[1] + dir.z * t);
-        BlockHitResult hit = player.level().clip(new ClipContext(at.add(0, 0.3, 0), at.add(0, -0.3, 0),
+    /** A step's top along the way: its floor, world y, and its middle, blocks from the player. */
+    private record Tread(double y, double middle) {
+    }
+
+    /**
+     * The next step from the one the standing foot is on ({@code standY}): the first floor along the
+     * way, ahead of the player, that is higher or lower than it - one step, never two.
+     */
+    private static Tread next(Player player, Vec3 dir, double standY) {
+        double start = Double.NaN, y = Double.NaN;
+        for (double t = 0; t <= LOOK_AHEAD; t += SAMPLE) {
+            double floor = floor(player, dir, t, standY);
+            if (Double.isNaN(start)) {
+                if (Double.isNaN(floor) || Math.abs(floor - standY) < MIN_RISE) continue;
+                start = t;
+                y = floor;
+            } else if (Double.isNaN(floor) || Math.abs(floor - y) > 0.05) {
+                return new Tread(y, (start + t - SAMPLE) / 2);
+            }
+        }
+        return Double.isNaN(start) ? null : new Tread(y, (start + LOOK_AHEAD) / 2);
+    }
+
+    /** The floor at {@code t} blocks along the way from the player, within a step of {@code near}; NaN when none. */
+    private static double floor(Player player, Vec3 dir, double t, double near) {
+        Vec3 at = new Vec3(player.getX() + dir.x * t, near, player.getZ() + dir.z * t);
+        BlockHitResult hit = player.level().clip(new ClipContext(at.add(0, 0.8, 0), at.add(0, -0.8, 0),
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
-        return hit.getType() == HitResult.Type.BLOCK && hit.getDirection() == Direction.UP
-                && Math.abs(hit.getLocation().y - y) < 0.05;
+        if (hit.getType() != HitResult.Type.BLOCK || hit.getDirection() != Direction.UP) return Double.NaN;
+        if (hit.getLocation().y >= at.y + 0.8 - 1e-3) return Double.NaN;
+        return hit.getLocation().y;
     }
 
     private static void log(Player player, float rate) {

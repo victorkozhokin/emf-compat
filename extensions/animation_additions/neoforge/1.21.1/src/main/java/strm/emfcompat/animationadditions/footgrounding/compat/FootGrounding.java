@@ -578,15 +578,18 @@ public final class FootGrounding {
 
     /**
      * Where the foot in the air comes down, while walking: {x, z, floor y, take-off floor y,
-     * seconds of the swing left}, world. {@code null} with no foot in the air.
+     * seconds of the swing left, the standing foot's floor y}, world. {@code null} with no foot in
+     * the air.
      */
     public static float[] landing(UUID uuid) {
         State state = STATES.fresh(uuid);
         if (state == null || !state.walking) return null;
         Leg leg = state.right.swinging ? state.right : state.left.swinging ? state.left : null;
         if (leg == null || leg.progress >= 0.9f) return null;
+        Leg other = leg == state.right ? state.left : state.right;
+        double stand = other.swinging || !other.known ? leg.plantedY : other.plantedY;
         return new float[]{(float) leg.landX, (float) leg.landZ, (float) leg.landingY, (float) leg.plantedY,
-                (float) (leg.swingSeconds * (1f - leg.progress))};
+                (float) (leg.swingSeconds * (1f - leg.progress)), (float) stand};
     }
 
     /** Pushes {@code value} into the last three and returns their median (fewer at the start). */
