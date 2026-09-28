@@ -141,7 +141,7 @@ public final class ButtonPress implements InteractionProvider {
     /** The torso leans towards the target this much at most; the left arm goes up out to its side, a little back, and the left leg out and back, radians. */
     private static final float STRETCH_LEAN = (float) Math.toRadians(25);
     private static final float STRETCH_ARM_BACK = (float) Math.toRadians(20);
-    private static final float STRETCH_ARM_OUT = (float) Math.toRadians(-60);
+    private static final float STRETCH_ARM_OUT = (float) Math.toRadians(-40);
     private static final float STRETCH_LEG_BACK = (float) Math.toRadians(35);
     private static final float STRETCH_LEG_OUT = (float) Math.toRadians(-20);
     private static final double STRETCH_SECONDS = 0.2;
