@@ -8,8 +8,7 @@
     "horsesync.AbstractHorseRendererAccessor",
     "horsesync.PlayerModelMixin",
     "AnimationAdditionsRenderMixin",
-    "LevelRendererAccessor",
-    "ItemAlongArmMixin"
+    "LevelRendererAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

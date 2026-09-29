@@ -26,15 +26,6 @@ public interface BlockTarget {
     boolean matches(BlockState block);
 
     /**
-     * Whether the held item is turned to lie along the arm, its far end out of the fist - a key
-     * going into a keyhole with the arm stretched out to it. As held by vanilla it sticks out of the
-     * fist square to the arm.
-     */
-    default boolean itemAlongArm() {
-        return false;
-    }
-
-    /**
      * Where the hand waits, looked at where {@code hit} is; {@code null} when a click there would
      * do nothing - the hand only goes to what it can use.
      */

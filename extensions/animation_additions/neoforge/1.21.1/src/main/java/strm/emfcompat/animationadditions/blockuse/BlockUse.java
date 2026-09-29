@@ -74,8 +74,8 @@ public final class BlockUse implements InteractionProvider {
     private static final double GESTURE_SECONDS = 0.35;
     /**
      * A turn: the item goes in over the first {@link #TURN_IN} of it and stays in, then the arm
-     * turns about its own length by {@link #TURN_ANGLE} - clockwise as the player sees it, the key
-     * along it turning in the lock - and holds.
+     * turns about its own length by {@link #TURN_ANGLE} - clockwise as the player sees it, as a hand
+     * turns a key - and holds.
      */
     private static final double TURN_SECONDS = 0.7;
     private static final double TURN_IN = 0.3;
@@ -97,8 +97,7 @@ public final class BlockUse implements InteractionProvider {
         boolean right = true, shown;
         /** The hand's point in model pixels. */
         final Vector3f grip = new Vector3f();
-        /** Whether the held item lies along the arm, and the arm's turn about its length, radians. */
-        boolean alongArm;
+        /** The arm's turn about its length, radians. */
         float twist;
     }
 
@@ -190,7 +189,6 @@ public final class BlockUse implements InteractionProvider {
                 return;
             }
             float[] aim = {ik.x(), ik.y()};
-            state.alongArm = state.target != null && state.target.itemAlongArm();
             state.twist = twist;
             Effector effector = right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
             if (!state.shown || right != state.right || InteractionRuntime.weight(player.getUUID(), effector, id()) < 1e-3f) {
@@ -267,16 +265,6 @@ public final class BlockUse implements InteractionProvider {
         }
         arm.xRot += IKMath.wrap(x - arm.xRot) * w;
         arm.yRot += IKMath.wrap(y - arm.yRot) * w;
-    }
-
-    /**
-     * How far the held item in this arm is to be turned along the arm, 0..1 - as much as the arm is
-     * this provider's with a target that asks for it. Read by the held-item layer.
-     */
-    public static float itemAlongArm(UUID uuid, boolean right) {
-        State state = STATES.fresh(uuid);
-        if (state == null || !state.alongArm || state.right != right) return 0f;
-        return InteractionRuntime.weight(uuid, right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
     }
 
     /**
