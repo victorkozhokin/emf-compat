@@ -32,6 +32,14 @@ public interface BlockTarget {
     Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit);
 
     /**
+     * When the torso goes with the hand as it moves round - a crank's grip - the point it goes round,
+     * world; {@code null} for a still torso. The torso leans the way the hand is off it.
+     */
+    default Vec3 swayCentre(Level level, BlockPos pos, BlockState block) {
+        return null;
+    }
+
+    /**
      * What is watched for a change: the block's state, or more - what a block entity holds, when
      * using it does not change the state. Compared with {@code equals}.
      */

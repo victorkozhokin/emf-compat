@@ -47,7 +47,7 @@ public final class BlockUse implements InteractionProvider {
     public static final BlockUse INSTANCE = new BlockUse();
     public static final String KEY_ENABLED = "blockuse.enabled";
 
-    private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox(), new Campfire(), new Vault());
+    private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox(), new Campfire(), new Vault(), new HandCrank());
 
     /** Below a button press, above doors and chests. */
     private static final int PRIORITY = 8;
@@ -72,6 +72,14 @@ public final class BlockUse implements InteractionProvider {
     private static final float TAP_IN = 1.5f;
     private static final double GESTURE_SECONDS = 0.35;
     private static final double GRIP_SECONDS = 0.05;
+    /**
+     * The torso going with a hand that goes round ({@link BlockTarget#swayCentre}), radians at most:
+     * forwards and back with the hand further and nearer, and lower; turned after it to either side.
+     */
+    private static final float SWAY_PITCH = (float) Math.toRadians(5);
+    private static final float SWAY_YAW = (float) Math.toRadians(6);
+    /** Pixels off the middle for the whole of it: about a crank's reach. */
+    private static final float SWAY_RADIUS = 6f;
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
 
@@ -86,8 +94,9 @@ public final class BlockUse implements InteractionProvider {
         BlockTarget.Gesture gesture;
         long gestureAt;
         boolean right = true, shown;
-        /** The hand's point in model pixels. */
+        /** The hand's point in model pixels, and the torso turn asked for {pitch, yaw, roll}. */
         final Vector3f grip = new Vector3f();
+        final float[] lean = new float[3];
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -111,6 +120,7 @@ public final class BlockUse implements InteractionProvider {
         AbstractClientPlayer player = context.player();
         long now = context.now();
         State state = STATES.seen(player.getUUID(), now).value;
+        state.lean[0] = state.lean[1] = state.lean[2] = 0f;
         boolean shown = false;
         try {
             if (!player.onGround() || player.isPassenger() || player.isSleeping() || player.isInWaterOrBubble()
@@ -178,6 +188,16 @@ public final class BlockUse implements InteractionProvider {
                 state.grip.lerp(model, Smoothing.follow(context.dt(), GRIP_SECONDS));
             }
             state.right = right;
+            Vec3 centre = state.target == null || state.pos == null ? null
+                    : state.target.swayCentre(player.level(), state.pos, player.level().getBlockState(state.pos));
+            if (centre != null) {
+                // Off the middle: further (-z) leans forwards (+xRot), lower (+y) a little too; to
+                // the right (-x) turns right (+yRot).
+                Vector3f off = new Vector3f(model).sub(frame.relativeToJoint(centre, new Vector3f()));
+                float k = 1f / SWAY_RADIUS;
+                state.lean[0] = Mth.clamp((-off.z + 0.5f * off.y) * k, -1f, 1f) * SWAY_PITCH;
+                state.lean[1] = Mth.clamp(-off.x * k, -1f, 1f) * SWAY_YAW;
+            }
             shown = true;
             out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, effector, aim));
             // The click swings the arm; the gesture is the swing.
@@ -215,6 +235,13 @@ public final class BlockUse implements InteractionProvider {
         }
         state.target = target;
         return target.hover(player, pos, block, blockHit);
+    }
+
+    /** The torso turn this asks for, {pitch, yaw, roll}; {@code null} when none. */
+    public static float[] torsoHint(UUID uuid) {
+        State state = STATES.fresh(uuid);
+        if (state == null || state.lean[0] == 0f && state.lean[1] == 0f && state.lean[2] == 0f) return null;
+        return state.lean.clone();
     }
 
     /**
