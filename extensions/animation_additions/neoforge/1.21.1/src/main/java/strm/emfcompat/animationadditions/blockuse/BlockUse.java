@@ -85,6 +85,9 @@ public final class BlockUse implements InteractionProvider {
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
 
+    /** The player being drawn standing up though crouching, for the length of the draw; {@code null} otherwise. */
+    public static Object drawnStanding;
+
     private BlockUse() {
     }
 
@@ -101,6 +104,8 @@ public final class BlockUse implements InteractionProvider {
         final float[] lean = new float[3];
         /** How far into the reaching pose, 0..1, as shown. */
         float stretch;
+        /** Crouching and out of the arm's reach: drawn standing up while the hand is on it. */
+        boolean standUp;
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -125,7 +130,7 @@ public final class BlockUse implements InteractionProvider {
         long now = context.now();
         State state = STATES.seen(player.getUUID(), now).value;
         state.lean[0] = state.lean[1] = state.lean[2] = 0f;
-        boolean shown = false;
+        boolean shown = false, standUp = false;
         float stretchTarget = 0f;
         try {
             if (!player.onGround() || player.isPassenger() || player.isSleeping() || player.isInWaterOrBubble()
@@ -186,6 +191,10 @@ public final class BlockUse implements InteractionProvider {
                 return;
             }
             float[] aim = {ik.x(), ik.y()};
+            // Crouching and the arm not long enough, the player stands up to it - and stays up
+            // while the hand is on it: stood up, it is in reach, and would crouch again.
+            standUp = state.target != null && state.target.reachPose() && player.getPose() == Pose.CROUCHING
+                    && (state.standUp || ik.reach() > 1f);
             Effector effector = right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
             if (!state.shown || right != state.right || InteractionRuntime.weight(player.getUUID(), effector, id()) < 1e-3f) {
                 state.grip.set(model);
@@ -216,6 +225,7 @@ public final class BlockUse implements InteractionProvider {
                     + (right ? "-R" : "-L"));
         } finally {
             state.shown = shown;
+            state.standUp = standUp;
             double dt = context.dt();
             state.stretch += (stretchTarget - state.stretch)
                     * (stretchTarget > state.stretch ? Smoothing.fadeIn(dt, ReachPose.SECONDS) : Smoothing.fadeOut(dt, ReachPose.SECONDS));
@@ -267,6 +277,16 @@ public final class BlockUse implements InteractionProvider {
         State state = STATES.fresh(uuid);
         if (state == null || !state.shown || state.target == null || !state.target.quietsSwing()) return false;
         return InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id()) > 0.5f;
+    }
+
+    /**
+     * Whether this player, crouching, is drawn standing up now: out of the arm's reach of what the
+     * hand holds ({@link BlockTarget#reachPose}). Read while the player is drawn.
+     */
+    public static boolean standsUp(UUID uuid) {
+        State state = STATES.fresh(uuid);
+        return state != null && state.standUp && EMFCompatCore.isCompatEnabled()
+                && !EMFCompatCore.isLocalPlayerInFirstPerson(uuid);
     }
 
     /** The torso turn this asks for, {pitch, yaw, roll}; {@code null} when none. */
