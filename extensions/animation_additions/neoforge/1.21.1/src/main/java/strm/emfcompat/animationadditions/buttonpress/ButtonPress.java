@@ -139,8 +139,12 @@ public final class ButtonPress implements InteractionProvider {
     private static final float STRETCH_FULL = 1.8f;
     private static final float STRETCH_NEAR = 1.3f;
     private static final float STRETCH_NONE = 0.95f;
-    /** The torso leans towards the target this much at most, radians; the limbs balancing it are {@link ReachPose}'s. */
+    /** The torso leans towards the target this much at most; the left arm goes up out to its side, a little back, and the left leg out and back, radians. */
     private static final float STRETCH_LEAN = (float) Math.toRadians(25);
+    private static final float STRETCH_ARM_BACK = (float) Math.toRadians(20);
+    private static final float STRETCH_ARM_OUT = (float) Math.toRadians(-40);
+    private static final float STRETCH_LEG_BACK = (float) Math.toRadians(35);
+    private static final float STRETCH_LEG_OUT = (float) Math.toRadians(-20);
     private static final double STRETCH_SECONDS = 0.2;
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
@@ -554,13 +558,37 @@ public final class ButtonPress implements InteractionProvider {
     }
 
     /**
+     * Reaching far with the right hand, the rest of the body goes with it: the left arm swings back
+     * and out to balance it and the left leg lifts back off the ground, the weight on the right
+     * one. The torso's lean towards the target is asked of {@code TorsoLean} ({@link #torsoHint}).
+     */
+    private static void stretch(State state, Function<String, ModelPart> parts) {
+        float s = state.stretch;
+        if (s < 1e-3f) return;
+        ModelPart arm = parts.apply("left_arm");
+        if (arm != null) {
+            // Back is +xRot; out, for the left arm hanging down, -zRot (+zRot swings a hanging
+            // limb towards the model's right, -x).
+            arm.xRot += (STRETCH_ARM_BACK - arm.xRot) * s;
+            arm.zRot += (STRETCH_ARM_OUT - arm.zRot) * s;
+        }
+        ModelPart leg = parts.apply("left_leg");
+        if (leg != null) {
+            leg.xRot += (STRETCH_LEG_BACK - leg.xRot) * s;
+            leg.zRot += (STRETCH_LEG_OUT - leg.zRot) * s;
+        }
+        ModelPart stand = parts.apply("right_leg");
+        if (stand != null) stand.xRot += (0f - stand.xRot) * s;
+    }
+
+    /**
      * Puts a foot on its button over whatever the feet were given. Called after the pack has animated.
      */
     public static void apply(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
         if (state == null) return;
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
-        ReachPose.balance(parts, true, state.stretch);
+        stretch(state, parts);
         if (state.legWeight < 1e-3f) return;
         ModelPart leg = parts.apply(state.footRight ? "right_leg" : "left_leg");
         if (leg == null) return;

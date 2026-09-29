@@ -8,7 +8,6 @@ import strm.emfcompat.animationadditions.footgrounding.compat.FootGrounding;
 import strm.emfcompat.animationadditions.footgrounding.compat.HorseFootGrounding;
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
-import strm.emfcompat.animationadditions.buttonpress.TrapdoorHold;
 import strm.emfcompat.animationadditions.mining.Mining;
 import strm.emfcompat.animationadditions.motion.PoseInertia;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
@@ -106,14 +105,12 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         PoseInertia.apply(uuid, parts, EMFState.getFrameCounter());
         FootGrounding.apply(uuid, parts);
         ButtonPress.apply(uuid, parts);
-        TrapdoorHold.apply(uuid, parts);
         HorseFootGrounding.apply(uuid, parts);
         // The torso before the arm aims: a hand on a wall aims from where the shoulder has gone.
         TorsoLean.apply(uuid, parts);
         InteractionRuntime.apply(uuid, parts);
         // Last: a hand on a button or a swing on a block aims from where its shoulder has finally been drawn.
         ButtonPress.aimArm(uuid, parts);
-        TrapdoorHold.aimArm(uuid, parts);
         Mining.aimArm(uuid, parts);
     }
 }
