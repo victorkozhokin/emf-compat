@@ -12,8 +12,8 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * A trial chambers vault: with the key it takes in the hand - a trial key, an ominous one for an
- * ominous vault - and the vault active, the key is held to the keyhole in its front, its bit
- * pointing in; when the vault starts unlocking, the key goes in and the hand turns it.
+ * ominous vault - and the vault active, the arm stretches out to the keyhole in its front, the key
+ * along it, bit first; when the vault starts unlocking, the key goes in and the hand turns it.
  *
  * <p>Whether this player has opened this vault already is the server's to know: the hand goes to
  * any active vault the key fits.</p>
@@ -22,15 +22,9 @@ final class Vault implements BlockTarget {
 
     /** The keyhole on the front, blocks up from the bottom. */
     private static final double KEYHOLE_Y = 0.45;
-    /**
-     * The key in the hand, in the arm's axes, pixels: a flat item held as vanilla holds one, its
-     * bow at the fist and its bit this far on, forwards out of the fist.
-     */
-    private static final float[] KEY = {9.5f, -1.5f, 10.5f, -7f};
-
     @Override
-    public float[] item() {
-        return KEY;
+    public boolean itemAlongArm() {
+        return true;
     }
 
     @Override

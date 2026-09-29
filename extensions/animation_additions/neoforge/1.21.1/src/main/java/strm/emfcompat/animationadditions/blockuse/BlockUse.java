@@ -73,8 +73,9 @@ public final class BlockUse implements InteractionProvider {
     private static final float TAP_IN = 1.5f;
     private static final double GESTURE_SECONDS = 0.35;
     /**
-     * A turn: the item goes in over the first {@link #TURN_IN} of it and stays in, then turns about
-     * its own length by {@link #TURN_ANGLE} - clockwise as the player sees it - and holds.
+     * A turn: the item goes in over the first {@link #TURN_IN} of it and stays in, then the arm
+     * turns about its own length by {@link #TURN_ANGLE} - clockwise as the player sees it, the key
+     * along it turning in the lock - and holds.
      */
     private static final double TURN_SECONDS = 0.7;
     private static final double TURN_IN = 0.3;
@@ -94,10 +95,10 @@ public final class BlockUse implements InteractionProvider {
         BlockTarget.Gesture gesture;
         long gestureAt;
         boolean right = true, shown;
-        /** The hand's (or the item's) point in model pixels. */
+        /** The hand's point in model pixels. */
         final Vector3f grip = new Vector3f();
-        /** The held item's {gripY, gripZ, tipY, tipZ} when it goes on the point, and its turn about its length, radians. */
-        float[] item;
+        /** Whether the held item lies along the arm, and the arm's turn about its length, radians. */
+        boolean alongArm;
         float twist;
     }
 
@@ -183,25 +184,13 @@ public final class BlockUse implements InteractionProvider {
             // The hand that holds what is used.
             boolean right = player.getMainArm() == HumanoidArm.RIGHT;
             Vector3f shoulder = right ? RIGHT_SHOULDER : LEFT_SHOULDER;
-            float[] item = state.target == null ? null : state.target.item();
-            float[] aim;
-            if (item != null) {
-                // The item's tip on the point, as a tool's in Mining.
-                float[] solved = solveItem(new Vector3f(model).sub(shoulder), item);
-                if (solved[2] > MAX_REACH) {
-                    context.decide("out-of-reach");
-                    return;
-                }
-                aim = new float[]{solved[0], solved[1]};
-            } else {
-                IKResult ik = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
-                if (ik == null || ik.reach() > MAX_REACH) {
-                    context.decide("out-of-reach");
-                    return;
-                }
-                aim = new float[]{ik.x(), ik.y()};
+            IKResult ik = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
+            if (ik == null || ik.reach() > MAX_REACH) {
+                context.decide("out-of-reach");
+                return;
             }
-            state.item = item;
+            float[] aim = {ik.x(), ik.y()};
+            state.alongArm = state.target != null && state.target.itemAlongArm();
             state.twist = twist;
             Effector effector = right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
             if (!state.shown || right != state.right || InteractionRuntime.weight(player.getUUID(), effector, id()) < 1e-3f) {
@@ -263,41 +252,31 @@ public final class BlockUse implements InteractionProvider {
         if (arm == null) return;
         Vector3f to = new Vector3f(state.grip).sub(arm.x, arm.y, arm.z);
         if (to.lengthSquared() < 1e-6f) return;
-        if (state.item != null) {
-            float[] solved = solveItem(to, state.item);
-            Quaternionf q = new Quaternionf().rotationZYX(0f, solved[1], solved[0]);
-            if (state.twist != 0f) {
-                // Turned about the item's own length, as a key is: clockwise seen from behind it
-                // is a right-handed turn about the way it points.
-                Vector3f along = q.transform(new Vector3f(0f, state.item[2] - state.item[0], state.item[3] - state.item[1]).normalize());
-                q = new Quaternionf().rotateAxis(state.twist, along).mul(q);
-            }
-            Vector3f euler = zyx(q);
+        to.normalize();
+        // As OneBoneIK: the arm hangs along +y.
+        float x = -(float) Math.acos(Mth.clamp(to.y, -1f, 1f));
+        float y = (float) Math.atan2(-to.x, -to.z);
+        if (state.twist != 0f) {
+            // Turned about its own length (local y, from the shoulder out): looking along it, from
+            // behind, a right-handed turn is clockwise.
+            Vector3f euler = zyx(new Quaternionf().rotationZYX(0f, y, x).rotateY(state.twist));
             arm.xRot += IKMath.wrap(euler.x - arm.xRot) * w;
             arm.yRot += IKMath.wrap(euler.y - arm.yRot) * w;
             arm.zRot += IKMath.wrap(euler.z - arm.zRot) * w;
             return;
         }
-        to.normalize();
-        // As OneBoneIK: the arm hangs along +y.
-        float x = -(float) Math.acos(Mth.clamp(to.y, -1f, 1f));
-        float y = (float) Math.atan2(-to.x, -to.z);
         arm.xRot += IKMath.wrap(x - arm.xRot) * w;
         arm.yRot += IKMath.wrap(y - arm.yRot) * w;
     }
 
     /**
-     * The arm's {xRot, yRot} putting the held item's tip on a point {@code to} pixels from the
-     * shoulder, and how far the point is as a share of the tip's reach - as {@code Mining.solve}.
-     * The arm's turn about x turns the tip round by the same angle from where it hangs.
+     * How far the held item in this arm is to be turned along the arm, 0..1 - as much as the arm is
+     * this provider's with a target that asks for it. Read by the held-item layer.
      */
-    private static float[] solveItem(Vector3f to, float[] item) {
-        float distance = to.length();
-        if (distance < 1e-3f) return new float[]{0f, 0f, 0f};
-        float offset = (float) Math.atan2(item[3], item[2]);
-        float x = -(float) Math.acos(Mth.clamp(to.y / distance, -1f, 1f)) - offset;
-        float yaw = (float) Math.atan2(-to.x, -to.z);
-        return new float[]{x, yaw, distance / (float) Math.hypot(item[2], item[3])};
+    public static float itemAlongArm(UUID uuid, boolean right) {
+        State state = STATES.fresh(uuid);
+        if (state == null || !state.alongArm || state.right != right) return 0f;
+        return InteractionRuntime.weight(uuid, right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
     }
 
     /**
