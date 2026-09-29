@@ -14,6 +14,7 @@ import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.animationadditions.lookat.LookAt;
 import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
+import strm.emfcompat.animationadditions.blockuse.BlockUse;
 import strm.emfcompat.animationadditions.doorhold.DoorHold;
 import strm.emfcompat.animationadditions.furniture.Furniture;
 import strm.emfcompat.animationadditions.mining.Mining;
@@ -56,6 +57,7 @@ public class EMFCompatAnimationAdditionsMod {
             TorsoLean.register(config);
             PoseInertia.register(config);
             ButtonPress.register(config);
+            BlockUse.register(config);
             DoorHold.register(config);
             Furniture.register(config);
             Mining.register(config);
@@ -64,6 +66,7 @@ public class EMFCompatAnimationAdditionsMod {
             InteractionRuntime.register(PlantReach.INSTANCE);
             InteractionRuntime.register(LookAt.INSTANCE);
             InteractionRuntime.register(ButtonPress.INSTANCE);
+            InteractionRuntime.register(BlockUse.INSTANCE);
             InteractionRuntime.register(DoorHold.INSTANCE);
             InteractionRuntime.register(Furniture.INSTANCE);
             InteractionRuntime.register(Mining.INSTANCE);
