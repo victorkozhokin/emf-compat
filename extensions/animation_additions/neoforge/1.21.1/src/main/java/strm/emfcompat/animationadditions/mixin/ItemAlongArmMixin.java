@@ -38,10 +38,11 @@ public class ItemAlongArmMixin {
         if (!(entity instanceof Player player)) return;
         float w = BlockUse.itemAlongArm(player.getUUID(), arm == HumanoidArm.RIGHT);
         if (w < 1e-3f) return;
-        // The arm's axes: y down the arm, -z forwards. The far end of a flat item held by vanilla
-        // points back (+z); a turn of -90 degrees about x lays it down the arm (+y), and a quarter
-        // turn about the arm stands its flat side up, seen from the side when the arm points ahead.
-        Quaternionf turn = new Quaternionf().rotationY((float) (Math.PI / 2)).rotateX((float) (-Math.PI / 2));
+        // The arm's axes: y down the arm, -z forwards. A flat item held by vanilla has the top of its
+        // picture (a key's bow) pointing forwards (-z); a turn of +90 degrees about x lays the bottom
+        // (the key's bit) down the arm (+y) - -90 put the bow first - and a quarter turn about the
+        // arm stands its flat side up, seen from the side when the arm points ahead.
+        Quaternionf turn = new Quaternionf().rotationY((float) (Math.PI / 2)).rotateX((float) (Math.PI / 2));
         Quaternionf blended = new Quaternionf().slerp(turn, w);
         pose.translate(0f, FIST_Y + OUT_OF_FIST * w, FIST_Z);
         pose.mulPose(blended);
