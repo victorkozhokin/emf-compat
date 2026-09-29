@@ -47,7 +47,7 @@ public final class BlockUse implements InteractionProvider {
     public static final BlockUse INSTANCE = new BlockUse();
     public static final String KEY_ENABLED = "blockuse.enabled";
 
-    private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox(), new Campfire(), new BrewingStand());
+    private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox(), new Campfire());
 
     /** Below a button press, above doors and chests. */
     private static final int PRIORITY = 8;
