@@ -191,10 +191,11 @@ public final class BlockUse implements InteractionProvider {
                 return;
             }
             float[] aim = {ik.x(), ik.y()};
-            // Crouching and the arm not long enough, the player stands up to it - and stays up
-            // while the hand is on it: stood up, it is in reach, and would crouch again.
+            // Crouching and the arm not long enough for something above the shoulder, the player
+            // stands up to it - and stays up while the hand is on it: stood up, it is in reach, and
+            // would crouch again. Below the shoulder standing only takes the hand further off.
             standUp = state.target != null && state.target.reachPose() && player.getPose() == Pose.CROUCHING
-                    && (state.standUp || ik.reach() > 1f);
+                    && (state.standUp || ik.reach() > 1f && model.y < shoulder.y);
             Effector effector = right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
             if (!state.shown || right != state.right || InteractionRuntime.weight(player.getUUID(), effector, id()) < 1e-3f) {
                 state.grip.set(model);

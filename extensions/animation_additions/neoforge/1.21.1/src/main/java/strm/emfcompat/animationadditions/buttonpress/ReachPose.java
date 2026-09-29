@@ -25,8 +25,14 @@ public final class ReachPose {
     private static final float FULL = 1.8f;
     private static final float NEAR = 1.3f;
     private static final float NONE = 0.95f;
-    /** The torso leans towards the target this much at most, radians. */
+    /** The torso leans towards the target this much at most, radians... */
     private static final float LEAN = (float) Math.toRadians(25);
+    /**
+     * ...and this much more for a target below the waist, all of it {@link #LOW_FULL} pixels
+     * under: a crank or a lever on the floor is out of reach of a torso leant 25 degrees.
+     */
+    private static final float LOW_LEAN = (float) Math.toRadians(25);
+    private static final float LOW_FULL = 12f;
     /** How quickly the pose comes and goes, seconds. */
     public static final double SECONDS = 0.2;
     /** The torso turns round the waist, as {@code TorsoLean} does; model pixels. */
@@ -59,8 +65,10 @@ public final class ReachPose {
         Vector3f to = new Vector3f(target).sub(WAIST);
         float flat = (float) Math.hypot(to.x, to.z);
         if (flat < 1e-3f || s <= 0f) return;
-        lean[0] += s * LEAN * (-to.z / flat);
-        lean[2] += s * LEAN * (-to.x / flat);
+        // Model y is down: below the waist is +y.
+        float amount = LEAN + LOW_LEAN * Mth.clamp(to.y / LOW_FULL, 0f, 1f);
+        lean[0] += s * amount * (-to.z / flat);
+        lean[2] += s * amount * (-to.x / flat);
     }
 
     /** Blends the balancing limbs in by {@code s}, 0..1, for the {@code right} (or left) hand reaching. */
