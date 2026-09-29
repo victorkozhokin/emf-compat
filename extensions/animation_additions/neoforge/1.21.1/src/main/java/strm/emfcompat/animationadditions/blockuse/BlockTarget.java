@@ -17,8 +17,8 @@ public interface BlockTarget {
     record Spot(Vec3 point, Vec3 out) {
     }
 
-    /** What the hand does: puts something in, takes it out, taps, or puts in and turns about the arm (a key). */
-    enum Motion {PUT, TAKE, TAP, TURN}
+    /** What the hand does: puts something in, takes it out, or taps. */
+    enum Motion {PUT, TAKE, TAP}
 
     record Gesture(Spot spot, Motion motion) {
     }

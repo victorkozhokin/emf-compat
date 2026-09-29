@@ -10,7 +10,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.Candidate;
 import strm.emfcompat.animationadditions.interaction.Category;
@@ -72,14 +71,6 @@ public final class BlockUse implements InteractionProvider {
     private static final float TAKE_TO = 5f;
     private static final float TAP_IN = 1.5f;
     private static final double GESTURE_SECONDS = 0.35;
-    /**
-     * A turn: the item goes in over the first {@link #TURN_IN} of it and stays in, then the arm
-     * turns about its own length by {@link #TURN_ANGLE} - clockwise as the player sees it, as a hand
-     * turns a key - and holds.
-     */
-    private static final double TURN_SECONDS = 0.7;
-    private static final double TURN_IN = 0.3;
-    private static final float TURN_ANGLE = (float) Math.toRadians(40);
     private static final double GRIP_SECONDS = 0.05;
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
@@ -97,8 +88,6 @@ public final class BlockUse implements InteractionProvider {
         boolean right = true, shown;
         /** The hand's point in model pixels. */
         final Vector3f grip = new Vector3f();
-        /** The arm's turn about its length, radians. */
-        float twist;
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -144,10 +133,8 @@ public final class BlockUse implements InteractionProvider {
                     state.last = seen;
                 }
             }
-            double seconds = state.gesture != null && state.gesture.motion() == BlockTarget.Motion.TURN ? TURN_SECONDS : GESTURE_SECONDS;
-            double t = state.gesture == null ? 1 : (now - state.gestureAt) / 1e9 / seconds;
+            double t = state.gesture == null ? 1 : (now - state.gestureAt) / 1e9 / GESTURE_SECONDS;
             if (t >= 1) state.gesture = null;
-            float twist = 0f;
 
             BlockTarget.Spot spot;
             float outwards;
@@ -159,11 +146,6 @@ public final class BlockUse implements InteractionProvider {
                     case TAKE -> {
                         float e = (float) (1 - (1 - t) * (1 - t));
                         outwards = TAKE_FROM + (TAKE_TO - TAKE_FROM) * e;
-                    }
-                    case TURN -> {
-                        outwards = HOVER_OUT - PUT_IN * (float) Math.min(1, t / TURN_IN);
-                        float k = (float) Mth.clamp((t - TURN_IN) / (1 - TURN_IN) * 1.6, 0, 1);
-                        twist = TURN_ANGLE * k * k * (3 - 2 * k);
                     }
                     default -> outwards = HOVER_OUT - TAP_IN * s;
                 }
@@ -189,7 +171,6 @@ public final class BlockUse implements InteractionProvider {
                 return;
             }
             float[] aim = {ik.x(), ik.y()};
-            state.twist = twist;
             Effector effector = right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
             if (!state.shown || right != state.right || InteractionRuntime.weight(player.getUUID(), effector, id()) < 1e-3f) {
                 state.grip.set(model);
@@ -254,30 +235,7 @@ public final class BlockUse implements InteractionProvider {
         // As OneBoneIK: the arm hangs along +y.
         float x = -(float) Math.acos(Mth.clamp(to.y, -1f, 1f));
         float y = (float) Math.atan2(-to.x, -to.z);
-        if (state.twist != 0f) {
-            // Turned about its own length (local y, from the shoulder out): looking along it, from
-            // behind, a right-handed turn is clockwise.
-            Vector3f euler = zyx(new Quaternionf().rotationZYX(0f, y, x).rotateY(state.twist));
-            arm.xRot += IKMath.wrap(euler.x - arm.xRot) * w;
-            arm.yRot += IKMath.wrap(euler.y - arm.yRot) * w;
-            arm.zRot += IKMath.wrap(euler.z - arm.zRot) * w;
-            return;
-        }
         arm.xRot += IKMath.wrap(x - arm.xRot) * w;
         arm.yRot += IKMath.wrap(y - arm.yRot) * w;
-    }
-
-    /**
-     * {xRot, yRot, zRot} of a part turned by {@code q}, for the part's R = Rz Ry Rx - as
-     * {@code Mining.zyx}: joml's getEulerAnglesZYX gave a wrong pose.
-     */
-    private static Vector3f zyx(Quaternionf q) {
-        Vector3f c0 = q.transform(new Vector3f(1f, 0f, 0f));
-        Vector3f c1 = q.transform(new Vector3f(0f, 1f, 0f));
-        Vector3f c2 = q.transform(new Vector3f(0f, 0f, 1f));
-        float y = (float) Math.asin(Mth.clamp(-c0.z, -1f, 1f));
-        float x = (float) Math.atan2(c1.z, c2.z);
-        float z = (float) Math.atan2(c0.y, c0.x);
-        return new Vector3f(x, y, z);
     }
 }

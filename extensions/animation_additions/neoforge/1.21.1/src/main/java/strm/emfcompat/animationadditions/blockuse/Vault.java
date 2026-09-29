@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 /**
  * A trial chambers vault: with the key it takes in the hand - a trial key, an ominous one for an
  * ominous vault - and the vault active, the arm stretches out to the keyhole in its front; when the
- * vault starts unlocking, the hand goes in and turns about the arm, as turning a key.
+ * vault starts unlocking, the hand goes in to it.
  *
  * <p>Whether this player has opened this vault already is the server's to know: the hand goes to
  * any active vault the key fits.</p>
@@ -40,7 +40,7 @@ final class Vault implements BlockTarget {
         if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before)) return null;
         boolean unlocked = before.getValue(VaultBlock.STATE) != VaultState.UNLOCKING
                 && now.getValue(VaultBlock.STATE) == VaultState.UNLOCKING;
-        return unlocked ? new Gesture(keyhole(pos, now), Motion.TURN) : null;
+        return unlocked ? new Gesture(keyhole(pos, now), Motion.PUT) : null;
     }
 
     /** The keyhole: the middle of the front, a little low. */
