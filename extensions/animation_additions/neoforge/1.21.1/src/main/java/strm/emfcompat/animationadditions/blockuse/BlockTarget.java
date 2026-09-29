@@ -17,13 +17,22 @@ public interface BlockTarget {
     record Spot(Vec3 point, Vec3 out) {
     }
 
-    /** What the hand does: puts something in, takes it out, or taps. */
-    enum Motion {PUT, TAKE, TAP}
+    /** What the hand does: puts something in, takes it out, taps, or puts in and turns (a key). */
+    enum Motion {PUT, TAKE, TAP, TURN}
 
     record Gesture(Spot spot, Motion motion) {
     }
 
     boolean matches(BlockState block);
+
+    /**
+     * When the held item rather than the hand goes on the spot - a key into a keyhole - its grip
+     * and its tip in the arm's axes, {gripY, gripZ, tipY, tipZ} pixels (documentation.md §15.6);
+     * {@code null} for the hand.
+     */
+    default float[] item() {
+        return null;
+    }
 
     /**
      * Where the hand waits, looked at where {@code hit} is; {@code null} when a click there would

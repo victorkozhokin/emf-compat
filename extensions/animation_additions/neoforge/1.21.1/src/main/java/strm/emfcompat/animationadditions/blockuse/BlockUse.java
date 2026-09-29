@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.Candidate;
 import strm.emfcompat.animationadditions.interaction.Category;
@@ -47,7 +48,7 @@ public final class BlockUse implements InteractionProvider {
     public static final BlockUse INSTANCE = new BlockUse();
     public static final String KEY_ENABLED = "blockuse.enabled";
 
-    private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox(), new Campfire());
+    private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox(), new Campfire(), new Vault());
 
     /** Below a button press, above doors and chests. */
     private static final int PRIORITY = 8;
@@ -71,6 +72,13 @@ public final class BlockUse implements InteractionProvider {
     private static final float TAKE_TO = 5f;
     private static final float TAP_IN = 1.5f;
     private static final double GESTURE_SECONDS = 0.35;
+    /**
+     * A turn: the item goes in over the first {@link #TURN_IN} of it and stays in, then turns about
+     * its own length by {@link #TURN_ANGLE} - clockwise as the player sees it - and holds.
+     */
+    private static final double TURN_SECONDS = 0.7;
+    private static final double TURN_IN = 0.3;
+    private static final float TURN_ANGLE = (float) Math.toRadians(40);
     private static final double GRIP_SECONDS = 0.05;
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
@@ -86,8 +94,11 @@ public final class BlockUse implements InteractionProvider {
         BlockTarget.Gesture gesture;
         long gestureAt;
         boolean right = true, shown;
-        /** The hand's point in model pixels. */
+        /** The hand's (or the item's) point in model pixels. */
         final Vector3f grip = new Vector3f();
+        /** The held item's {gripY, gripZ, tipY, tipZ} when it goes on the point, and its turn about its length, radians. */
+        float[] item;
+        float twist;
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -133,8 +144,10 @@ public final class BlockUse implements InteractionProvider {
                     state.last = seen;
                 }
             }
-            double t = state.gesture == null ? 1 : (now - state.gestureAt) / 1e9 / GESTURE_SECONDS;
+            double seconds = state.gesture != null && state.gesture.motion() == BlockTarget.Motion.TURN ? TURN_SECONDS : GESTURE_SECONDS;
+            double t = state.gesture == null ? 1 : (now - state.gestureAt) / 1e9 / seconds;
             if (t >= 1) state.gesture = null;
+            float twist = 0f;
 
             BlockTarget.Spot spot;
             float outwards;
@@ -146,6 +159,11 @@ public final class BlockUse implements InteractionProvider {
                     case TAKE -> {
                         float e = (float) (1 - (1 - t) * (1 - t));
                         outwards = TAKE_FROM + (TAKE_TO - TAKE_FROM) * e;
+                    }
+                    case TURN -> {
+                        outwards = HOVER_OUT - PUT_IN * (float) Math.min(1, t / TURN_IN);
+                        float k = (float) Mth.clamp((t - TURN_IN) / (1 - TURN_IN) * 1.6, 0, 1);
+                        twist = TURN_ANGLE * k * k * (3 - 2 * k);
                     }
                     default -> outwards = HOVER_OUT - TAP_IN * s;
                 }
@@ -165,11 +183,26 @@ public final class BlockUse implements InteractionProvider {
             // The hand that holds what is used.
             boolean right = player.getMainArm() == HumanoidArm.RIGHT;
             Vector3f shoulder = right ? RIGHT_SHOULDER : LEFT_SHOULDER;
-            IKResult aim = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
-            if (aim == null || aim.reach() > MAX_REACH) {
-                context.decide("out-of-reach");
-                return;
+            float[] item = state.target == null ? null : state.target.item();
+            float[] aim;
+            if (item != null) {
+                // The item's tip on the point, as a tool's in Mining.
+                float[] solved = solveItem(new Vector3f(model).sub(shoulder), item);
+                if (solved[2] > MAX_REACH) {
+                    context.decide("out-of-reach");
+                    return;
+                }
+                aim = new float[]{solved[0], solved[1]};
+            } else {
+                IKResult ik = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
+                if (ik == null || ik.reach() > MAX_REACH) {
+                    context.decide("out-of-reach");
+                    return;
+                }
+                aim = new float[]{ik.x(), ik.y()};
             }
+            state.item = item;
+            state.twist = twist;
             Effector effector = right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
             if (!state.shown || right != state.right || InteractionRuntime.weight(player.getUUID(), effector, id()) < 1e-3f) {
                 state.grip.set(model);
@@ -178,7 +211,7 @@ public final class BlockUse implements InteractionProvider {
             }
             state.right = right;
             shown = true;
-            out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, effector, new float[]{aim.x(), aim.y()}));
+            out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, effector, aim));
             // The click swings the arm; the gesture is the swing.
             context.claimArms();
             context.decide((state.gesture == null ? "hover" : state.gesture.motion().name().toLowerCase())
@@ -230,11 +263,54 @@ public final class BlockUse implements InteractionProvider {
         if (arm == null) return;
         Vector3f to = new Vector3f(state.grip).sub(arm.x, arm.y, arm.z);
         if (to.lengthSquared() < 1e-6f) return;
+        if (state.item != null) {
+            float[] solved = solveItem(to, state.item);
+            Quaternionf q = new Quaternionf().rotationZYX(0f, solved[1], solved[0]);
+            if (state.twist != 0f) {
+                // Turned about the item's own length, as a key is: clockwise seen from behind it
+                // is a right-handed turn about the way it points.
+                Vector3f along = q.transform(new Vector3f(0f, state.item[2] - state.item[0], state.item[3] - state.item[1]).normalize());
+                q = new Quaternionf().rotateAxis(state.twist, along).mul(q);
+            }
+            Vector3f euler = zyx(q);
+            arm.xRot += IKMath.wrap(euler.x - arm.xRot) * w;
+            arm.yRot += IKMath.wrap(euler.y - arm.yRot) * w;
+            arm.zRot += IKMath.wrap(euler.z - arm.zRot) * w;
+            return;
+        }
         to.normalize();
         // As OneBoneIK: the arm hangs along +y.
         float x = -(float) Math.acos(Mth.clamp(to.y, -1f, 1f));
         float y = (float) Math.atan2(-to.x, -to.z);
         arm.xRot += IKMath.wrap(x - arm.xRot) * w;
         arm.yRot += IKMath.wrap(y - arm.yRot) * w;
+    }
+
+    /**
+     * The arm's {xRot, yRot} putting the held item's tip on a point {@code to} pixels from the
+     * shoulder, and how far the point is as a share of the tip's reach - as {@code Mining.solve}.
+     * The arm's turn about x turns the tip round by the same angle from where it hangs.
+     */
+    private static float[] solveItem(Vector3f to, float[] item) {
+        float distance = to.length();
+        if (distance < 1e-3f) return new float[]{0f, 0f, 0f};
+        float offset = (float) Math.atan2(item[3], item[2]);
+        float x = -(float) Math.acos(Mth.clamp(to.y / distance, -1f, 1f)) - offset;
+        float yaw = (float) Math.atan2(-to.x, -to.z);
+        return new float[]{x, yaw, distance / (float) Math.hypot(item[2], item[3])};
+    }
+
+    /**
+     * {xRot, yRot, zRot} of a part turned by {@code q}, for the part's R = Rz Ry Rx - as
+     * {@code Mining.zyx}: joml's getEulerAnglesZYX gave a wrong pose.
+     */
+    private static Vector3f zyx(Quaternionf q) {
+        Vector3f c0 = q.transform(new Vector3f(1f, 0f, 0f));
+        Vector3f c1 = q.transform(new Vector3f(0f, 1f, 0f));
+        Vector3f c2 = q.transform(new Vector3f(0f, 0f, 1f));
+        float y = (float) Math.asin(Mth.clamp(-c0.z, -1f, 1f));
+        float x = (float) Math.atan2(c1.z, c2.z);
+        float z = (float) Math.atan2(c0.y, c0.x);
+        return new Vector3f(x, y, z);
     }
 }
