@@ -106,6 +106,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         PoseInertia.apply(uuid, parts, EMFState.getFrameCounter());
         FootGrounding.apply(uuid, parts);
         ButtonPress.apply(uuid, parts);
+        BlockUse.apply(uuid, parts);
         HorseFootGrounding.apply(uuid, parts);
         // The torso before the arm aims: a hand on a wall aims from where the shoulder has gone.
         TorsoLean.apply(uuid, parts);

@@ -39,6 +39,19 @@ public interface BlockTarget {
         return null;
     }
 
+    /** Whether the body reaches with the hand past the arm's length, as for a lever ({@code ReachPose}). */
+    default boolean reachPose() {
+        return false;
+    }
+
+    /**
+     * Whether the swing a click starts is kept off the body while the hand is on it - a crank held
+     * down starts one after another, and the pack's swing twists the torso and the other arm.
+     */
+    default boolean quietsSwing() {
+        return false;
+    }
+
     /**
      * What is watched for a change: the block's state, or more - what a block entity holds, when
      * using it does not change the state. Compared with {@code equals}.

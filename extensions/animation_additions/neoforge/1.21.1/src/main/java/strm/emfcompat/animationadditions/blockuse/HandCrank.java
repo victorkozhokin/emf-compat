@@ -60,6 +60,16 @@ final class HandCrank implements BlockTarget {
     }
 
     @Override
+    public boolean reachPose() {
+        return true;
+    }
+
+    @Override
+    public boolean quietsSwing() {
+        return true;
+    }
+
+    @Override
     public Gesture changed(BlockPos pos, Object before, Object now) {
         return null;
     }

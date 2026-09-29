@@ -11,6 +11,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
+import strm.emfcompat.animationadditions.buttonpress.ReachPose;
 import strm.emfcompat.animationadditions.interaction.Candidate;
 import strm.emfcompat.animationadditions.interaction.Category;
 import strm.emfcompat.animationadditions.interaction.Effector;
@@ -97,6 +99,8 @@ public final class BlockUse implements InteractionProvider {
         /** The hand's point in model pixels, and the torso turn asked for {pitch, yaw, roll}. */
         final Vector3f grip = new Vector3f();
         final float[] lean = new float[3];
+        /** How far into the reaching pose, 0..1, as shown. */
+        float stretch;
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -122,6 +126,7 @@ public final class BlockUse implements InteractionProvider {
         State state = STATES.seen(player.getUUID(), now).value;
         state.lean[0] = state.lean[1] = state.lean[2] = 0f;
         boolean shown = false;
+        float stretchTarget = 0f;
         try {
             if (!player.onGround() || player.isPassenger() || player.isSleeping() || player.isInWaterOrBubble()
                     || (player.getPose() != Pose.STANDING && player.getPose() != Pose.CROUCHING)) {
@@ -198,6 +203,11 @@ public final class BlockUse implements InteractionProvider {
                 state.lean[0] = Mth.clamp((-off.z + 0.5f * off.y) * k, -1f, 1f) * SWAY_PITCH;
                 state.lean[1] = Mth.clamp(-off.x * k, -1f, 1f) * SWAY_YAW;
             }
+            if (state.target != null && state.target.reachPose() && EMFCompatConfig.getBoolean(ButtonPress.KEY_STRETCH, true)) {
+                // Past the arm's length the whole body reaches, as for a lever.
+                stretchTarget = ReachPose.weight(new Vector3f(model).sub(shoulder).length() / ARM);
+                ReachPose.lean(model, stretchTarget, state.lean);
+            }
             shown = true;
             out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, effector, aim));
             // The click swings the arm; the gesture is the swing.
@@ -206,6 +216,10 @@ public final class BlockUse implements InteractionProvider {
                     + (right ? "-R" : "-L"));
         } finally {
             state.shown = shown;
+            double dt = context.dt();
+            state.stretch += (stretchTarget - state.stretch)
+                    * (stretchTarget > state.stretch ? Smoothing.fadeIn(dt, ReachPose.SECONDS) : Smoothing.fadeOut(dt, ReachPose.SECONDS));
+            if (state.stretch < 1e-3f) state.stretch = 0f;
         }
     }
 
@@ -235,6 +249,24 @@ public final class BlockUse implements InteractionProvider {
         }
         state.target = target;
         return target.hover(player, pos, block, blockHit);
+    }
+
+    /** The limbs balancing the reaching pose. Called after the pack has animated, before the torso. */
+    public static void apply(UUID uuid, Function<String, ModelPart> parts) {
+        State state = STATES.fresh(uuid);
+        if (state == null || state.stretch < 1e-3f) return;
+        if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
+        ReachPose.balance(parts, state.right, state.stretch);
+    }
+
+    /**
+     * Whether the swing is kept off this player's body now: the hand is on a target that asks for
+     * it ({@link BlockTarget#quietsSwing}), most of the way.
+     */
+    public static boolean quietsSwing(UUID uuid) {
+        State state = STATES.fresh(uuid);
+        if (state == null || !state.shown || state.target == null || !state.target.quietsSwing()) return false;
+        return InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id()) > 0.5f;
     }
 
     /** The torso turn this asks for, {pitch, yaw, roll}; {@code null} when none. */
