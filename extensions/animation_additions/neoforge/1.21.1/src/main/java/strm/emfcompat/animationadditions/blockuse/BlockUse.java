@@ -47,7 +47,7 @@ public final class BlockUse implements InteractionProvider {
     public static final BlockUse INSTANCE = new BlockUse();
     public static final String KEY_ENABLED = "blockuse.enabled";
 
-    private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf());
+    private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox());
 
     /** Below a button press, above doors and chests. */
     private static final int PRIORITY = 8;
@@ -60,7 +60,7 @@ public final class BlockUse implements InteractionProvider {
     /** Looked for this far along the look, blocks. */
     private static final double RANGE = 3.0;
     /** Past the arm's length, as a share of it: further and the hand does not go. */
-    private static final float MAX_REACH = 1.5f;
+    private static final float MAX_REACH = 2.0f;
     /** Faster than this, blocks per tick, the player walks past. */
     private static final double SLOW_BELOW = 0.15;
 
