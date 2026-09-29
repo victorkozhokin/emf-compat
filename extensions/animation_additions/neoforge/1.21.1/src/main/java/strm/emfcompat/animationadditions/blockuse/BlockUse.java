@@ -10,7 +10,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.Candidate;
 import strm.emfcompat.animationadditions.interaction.Category;
@@ -36,11 +35,11 @@ import java.util.function.Function;
  * Using a block by hand - a chiseled bookshelf's slot, and so on ({@link BlockTarget}): looking at
  * a spot the hand can use, the main hand goes to it and waits there; when the block changes the way
  * a hand changes it, the hand puts in (in and back out), takes out (from inside, out past the
- * front) or taps, the torso going with it a little.
+ * front) or taps. Only the arm moves: the torso stays as the pack draws it.
  *
  * <p>By the look, as a click is: the spot looked at is the one used. The hand only goes where the
- * click would do something, and only within reach of the arm with the torso leant a little - no
- * using a block from across the room. The use itself is instant; the gesture plays out after it,
+ * click would do something, and only within reach of the arm - no using a block from across the
+ * room. The use itself is instant; the gesture plays out after it,
  * as a lever's hand follows the handle over.</p>
  */
 public final class BlockUse implements InteractionProvider {
@@ -57,15 +56,11 @@ public final class BlockUse implements InteractionProvider {
     /** Model space: pixels, y down, facing -z. */
     private static final Vector3f RIGHT_SHOULDER = new Vector3f(-5f, 2f, 0f);
     private static final Vector3f LEFT_SHOULDER = new Vector3f(5f, 2f, 0f);
-    private static final Vector3f WAIST = new Vector3f(0f, 12f, 0f);
     private static final float ARM = 11f;
     /** Looked for this far along the look, blocks. */
     private static final double RANGE = 3.0;
-    /** Past the arm's length, as a share of it, with the most lean: further and the hand does not go. */
+    /** Past the arm's length, as a share of it: further and the hand does not go. */
     private static final float MAX_REACH = 1.5f;
-    private static final float MAX_LEAN_PITCH = (float) Math.toRadians(15);
-    private static final float MAX_LEAN_YAW = (float) Math.toRadians(15);
-    private static final int LEAN_STEPS = 6;
     /** Faster than this, blocks per tick, the player walks past. */
     private static final double SLOW_BELOW = 0.15;
 
@@ -76,9 +71,6 @@ public final class BlockUse implements InteractionProvider {
     private static final float TAKE_TO = 5f;
     private static final float TAP_IN = 1.5f;
     private static final double GESTURE_SECONDS = 0.35;
-    /** The torso going with the hand: forwards putting in, back pulling out, radians at the gesture's middle. */
-    private static final float PUT_LEAN = (float) Math.toRadians(6);
-    private static final float TAKE_LEAN = (float) Math.toRadians(-4);
     private static final double GRIP_SECONDS = 0.05;
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
@@ -94,9 +86,8 @@ public final class BlockUse implements InteractionProvider {
         BlockTarget.Gesture gesture;
         long gestureAt;
         boolean right = true, shown;
-        /** The hand's point in model pixels, and the torso turn asked for {pitch, yaw, roll}. */
+        /** The hand's point in model pixels. */
         final Vector3f grip = new Vector3f();
-        final float[] lean = new float[3];
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -120,7 +111,6 @@ public final class BlockUse implements InteractionProvider {
         AbstractClientPlayer player = context.player();
         long now = context.now();
         State state = STATES.seen(player.getUUID(), now).value;
-        state.lean[0] = state.lean[1] = state.lean[2] = 0f;
         boolean shown = false;
         try {
             if (!player.onGround() || player.isPassenger() || player.isSleeping() || player.isInWaterOrBubble()
@@ -147,19 +137,14 @@ public final class BlockUse implements InteractionProvider {
 
             BlockTarget.Spot spot;
             float outwards;
-            float lean = 0f;
             if (state.gesture != null) {
                 spot = state.gesture.spot();
                 float s = (float) Math.sin(Math.PI * t);
                 switch (state.gesture.motion()) {
-                    case PUT -> {
-                        outwards = HOVER_OUT - PUT_IN * s;
-                        lean = PUT_LEAN * s;
-                    }
+                    case PUT -> outwards = HOVER_OUT - PUT_IN * s;
                     case TAKE -> {
                         float e = (float) (1 - (1 - t) * (1 - t));
                         outwards = TAKE_FROM + (TAKE_TO - TAKE_FROM) * e;
-                        lean = TAKE_LEAN * s;
                     }
                     default -> outwards = HOVER_OUT - TAP_IN * s;
                 }
@@ -179,17 +164,7 @@ public final class BlockUse implements InteractionProvider {
             // The hand that holds what is used.
             boolean right = player.getMainArm() == HumanoidArm.RIGHT;
             Vector3f shoulder = right ? RIGHT_SHOULDER : LEFT_SHOULDER;
-            // The least lean that brings it in reach; towards -x (the right) is a turn to the right, +yRot.
-            float yawSign = Math.abs(model.x) < 1.5f ? 0f : model.x < 0 ? 1f : -1f;
-            IKResult aim = null;
-            float pitch = 0f, yaw = 0f;
-            for (int i = 0; i <= LEAN_STEPS; i++) {
-                float share = i / (float) LEAN_STEPS;
-                pitch = MAX_LEAN_PITCH * share;
-                yaw = yawSign * MAX_LEAN_YAW * share;
-                aim = OneBoneIK.solveXY(frame, leant(shoulder, pitch, yaw), point, ARM, 0f, 0f);
-                if (aim != null && aim.reach() <= 1f) break;
-            }
+            IKResult aim = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
             if (aim == null || aim.reach() > MAX_REACH) {
                 context.decide("out-of-reach");
                 return;
@@ -201,8 +176,6 @@ public final class BlockUse implements InteractionProvider {
                 state.grip.lerp(model, Smoothing.follow(context.dt(), GRIP_SECONDS));
             }
             state.right = right;
-            state.lean[0] = pitch + lean;
-            state.lean[1] = yaw;
             shown = true;
             out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, effector, new float[]{aim.x(), aim.y()}));
             // The click swings the arm; the gesture is the swing.
@@ -242,22 +215,9 @@ public final class BlockUse implements InteractionProvider {
         return target.hover(player, pos, block, blockHit);
     }
 
-    /** A shoulder pivot carried round the waist by the torso's lean. */
-    private static Vector3f leant(Vector3f shoulder, float pitch, float yaw) {
-        Quaternionf turn = new Quaternionf().rotationZYX(0f, yaw, pitch);
-        return turn.transform(new Vector3f(shoulder).sub(WAIST)).add(WAIST);
-    }
-
-    /** The torso turn this asks for, {pitch, yaw, roll}; {@code null} when none. */
-    public static float[] torsoHint(UUID uuid) {
-        State state = STATES.fresh(uuid);
-        if (state == null || state.lean[0] == 0f && state.lean[1] == 0f && state.lean[2] == 0f) return null;
-        return state.lean.clone();
-    }
-
     /**
-     * Points the hand at its spot from where its shoulder is drawn this frame, after the torso has
-     * leant. Called last, after the interaction runtime.
+     * Points the hand at its spot from where its shoulder is drawn this frame. Called last, after
+     * the interaction runtime.
      */
     public static void aimArm(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
