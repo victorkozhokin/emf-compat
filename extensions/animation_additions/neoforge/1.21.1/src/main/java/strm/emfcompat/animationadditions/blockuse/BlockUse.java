@@ -47,7 +47,7 @@ public final class BlockUse implements InteractionProvider {
     public static final BlockUse INSTANCE = new BlockUse();
     public static final String KEY_ENABLED = "blockuse.enabled";
 
-    private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox());
+    private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox(), new Campfire());
 
     /** Below a button press, above doors and chests. */
     private static final int PRIORITY = 8;
@@ -60,7 +60,7 @@ public final class BlockUse implements InteractionProvider {
     /** Looked for this far along the look, blocks. */
     private static final double RANGE = 3.0;
     /** Past the arm's length, as a share of it: further and the hand does not go. */
-    private static final float MAX_REACH = 2.0f;
+    private static final float MAX_REACH = 2.5f;
     /** Faster than this, blocks per tick, the player walks past. */
     private static final double SLOW_BELOW = 0.15;
 
@@ -81,7 +81,7 @@ public final class BlockUse implements InteractionProvider {
     private static final class State {
         /** The block looked at, as it was last seen, and its target. */
         BlockPos pos;
-        BlockState last;
+        Object last;
         BlockTarget target;
         BlockTarget.Gesture gesture;
         long gestureAt;
@@ -123,13 +123,14 @@ public final class BlockUse implements InteractionProvider {
             // The block held changed the way a hand changes it: the gesture.
             if (state.pos != null) {
                 BlockState block = player.level().getBlockState(state.pos);
-                if (!block.equals(state.last)) {
-                    BlockTarget.Gesture gesture = state.target.matches(block) ? state.target.changed(state.pos, state.last, block) : null;
+                Object seen = state.target.matches(block) ? state.target.snapshot(player.level(), state.pos, block) : block;
+                if (!seen.equals(state.last)) {
+                    BlockTarget.Gesture gesture = state.target.matches(block) ? state.target.changed(state.pos, state.last, seen) : null;
                     if (gesture != null) {
                         state.gesture = gesture;
                         state.gestureAt = now;
                     }
-                    state.last = block;
+                    state.last = seen;
                 }
             }
             double t = state.gesture == null ? 1 : (now - state.gestureAt) / 1e9 / GESTURE_SECONDS;
@@ -209,7 +210,7 @@ public final class BlockUse implements InteractionProvider {
         }
         if (!pos.equals(state.pos)) {
             state.pos = pos.immutable();
-            state.last = block;
+            state.last = target.snapshot(player.level(), pos, block);
         }
         state.target = target;
         return target.hover(player, pos, block, blockHit);

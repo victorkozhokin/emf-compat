@@ -28,7 +28,8 @@ final class Jukebox implements BlockTarget {
     }
 
     @Override
-    public Gesture changed(BlockPos pos, BlockState before, BlockState now) {
+    public Gesture changed(BlockPos pos, Object was, Object is) {
+        if (!(was instanceof BlockState before) || !(is instanceof BlockState now)) return null;
         if (!matches(before) || before.getValue(JukeboxBlock.HAS_RECORD) == now.getValue(JukeboxBlock.HAS_RECORD)) return null;
         return new Gesture(slot(pos), now.getValue(JukeboxBlock.HAS_RECORD) ? Motion.PUT : Motion.TAKE);
     }

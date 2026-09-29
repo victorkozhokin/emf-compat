@@ -2,6 +2,7 @@ package strm.emfcompat.animationadditions.blockuse;
 
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -30,6 +31,17 @@ public interface BlockTarget {
      */
     Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit);
 
-    /** The block went from {@code before} to {@code now}: where the hand did it and how; {@code null} when not a hand's doing. */
-    Gesture changed(BlockPos pos, BlockState before, BlockState now);
+    /**
+     * What is watched for a change: the block's state, or more - what a block entity holds, when
+     * using it does not change the state. Compared with {@code equals}.
+     */
+    default Object snapshot(Level level, BlockPos pos, BlockState block) {
+        return block;
+    }
+
+    /**
+     * The block went from {@code before} to {@code now} (two {@link #snapshot}s): where the hand did
+     * it and how; {@code null} when not a hand's doing.
+     */
+    Gesture changed(BlockPos pos, Object before, Object now);
 }

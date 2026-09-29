@@ -51,7 +51,8 @@ final class ChiseledShelf implements BlockTarget {
     }
 
     @Override
-    public Gesture changed(BlockPos pos, BlockState before, BlockState now) {
+    public Gesture changed(BlockPos pos, Object was, Object is) {
+        if (!(was instanceof BlockState before) || !(is instanceof BlockState now)) return null;
         if (!matches(before) || !matches(now)) return null;
         for (int slot = 0; slot < ChiseledBookShelfBlock.SLOT_OCCUPIED_PROPERTIES.size(); slot++) {
             BooleanProperty property = ChiseledBookShelfBlock.SLOT_OCCUPIED_PROPERTIES.get(slot);
