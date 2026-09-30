@@ -29,7 +29,7 @@ final class ValveHandle implements BlockTarget {
     private static Vec3 point(BlockPos pos, Direction facing, float degrees, Vector3f model) {
         Vector3f p = WheelGeometry.valve(model, new Vector3f(facing.getStepX(), facing.getStepY(), facing.getStepZ()),
                 (float) Math.toRadians(degrees));
-        return new Vec3(pos.getX() + p.x, pos.getY() + p.y, pos.getZ() + p.z);
+        return new Vec3(pos.getX() + (double) p.x, pos.getY() + (double) p.y, pos.getZ() + (double) p.z);
     }
     public boolean reachPose() { return true; }
     public boolean balancesReach() { return false; }

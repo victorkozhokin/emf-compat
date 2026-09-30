@@ -291,7 +291,10 @@ public final class BlockUse implements InteractionProvider {
                 }
             }
         }
-        HitResult hit = player.pick(RANGE, 1f, false);
+        // Our own player: the game's crosshair target, the block a click uses. Sable's sub-levels
+        // (Aeronautics' craft) are in it, but not in a plain pick; others' is the pick.
+        HitResult hit = player == Minecraft.getInstance().player && Minecraft.getInstance().hitResult != null
+                ? Minecraft.getInstance().hitResult : player.pick(RANGE, 1f, false);
         if (!(hit instanceof BlockHitResult blockHit) || hit.getType() != HitResult.Type.BLOCK) {
             state.pos = null;
             return null;

@@ -49,10 +49,10 @@ final class ThrottleLever {
         if (entity == null) return null;
         try {
             PoseStack stack = new PoseStack();
-            stack.translate(pos.getX(), pos.getY(), pos.getZ());
             m.invoke(null, entity, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false), stack);
             Vector3f at = stack.last().pose().transformPosition(new Vector3f(KNOB));
-            return new Vec3(at.x, at.y, at.z);
+            // The block's own corner added in double: a pose stack is float, off by whole blocks in a sub-level's plot.
+            return new Vec3(pos.getX() + (double) at.x, pos.getY() + (double) at.y, pos.getZ() + (double) at.z);
         } catch (Throwable t) {
             if (!failed) LOGGER.warn("[ButtonPress] could not place the throttle lever's knob", t);
             failed = true;

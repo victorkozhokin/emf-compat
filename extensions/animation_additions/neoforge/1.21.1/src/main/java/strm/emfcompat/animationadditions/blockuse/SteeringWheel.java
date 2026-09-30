@@ -44,7 +44,8 @@ final class SteeringWheel implements BlockTarget {
     private static Vec3 point(BlockPos pos, BlockState block, float radians, Vector3f model) {
         Vector3f p = WheelGeometry.steering(model, block.getValue(BlockStateProperties.HORIZONTAL_FACING).getRotation(),
                 block.getValue((BooleanProperty) block.getBlock().getStateDefinition().getProperty("on_floor")), radians);
-        return new Vec3(pos.getX() + p.x, pos.getY() + p.y, pos.getZ() + p.z);
+        // In double: a sub-level's plot is millions of blocks out, where a float is off by whole blocks.
+        return new Vec3(pos.getX() + (double) p.x, pos.getY() + (double) p.y, pos.getZ() + (double) p.z);
     }
     public boolean reachPose() { return true; }
     public boolean balancesReach() { return false; }
