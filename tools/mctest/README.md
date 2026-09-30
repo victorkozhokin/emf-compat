@@ -347,6 +347,7 @@ to a connection that never negotiated their channels, and the keep-alive would t
 {"bot": {"cycle": {"use": [x, y, z], "face": "south", "every": 40, "offset": 0, "close": 20}}}
                                      the same click every 40 ticks on the server tick, between scripts too;
                                      a container shut again 20 ticks later; "cycle": false stops it
+{"bot": {"menu": {"slot": 1, "button": 1, "type": "PICKUP"}}}   a click on a slot of the menu a "use" opened;  {"bot": {"close": true}}
 {"bot": {"swing": true}}   {"bot": {"remove": true}}                     "name": "Bob" when there are several
 ```
 

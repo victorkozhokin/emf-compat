@@ -153,6 +153,15 @@ public final class Bot {
                     CYCLES.remove(bot);
                 }
             }
+            if (v.has("menu")) {
+                // A click on a slot of the menu the bot has open (after a "use" opened it), as a client's would be.
+                JsonObject c = v.getAsJsonObject("menu");
+                bot.containerMenu.clicked(c.get("slot").getAsInt(), c.has("button") ? c.get("button").getAsInt() : 0,
+                        net.minecraft.world.inventory.ClickType.valueOf(c.has("type") ? c.get("type").getAsString() : "PICKUP"), bot);
+                bot.containerMenu.broadcastChanges();
+                out.addProperty("menu", bot.containerMenu.getClass().getSimpleName());
+            }
+            if (v.has("close")) bot.closeContainer();
             if (v.has("swing")) bot.swing(InteractionHand.MAIN_HAND, true);
             if (v.has("remove")) {
                 server.getPlayerList().remove(bot);
