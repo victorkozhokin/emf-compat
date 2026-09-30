@@ -20,11 +20,10 @@ final class ValveHandle implements BlockTarget {
         Float degrees = ANGLE.read(player.level(), pos);
         if (degrees == null) return null;
         Direction facing = block.getValue(BlockStateProperties.FACING);
-        return WheelSpace.spot(player.level(), pos, point(pos, facing, degrees, new Vector3f(2f / 16f, 6.5f / 16f, .5f)),
-                Vec3.atLowerCornerOf(facing.getNormal()));
+        return new Spot(point(pos, facing, degrees, new Vector3f(2f / 16f, 6.5f / 16f, .5f)), Vec3.atLowerCornerOf(facing.getNormal()));
     }
     public Vec3 swayCentre(Level level, BlockPos pos, BlockState block) {
-        return WheelSpace.world(level, pos, point(pos, block.getValue(BlockStateProperties.FACING), 0, new Vector3f(.5f, 6.5f / 16f, .5f)));
+        return point(pos, block.getValue(BlockStateProperties.FACING), 0, new Vector3f(.5f, 6.5f / 16f, .5f));
     }
     private static Vec3 point(BlockPos pos, Direction facing, float degrees, Vector3f model) {
         Vector3f p = WheelGeometry.valve(model, new Vector3f(facing.getStepX(), facing.getStepY(), facing.getStepZ()),

@@ -3,6 +3,7 @@ package strm.emfcompat.animationadditions.blockuse;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.Minecraft;
 import strm.emfcompat.animationadditions.buttonpress.ReachEnvelope;
+import strm.emfcompat.animationadditions.interaction.SubLevels;
 import strm.emfcompat.animationadditions.interaction.Visibility;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -192,6 +193,10 @@ public final class BlockUse implements InteractionProvider {
                 context.decide("none");
                 return;
             }
+            // Targets work in their block's own space; on a craft (a Sable sub-level) that is a
+            // plot far off, drawn moved and turned: the hand goes to where it is drawn.
+            SubLevels.Space space = state.pos == null ? SubLevels.WORLD : SubLevels.at(player.level(), state.pos);
+            spot = inWorld(space, spot);
 
             IKFrame frame = context.frame();
             Vec3 point = spot.point().add(spot.out().scale(outwards / 16.0));
@@ -210,6 +215,7 @@ public final class BlockUse implements InteractionProvider {
             // would crouch again. Below the shoulder standing only takes the hand further off.
             Vec3 centre = state.target == null || state.pos == null ? null
                     : state.target.swayCentre(player.level(), state.pos, player.level().getBlockState(state.pos));
+            if (centre != null) centre = space.toWorld(centre);
             Vector3f postureTarget = centre == null ? model : frame.relativeToJoint(centre.add(0, 7 / 16.0, 0), new Vector3f());
             state.overhead = postureTarget.y < shoulder.y;
             if (state.target != null && state.target.reachPose() && state.crouching) {
@@ -240,6 +246,7 @@ public final class BlockUse implements InteractionProvider {
                 if (state.crouching) state.lean[0] = Math.min(state.lean[0], (float) Math.toRadians(20));
             }
             BlockTarget.Spot support = state.target.supportHand(player, state.pos, player.level().getBlockState(state.pos));
+            if (support != null) support = inWorld(space, support);
             state.support = support != null;
             if (support != null) {
                 Vec3 otherPoint = support.point().add(support.out().scale(HOVER_OUT / 16.0));
@@ -276,18 +283,24 @@ public final class BlockUse implements InteractionProvider {
         }
     }
 
+    /** A spot of {@code space}, in the world. */
+    private static BlockTarget.Spot inWorld(SubLevels.Space space, BlockTarget.Spot spot) {
+        return space.isWorld() ? spot : new BlockTarget.Spot(space.toWorld(spot.point()), space.directionToWorld(spot.out()));
+    }
+
     /** The spot under the look on a block a hand uses, keeping the block to watch it change; {@code null} when none. */
     private static BlockTarget.Spot look(AbstractClientPlayer player, State state) {
         if (state.pos != null && state.target != null && state.target.quietsSwing()
                 && player == Minecraft.getInstance().player && Minecraft.getInstance().options.keyUse.isDown()) {
             BlockState kept = player.level().getBlockState(state.pos);
             if (state.target.matches(kept)) {
-                Vec3 centre = state.target.swayCentre(player.level(), state.pos, kept);
+                Vec3 local = state.target.swayCentre(player.level(), state.pos, kept);
+                Vec3 centre = local == null ? null : SubLevels.toWorld(player.level(), state.pos, local);
                 if (centre != null && centre.distanceTo(player.getEyePosition()) <= RANGE
                         && centre.subtract(player.getEyePosition()).normalize().dot(player.getViewVector(1f)) > 0.9
                         && Visibility.visible(player, state.pos, centre)) {
                     return state.target.hover(player, state.pos, kept,
-                            new BlockHitResult(centre, net.minecraft.core.Direction.UP, state.pos, false));
+                            new BlockHitResult(local, net.minecraft.core.Direction.UP, state.pos, false));
                 }
             }
         }

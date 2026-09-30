@@ -25,6 +25,7 @@ import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.InteractionContext;
 import strm.emfcompat.animationadditions.interaction.InteractionProvider;
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
+import strm.emfcompat.animationadditions.interaction.SubLevels;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
@@ -274,10 +275,13 @@ public final class ButtonPress implements InteractionProvider {
     /** The buttons round the player's eyes, and whether each is down now. */
     private static void scan(AbstractClientPlayer player, State state) {
         List<BlockPos> found = new ArrayList<>();
-        BlockPos eye = BlockPos.containing(player.getEyePosition());
         int r = Mth.ceil(SCAN_RADIUS);
-        for (BlockPos pos : BlockPos.betweenClosed(eye.offset(-r, -r - 1, -r), eye.offset(r, r, r))) {
-            if (isTarget(player.level().getBlockState(pos))) found.add(pos.immutable());
+        // Round the eyes in the world, and in the plot of any craft near them (see SubLevels).
+        for (SubLevels.Space space : SubLevels.around(player.level(), new AABB(player.getEyePosition(), player.getEyePosition()).inflate(r + 1))) {
+            BlockPos eye = BlockPos.containing(space.toLocal(player.getEyePosition()));
+            for (BlockPos pos : BlockPos.betweenClosed(eye.offset(-r, -r - 1, -r), eye.offset(r, r, r))) {
+                if (isTarget(player.level().getBlockState(pos))) found.add(pos.immutable());
+            }
         }
         List<Boolean> powered = new ArrayList<>();
         for (BlockPos pos : found) {
@@ -373,6 +377,11 @@ public final class ButtonPress implements InteractionProvider {
      * so the hand follows it over when it is thrown.
      */
     private static Vec3 grip(AbstractClientPlayer player, BlockPos pos, BlockState block) {
+        // Worked out in the block's own space; on a craft carried out to where it is drawn.
+        return SubLevels.toWorld(player.level(), pos, localGrip(player, pos, block));
+    }
+
+    private static Vec3 localGrip(AbstractClientPlayer player, BlockPos pos, BlockState block) {
         Level level = player.level();
         if (ThrottleLever.is(block)) {
             Vec3 knob = ThrottleLever.knob(level, pos);
@@ -474,11 +483,14 @@ public final class ButtonPress implements InteractionProvider {
      */
     private static Foot foot(AbstractClientPlayer player, IKFrame frame, BlockPos pos, BlockState block, Boolean keep) {
         if (!(block.getBlock() instanceof ButtonBlock) || block.getValue(ButtonBlock.FACE) != AttachFace.FLOOR) return null;
-        if (pos.getY() != Mth.floor(player.getY() + 1e-3)) return null;
         if (player.getPose() != Pose.STANDING) return null;
         Level level = player.level();
+        SubLevels.Space space = SubLevels.at(level, pos);
+        // On the floor the player stands on: a craft's deck is as high as it is drawn.
+        if (space.isWorld() ? pos.getY() != Mth.floor(player.getY() + 1e-3)
+                : Math.abs(space.toWorld(Vec3.atBottomCenterOf(pos)).y - player.getY()) > 0.25) return null;
         AABB box = block.getShape(level, pos).bounds();
-        Vec3 top = new Vec3(pos.getX() + box.getCenter().x, pos.getY() + box.maxY, pos.getZ() + box.getCenter().z);
+        Vec3 top = space.toWorld(new Vec3(pos.getX() + box.getCenter().x, pos.getY() + box.maxY, pos.getZ() + box.getCenter().z));
         Foot best = null;
         float bestDistance = Float.MAX_VALUE;
         for (int leg = 0; leg < 2; leg++) {

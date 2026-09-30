@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.Vec3;
+import strm.emfcompat.animationadditions.interaction.SubLevels;
 import org.joml.Vector3f;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -89,31 +90,34 @@ public final class DoorHold implements InteractionProvider {
             return;
         }
         IKFrame frame = context.frame();
-        Vec3 at = player.position();
-        BlockPos feet = BlockPos.containing(at.x, at.y + 1e-3, at.z);
         IKResult right = null, left = null;
         Vec3 rightPoint = null, leftPoint = null;
         float rightReach = Float.MAX_VALUE, leftReach = Float.MAX_VALUE;
-        for (BlockPos pos : BlockPos.betweenClosed(feet.offset(-1, 0, -1), feet.offset(1, 0, 1))) {
-            BlockState block = player.level().getBlockState(pos);
-            if (!(block.getBlock() instanceof DoorBlock door) || !door.type().canOpenByHand()
-                    || block.getValue(DoorBlock.HALF) != DoubleBlockHalf.LOWER) continue;
-            if (Math.abs(at.x - (pos.getX() + 0.5)) > DOORWAY || Math.abs(at.z - (pos.getZ() + 0.5)) > DOORWAY) continue;
-            Vec3 grip = doorGrip(player, pos.immutable(), block);
-            if (!strm.emfcompat.animationadditions.interaction.Visibility.visible(player, pos, grip)) continue;
-            boolean isRight = frame.relativeToJoint(grip, new Vector3f()).x < 0;
-            Vector3f shoulder = isRight ? RIGHT_SHOULDER : LEFT_SHOULDER;
-            if (frame.relativeToJoint(grip, shoulder).z > MAX_BEHIND) continue;
-            IKResult aim = OneBoneIK.solveXY(frame, shoulder, grip, ARM, 0f, 0f);
-            if (aim == null || aim.reach() > MAX_REACH) continue;
-            if (isRight && aim.reach() < rightReach) {
-                right = aim;
-                rightPoint = grip;
-                rightReach = aim.reach();
-            } else if (!isRight && aim.reach() < leftReach) {
-                left = aim;
-                leftPoint = grip;
-                leftReach = aim.reach();
+        // The world, and a craft's plot seen from where the player stands on it (see SubLevels).
+        for (SubLevels.Space space : SubLevels.around(player.level(), player.getBoundingBox().inflate(1.5))) {
+            Vec3 at = space.toLocal(player.position());
+            BlockPos feet = BlockPos.containing(at.x, at.y + 1e-3, at.z);
+            for (BlockPos pos : BlockPos.betweenClosed(feet.offset(-1, 0, -1), feet.offset(1, 0, 1))) {
+                BlockState block = player.level().getBlockState(pos);
+                if (!(block.getBlock() instanceof DoorBlock door) || !door.type().canOpenByHand()
+                        || block.getValue(DoorBlock.HALF) != DoubleBlockHalf.LOWER) continue;
+                if (Math.abs(at.x - (pos.getX() + 0.5)) > DOORWAY || Math.abs(at.z - (pos.getZ() + 0.5)) > DOORWAY) continue;
+                Vec3 grip = space.toWorld(doorGrip(player.level(), at, pos.immutable(), block));
+                if (!strm.emfcompat.animationadditions.interaction.Visibility.visible(player, pos, grip)) continue;
+                boolean isRight = frame.relativeToJoint(grip, new Vector3f()).x < 0;
+                Vector3f shoulder = isRight ? RIGHT_SHOULDER : LEFT_SHOULDER;
+                if (frame.relativeToJoint(grip, shoulder).z > MAX_BEHIND) continue;
+                IKResult aim = OneBoneIK.solveXY(frame, shoulder, grip, ARM, 0f, 0f);
+                if (aim == null || aim.reach() > MAX_REACH) continue;
+                if (isRight && aim.reach() < rightReach) {
+                    right = aim;
+                    rightPoint = grip;
+                    rightReach = aim.reach();
+                } else if (!isRight && aim.reach() < leftReach) {
+                    left = aim;
+                    leftPoint = grip;
+                    leftReach = aim.reach();
+                }
             }
         }
         if (rightPoint != null) strm.emfcompat.animationadditions.interaction.HandContacts.remember(context, id(), Effector.RIGHT_ARM, rightPoint);
@@ -130,8 +134,7 @@ public final class DoorHold implements InteractionProvider {
      * leaf. The hinges are where the leaf closed and the leaf open meet, so it comes out right
      * for either hinge side and either way round, open or shut.
      */
-    private static Vec3 doorGrip(AbstractClientPlayer player, BlockPos pos, BlockState block) {
-        Level level = player.level();
+    private static Vec3 doorGrip(Level level, Vec3 at, BlockPos pos, BlockState block) {
         AABB leaf = block.getShape(level, pos).bounds();
         AABB shut = block.setValue(DoorBlock.OPEN, false).getShape(level, pos).bounds();
         AABB open = block.setValue(DoorBlock.OPEN, true).getShape(level, pos).bounds();
@@ -151,7 +154,7 @@ public final class DoorHold implements InteractionProvider {
         // Out of the leaf on the player's side.
         double half = (alongX ? leaf.getZsize() : leaf.getXsize()) / 2 + DOOR_OUT;
         Vec3 normal = alongX ? new Vec3(0, 0, 1) : new Vec3(1, 0, 0);
-        double side = Math.signum(player.position().subtract(grip).dot(normal));
+        double side = Math.signum(at.subtract(grip).dot(normal));
         return grip.add(normal.scale((side == 0 ? 1 : side) * half));
     }
 }

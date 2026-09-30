@@ -18,6 +18,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import strm.emfcompat.animationadditions.interaction.SubLevels;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -207,17 +208,24 @@ public final class Mining implements InteractionProvider {
 
     /** The block looked at within {@link #HOVER_RANGE} of the eyes, {@code null} when none. */
     private static BlockPos looked(AbstractClientPlayer player, float partial, double range) {
-        HitResult hit = player.pick(range, partial, false);
+        // Our own player: the game's crosshair target, which sees a craft's blocks (Sable) as a pick does not.
+        Minecraft mc = Minecraft.getInstance();
+        HitResult hit = player == mc.player && mc.hitResult instanceof BlockHitResult own
+                && SubLevels.toWorld(player.level(), own.getBlockPos(), own.getLocation())
+                        .distanceTo(player.getEyePosition(partial)) <= range + 1e-3
+                ? mc.hitResult : player.pick(range, partial, false);
         return hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK ? block.getBlockPos() : null;
     }
 
     /** Where the player's look meets the block; its middle when the look misses it. */
     private static Vec3 point(AbstractClientPlayer player, BlockPos pos, float partial) {
-        Vec3 eye = player.getEyePosition(partial);
-        Vec3 end = eye.add(player.getViewVector(partial).scale(player.blockInteractionRange() + 1));
+        // In the block's own space: on a craft its plot, carried out to where it is drawn.
+        SubLevels.Space space = SubLevels.at(player.level(), pos);
+        Vec3 eye = space.toLocal(player.getEyePosition(partial));
+        Vec3 end = eye.add(space.directionToLocal(player.getViewVector(partial)).scale(player.blockInteractionRange() + 1));
         VoxelShape shape = player.level().getBlockState(pos).getShape(player.level(), pos);
         AABB box = shape.isEmpty() ? new AABB(pos) : shape.bounds().move(pos);
-        return box.clip(eye, end).orElse(box.getCenter());
+        return space.toWorld(box.clip(eye, end).orElse(box.getCenter()));
     }
 
     /** The tool in the hand; {@code null} for anything else - only tools swing onto the block. */

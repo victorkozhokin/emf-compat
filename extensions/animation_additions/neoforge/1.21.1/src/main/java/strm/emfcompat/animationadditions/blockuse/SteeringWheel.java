@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import strm.emfcompat.animationadditions.interaction.SubLevels;
 
 /** Aeronautics' bundled Simulated steering wheel: two fixed rim grips follow its rendered angle. */
 final class SteeringWheel implements BlockTarget {
@@ -29,17 +30,17 @@ final class SteeringWheel implements BlockTarget {
         if (angle == null) return null;
         Direction facing = block.getValue(BlockStateProperties.HORIZONTAL_FACING);
         // Select at rest, never swap at the half-turn: that would teleport the grips between hands.
-        Vec3 centre = WheelSpace.world(player.level(), pos, point(pos, block, 0, new Vector3f(.5f)));
-        Vec3 side = WheelSpace.world(player.level(), pos, point(pos, block, 0, new Vector3f(1, .5f, .5f))).subtract(centre);
+        // Which way the rim's +x side points, in the world: a craft may have turned the wheel.
+        Vec3 side = SubLevels.at(player.level(), pos).directionToWorld(point(pos, block, 0, new Vector3f(1, .5f, .5f))
+                .subtract(point(pos, block, 0, new Vector3f(.5f))));
         Vec3 right = new Vec3(-player.getLookAngle().z, 0, player.getLookAngle().x);
         boolean positive = side.dot(right) >= 0;
         if (player.getMainArm() == HumanoidArm.LEFT) positive = !positive;
         if (support) positive = !positive;
-        return WheelSpace.spot(player.level(), pos, point(pos, block, angle, new Vector3f(positive ? 1 : 0, .5f, .5f)),
-                Vec3.atLowerCornerOf(facing.getNormal()));
+        return new Spot(point(pos, block, angle, new Vector3f(positive ? 1 : 0, .5f, .5f)), Vec3.atLowerCornerOf(facing.getNormal()));
     }
     public Vec3 swayCentre(Level level, BlockPos pos, BlockState block) {
-        return WheelSpace.world(level, pos, point(pos, block, 0, new Vector3f(.5f)));
+        return point(pos, block, 0, new Vector3f(.5f));
     }
     private static Vec3 point(BlockPos pos, BlockState block, float radians, Vector3f model) {
         Vector3f p = WheelGeometry.steering(model, block.getValue(BlockStateProperties.HORIZONTAL_FACING).getRotation(),

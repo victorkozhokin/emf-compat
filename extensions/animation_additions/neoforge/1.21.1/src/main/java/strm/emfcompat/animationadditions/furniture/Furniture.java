@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.entity.LidBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.phys.Vec3;
+import strm.emfcompat.animationadditions.interaction.SubLevels;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.Candidate;
 import strm.emfcompat.animationadditions.interaction.Category;
@@ -142,42 +143,46 @@ public final class Furniture implements InteractionProvider {
     /** The lectern or chest nearest the look, within the cone round it, and where the hands go. */
     private static Grips look(AbstractClientPlayer player) {
         Level level = player.level();
-        Vec3 eye = player.getEyePosition();
-        Vec3 view = player.getViewVector(1f);
-        BlockPos feet = player.blockPosition();
         Grips best = null;
         double bestDot = LOOK_CONE;
         int r = (int) Math.ceil(RANGE);
-        for (BlockPos pos : BlockPos.betweenClosed(feet.offset(-r, -1, -r), feet.offset(r, 1, r))) {
-            BlockState block = level.getBlockState(pos);
-            boolean chest = block.getBlock() instanceof ChestBlock || block.getBlock() instanceof EnderChestBlock;
-            if (!chest && !(block.getBlock() instanceof LecternBlock)) continue;
-            Vec3 middle = Vec3.atCenterOf(pos);
-            if (middle.distanceTo(player.position()) > RANGE + 0.5) continue;
-            double dot = middle.subtract(eye).normalize().dot(view);
-            if (dot <= bestDot) continue;
-            Grips grips = chest ? chest(player, level, pos.immutable(), block) : lectern(player, pos.immutable(), block);
-            if (grips == null) continue;
-            if (!strm.emfcompat.animationadditions.interaction.Visibility.visible(player, pos, middle)) continue;
-            best = grips;
-            bestDot = dot;
+        // The world, and the plot of a craft near by, each in its own coordinates (see SubLevels).
+        for (SubLevels.Space space : SubLevels.around(level, player.getBoundingBox().inflate(r + 1))) {
+            Vec3 at = space.toLocal(player.position());
+            Vec3 eye = space.toLocal(player.getEyePosition());
+            Vec3 view = space.directionToLocal(player.getViewVector(1f));
+            BlockPos feet = BlockPos.containing(at);
+            for (BlockPos pos : BlockPos.betweenClosed(feet.offset(-r, -1, -r), feet.offset(r, 1, r))) {
+                BlockState block = level.getBlockState(pos);
+                boolean chest = block.getBlock() instanceof ChestBlock || block.getBlock() instanceof EnderChestBlock;
+                if (!chest && !(block.getBlock() instanceof LecternBlock)) continue;
+                Vec3 middle = Vec3.atCenterOf(pos);
+                if (middle.distanceTo(at) > RANGE + 0.5) continue;
+                double dot = middle.subtract(eye).normalize().dot(view);
+                if (dot <= bestDot) continue;
+                Grips grips = chest ? chest(at, view, level, pos.immutable(), block) : lectern(at, view, pos.immutable(), block);
+                if (grips == null) continue;
+                if (!strm.emfcompat.animationadditions.interaction.Visibility.visible(player, pos, space.toWorld(middle))) continue;
+                best = new Grips(grips.what, space.toWorld(grips.right), space.toWorld(grips.left), grips.reach);
+                bestDot = dot;
+            }
         }
         return best;
     }
 
     /** The hands on the edges of the book, from the side the lectern is read from. */
-    private static Grips lectern(AbstractClientPlayer player, BlockPos pos, BlockState block) {
+    private static Grips lectern(Vec3 at, Vec3 view, BlockPos pos, BlockState block) {
         Direction facing = block.getValue(LecternBlock.FACING);
         Vec3 towards = Vec3.atLowerCornerOf(facing.getNormal());
         Vec3 middle = new Vec3(pos.getX() + 0.5, pos.getY() + BOOK_Y / 16, pos.getZ() + 0.5);
         // Read from the side it faces.
-        if (player.position().subtract(middle).dot(towards) <= 0) return null;
+        if (at.subtract(middle).dot(towards) <= 0) return null;
         Vec3 book = middle.add(towards.scale(BOOK_TOWARDS / 16));
-        return hands("lectern", player, book, sideways(facing), BOOK_SPREAD, MAX_REACH);
+        return hands("lectern", view, book, sideways(facing), BOOK_SPREAD, MAX_REACH);
     }
 
     /** The hands on the front edge of the lid, gone up with it as far as it is open. */
-    private static Grips chest(AbstractClientPlayer player, Level level, BlockPos pos, BlockState block) {
+    private static Grips chest(Vec3 at, Vec3 view, Level level, BlockPos pos, BlockState block) {
         Direction facing = block.getValue(block.getBlock() instanceof ChestBlock ? ChestBlock.FACING : EnderChestBlock.FACING);
         Vec3 front = Vec3.atLowerCornerOf(facing.getNormal());
         Vec3 middle = new Vec3(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
@@ -186,7 +191,7 @@ public final class Furniture implements InteractionProvider {
             middle = middle.add(Vec3.atLowerCornerOf(ChestBlock.getConnectedDirection(block).getNormal()).scale(0.5));
         }
         // From in front of it.
-        if (player.position().subtract(middle).dot(front) <= 0) return null;
+        if (at.subtract(middle).dot(front) <= 0) return null;
         float open = 0f;
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity instanceof LidBlockEntity lid) {
@@ -201,12 +206,11 @@ public final class Furniture implements InteractionProvider {
         Vec3 edge = hinge.add(front.scale((forward + LID_OUT) / 16)).add(0, up / 16, 0);
         // Going up and back with the lid the edge leaves the hands' reach: they go with it further.
         float reach = MAX_REACH + (OPEN_REACH - MAX_REACH) * open;
-        Grips lid = hands(open > 0.05f ? "chest-open" : "chest", player, edge, sideways(facing), CHEST_SPREAD, reach);
+        Grips lid = hands(open > 0.05f ? "chest-open" : "chest", view, edge, sideways(facing), CHEST_SPREAD, reach);
         if (open < OPEN_FROM) return lid;
         // Open, as the copper golem goes through a chest: the left hand holds the lid up, the right
         // one is on the front edge of the chest's body, on its own side.
         Vec3 side = sideways(facing);
-        Vec3 view = player.getViewVector(1f);
         Vec3 playerRight = new Vec3(-view.z, 0, view.x);
         Vec3 rim = middle.add(0, RIM_Y / 16, 0).add(front.scale((7 + LID_OUT) / 16))
                 .add(side.scale(Math.signum(side.dot(playerRight)) * CHEST_SPREAD / 16));
@@ -219,11 +223,10 @@ public final class Furniture implements InteractionProvider {
     }
 
     /** Two grips {@code spread} pixels either side of {@code at}, each to the hand on its side. */
-    private static Grips hands(String what, AbstractClientPlayer player, Vec3 at, Vec3 side, double spread, float reach) {
+    private static Grips hands(String what, Vec3 view, Vec3 at, Vec3 side, double spread, float reach) {
         Vec3 a = at.add(side.scale(spread / 16));
         Vec3 b = at.add(side.scale(-spread / 16));
-        // The player's right, in the world: the look turned a quarter clockwise, seen from above.
-        Vec3 view = player.getViewVector(1f);
+        // The player's right: the look turned a quarter clockwise, seen from above.
         Vec3 right = new Vec3(-view.z, 0, view.x);
         return a.subtract(b).dot(right) > 0 ? new Grips(what, a, b, reach) : new Grips(what, b, a, reach);
     }
