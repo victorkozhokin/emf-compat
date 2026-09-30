@@ -62,6 +62,11 @@ public final class BlockUse implements InteractionProvider {
 
     /** Below a button press, above doors and chests. */
     private static final int PRIORITY = 8;
+    /**
+     * A grip held and turned - a crank, a valve, a steering wheel - above a button press (10): the
+     * look chose it, while a lever near by is only found by the body and would take the hand off it.
+     */
+    private static final int HELD_PRIORITY = 12;
     private static final Candidate.Timing TIMING = new Candidate.Timing(0.12, 0.18, 0.05);
 
     /** Model space: pixels, y down, facing -z. */
@@ -264,9 +269,9 @@ public final class BlockUse implements InteractionProvider {
                 Map<Effector, float[]> hands = new EnumMap<>(Effector.class);
                 hands.put(effector, aim);
                 hands.put(right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, new float[]{other.x(), other.y()});
-                out.add(Candidate.of(id(), Category.USE, PRIORITY, 1f, TIMING, hands));
+                out.add(Candidate.of(id(), Category.USE, priority(state), 1f, TIMING, hands));
             } else {
-                out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, effector, aim));
+                out.add(Candidate.single(id(), Category.USE, priority(state), 1f, TIMING, effector, aim));
             }
             shown = true;
             // The click swings the arm; the gesture is the swing.
@@ -281,6 +286,10 @@ public final class BlockUse implements InteractionProvider {
                     * (stretchTarget > state.stretch ? Smoothing.fadeIn(dt, ReachPose.SECONDS) : Smoothing.fadeOut(dt, ReachPose.SECONDS));
             if (state.stretch < 1e-3f) state.stretch = 0f;
         }
+    }
+
+    private static int priority(State state) {
+        return state.target != null && state.target.quietsSwing() ? HELD_PRIORITY : PRIORITY;
     }
 
     /** A spot of {@code space}, in the world. */
