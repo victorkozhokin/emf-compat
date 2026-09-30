@@ -66,6 +66,11 @@ public interface BlockTarget {
         return block;
     }
 
+    /** {@link #snapshot} as this player sees it - their own open menu, say, which no one else's is. */
+    default Object snapshot(AbstractClientPlayer player, Level level, BlockPos pos, BlockState block) {
+        return snapshot(level, pos, block);
+    }
+
     /**
      * The block went from {@code before} to {@code now} (two {@link #snapshot}s): where the hand did
      * it and how; {@code null} when not a hand's doing.

@@ -58,7 +58,8 @@ public final class BlockUse implements InteractionProvider {
 
     private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox(), new Campfire(), new Vault(), new HandCrank(),
             new Composter(), new FlowerPot(), new RespawnAnchor(), new NoteBlock(), new Repeater(), new Comparator(),
-            new DaylightDetector(), new Cake(), new Barrel(), new Candle(), new ValveHandle(), new SteeringWheel());
+            new DaylightDetector(), new Cake(), new Barrel(), new Candle(), new ValveHandle(), new SteeringWheel(),
+            new CraftingTable(), new Stonecutter(), new Bell(), new FenceGate());
 
     /** Below a button press, above doors and chests. */
     private static final int PRIORITY = 8;
@@ -163,7 +164,7 @@ public final class BlockUse implements InteractionProvider {
             // The block held changed the way a hand changes it: the gesture.
             if (state.pos != null) {
                 BlockState block = player.level().getBlockState(state.pos);
-                Object seen = state.target.matches(block) ? state.target.snapshot(player.level(), state.pos, block) : block;
+                Object seen = state.target.matches(block) ? state.target.snapshot(player, player.level(), state.pos, block) : block;
                 if (!seen.equals(state.last)) {
                     BlockTarget.Gesture gesture = state.target.changed(state.pos, state.last, seen);
                     if (gesture != null) {
@@ -337,7 +338,7 @@ public final class BlockUse implements InteractionProvider {
         if (!pos.equals(state.pos) || target != state.target) {
             state.gesture = null;
             state.pos = pos.immutable();
-            state.last = target.snapshot(player.level(), pos, block);
+            state.last = target.snapshot(player, player.level(), pos, block);
         }
         state.target = target;
         return target.hover(player, pos, block, blockHit);
