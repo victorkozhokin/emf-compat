@@ -358,7 +358,7 @@ comparator and a note block, each on its own period so the presses do not line u
 30.09.2026: every bot's provider decides as expected (`press`, `stamp`, `tap`, `chest-open`, door
 hands), no exceptions. The floor button also toggles the trapdoor next to it by redstone.
 
-It does not move or fall by itself: each step places it (`moveTo`, on ground). Its skin is the
+`{"menuClick": {"slot": 1, "button": 1, "type": "PICKUP"}}` clicks a slot of our own open menu, as the mouse does (`QUICK_MOVE` for shift-click); with `hideScreen` the menu stays open unseen. It does not move or fall by itself: each step places it (`moveTo`, on ground). Its skin is the
 offline default for its name. A Sable craft's hold interactions (the steering wheel) are
 client-driven, so a bot cannot steer; turn the wheel with our own player (`click` + `steeringDrag`)
 while the bot holds it. `state.target.world` gives where the crosshair hits in the world, also on a craft.

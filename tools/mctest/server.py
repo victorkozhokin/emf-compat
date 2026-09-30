@@ -164,6 +164,7 @@ def mc_steps(profile: str, steps: list[dict], crop: float = 0.45, size: int = 64
       {"bot": {"at": .., "look": .., "sneak": true, "item": "minecraft:stick"}}, {"bot": {"use": [x,y,z],
       "face": "west"}} (right click + swing), {"bot": {"swing": true}}, {"bot": {"remove": true}};
       "name" when there are several. It does not move by itself.
+  {"menuClick": {"slot": 1, "button": 1, "type": "PICKUP"}}  - a click on a slot of the open menu
   state.target has "pos" and "world" (the hit carried out of a Sable craft's plot into the world)
       {"wait": 10}  {"state": true}  {"log": "marker in latest.log"}
       {"screenshot": "name"}

@@ -377,6 +377,15 @@ public final class Driver {
                 case "model" -> result.add("model", model(mc, v));
                 case "log" -> LOG.info("[mctest] {}", v.getAsString());
                 case "bot" -> result.add("bot", Bot.run(mc, v.getAsJsonObject()));
+                case "menuClick" -> {
+                    // A click on a slot of the open menu, as the mouse makes one: {"slot": 1, "button": 1, "type": "PICKUP"}.
+                    JsonObject c = v.getAsJsonObject();
+                    LocalPlayer p = requirePlayer(player);
+                    mc.gameMode.handleInventoryMouseClick(p.containerMenu.containerId, c.get("slot").getAsInt(),
+                            c.has("button") ? c.get("button").getAsInt() : 0,
+                            net.minecraft.world.inventory.ClickType.valueOf(c.has("type") ? c.get("type").getAsString() : "PICKUP"), p);
+                    result.addProperty("menu", p.containerMenu.getClass().getSimpleName());
+                }
                 default -> throw new IllegalArgumentException("unknown step: " + kind);
             }
         }
