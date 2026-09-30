@@ -159,6 +159,12 @@ def mc_steps(profile: str, steps: list[dict], crop: float = 0.45, size: int = 64
       {"camera": "first|back|front"}  {"hideGui": true}  {"closeScreen": true}
   {"orbit": [yawOffset, pitch, distance]} / {"orbit": false}  - side-on camera (NeoForge 1.21.1)
   {"parcool": true}  - ParCool 4 animations, blend factor and driven parts (NeoForge 1.21.1)
+  {"bot": {"spawn": "Bob", "at": [x,y,z], "look": [yaw,pitch]}}  - another player (NeoForge 1.21.1):
+      a server player on a dead-end connection, seen by our client as a RemotePlayer. Then
+      {"bot": {"at": .., "look": .., "sneak": true, "item": "minecraft:stick"}}, {"bot": {"use": [x,y,z],
+      "face": "west"}} (right click + swing), {"bot": {"swing": true}}, {"bot": {"remove": true}};
+      "name" when there are several. It does not move by itself.
+  state.target has "pos" and "world" (the hit carried out of a Sable craft's plot into the world)
       {"wait": 10}  {"state": true}  {"log": "marker in latest.log"}
       {"screenshot": "name"}
       {"burst": {"count": 8, "every": 1, "name": "attack", "fade": true}}  - screenshots every

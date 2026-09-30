@@ -159,6 +159,7 @@ A script is a list of steps, run in order on the client thread. `wait` counts cl
 {"orbit": [90, 10, 5]}          camera at [yaw offset, pitch, distance] around the player; false = off
 {"orbit": [0, 80, 3, true]}     the same, pinned in the world where the player is now (stops following)
 {"parcool": true}               ParCool 4: running animations, overwriting/blend factor, driven parts
+{"bot": {"spawn": "Bob", "at": [x,y,z], "look": [yaw,pitch]}}   another player (NeoForge 1.21.1), see "Multiplayer bot"
 ```
 
 `orbit` and `parcool` exist in the NeoForge 1.21.1 driver only (the orbit is a `Camera.setup` mixin,
@@ -328,3 +329,24 @@ handler (about 5 degrees). Click the rim first; the step fails if no steering in
 is active. Move away before starting the next case to end its persistent hold.
 Target states expose `getIndependentAngle` in degrees and `getRenderAngle` in radians.
 See `wheel-review.md` for verified coverage and remaining limitations.
+
+## Multiplayer bot (NeoForge 1.21.1, 30.09.2026)
+
+`{"bot": ...}` puts a second player on the integrated server: a `ServerPlayer` on a connection with
+nothing behind it (`Bot.BotConnection`, as Carpet's `/player`). Our client gets it through the
+ordinary packets and draws it as a `RemotePlayer` - the path a real second player takes, so
+anything keyed on `mc.player` (the crosshair, held keys) is **not** available for it.
+`mixin/BotListenerMixin` drops everything the server sends it: NeoForge throws on mods' payloads
+to a connection that never negotiated their channels, and the keep-alive would time it out.
+
+```
+{"bot": {"spawn": "Bob", "at": [345.3, 150, 10.5], "look": [-90, 0]}}   (re)spawn, stands on ground
+{"bot": {"at": [...], "look": [yaw, pitch], "sneak": true, "item": "minecraft:stick"}}
+{"bot": {"use": [346, 151, 10], "face": "west", "hit": [x, y, z]}}       right click + swing, returns the result
+{"bot": {"swing": true}}   {"bot": {"remove": true}}                     "name": "Bob" when there are several
+```
+
+It does not move or fall by itself: each step places it (`moveTo`, on ground). Its skin is the
+offline default for its name. A Sable craft's hold interactions (the steering wheel) are
+client-driven, so a bot cannot steer; turn the wheel with our own player (`click` + `steeringDrag`)
+while the bot holds it. `state.target.world` gives where the crosshair hits in the world, also on a craft.

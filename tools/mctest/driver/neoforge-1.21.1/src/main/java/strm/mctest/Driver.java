@@ -21,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -375,6 +376,7 @@ public final class Driver {
                 }
                 case "model" -> result.add("model", model(mc, v));
                 case "log" -> LOG.info("[mctest] {}", v.getAsString());
+                case "bot" -> result.add("bot", Bot.run(mc, v.getAsJsonObject()));
                 default -> throw new IllegalArgumentException("unknown step: " + kind);
             }
         }
@@ -475,6 +477,16 @@ public final class Driver {
         if (hit.getType() == HitResult.Type.BLOCK && hit instanceof BlockHitResult block) {
             t.addProperty("block", String.valueOf(BuiltInRegistries.BLOCK.getKey(
                     p.level().getBlockState(block.getBlockPos()).getBlock())));
+            t.addProperty("pos", block.getBlockPos().toShortString());
+            // Where the hit is in the world: on a Sable craft the block is in a plot far off.
+            Vec3 world = hit.getLocation();
+            try {
+                Object helper = Class.forName("dev.ryanhcode.sable.Sable").getField("HELPER").get(null);
+                world = (Vec3) helper.getClass().getMethod("projectOutOfSubLevel", net.minecraft.world.level.Level.class,
+                        net.minecraft.core.Position.class).invoke(helper, p.level(), world);
+            } catch (ReflectiveOperationException ignored) {
+            }
+            t.addProperty("world", String.format(java.util.Locale.ROOT, "%.3f %.3f %.3f", world.x, world.y, world.z));
             var entity = p.level().getBlockEntity(block.getBlockPos());
             if (entity != null) {
                 for (String method : new String[]{"getIndependentAngle", "getRenderAngle"}) {
