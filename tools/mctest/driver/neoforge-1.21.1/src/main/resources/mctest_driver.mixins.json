@@ -4,7 +4,8 @@
   "package": "strm.mctest.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "CameraMixin"
+    "CameraMixin",
+    "ScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -65,6 +65,8 @@ public final class Driver {
      * Six values: an absolute yaw, pitch, distance and the pinned world point it orbits.
      */
     private static volatile float[] orbit;
+    private static boolean hideScreen;
+    public static boolean hideScreen() { return hideScreen; }
 
     private Driver() {
     }
@@ -346,6 +348,16 @@ public final class Driver {
                     p.yBodyRot = yaw;
                     p.yBodyRotO = yaw;
                 }
+                case "hideScreen" -> hideScreen = v.getAsBoolean();
+                case "steeringDrag" -> {
+                    Object handler = Class.forName("dev.simulated_team.simulated.index.SimClickInteractions")
+                            .getField("STEERING_WHEEL_MANAGER").get(null);
+                    Class<?> manager = Class.forName("dev.simulated_team.simulated.util.hold_interaction.HoldInteractionManager");
+                    Class<?> interaction = Class.forName("dev.simulated_team.simulated.util.hold_interaction.BlockHoldInteraction");
+                    if (!(boolean) manager.getMethod("isActive", interaction).invoke(null, handler))
+                        throw new IllegalStateException("Steering wheel is not held: click its rim first");
+                    handler.getClass().getMethod("activeOnMouseMove", double.class, double.class).invoke(handler, v.getAsDouble(), 0d);
+                }
                 case "hideGui" -> mc.options.hideGui = v.getAsBoolean();
                 case "closeScreen" -> mc.setScreen(null);
                 case "screenshot" -> {
@@ -441,6 +453,7 @@ public final class Driver {
         s.addProperty("crouching", p.isCrouching());
         s.addProperty("onGround", p.onGround());
         s.addProperty("usingItem", p.isUsingItem());
+        s.addProperty("screenHidden", hideScreen);
         s.addProperty("slot", p.getInventory().selected);
         s.addProperty("mainHand", item(p.getMainHandItem()));
         s.addProperty("offHand", item(p.getOffhandItem()));
@@ -462,6 +475,19 @@ public final class Driver {
         if (hit.getType() == HitResult.Type.BLOCK && hit instanceof BlockHitResult block) {
             t.addProperty("block", String.valueOf(BuiltInRegistries.BLOCK.getKey(
                     p.level().getBlockState(block.getBlockPos()).getBlock())));
+            var entity = p.level().getBlockEntity(block.getBlockPos());
+            if (entity != null) {
+                for (String method : new String[]{"getIndependentAngle", "getRenderAngle"}) {
+                    try {
+                        Object value = entity.getClass().getMethod(method, float.class)
+                                .invoke(entity, mc.getTimer().getGameTimeDeltaPartialTick(false));
+                        if (value instanceof Number number) t.addProperty(method, number);
+                    } catch (NoSuchMethodException ignored) {
+                    } catch (ReflectiveOperationException failure) {
+                        t.addProperty("probeError", failure.toString());
+                    }
+                }
+            }
         } else if (hit instanceof EntityHitResult entity) {
             t.addProperty("entity", String.valueOf(BuiltInRegistries.ENTITY_TYPE.getKey(entity.getEntity().getType())));
         }

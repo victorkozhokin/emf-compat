@@ -1,0 +1,58 @@
+[
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 304 152 7.5"
+  },
+  {
+    "wait": 30
+  },
+  {
+    "cmd": "fill 300 150 4 320 154 26 air"
+  },
+  {
+    "cmd": "fill 300 149 4 320 149 26 smooth_stone"
+  },
+  {
+    "cmd": "fill 305 150 5 310 150 9 stone_slab"
+  },
+  {
+    "cmd": "fill 305 150 14 305 150 16 stone_stairs[facing=east]"
+  },
+  {
+    "cmd": "fill 306 150 14 306 150 16 stone"
+  },
+  {
+    "cmd": "fill 306 151 14 306 151 16 stone_stairs[facing=east]"
+  },
+  {
+    "cmd": "fill 307 150 14 312 151 16 stone"
+  },
+  {
+    "cmd": "fill 308 150 20 308 153 21 stone"
+  },
+  {
+    "cmd": "time set noon"
+  },
+  {
+    "cmd": "weather clear"
+  },
+  {
+    "cmd": "gamerule doDaylightCycle false"
+  },
+  {
+    "cmd": "gamemode survival"
+  },
+  {
+    "config": {
+      "footgrounding.enabled": true,
+      "footgrounding.trace": true,
+      "parcool.enabled": false,
+      "lookat.enabled": false
+    }
+  }
+]

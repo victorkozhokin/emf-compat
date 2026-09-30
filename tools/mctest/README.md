@@ -285,3 +285,46 @@ metadata, and a copy of `Driver.java`. `mctest.py` finds it by the folder name
   The sandbox is written with `1` (system messages only) and screenshots are taken with `hideGui`.
 - **`server.py` is a stdio server.** Running it by hand without a client just hangs waiting on stdin.
 - The game may be closed by hand at any time; `mc_steps` then answers `game exited` with a log tail.
+
+## Experimental foot IK regression (29.09)
+
+`scenarios/footik_regression.py` generates `footik-scene.json` and `footik-cases.json` (named takes).
+Eight FA+Player cases, per-tick screenshots, `footik START/END` log markers and richer FootTrace.
+`footik_report.py` summarizes contacts and flags body lag / both legs raised; check pose/stride
+sample counts before treating a run as valid. Exact setup, results and limitations:
+[footik-review.md](footik-review.md).
+
+## Interaction regression (30.09.2026)
+
+`scenarios/interaction_regression.py` generates `interaction-scene.json` and a dictionary of 29
+named takes in `interaction-cases.json`. Run the scene once, then concatenate selected takes for
+`mc_steps`. Save its JSON text as `build/interaction-review/*-results.json`, and copy the final
+`latest.log` to `build/interaction-review/after.log`. Run `interaction_report.py` with that folder
+and the sandbox screenshots directory to build an HTML frame gallery and check the measured
+Crank invariants. Read [interaction-review.md](interaction-review.md) for the exact results,
+remaining visual defects, and fixture limitations. Tests distinguish gameplay crouch from visual
+extension and explicitly do not classify the low-crank contact as passing.
+
+### Wheel and unobstructed contact review (NeoForge 1.21.1)
+
+Generate the eight cases with `python3 tools/mctest/scenarios/wheel_regression.py`.
+Run `wheel-scene.json`, then the cases from `wheel-cases.json`; save the result text
+as `wheels-results.json` (first four) and `contacts-results.json` (last four).
+Copy `latest.log` as `after.log` and build the gallery with:
+
+```sh
+python3 tools/mctest/interaction_report.py build/wheel-review run/mctest/Test/screenshots --cases tools/mctest/scenarios/wheel-cases.json
+```
+
+Use `{"hideScreen": true}` as well as `{"hideGui": true}`: the former suppresses
+screen rendering while keeping the actual container open, including chest lid state.
+It affects the test driver only. Restore with `{"hideScreen": false}`.
+Place the player near the physical arm contact limit, rather than the gameplay use
+range. Aim at the front face of a bookshelf slot; aiming at the block centre can hit
+the wrong row at close distances. Review the palm in side views as well as metrics.
+
+`{"steeringDrag": 50}` sends horizontal mouse motion to Aeronautics' active steering
+handler (about 5 degrees). Click the rim first; the step fails if no steering interaction
+is active. Move away before starting the next case to end its persistent hold.
+Target states expose `getIndependentAngle` in degrees and `getRenderAngle` in radians.
+See `wheel-review.md` for verified coverage and remaining limitations.
