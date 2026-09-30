@@ -342,6 +342,7 @@ public final class ButtonPress implements InteractionProvider {
     private static boolean reachable(AbstractClientPlayer player, IKFrame frame, BlockPos pos) {
         BlockState block = player.level().getBlockState(pos);
         if (!isTarget(block)) return false;
+        if (!strm.emfcompat.animationadditions.interaction.Visibility.visible(player, pos, grip(player, pos, block))) return false;
         return foot(player, frame, pos, block, null) != null || hand(player, frame, pos, block) != null;
     }
 
@@ -506,7 +507,10 @@ public final class ButtonPress implements InteractionProvider {
     public static float[] torsoHint(UUID uuid) {
         State state = STATES.fresh(uuid);
         if (state == null || state.lean[0] == 0f && state.lean[1] == 0f && state.lean[2] == 0f) return null;
-        return state.lean.clone();
+        if (!INSTANCE.isEnabled()) return null;
+        float w = state.legWeight > 1e-3f ? state.legWeight
+                : InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id());
+        return new float[]{state.lean[0] * w, state.lean[1] * w, state.lean[2] * w};
     }
 
     /**
@@ -539,7 +543,9 @@ public final class ButtonPress implements InteractionProvider {
         State state = STATES.fresh(uuid);
         if (state == null) return;
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
-        ReachPose.balance(parts, true, state.stretch);
+        float owned = InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id());
+        ReachPose.balance(parts, true, state.stretch * owned,
+                InteractionRuntime.weight(uuid, Effector.LEFT_ARM) < 0.01f);
         if (state.legWeight < 1e-3f) return;
         ModelPart leg = parts.apply(state.footRight ? "right_leg" : "left_leg");
         if (leg == null) return;

@@ -31,7 +31,7 @@ final class FlowerPot implements BlockTarget {
 
     @Override
     public Gesture changed(BlockPos pos, Object was, Object is) {
-        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before)) return null;
+        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before) || !matches(now)) return null;
         if (empty(before) && !empty(now)) return new Gesture(earth(pos), Motion.PUT);
         if (!empty(before) && empty(now)) return new Gesture(earth(pos), Motion.TAKE);
         return null;

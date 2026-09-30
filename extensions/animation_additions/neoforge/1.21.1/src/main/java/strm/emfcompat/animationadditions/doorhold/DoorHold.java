@@ -92,6 +92,7 @@ public final class DoorHold implements InteractionProvider {
         Vec3 at = player.position();
         BlockPos feet = BlockPos.containing(at.x, at.y + 1e-3, at.z);
         IKResult right = null, left = null;
+        Vec3 rightPoint = null, leftPoint = null;
         float rightReach = Float.MAX_VALUE, leftReach = Float.MAX_VALUE;
         for (BlockPos pos : BlockPos.betweenClosed(feet.offset(-1, 0, -1), feet.offset(1, 0, 1))) {
             BlockState block = player.level().getBlockState(pos);
@@ -99,6 +100,7 @@ public final class DoorHold implements InteractionProvider {
                     || block.getValue(DoorBlock.HALF) != DoubleBlockHalf.LOWER) continue;
             if (Math.abs(at.x - (pos.getX() + 0.5)) > DOORWAY || Math.abs(at.z - (pos.getZ() + 0.5)) > DOORWAY) continue;
             Vec3 grip = doorGrip(player, pos.immutable(), block);
+            if (!strm.emfcompat.animationadditions.interaction.Visibility.visible(player, pos, grip)) continue;
             boolean isRight = frame.relativeToJoint(grip, new Vector3f()).x < 0;
             Vector3f shoulder = isRight ? RIGHT_SHOULDER : LEFT_SHOULDER;
             if (frame.relativeToJoint(grip, shoulder).z > MAX_BEHIND) continue;
@@ -106,12 +108,16 @@ public final class DoorHold implements InteractionProvider {
             if (aim == null || aim.reach() > MAX_REACH) continue;
             if (isRight && aim.reach() < rightReach) {
                 right = aim;
+                rightPoint = grip;
                 rightReach = aim.reach();
             } else if (!isRight && aim.reach() < leftReach) {
                 left = aim;
+                leftPoint = grip;
                 leftReach = aim.reach();
             }
         }
+        if (rightPoint != null) strm.emfcompat.animationadditions.interaction.HandContacts.remember(context, id(), Effector.RIGHT_ARM, rightPoint);
+        if (leftPoint != null) strm.emfcompat.animationadditions.interaction.HandContacts.remember(context, id(), Effector.LEFT_ARM, leftPoint);
         if (right != null) out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, Effector.RIGHT_ARM,
                 new float[]{right.x(), right.y()}));
         if (left != null) out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, Effector.LEFT_ARM,

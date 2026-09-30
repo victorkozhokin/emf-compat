@@ -124,6 +124,8 @@ public final class Furniture implements InteractionProvider {
         IKFrame frame = context.frame();
         IKResult right = aim(frame, RIGHT_SHOULDER, grips.right, grips.reach);
         IKResult left = aim(frame, LEFT_SHOULDER, grips.left, grips.reach);
+        if (right != null) strm.emfcompat.animationadditions.interaction.HandContacts.remember(context, id(), Effector.RIGHT_ARM, grips.right);
+        if (left != null) strm.emfcompat.animationadditions.interaction.HandContacts.remember(context, id(), Effector.LEFT_ARM, grips.left);
         if (right != null) out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, Effector.RIGHT_ARM,
                 new float[]{right.x(), right.y()}));
         if (left != null) out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, Effector.LEFT_ARM,
@@ -156,6 +158,7 @@ public final class Furniture implements InteractionProvider {
             if (dot <= bestDot) continue;
             Grips grips = chest ? chest(player, level, pos.immutable(), block) : lectern(player, pos.immutable(), block);
             if (grips == null) continue;
+            if (!strm.emfcompat.animationadditions.interaction.Visibility.visible(player, pos, middle)) continue;
             best = grips;
             bestDot = dot;
         }

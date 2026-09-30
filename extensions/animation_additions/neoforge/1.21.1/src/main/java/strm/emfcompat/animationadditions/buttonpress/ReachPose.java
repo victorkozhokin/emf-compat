@@ -3,6 +3,7 @@ package strm.emfcompat.animationadditions.buttonpress;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import org.joml.Vector3f;
+import org.joml.Quaternionf;
 
 import java.util.function.Function;
 
@@ -43,17 +44,17 @@ public final class ReachPose {
      * -zRot (+zRot swings a hanging limb towards the model's right, -x); back is +xRot.
      */
     private static final float ARM_BACK = (float) Math.toRadians(20);
-    private static final float ARM_OUT = (float) Math.toRadians(-40);
-    private static final float LEG_BACK = (float) Math.toRadians(35);
-    private static final float LEG_OUT = (float) Math.toRadians(-20);
+    private static final float ARM_OUT = (float) Math.toRadians(-20);
+    private static final float LEG_BACK = (float) Math.toRadians(18);
+    private static final float LEG_OUT = (float) Math.toRadians(-10);
 
     private ReachPose() {
     }
 
     /** How much of the pose, 0..1, for a target {@code reach} arm lengths from the shoulder. */
     public static float weight(float reach) {
-        return Math.min(Mth.clamp((FAR - reach) / (FAR - FULL), 0f, 1f),
-                Mth.clamp((reach - NONE) / (NEAR - NONE), 0f, 1f));
+        return Math.min(ReachEnvelope.smooth((FAR - reach) / (FAR - FULL)),
+                ReachEnvelope.smooth((reach - NONE) / (NEAR - NONE)));
     }
 
     /**
@@ -71,21 +72,66 @@ public final class ReachPose {
         lean[2] += s * amount * (-to.x / flat);
     }
 
+    /** Straighten the upper body around its actual waist, leaving feet and gameplay crouch intact. */
+    public static void upright(Function<String, ModelPart> parts, float weight) {
+        if (weight < 1e-3f) return;
+        ModelPart body = parts.apply("body");
+        if (body == null) return;
+        float pitch = Math.min(Math.max(0, body.xRot), (float) Math.toRadians(20)) * weight;
+        Vector3f waist = new Quaternionf().rotationZYX(body.zRot, body.yRot, body.xRot)
+                .transform(new Vector3f(0, 12, 0)).add(body.x, body.y, body.z);
+        Quaternionf turn = new Quaternionf().rotationX(-pitch);
+        for (String name : new String[]{"body", "head", "hat", "right_arm", "left_arm"}) {
+            ModelPart part = parts.apply(name);
+            if (part == null) continue;
+            Vector3f at = new Vector3f(part.x, part.y, part.z).sub(waist);
+            turn.transform(at).add(waist);
+            part.x = at.x;
+            part.y = at.y - 4f * weight;
+            part.z = at.z;
+            // Preserve the player's gaze; hand aim runs after all torso movement.
+            if (!name.equals("head") && !name.equals("hat")) part.xRot -= pitch;
+        }
+    }
+
+    /** A bounded torso adjustment closes the remaining gap at the far part of a crank's orbit. */
+    public static void contact(Function<String, ModelPart> parts, boolean right, Vector3f target, float weight, Quaternionf smoothed, double dt) {
+        ModelPart body = parts.apply("body");
+        ModelPart arm = parts.apply(right ? "right_arm" : "left_arm");
+        if (body == null || arm == null) return;
+        Vector3f waist = new Quaternionf().rotationZYX(body.zRot, body.yRot, body.xRot)
+                .transform(new Vector3f(0, 12, 0)).add(body.x, body.y, body.z);
+        Quaternionf wanted = new Quaternionf().slerp(ReachEnvelope.contactTurn(
+                new Vector3f(arm.x, arm.y, arm.z).sub(waist), new Vector3f(target).sub(waist),
+                11f, (float) Math.toRadians(25)), weight);
+        Quaternionf turn = ReachEnvelope.followContact(smoothed, wanted, dt);
+        for (String name : new String[]{"body", "head", "hat", "right_arm", "left_arm"}) {
+            ModelPart part = parts.apply(name);
+            if (part == null) continue;
+            Vector3f at = turn.transform(new Vector3f(part.x, part.y, part.z).sub(waist)).add(waist);
+            part.setPos(at.x, at.y, at.z);
+            if (!name.equals("head") && !name.equals("hat")) {
+                Vector3f angles = new Quaternionf(turn).mul(new Quaternionf()
+                        .rotationZYX(part.zRot, part.yRot, part.xRot)).getEulerAnglesZYX(new Vector3f());
+                part.setRotation(angles.x, angles.y, angles.z);
+            }
+        }
+    }
+
     /** Blends the balancing limbs in by {@code s}, 0..1, for the {@code right} (or left) hand reaching. */
-    public static void balance(Function<String, ModelPart> parts, boolean right, float s) {
+    public static void balance(Function<String, ModelPart> parts, boolean right, float s, boolean otherArmFree) {
         if (s < 1e-3f) return;
         float side = right ? 1f : -1f;
         ModelPart arm = parts.apply(right ? "left_arm" : "right_arm");
-        if (arm != null) {
-            arm.xRot += (ARM_BACK - arm.xRot) * s;
-            arm.zRot += (side * ARM_OUT - arm.zRot) * s;
+        if (arm != null && otherArmFree) {
+            arm.xRot += ARM_BACK * s;
+            arm.zRot += side * ARM_OUT * s;
         }
         ModelPart leg = parts.apply(right ? "left_leg" : "right_leg");
         if (leg != null) {
-            leg.xRot += (LEG_BACK - leg.xRot) * s;
-            leg.zRot += (side * LEG_OUT - leg.zRot) * s;
+            leg.xRot += LEG_BACK * s;
+            leg.zRot += side * LEG_OUT * s;
         }
-        ModelPart stand = parts.apply(right ? "right_leg" : "left_leg");
-        if (stand != null) stand.xRot += (0f - stand.xRot) * s;
+
     }
 }

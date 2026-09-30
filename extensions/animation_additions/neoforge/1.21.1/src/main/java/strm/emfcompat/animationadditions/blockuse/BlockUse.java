@@ -1,6 +1,9 @@
 package strm.emfcompat.animationadditions.blockuse;
 
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.Minecraft;
+import strm.emfcompat.animationadditions.buttonpress.ReachEnvelope;
+import strm.emfcompat.animationadditions.interaction.Visibility;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -11,6 +14,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import org.joml.Quaternionf;
 import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
 import strm.emfcompat.animationadditions.buttonpress.ReachPose;
 import strm.emfcompat.animationadditions.interaction.Candidate;
@@ -30,6 +34,8 @@ import strm.emfcompat.core.ik.IKResult;
 import strm.emfcompat.core.ik.OneBoneIK;
 
 import java.util.List;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -37,7 +43,7 @@ import java.util.function.Function;
  * Using a block by hand - a chiseled bookshelf's slot, and so on ({@link BlockTarget}): looking at
  * a spot the hand can use, the main hand goes to it and waits there; when the block changes the way
  * a hand changes it, the hand puts in (in and back out), takes out (from inside, out past the
- * front) or taps. Only the arm moves: the torso stays as the pack draws it.
+ * front) or taps. Continuous grips can add a bounded torso reach over the pack pose.
  *
  * <p>By the look, as a click is: the spot looked at is the one used. The hand only goes where the
  * click would do something, and only within reach of the arm - no using a block from across the
@@ -51,7 +57,7 @@ public final class BlockUse implements InteractionProvider {
 
     private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox(), new Campfire(), new Vault(), new HandCrank(),
             new Composter(), new FlowerPot(), new RespawnAnchor(), new NoteBlock(), new Repeater(), new Comparator(),
-            new DaylightDetector(), new Cake());
+            new DaylightDetector(), new Cake(), new Barrel(), new Candle(), new ValveHandle(), new SteeringWheel());
 
     /** Below a button press, above doors and chests. */
     private static final int PRIORITY = 8;
@@ -87,8 +93,6 @@ public final class BlockUse implements InteractionProvider {
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
 
-    /** The player being drawn standing up though crouching, for the length of the draw; {@code null} otherwise. */
-    public static Object drawnStanding;
 
     private BlockUse() {
     }
@@ -103,11 +107,17 @@ public final class BlockUse implements InteractionProvider {
         boolean right = true, shown;
         /** The hand's point in model pixels, and the torso turn asked for {pitch, yaw, roll}. */
         final Vector3f grip = new Vector3f();
+        final Vector3f supportGrip = new Vector3f();
+        boolean support;
         final float[] lean = new float[3];
         /** How far into the reaching pose, 0..1, as shown. */
         float stretch;
-        /** Crouching and out of the arm's reach: drawn standing up while the hand is on it. */
-        boolean standUp;
+        /** Smoothed visual extension; the entity pose and crouching flag never change. */
+        float standUp;
+        boolean crouching, overhead;
+        long tracedAt;
+        long contactAt;
+        final Quaternionf contactTurn = new Quaternionf();
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -132,7 +142,9 @@ public final class BlockUse implements InteractionProvider {
         long now = context.now();
         State state = STATES.seen(player.getUUID(), now).value;
         state.lean[0] = state.lean[1] = state.lean[2] = 0f;
-        boolean shown = false, standUp = false;
+        boolean shown = false;
+        float standUp = 0f;
+        state.crouching = player.getPose() == Pose.CROUCHING;
         float stretchTarget = 0f;
         try {
             if (!player.onGround() || player.isPassenger() || player.isSleeping() || player.isInWaterOrBubble()
@@ -147,7 +159,7 @@ public final class BlockUse implements InteractionProvider {
                 BlockState block = player.level().getBlockState(state.pos);
                 Object seen = state.target.matches(block) ? state.target.snapshot(player.level(), state.pos, block) : block;
                 if (!seen.equals(state.last)) {
-                    BlockTarget.Gesture gesture = state.target.matches(block) ? state.target.changed(state.pos, state.last, seen) : null;
+                    BlockTarget.Gesture gesture = state.target.changed(state.pos, state.last, seen);
                     if (gesture != null) {
                         state.gesture = gesture;
                         state.gestureAt = now;
@@ -196,17 +208,21 @@ public final class BlockUse implements InteractionProvider {
             // Crouching and the arm not long enough for something above the shoulder, the player
             // stands up to it - and stays up while the hand is on it: stood up, it is in reach, and
             // would crouch again. Below the shoulder standing only takes the hand further off.
-            standUp = state.target != null && state.target.reachPose() && player.getPose() == Pose.CROUCHING
-                    && (state.standUp || ik.reach() > 1f && model.y < shoulder.y);
+            Vec3 centre = state.target == null || state.pos == null ? null
+                    : state.target.swayCentre(player.level(), state.pos, player.level().getBlockState(state.pos));
+            Vector3f postureTarget = centre == null ? model : frame.relativeToJoint(centre.add(0, 7 / 16.0, 0), new Vector3f());
+            state.overhead = postureTarget.y < shoulder.y;
+            if (state.target != null && state.target.reachPose() && state.crouching) {
+                standUp = ReachEnvelope.upright(postureTarget.x - shoulder.x,
+                        postureTarget.y - shoulder.y, postureTarget.z - shoulder.z, ARM);
+            }
             Effector effector = right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
-            if (!state.shown || right != state.right || InteractionRuntime.weight(player.getUUID(), effector, id()) < 1e-3f) {
+            if (centre != null || !state.shown || right != state.right || InteractionRuntime.weight(player.getUUID(), effector, id()) < 1e-3f) {
                 state.grip.set(model);
             } else {
                 state.grip.lerp(model, Smoothing.follow(context.dt(), GRIP_SECONDS));
             }
             state.right = right;
-            Vec3 centre = state.target == null || state.pos == null ? null
-                    : state.target.swayCentre(player.level(), state.pos, player.level().getBlockState(state.pos));
             if (centre != null) {
                 // Off the middle: further (-z) leans forwards (+xRot), lower (+y) a little too; to
                 // the right (-x) turns right (+yRot).
@@ -215,20 +231,44 @@ public final class BlockUse implements InteractionProvider {
                 state.lean[0] = Mth.clamp((-off.z + 0.5f * off.y) * k, -1f, 1f) * SWAY_PITCH;
                 state.lean[1] = Mth.clamp(-off.x * k, -1f, 1f) * SWAY_YAW;
             }
-            if (state.target != null && state.target.reachPose() && EMFCompatConfig.getBoolean(ButtonPress.KEY_STRETCH, true)) {
+            if (state.target != null && state.target.balancesReach() && EMFCompatConfig.getBoolean(ButtonPress.KEY_STRETCH, true)) {
                 // Past the arm's length the whole body reaches, as for a lever.
-                stretchTarget = ReachPose.weight(new Vector3f(model).sub(shoulder).length() / ARM);
-                ReachPose.lean(model, stretchTarget, state.lean);
+                Vector3f reachTarget = centre == null ? model : frame.relativeToJoint(centre, new Vector3f());
+                stretchTarget = ReachPose.weight(new Vector3f(reachTarget).sub(shoulder).length() / ARM) * (1f - standUp);
+                ReachPose.lean(reachTarget, stretchTarget, state.lean);
+                // The pack already folds the crouching torso: do not add another full floor reach.
+                if (state.crouching) state.lean[0] = Math.min(state.lean[0], (float) Math.toRadians(20));
+            }
+            BlockTarget.Spot support = state.target.supportHand(player, state.pos, player.level().getBlockState(state.pos));
+            state.support = support != null;
+            if (support != null) {
+                Vec3 otherPoint = support.point().add(support.out().scale(HOVER_OUT / 16.0));
+                IKResult other = OneBoneIK.solveXY(frame, right ? LEFT_SHOULDER : RIGHT_SHOULDER, otherPoint, ARM, 0f, 0f);
+                if (other == null || other.reach() > MAX_REACH) {
+                    context.decide("support-out-of-reach");
+                    return;
+                }
+                state.supportGrip.set(frame.relativeToJoint(otherPoint, new Vector3f()));
+                if (state.target instanceof SteeringWheel) {
+                    state.lean[2] = WheelGeometry.steeringRoll(
+                            right ? state.grip.y : state.supportGrip.y,
+                            right ? state.supportGrip.y : state.grip.y);
+                }
+                Map<Effector, float[]> hands = new EnumMap<>(Effector.class);
+                hands.put(effector, aim);
+                hands.put(right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, new float[]{other.x(), other.y()});
+                out.add(Candidate.of(id(), Category.USE, PRIORITY, 1f, TIMING, hands));
+            } else {
+                out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, effector, aim));
             }
             shown = true;
-            out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, effector, aim));
             // The click swings the arm; the gesture is the swing.
             context.claimArms();
             context.decide((state.gesture == null ? "hover" : state.gesture.motion().name().toLowerCase())
                     + (right ? "-R" : "-L"));
         } finally {
             state.shown = shown;
-            state.standUp = standUp;
+            state.standUp = ReachEnvelope.follow(state.standUp, standUp, context.dt());
             double dt = context.dt();
             state.stretch += (stretchTarget - state.stretch)
                     * (stretchTarget > state.stretch ? Smoothing.fadeIn(dt, ReachPose.SECONDS) : Smoothing.fadeOut(dt, ReachPose.SECONDS));
@@ -238,6 +278,19 @@ public final class BlockUse implements InteractionProvider {
 
     /** The spot under the look on a block a hand uses, keeping the block to watch it change; {@code null} when none. */
     private static BlockTarget.Spot look(AbstractClientPlayer player, State state) {
+        if (state.pos != null && state.target != null && state.target.quietsSwing()
+                && player == Minecraft.getInstance().player && Minecraft.getInstance().options.keyUse.isDown()) {
+            BlockState kept = player.level().getBlockState(state.pos);
+            if (state.target.matches(kept)) {
+                Vec3 centre = state.target.swayCentre(player.level(), state.pos, kept);
+                if (centre != null && centre.distanceTo(player.getEyePosition()) <= RANGE
+                        && centre.subtract(player.getEyePosition()).normalize().dot(player.getViewVector(1f)) > 0.9
+                        && Visibility.visible(player, state.pos, centre)) {
+                    return state.target.hover(player, state.pos, kept,
+                            new BlockHitResult(centre, net.minecraft.core.Direction.UP, state.pos, false));
+                }
+            }
+        }
         HitResult hit = player.pick(RANGE, 1f, false);
         if (!(hit instanceof BlockHitResult blockHit) || hit.getType() != HitResult.Type.BLOCK) {
             state.pos = null;
@@ -256,7 +309,8 @@ public final class BlockUse implements InteractionProvider {
             state.pos = null;
             return null;
         }
-        if (!pos.equals(state.pos)) {
+        if (!pos.equals(state.pos) || target != state.target) {
+            state.gesture = null;
             state.pos = pos.immutable();
             state.last = target.snapshot(player.level(), pos, block);
         }
@@ -267,9 +321,12 @@ public final class BlockUse implements InteractionProvider {
     /** The limbs balancing the reaching pose. Called after the pack has animated, before the torso. */
     public static void apply(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
-        if (state == null || state.stretch < 1e-3f) return;
+        if (state == null || !INSTANCE.isEnabled()) return;
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
-        ReachPose.balance(parts, state.right, state.stretch);
+        float w = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
+        ReachPose.upright(parts, state.standUp * w);
+        boolean free = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) < 0.01f;
+        ReachPose.balance(parts, state.right, state.stretch * w, free);
     }
 
     /**
@@ -282,21 +339,29 @@ public final class BlockUse implements InteractionProvider {
         return InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id()) > 0.5f;
     }
 
-    /**
-     * Whether this player, crouching, is drawn standing up now: out of the arm's reach of what the
-     * hand holds ({@link BlockTarget#reachPose}). Read while the player is drawn.
-     */
-    public static boolean standsUp(UUID uuid) {
+    /** Close the overhead grip gap after all torso layers, before the final arm aim. */
+    public static void reachContact(UUID uuid, Function<String, ModelPart> parts) {
+        if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         State state = STATES.fresh(uuid);
-        return state != null && state.standUp && EMFCompatCore.isCompatEnabled()
-                && !EMFCompatCore.isLocalPlayerInFirstPerson(uuid);
+        if (state == null) return;
+        long now = System.nanoTime();
+        double dt = state.contactAt == 0 ? 0 : (now - state.contactAt) * 1e-9;
+        state.contactAt = now;
+        boolean enabled = INSTANCE.isEnabled() && state.target != null
+                && state.target.quietsSwing() && state.overhead
+                && InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) <= 0.01f;
+        float w = enabled ? InteractionRuntime.weight(uuid,
+                state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id()) : 0f;
+        ReachPose.contact(parts, state.right, state.grip, w, state.contactTurn, dt);
     }
 
     /** The torso turn this asks for, {pitch, yaw, roll}; {@code null} when none. */
     public static float[] torsoHint(UUID uuid) {
         State state = STATES.fresh(uuid);
         if (state == null || state.lean[0] == 0f && state.lean[1] == 0f && state.lean[2] == 0f) return null;
-        return state.lean.clone();
+        if (!INSTANCE.isEnabled()) return null;
+        float w = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
+        return new float[]{state.lean[0] * w, state.lean[1] * w, state.lean[2] * w};
     }
 
     /**
@@ -319,5 +384,39 @@ public final class BlockUse implements InteractionProvider {
         float y = (float) Math.atan2(-to.x, -to.z);
         arm.xRot += IKMath.wrap(x - arm.xRot) * w;
         arm.yRot += IKMath.wrap(y - arm.yRot) * w;
+        arm.zRot *= 1f - w;
+        if (state.support) {
+            Effector other = state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM;
+            float otherWeight = InteractionRuntime.weight(uuid, other, INSTANCE.id());
+            ModelPart otherArm = parts.apply(other.part);
+            if (otherArm != null && otherWeight > 1e-3f) {
+                Vector3f direction = new Vector3f(state.supportGrip).sub(otherArm.x, otherArm.y, otherArm.z);
+                if (direction.lengthSquared() > 1e-6f) {
+                    direction.normalize();
+                    float pitch = -(float) Math.acos(Mth.clamp(direction.y, -1f, 1f));
+                    float yaw = (float) Math.atan2(-direction.x, -direction.z);
+                    otherArm.xRot += IKMath.wrap(pitch - otherArm.xRot) * otherWeight;
+                    otherArm.yRot += IKMath.wrap(yaw - otherArm.yRot) * otherWeight;
+                    otherArm.zRot *= 1f - otherWeight;
+                }
+            }
+        }
+        long now = System.nanoTime();
+        if (strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature.isTrace()
+                && now - state.tracedAt > 100_000_000L) {
+            state.tracedAt = now;
+            org.slf4j.LoggerFactory.getLogger("EMFCompatBlockUse").info(
+                    "[UseTrace] target={} crouch={} upright={} weight={} stretch={} distancePx={} supportDistancePx={}",
+                    state.target == null ? "none" : state.target.getClass().getSimpleName(),
+                    state.crouching, state.standUp, w, state.stretch,
+                    new Vector3f(state.grip).sub(arm.x, arm.y, arm.z).length(),
+                    supportDistance(state, parts));
+        }
+    }
+
+    private static float supportDistance(State state, Function<String, ModelPart> parts) {
+        if (!state.support) return Float.NaN;
+        ModelPart arm = parts.apply(state.right ? "left_arm" : "right_arm");
+        return arm == null ? Float.NaN : new Vector3f(state.supportGrip).sub(arm.x, arm.y, arm.z).length();
     }
 }

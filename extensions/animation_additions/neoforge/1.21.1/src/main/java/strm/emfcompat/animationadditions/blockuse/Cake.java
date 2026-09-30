@@ -29,7 +29,7 @@ final class Cake implements BlockTarget {
 
     @Override
     public Gesture changed(BlockPos pos, Object was, Object is) {
-        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before)) return null;
+        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before) || !matches(now)) return null;
         int from = before.getValue(CakeBlock.BITES);
         if (now.getValue(CakeBlock.BITES) <= from) return null;
         // The slice taken: the 2 pixels at the cut.

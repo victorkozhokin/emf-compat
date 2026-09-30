@@ -26,7 +26,7 @@ final class RespawnAnchor implements BlockTarget {
 
     @Override
     public Gesture changed(BlockPos pos, Object was, Object is) {
-        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before)) return null;
+        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before) || !matches(now)) return null;
         return now.getValue(RespawnAnchorBlock.CHARGE) > before.getValue(RespawnAnchorBlock.CHARGE)
                 ? new Gesture(middle(pos), Motion.PUT) : null;
     }

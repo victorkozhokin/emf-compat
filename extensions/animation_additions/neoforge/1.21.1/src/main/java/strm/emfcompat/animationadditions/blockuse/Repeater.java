@@ -25,7 +25,7 @@ final class Repeater implements BlockTarget {
 
     @Override
     public Gesture changed(BlockPos pos, Object was, Object is) {
-        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before)) return null;
+        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before) || !matches(now)) return null;
         return !before.getValue(RepeaterBlock.DELAY).equals(now.getValue(RepeaterBlock.DELAY))
                 ? new Gesture(torch(pos, now), Motion.TAP) : null;
     }

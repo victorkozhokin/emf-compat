@@ -40,6 +40,8 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
 
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatAnimationAdditions");
 
+    private static boolean failureLogged;
+
     /** Each outer-layer part and the limb it covers. */
     private static final String[][] LAYERS = {
             {"hat", "head"}, {"jacket", "body"}, {"right_sleeve", "right_arm"}, {"left_sleeve", "left_arm"},
@@ -73,6 +75,11 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
             }
         } catch (Throwable t) {
             // A throw out of an animation hook makes EMF disable the model's animations for good.
+            // Report once: silently swallowing this made visual tests exercise only the fallback.
+            if (!failureLogged) {
+                failureLogged = true;
+                LOGGER.warn("[AnimationAdditions] failed to apply additive pose", t);
+            }
         }
     }
 
@@ -110,10 +117,12 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         HorseFootGrounding.apply(uuid, parts);
         // The torso before the arm aims: a hand on a wall aims from where the shoulder has gone.
         TorsoLean.apply(uuid, parts);
+        BlockUse.reachContact(uuid, parts);
         InteractionRuntime.apply(uuid, parts);
         // Last: a hand on a button or a swing on a block aims from where its shoulder has finally been drawn.
         ButtonPress.aimArm(uuid, parts);
         BlockUse.aimArm(uuid, parts);
         Mining.aimArm(uuid, parts);
+        strm.emfcompat.animationadditions.interaction.HandContacts.apply(uuid, parts);
     }
 }

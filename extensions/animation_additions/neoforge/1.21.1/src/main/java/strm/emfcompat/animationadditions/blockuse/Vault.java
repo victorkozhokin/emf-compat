@@ -37,7 +37,7 @@ final class Vault implements BlockTarget {
 
     @Override
     public Gesture changed(BlockPos pos, Object was, Object is) {
-        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before)) return null;
+        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before) || !matches(now)) return null;
         boolean unlocked = before.getValue(VaultBlock.STATE) != VaultState.UNLOCKING
                 && now.getValue(VaultBlock.STATE) == VaultState.UNLOCKING;
         return unlocked ? new Gesture(keyhole(pos, now), Motion.PUT) : null;

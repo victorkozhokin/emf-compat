@@ -8,9 +8,7 @@
     "horsesync.AbstractHorseRendererAccessor",
     "horsesync.PlayerModelMixin",
     "AnimationAdditionsRenderMixin",
-    "LevelRendererAccessor",
-    "StandUpMixin",
-    "CrouchingMixin"
+    "LevelRendererAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -21,7 +21,7 @@ final class NoteBlock implements BlockTarget {
 
     @Override
     public Gesture changed(BlockPos pos, Object was, Object is) {
-        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before)) return null;
+        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before) || !matches(now)) return null;
         return !before.getValue(BlockStateProperties.NOTE).equals(now.getValue(BlockStateProperties.NOTE))
                 ? new Gesture(Spots.top(pos, 8, 16, 8), Motion.TAP) : null;
     }

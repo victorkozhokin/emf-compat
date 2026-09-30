@@ -32,7 +32,7 @@ final class Composter implements BlockTarget {
 
     @Override
     public Gesture changed(BlockPos pos, Object was, Object is) {
-        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before)) return null;
+        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before) || !matches(now)) return null;
         int from = before.getValue(ComposterBlock.LEVEL), to = now.getValue(ComposterBlock.LEVEL);
         if (from == READY && to == 0) return new Gesture(opening(pos), Motion.TAKE);
         if (to > from && to <= FULL) return new Gesture(opening(pos), to == FULL ? Motion.TAP : Motion.PUT);

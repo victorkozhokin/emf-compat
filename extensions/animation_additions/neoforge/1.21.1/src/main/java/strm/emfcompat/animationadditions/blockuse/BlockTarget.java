@@ -31,6 +31,9 @@ public interface BlockTarget {
      */
     Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit);
 
+    /** Optional other-hand contact; both hands are arbitrated together. */
+    default Spot supportHand(AbstractClientPlayer player, BlockPos pos, BlockState block) { return null; }
+
     /**
      * When the torso goes with the hand as it moves round - a crank's grip - the point it goes round,
      * world; {@code null} for a still torso. The torso leans the way the hand is off it.
@@ -43,6 +46,9 @@ public interface BlockTarget {
     default boolean reachPose() {
         return false;
     }
+
+    /** Wheels at hand height need contact correction, not the one-legged counterbalance of a long reach. */
+    default boolean balancesReach() { return reachPose(); }
 
     /**
      * Whether the swing a click starts is kept off the body while the hand is on it - a crank held

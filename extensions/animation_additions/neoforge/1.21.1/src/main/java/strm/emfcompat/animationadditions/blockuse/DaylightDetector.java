@@ -21,7 +21,7 @@ final class DaylightDetector implements BlockTarget {
 
     @Override
     public Gesture changed(BlockPos pos, Object was, Object is) {
-        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before)) return null;
+        if (!(was instanceof BlockState before) || !(is instanceof BlockState now) || !matches(before) || !matches(now)) return null;
         return before.getValue(DaylightDetectorBlock.INVERTED) != now.getValue(DaylightDetectorBlock.INVERTED)
                 ? new Gesture(panel(pos), Motion.TAP) : null;
     }
