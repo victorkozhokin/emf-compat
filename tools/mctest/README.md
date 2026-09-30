@@ -343,8 +343,20 @@ to a connection that never negotiated their channels, and the keep-alive would t
 {"bot": {"spawn": "Bob", "at": [345.3, 150, 10.5], "look": [-90, 0]}}   (re)spawn, stands on ground
 {"bot": {"at": [...], "look": [yaw, pitch], "sneak": true, "item": "minecraft:stick"}}
 {"bot": {"use": [346, 151, 10], "face": "west", "hit": [x, y, z]}}       right click + swing, returns the result
+{"bot": {"at": [...], "lookAt": [x, y, z]}}                              look at a point from the eyes there
+{"bot": {"cycle": {"use": [x, y, z], "face": "south", "every": 40, "offset": 0, "close": 20}}}
+                                     the same click every 40 ticks on the server tick, between scripts too;
+                                     a container shut again 20 ticks later; "cycle": false stops it
 {"bot": {"swing": true}}   {"bot": {"remove": true}}                     "name": "Bob" when there are several
 ```
+
+**Ten bots in EMF ATLAS** (world `EMF ATLAS - Animation Campus`, zone 03 INTERACTIONS; the map is
+built by `polygon/build_polygon.py` + `detail_polygon.py`): `scenarios/atlas_bots.py` writes
+`atlas-bots.json` (spawn and start) and `atlas-bots-stop.json`. Wall stone/oak buttons and a lever,
+the floor button (by foot), a floor lever, the oak door, a chest opened and shut, a repeater, a
+comparator and a note block, each on its own period so the presses do not line up. Checked
+30.09.2026: every bot's provider decides as expected (`press`, `stamp`, `tap`, `chest-open`, door
+hands), no exceptions. The floor button also toggles the trapdoor next to it by redstone.
 
 It does not move or fall by itself: each step places it (`moveTo`, on ground). Its skin is the
 offline default for its name. A Sable craft's hold interactions (the steering wheel) are

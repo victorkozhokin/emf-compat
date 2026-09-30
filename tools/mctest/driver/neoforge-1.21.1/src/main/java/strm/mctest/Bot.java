@@ -46,6 +46,9 @@ import java.util.UUID;
  * {"bot": {"spawn": "Bob", "at": [x, y, z], "look": [yaw, pitch]}}
  * {"bot": {"name": "Bob", "at": [x, y, z], "look": [yaw, pitch], "sneak": true, "item": "minecraft:stick"}}
  * {"bot": {"name": "Bob", "use": [x, y, z], "face": "west", "hit": [x, y, z]}}   right click on a block
+ * {"bot": {"name": "Bob", "at": [x, y, z], "lookAt": [x, y, z]}}   look at a point from the eyes there
+ * {"bot": {"name": "Bob", "cycle": {"use": [x, y, z], "face": "south", "every": 40, "offset": 0, "close": 20}}}
+ *     the same click every 40 ticks on the server's tick, a container shut again after 20; "cycle": false stops
  * {"bot": {"name": "Bob", "swing": true}}   {"bot": {"name": "Bob", "remove": true}}
  * </pre>
  * "name" can be left out while there is one bot.
@@ -95,6 +98,14 @@ public final class Bot {
 
     private static final Map<String, ServerPlayer> BOTS = new HashMap<>();
 
+    /** A bot using one block over and over: every {@code every} ticks, a container shut again {@code close} ticks later. */
+    private record Cycle(BlockPos pos, Direction face, Vec3 hit, int every, int offset, int close) {
+    }
+
+    private static final Map<ServerPlayer, Cycle> CYCLES = new HashMap<>();
+    private static boolean listening;
+    private static long ticks;
+
     private Bot() {
     }
 
@@ -113,29 +124,40 @@ public final class Bot {
                 bot.setShiftKeyDown(sneak);
                 bot.setPose(sneak ? Pose.CROUCHING : Pose.STANDING);
             }
-            if (v.has("at") || v.has("look")) {
+            if (v.has("at") || v.has("look") || v.has("lookAt")) {
                 Vec3 at = v.has("at") ? vec(v.getAsJsonArray("at")) : bot.position();
                 float yaw = v.has("look") ? v.getAsJsonArray("look").get(0).getAsFloat() : bot.getYRot();
                 float pitch = v.has("look") ? v.getAsJsonArray("look").get(1).getAsFloat() : bot.getXRot();
+                if (v.has("lookAt")) {
+                    // From the eyes at that spot, standing or crouching.
+                    Vec3 to = vec(v.getAsJsonArray("lookAt")).subtract(at.add(0, bot.getEyeHeight(), 0));
+                    yaw = (float) Math.toDegrees(-Math.atan2(to.x, to.z));
+                    pitch = (float) Math.toDegrees(-Math.atan2(to.y, Math.hypot(to.x, to.z)));
+                }
                 bot.moveTo(at.x, at.y, at.z, yaw, pitch);
                 bot.setYHeadRot(yaw);
                 bot.setYBodyRot(yaw);
                 bot.setOnGround(true);
             }
             if (v.has("use")) {
-                BlockPos pos = BlockPos.containing(vec(v.getAsJsonArray("use")));
-                Direction face = v.has("face") ? Direction.byName(v.get("face").getAsString()) : Direction.UP;
-                Vec3 hit = v.has("hit") ? vec(v.getAsJsonArray("hit"))
-                        : Vec3.atCenterOf(pos).add(Vec3.atLowerCornerOf(face.getNormal()).scale(0.5));
-                var result = bot.gameMode.useItemOn(bot, bot.serverLevel(), bot.getMainHandItem(), InteractionHand.MAIN_HAND,
-                        new BlockHitResult(hit, face, pos, false));
-                bot.swing(InteractionHand.MAIN_HAND, true);
-                out.addProperty("use", result.toString());
+                Cycle once = cycle(v, 0, 0, 0);
+                out.addProperty("use", use(bot, once).toString());
+            }
+            if (v.has("cycle")) {
+                if (v.get("cycle").isJsonObject()) {
+                    JsonObject c = v.getAsJsonObject("cycle");
+                    CYCLES.put(bot, cycle(c, c.has("every") ? c.get("every").getAsInt() : 40,
+                            c.has("offset") ? c.get("offset").getAsInt() : 0, c.has("close") ? c.get("close").getAsInt() : 0));
+                    listen();
+                } else {
+                    CYCLES.remove(bot);
+                }
             }
             if (v.has("swing")) bot.swing(InteractionHand.MAIN_HAND, true);
             if (v.has("remove")) {
                 server.getPlayerList().remove(bot);
                 BOTS.values().remove(bot);
+                CYCLES.remove(bot);
                 out.addProperty("removed", bot.getGameProfile().getName());
                 return;
             }
@@ -146,9 +168,51 @@ public final class Bot {
         return out;
     }
 
+    private static Cycle cycle(JsonObject c, int every, int offset, int close) {
+        BlockPos pos = BlockPos.containing(vec(c.getAsJsonArray("use")));
+        Direction face = c.has("face") ? Direction.byName(c.get("face").getAsString()) : Direction.UP;
+        Vec3 hit = c.has("hit") ? vec(c.getAsJsonArray("hit"))
+                : Vec3.atCenterOf(pos).add(Vec3.atLowerCornerOf(face.getNormal()).scale(0.5));
+        return new Cycle(pos, face, hit, Math.max(1, every), offset, close);
+    }
+
+    /** A right click on the block, as a player's would be, and the swing that goes with it. */
+    private static net.minecraft.world.InteractionResult use(ServerPlayer bot, Cycle c) {
+        var result = bot.gameMode.useItemOn(bot, bot.serverLevel(), bot.getMainHandItem(), InteractionHand.MAIN_HAND,
+                new BlockHitResult(c.hit, c.face, c.pos, false));
+        bot.swing(InteractionHand.MAIN_HAND, true);
+        return result;
+    }
+
+    /** Runs the cycles on the server's tick, so they go on between scripts. */
+    private static void listen() {
+        if (listening) return;
+        listening = true;
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(
+                (net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) -> {
+                    ticks++;
+                    CYCLES.entrySet().removeIf(e -> e.getKey().isRemoved() || e.getKey().hasDisconnected());
+                    CYCLES.forEach((bot, c) -> {
+                        long phase = (ticks + c.offset) % c.every;
+                        bot.setOnGround(true);
+                        if (phase == 0) use(bot, c);
+                        else if (c.close > 0 && phase == c.close && bot.containerMenu != bot.inventoryMenu) bot.closeContainer();
+                    });
+                });
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(
+                (net.neoforged.neoforge.event.server.ServerStoppingEvent event) -> {
+                    BOTS.clear();
+                    CYCLES.clear();
+                });
+    }
+
     private static ServerPlayer spawn(MinecraftServer server, String name) {
+        listen();
         ServerPlayer old = BOTS.remove(name);
-        if (old != null) server.getPlayerList().remove(old);
+        if (old != null) {
+            server.getPlayerList().remove(old);
+            CYCLES.remove(old);
+        }
         GameProfile profile = new GameProfile(UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8)), name);
         ServerLevel level = server.overworld();
         ServerPlayer bot = new ServerPlayer(server, level, profile, ClientInformation.createDefault());
