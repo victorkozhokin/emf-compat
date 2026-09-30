@@ -68,6 +68,7 @@ dependencies {
 
     // Unit tests of the pure logic (the interaction arbiter, smoothing): no game needed.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation 'org.joml:joml:1.10.5' // Verify IK against the renderer's quaternion transform.
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
