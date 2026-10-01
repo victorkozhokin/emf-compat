@@ -376,6 +376,14 @@ public final class Driver {
                 }
                 case "model" -> result.add("model", model(mc, v));
                 case "log" -> LOG.info("[mctest] {}", v.getAsString());
+                case "maxFps" -> {
+                    mc.options.framerateLimit().set(v.getAsInt());
+                    mc.getWindow().setFramerateLimit(v.getAsInt());
+                }
+                case "frames" -> {
+                    if (v.getAsString().equals("start")) Frames.start();
+                    else result.add("frames", Frames.report());
+                }
                 case "bot" -> result.add("bot", Bot.run(mc, v.getAsJsonObject()));
                 case "menuClick" -> {
                     // A click on a slot of the open menu, as the mouse makes one: {"slot": 1, "button": 1, "type": "PICKUP"}.

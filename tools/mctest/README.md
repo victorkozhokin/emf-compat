@@ -359,6 +359,8 @@ barrel with what they take) without rebuilding the rest. `/function emf_atlas:cr
 button by the row) puts back what a use takes away. A command block under the TNT kills it lit.
 A bot's `"item"` is sent to the clients by the step itself - nothing ticks a bot.
 
+**Performance runs.** `{"maxFps": 260}` takes the frame cap off (260 is unlimited; in memory only), `{"frames": "start"}` begins recording every frame's length and `{"frames": "report"}` gives the frames counted, mean fps, the median frame and the slowest 1% and 0.1% in ms. The frame rate drifts by a fifth and more within one launch as the game warms up, and differs between launches: compare **within one launch**, switching what is measured with `config` and going A, B, A, B at least three times, 15 s each after a 15 s warm-up. Launch-to-launch numbers only tell large differences. Variants by jars: `disable=["emf_compat_animation_additions"]` (EMF Compat without Animation Additions), `disable=["emf_compat"]` (none of it; leave the `config` step out).
+
 **Ten bots in EMF ATLAS** (world `EMF ATLAS - Animation Campus`, zone 03 INTERACTIONS; the map is
 built by `polygon/build_polygon.py` + `detail_polygon.py`): `scenarios/atlas_bots.py` writes
 `atlas-bots.json` (spawn and start) and `atlas-bots-stop.json`. Wall stone/oak buttons and a lever,
