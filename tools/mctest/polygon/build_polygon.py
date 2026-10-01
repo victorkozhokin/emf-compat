@@ -323,6 +323,40 @@ chest(x+24,z+16,['iron_pickaxe','iron_axe','iron_shovel','iron_hoe','torch 64'],
 animal('villager',x+28,z+28,'NoAI:1b,Silent:1b,')
 animal('cat',x+36,z+28,'NoAI:1b,Silent:1b,')
 sign(x+29,151,z+32,['LOOK AT','Стой 3 секунды','Потом начни','любое действие'])
+# 08, more: narrow passages - lanes to walk through, 10 long, a stone wall on the left and glass on
+# the right to look in by. Also its own function, narrow.mcfunction, to add them to a map already built.
+more=len(commands)
+def lane(a,width,name,how,right='glass'):
+    """A lane from z+35 north to z+26, its first column at a, `width` columns wide."""
+    fill(a-1,151,z+26,a+width,153,z+35,'air')
+    fill(a,150,z+26,a+width-1,150,z+35,'lime_concrete')
+    fill(a-1,151,z+26,a-1,153,z+35,'stone_bricks')
+    if right: fill(a+width,151,z+26,a+width,153,z+35,right)
+    sign(a-1,151,z+36,[name,how,'Иди насквозь','туда и обратно'])
+lane(x+8,1,'1 блок','Стены с двух сторон')
+lane(x+12,1,'1 → 0,81 блока','Люки на стене')
+fill(x+12,151,z+29,x+12,152,z+32,'oak_trapdoor[open=true,facing=east]')
+lane(x+16,1,'1,44 блока','Стена и решётка',right=None)
+fill(x+17,151,z+26,x+17,153,z+35,'iron_bars[north=true,south=true]')
+lane(x+20,2,'2 блока','Для сравнения')
+# A doorway: a wall across, an opening one wide and two high.
+fill(x+24,151,z+26,x+26,153,z+35,'air')
+fill(x+24,150,z+26,x+26,150,z+35,'lime_concrete')
+fill(x+24,151,z+30,x+26,153,z+30,'stone_bricks')
+fill(x+25,151,z+30,x+25,152,z+30,'air')
+sign(x+24,151,z+36,['Проём','1 × 2 в стене','Иди насквозь','туда и обратно'])
+# A turn: one wide, north then east.
+fill(x+37,151,z+19,x+43,153,z+25,'air')
+fill(x+37,151,z+19,x+39,153,z+25,'stone_bricks')
+fill(x+40,151,z+19,x+43,153,z+21,'stone_bricks')
+fill(x+38,151,z+20,x+38,153,z+25,'air')
+fill(x+38,151,z+20,x+43,153,z+20,'air')
+fill(x+39,151,z+21,x+39,153,z+25,'glass')
+fill(x+38,150,z+20,x+38,150,z+25,'lime_concrete')
+fill(x+38,150,z+20,x+43,150,z+20,'lime_concrete')
+sign(x+37,151,z+26,['Поворот','1 блок, угол','Иди насквозь','туда и обратно'])
+text(x+17,155,z+31,'NARROW PASSAGES','green',.75)
+(FUN/'narrow.mcfunction').write_text('\n'.join(commands[more:])+'\n')
 # 09 cross-mod transition laboratory.
 x,z=2180,2172
 fill(x+4,150,z+4,x+42,150,z+29,'gray_concrete')
