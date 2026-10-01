@@ -73,7 +73,7 @@ public final class BlockUse implements InteractionProvider {
             ItemRest.front("dev.simulated_team.simulated.content.blocks.nav_table.NavTableBlock", "getHeldItem"),
             ItemRest.front("dev.eriksonn.aeronautics.content.blocks.mounted_potato_cannon.MountedPotatoCannonBlock", "getInventory"),
             new Typewriter(),
-            new SuppCrank(), new BookPile(), new Globe(),
+            new SuppCrank(), new BookPile(), new Globe(), new Blackboard(),
             ItemRest.inside(SUPPLEMENTARIES + "ItemShelfBlock", "", 5),
             new ItemRest(SUPPLEMENTARIES + "PedestalBlock", "", 17),
             new ItemRest(SUPPLEMENTARIES + "JarBlock", "", 14),
@@ -226,6 +226,7 @@ public final class BlockUse implements InteractionProvider {
                         float e = (float) (1 - (1 - t) * (1 - t));
                         outwards = TAKE_FROM + (TAKE_TO - TAKE_FROM) * e;
                     }
+                    case HOLD -> outwards = 0f;
                     default -> outwards = HOVER_OUT - TAP_IN * s;
                 }
             } else {

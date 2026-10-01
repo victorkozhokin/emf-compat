@@ -17,8 +17,8 @@ public interface BlockTarget {
     record Spot(Vec3 point, Vec3 out) {
     }
 
-    /** What the hand does: puts something in, takes it out, or taps. */
-    enum Motion {PUT, TAKE, TAP}
+    /** What the hand does: puts something in, takes it out, taps, or stays down on the spot - drawing. */
+    enum Motion {PUT, TAKE, TAP, HOLD}
 
     /**
      * What the hand does and where; {@code sweep}, when not {@code null}, is how far and which way

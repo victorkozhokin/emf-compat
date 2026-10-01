@@ -44,8 +44,8 @@ final class Panel implements BlockTarget {
             "dev.simulated_team.simulated.content.blocks.handle.HandleBlock",
             "dev.simulated_team.simulated.content.blocks.portable_engine.PortableEngineBlock",
             "dev.eriksonn.aeronautics.content.blocks.hot_air.hot_air_burner.HotAirBurnerBlock",
-            // Supplementaries: a board drawn on where the chalk is, levers, lids, locks.
-            SUPPLEMENTARIES + "SconceLeverBlock", SUPPLEMENTARIES + "BlackboardBlock",
+            // Supplementaries: levers, lids, locks.
+            SUPPLEMENTARIES + "SconceLeverBlock",
             SUPPLEMENTARIES + "SafeBlock", SUPPLEMENTARIES + "LunchBoxBlock", SUPPLEMENTARIES + "AbstractPresentBlock",
             SUPPLEMENTARIES + "CageBlock", SUPPLEMENTARIES + "FaucetBlock", SUPPLEMENTARIES + "BellowsBlock",
             SUPPLEMENTARIES + "SpeakerBlock", SUPPLEMENTARIES + "TurnTableBlock", SUPPLEMENTARIES + "SackBlock",
