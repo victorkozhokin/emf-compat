@@ -1,35 +1,48 @@
 package strm.emfcompat.animationadditions.blockuse;
 
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 /**
  * Simulated's linked typewriter: looked at, both hands are over its keyboard, one on each half,
- * and stay there while the player types on it, wherever they look; a
- * key going down ({@code getPressedKeys}, every client's to see), the main hand strikes the keys.
- * Optional, by name. The keyboard is the low front of the model ({@code linked_typewriter/block},
- * made facing north: z 0..7, the keys' tops at about y 4.5).
+ * and stay there while the player types on it, wherever they look; a key held down, the hand of
+ * its half goes down onto that very key and holds it. Optional, by name.
+ *
+ * <p>The keys are where {@code LinkedTypewriterRenderer} draws them: fourteen of them - a row of
+ * six, a row of seven nearer the typist and lower, and the space bar - 2 px apart. Which of them a
+ * key of the keyboard is, is the mod's own rule ({@code LinkedTypewriterInteractionHandler}): a
+ * few are set ({@code presetKeys}: Q, W, E on the far row, A, S, D on the near one), the rest are
+ * dealt out by a random number seeded with the key's code. The keys held ({@code getPressedKeys},
+ * key codes) and who types ({@code currentUser}) are every client's to see.</p>
  */
 final class Typewriter implements BlockTarget {
 
     private static final String BLOCK = "dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterBlock";
-    private static final ModAccess PRESSED = new ModAccess("getPressedKeys");
-    /** The keys, pixels in the model: their height, how far from the front, and each hand off the middle. */
-    private static final double KEYS_Y = 4.5, KEYS_Z = 3.5, HAND = 3;
-
-    /** Who types on it ({@code currentUser}, sent to every client). */
+    private static final String HANDLER = "dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterInteractionHandler";
+    private static final ModAccess PRESSED_KEYS = new ModAccess("getPressedKeys");
     private static final ModAccess USER = new ModAccess("currentUser");
 
-    private record Seen(BlockState block, List<?> pressed) {
-    }
+    /** Pixels in the block's model, made facing north: where a hand waits over its half, off the middle. */
+    private static final double REST_SIDE = 3, REST_Y = 6.5, REST_Z = 4.5;
+    /** A key held: this far under its top - the hand waits a little off what it is at, and the key goes down. */
+    private static final double PRESSED = 2.25;
+    private static final int FAR_ROW = 6, NEAR_ROW = 7, KEYS = 14;
+
+    private static Int2IntMap preset;
+    private static java.lang.reflect.Method ownPressed;
+    private static boolean looked;
 
     @Override
     public boolean matches(BlockState block) {
@@ -38,12 +51,12 @@ final class Typewriter implements BlockTarget {
 
     @Override
     public Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit) {
-        return keys(pos, block, player.getMainArm() == HumanoidArm.RIGHT ? -HAND : HAND);
+        return hand(player, pos, block, player.getMainArm() == HumanoidArm.RIGHT);
     }
 
     @Override
     public Spot supportHand(AbstractClientPlayer player, BlockPos pos, BlockState block) {
-        return keys(pos, block, player.getMainArm() == HumanoidArm.RIGHT ? HAND : -HAND);
+        return hand(player, pos, block, player.getMainArm() != HumanoidArm.RIGHT);
     }
 
     /** Typing, the player looks round freely - the keys take the keyboard, not the look: the hands stay on them. */
@@ -53,22 +66,71 @@ final class Typewriter implements BlockTarget {
     }
 
     @Override
-    public Object snapshot(Level level, BlockPos pos, BlockState block) {
-        return new Seen(block, PRESSED.read(level.getBlockEntity(pos)) instanceof List<?> keys ? List.copyOf(keys) : List.of());
+    public Gesture changed(BlockPos pos, Object before, Object now) {
+        return null;
     }
 
-    @Override
-    public Gesture changed(BlockPos pos, Object was, Object is) {
-        if (!(was instanceof Seen before) || !(is instanceof Seen now)) return null;
-        // A key gone down, not one let go.
-        boolean struck = !now.pressed.isEmpty() && !before.pressed.containsAll(now.pressed);
-        return struck ? new Gesture(keys(pos, now.block, 0), Motion.TAP) : null;
-    }
-
-    /** A point of the keyboard, {@code side} pixels off its middle - the typist's right is the model's -x. */
-    private static Spot keys(BlockPos pos, BlockState block, double side) {
+    /** Where the typist's right or left hand is: on the last key held in its half, or waiting over the half. */
+    private static Spot hand(AbstractClientPlayer player, BlockPos pos, BlockState block, boolean right) {
+        double[] key = null;
+        // Our own player's keys are known at once, as the drawn keys they are; another's come with the block entity, as key codes.
+        boolean own = player == Minecraft.getInstance().player;
+        Object held = own ? ownHeld() : PRESSED_KEYS.read(player.level().getBlockEntity(pos));
+        if (held instanceof List<?> keys) {
+            for (Object each : List.copyOf(keys)) {
+                if (!(each instanceof Integer k)) continue;
+                double[] at = key(own ? Math.max(0, Math.min(KEYS - 1, k)) : index(k));
+                // The typist's right is the model's low x; the middle is the right hand's.
+                if ((at[0] <= 8) == right) key = at;
+            }
+        }
         Direction facing = block.getValue(BlockStateProperties.HORIZONTAL_FACING);
         // The model is made facing north; Spots.turned takes one made facing south.
-        return Spots.turned(pos, facing.getOpposite(), 8 + side, KEYS_Y, KEYS_Z);
+        return key != null ? Spots.turned(pos, facing.getOpposite(), key[0], key[1] - PRESSED, key[2])
+                : Spots.turned(pos, facing.getOpposite(), right ? 8 - REST_SIDE : 8 + REST_SIDE, REST_Y, REST_Z);
+    }
+
+    /** The top of key {@code i}, pixels in the model: the renderer's own places, about the block's middle and turned half round. */
+    private static double[] key(int i) {
+        double x, y, z;
+        if (i < FAR_ROW) {
+            x = -0.4375 + 0.125 * (i + 1);
+            y = 0.0625;
+            z = 0.125;
+        } else if (i < FAR_ROW + NEAR_ROW) {
+            x = -0.5 + 0.125 * (i - FAR_ROW + 1);
+            y = 0;
+            z = 0.25;
+        } else {
+            x = 0;
+            y = -0.0625;
+            z = 0.375;
+        }
+        return new double[]{8 - 16 * x, 4 + 16 * y + 1, 8 - 16 * z};
+    }
+
+    /** The drawn keys our own player holds down ({@code LinkedTypewriterInteractionHandler.getPressedKeys}). */
+    private static Object ownHeld() {
+        try {
+            if (ownPressed == null) ownPressed = Class.forName(HANDLER).getMethod("getPressedKeys");
+            return ownPressed.invoke(null);
+        } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
+            return null;
+        }
+    }
+
+    /** Which drawn key a key code is, as the mod's client decides it. */
+    private static int index(int code) {
+        if (!looked) {
+            looked = true;
+            try {
+                Field field = Class.forName(HANDLER).getDeclaredField("presetKeys");
+                field.setAccessible(true);
+                preset = (Int2IntMap) field.get(null);
+            } catch (ReflectiveOperationException | RuntimeException | LinkageError ignored) {
+            }
+        }
+        int index = preset != null && preset.containsKey(code) ? preset.get(code) : RandomSource.create(code).nextInt(KEYS - 1);
+        return Math.max(0, Math.min(KEYS - 1, index));
     }
 }
