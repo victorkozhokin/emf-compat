@@ -124,7 +124,7 @@ public final class FootGrounding {
     }
 
     private static final class State {
-        float lower, rightBend, leftBend;
+        float lower, rightBend, leftBend, soleLower;
         final TerrainBalance terrain = new TerrainBalance();
         /** The legs as the animation left them last frame, {xRot, yRot, zRot, x, y, z, yScale}; null before one. */
         float[] rightPose, leftPose;
@@ -163,9 +163,9 @@ public final class FootGrounding {
         if (dt >= 0) solve(player, stack, state, dt);
 
         // Down onto a lower floor; up (negative) only onto an ejector's raised lid.
-        if (Math.abs(state.lower) > 1e-3f) {
+        if (Math.abs(state.lower + state.soleLower) > 1e-3f) {
             // Model space: +y is down, one unit is 16 pixels.
-            stack.translate(0f, state.lower / 16f, 0f);
+            stack.translate(0f, (state.lower + state.soleLower) / 16f, 0f);
         }
     }
 
@@ -179,7 +179,7 @@ public final class FootGrounding {
         if (state.lastPosition != null && state.lastPosition.distanceToSqr(player.position()) > 4) {
             resetContacts(state);
             state.terrain.reset();
-            state.lower = state.rightBend = state.leftBend = 0f;
+            state.lower = state.rightBend = state.leftBend = state.soleLower = 0f;
         }
         state.lastPosition = player.position();
         String why = ineligible(player);
@@ -306,8 +306,18 @@ public final class FootGrounding {
                     * Smoothing.snapFirst(dt, reachLeft[i] != 0f ? RAISE_SECONDS : SETTLE_SECONDS);
         }
 
+        // On fences the hitbox rests above the visible top. The height solver is calibrated
+        // to straight hips; FA crouching raises their pivots another two pixels. Lower the
+        // whole visual model by that pack-derived gap without raising the legs back again.
+        // Separate from state.lower so plant/stride cannot cancel this contact correction.
+        float soleTarget = why == null && state.terrain.needsSoleContact()
+                ? SoleContact.lowering(state.rightPose, state.leftPose) : 0;
+        state.soleLower += (soleTarget - state.soleLower) * Smoothing.snapFirst(dt, 0.08);
+
         // Per-frame trace while the feet do anything; debug only.
         if (FootGroundingFeature.isTrace() && why == null) {
+            LOGGER.info("[SoleTrace] pose={} R={} L={} correction={} target={}", player.getPose(),
+                    SoleContact.height(state.rightPose), SoleContact.height(state.leftPose), state.soleLower, soleTarget);
             LOGGER.info("[TerrainTrace] {} {}", player.getName().getString(), state.terrain.trace());
             LOGGER.info("[FootTrace] x={} y={} z={} R={} L={} fR={} fL={} w={} low={} tl={} pr={} pl={} rb={} lb={} rp={} lp={} rs={} ls={} rt={} lt={} ry={} ly={}",
                     String.format("%.3f", player.getX()), String.format("%.3f", player.getY()),

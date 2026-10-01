@@ -38,6 +38,7 @@ final class TerrainBalance {
     private float narrow, pitch, roll;
     private final float[] right = new float[2], left = new float[2];
     private boolean armsFree;
+    private boolean raisedCollision;
 
     void solve(AbstractClientPlayer player, IKFrame frame, float[] r, float[] l, double dt) {
         long now = System.nanoTime();
@@ -52,6 +53,7 @@ final class TerrainBalance {
             List<SupportSurface.Point> points = new ArrayList<>();
             List<BalanceMath.Sample> heights = new ArrayList<>();
             Vec3 normal = Vec3.ZERO;
+            raisedCollision = false;
             for (int x = -4; x <= 4; x++) for (int z = -4; z <= 4; z++) {
                 Vec3 foot = frame.jointWorld(new Vector3f(x * SPACING, 24, z * SPACING));
                 Floor hit = floor(player, foot, spaces);
@@ -63,6 +65,7 @@ final class TerrainBalance {
                 // or a wall above it. Slabs/stairs still use the existing vertical foot solver.
                 if (hit == null || Math.abs(hit.supportY - player.getY()) > 0.15) continue;
                 points.add(new SupportSurface.Point(x * SPACING, z * SPACING));
+                raisedCollision |= hit.supportY - hit.position.y > 0.2;
                 normal = normal.add(hit.normal);
             }
             surface = new SupportSurface(points, SPACING);
@@ -91,6 +94,7 @@ final class TerrainBalance {
         pitchTarget = rollTarget = pitch = roll = narrow = 0;
         right[0] = right[1] = left[0] = left[1] = 0;
         armsFree = false;
+        raisedCollision = false;
     }
 
     private void shift(float[] pose, float hip, float[] shift, double dt) {
@@ -121,6 +125,8 @@ final class TerrainBalance {
         float side = (1 - 2 * support) * narrow;
         return new float[]{pitch, 0, roll - side * 0.045f, side * 0.7f};
     }
+
+    boolean needsSoleContact() { return raisedCollision; }
 
     void apply(UUID uuid, Function<String, ModelPart> parts, float[] r, float[] l) {
         move(parts.apply("right_leg"), right, r); move(parts.apply("left_leg"), left, l);

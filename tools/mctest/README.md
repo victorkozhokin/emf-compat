@@ -1,5 +1,12 @@
 # mctest — running and driving the game myself
 
+For new animation tests, extend the existing **EMF ATLAS - Animation Campus** with an isolated
+section instead of placing another detached rig. Use a sandbox copy for verification, keep GUI
+hidden, and preserve the original world's other sections when exporting changes. Zone 10 is the
+balance annex: `polygon/terrain_section.py` writes only `emf_atlas:terrain`; it does not rebuild
+the campus. `scenarios/atlas-terrain-balance.json` tests standing/crouching contact and transitions
+on its fence, wall, iron bars and slopes. Navigation: the **10 / BALANCE LAB** button at the hub.
+
 Launches any Modrinth profile in a throwaway sandbox, with this repo's freshly built jars in place
 of the installed ones, and drives it from inside: commands, key presses, camera, screenshots, and
 probes into the core. Written so animation work can be checked in game without asking the user to

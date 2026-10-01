@@ -8,10 +8,12 @@ import json
 import math
 import re
 import shutil
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 sandbox = ROOT / "run/mctest/Test"
-output = ROOT / "build/terrain-review"
+atlas = "--atlas" in sys.argv
+output = ROOT / ("build/atlas-crouch-review" if atlas else "build/terrain-review")
 output.mkdir(parents=True, exist_ok=True)
 log = (sandbox / "logs/latest.log").read_text(errors="replace")
 rows = []
@@ -21,7 +23,7 @@ for line in log.splitlines():
     row = {key: float(value) for key, value in re.findall(r"(points|narrow|pitch|roll|rx|rz|lx|lz)=([^ ]+)", line)}
     if row:
         rows.append(row)
-results = json.loads((ROOT / "build/terrain-run.json").read_text())
+results = json.loads((ROOT / ("build/atlas-crouch-after.json" if atlas else "build/terrain-run.json")).read_text())
 errors = [step for step in results["results"] if "error" in step]
 summary = {
     "driver_steps": len(results["results"]),
@@ -35,11 +37,21 @@ summary = {
     "limits": ["Inclined Sable platform requires a separate live regression; unit-tested slope math only.",
                "Fence outline correction lowers the visual model; the gameplay hitbox remains at collision height."],
 }
+if atlas:
+    summary["observed_poses"] = [step["state"]["pose"] for step in results["results"] if "state" in step]
+    marker = log.find("atlas fence crouching after")
+    settled = [line for line in log[:marker].splitlines() if "[SoleTrace]" in line and "pose=CROUCHING" in line]
+    if settled:
+        values = dict((key, float(value)) for key, value in re.findall(r"(correction|target)=([^ ]+)", settled[-1]))
+        summary["settled_crouch_correction_pixels"] = values["correction"]
+        summary["settled_contact_residual_pixels"] = abs(values["target"] - values["correction"])
 (output / "metrics.json").write_text(json.dumps(summary, indent=2))
 shutil.copy2(sandbox / "logs/latest.log", output / "after.log")
-shots = sorted((sandbox / "screenshots").glob("terrain-*.png"))
+shots = sorted((sandbox / "screenshots").glob("atlas-*.png" if atlas else "terrain-*.png"))
 cards = []
 for shot in shots:
+    if shot.name == "atlas-fence-standing-before.png":
+        continue  # Resource reload overlay obscured this frame.
     shutil.copy2(shot, output / shot.name)
     name = html.escape(shot.stem)
     cards.append(f'<figure><a href="{shot.name}"><img loading="lazy" src="{shot.name}" alt="{name}"></a><figcaption>{name}</figcaption></figure>')
