@@ -32,7 +32,7 @@ import java.util.function.Function;
  *   shoulders - the torso turns, a shoulder first, until it fits, the head still looking where it looked.</li>
  * </ul>
  *
- * <p>Squeezed, the arms are kept still, and turned to fit they are held a little out from the torso: a turned torso swings its arms across the gap,
+ * <p>Squeezed, the arms are kept still, and turned to fit they come up from the sides, as far as the walls let them: a turned torso swings its arms across the gap,
  * into the walls. The legs are inside the box as they are. The torso's part is asked of
  * {@code TorsoLean} ({@link #torsoHint}); any player's, moving or not.</p>
  */
@@ -57,12 +57,17 @@ public final class WallSqueeze {
     /** Going over to the free side: the shift at most, pixels. */
     private static final float MAX_SHIFT = 1.5f;
     /** The turn at most; and in the wall on both sides by this much, pixels, it is all there. */
-    private static final float MAX_TURN = (float) Math.toRadians(78), TURN_FULL_AT = 1.5f;
+    private static final float MAX_TURN = (float) Math.toRadians(68), TURN_FULL_AT = 1.5f;
     private static final double SECONDS = 0.12;
-    /** Squeezed, the share of their swing the arms keep; turned to fit, how far out from the torso they are held, radians. */
-    private static final float ARM_SWING_KEPT = 0.2f, ARM_OUT = (float) Math.toRadians(16);
-    /** The hand of an arm held out that much is this much further out than its shoulder, pixels (the arm is 12 long). */
-    private static final float HAND_OUT = 12f * (float) Math.sin(Math.toRadians(16));
+    /** Squeezed, the share of their swing the arms keep. */
+    private static final float ARM_SWING_KEPT = 0.2f;
+    /**
+     * Turned to fit, the arms come up from the sides towards a T - along the gap, one ahead and one
+     * behind: this far at most, radians, and each only as far as its hand stays out of the wall on
+     * its side. The torso turns this much past what the shoulders need, to leave the arms that room.
+     */
+    private static final float ARM_UP = (float) Math.toRadians(40), TURN_PAST = (float) Math.toRadians(8);
+    private static final float ARM_LENGTH = 12f;
 
     private WallSqueeze() {
     }
@@ -72,8 +77,8 @@ public final class WallSqueeze {
         float turn, shift;
         /** How squeezed the arms are, 0..1, smoothed. */
         float arms;
-        /** How much of that is the turn, 0..1, smoothed: turned, the arms are held a little out, along the gap. */
-        float turned;
+        /** How far up from the side each arm is held, radians, smoothed. */
+        float upRight, upLeft;
         String logged = "off";
     }
 
@@ -97,7 +102,7 @@ public final class WallSqueeze {
                 && !EMFCompatCore.isLocalPlayerInFirstPerson(uuid)
                 && !player.isPassenger() && !player.isSleeping() && !player.isFallFlying() && !player.isSwimming()
                 && (player.getPose() == Pose.STANDING || player.getPose() == Pose.CROUCHING);
-        float squeezed = 0f;
+        float squeezed = 0f, upRight = 0f, upLeft = 0f;
         if (on) {
             float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
             Vec3 at = player.getPosition(partial);
@@ -116,7 +121,11 @@ public final class WallSqueeze {
             float left = Math.max(Math.max(0f, inRight - Math.max(0f, over)), Math.max(0f, inLeft - Math.max(0f, -over)));
             if (left > 0.01f) {
                 float full = Mth.clamp(left / TURN_FULL_AT, 0f, 1f);
-                s.turn = full * fitting(left) * (inRight >= inLeft ? 1f : -1f);
+                float turn = Math.min(MAX_TURN, fitting(left) + TURN_PAST);
+                s.turn = full * turn * (inRight >= inLeft ? 1f : -1f);
+                // The room each side has from where the shifted body is, pixels.
+                upRight = full * up(turn, (float) (roomRight / PIXEL) + over);
+                upLeft = full * up(turn, (float) (roomLeft / PIXEL) - over);
                 squeezed = full;
                 decided = "turn";
             } else if (Math.abs(over) > 0.05f) {
@@ -125,7 +134,8 @@ public final class WallSqueeze {
             }
         }
         s.arms += (squeezed - s.arms) * Smoothing.follow(dt, SECONDS);
-        s.turned += ((decided.equals("turn") ? squeezed : 0f) - s.turned) * Smoothing.follow(dt, SECONDS);
+        s.upRight += (upRight - s.upRight) * Smoothing.follow(dt, SECONDS);
+        s.upLeft += (upLeft - s.upLeft) * Smoothing.follow(dt, SECONDS);
         if (!decided.equals(s.logged)) {
             s.logged = decided;
             LOGGER.info("[WallSqueeze] {} {}", player.getName().getString(), decided);
@@ -149,16 +159,27 @@ public final class WallSqueeze {
 
     /**
      * The turn at which the shoulders are narrower by {@code pixels} a side: turned by a, an arm's
-     * outer side is {@code (6 + h) cos a + 2 (cos a + sin a)} out, h the hand held out from the torso -
-     * wider at first, the arm's corner coming round, and narrower only well into the turn.
+     * outer side is {@code 6 cos a + 2 (cos a + sin a)} out - wider at first, its corner coming
+     * round, and narrower only past 28 degrees.
      */
     private static float fitting(float pixels) {
         float wanted = SHOULDER + ARM_HALF - pixels;
         for (float turn = 0f; turn < MAX_TURN; turn += 0.01f) {
-            float out = (SHOULDER + HAND_OUT) * Mth.cos(turn) + ARM_HALF * (Mth.cos(turn) + Mth.sin(turn));
-            if (turn > 0.5f && out <= wanted) return turn;
+            float out = SHOULDER * Mth.cos(turn) + ARM_HALF * (Mth.cos(turn) + Mth.sin(turn));
+            if (turn > 0.3f && out <= wanted) return turn;
         }
         return MAX_TURN;
+    }
+
+    /**
+     * How far up an arm can come with the torso turned by {@code turn} and {@code room} pixels from
+     * the middle to the wall on its side: its hand is {@code 12 sin up} further out along the
+     * shoulders, which is {@code cos turn} of that towards the wall.
+     */
+    private static float up(float turn, float room) {
+        float cos = Mth.cos(turn), sin = Mth.sin(turn);
+        float hand = (room - 0.3f - ARM_HALF * (cos + sin)) / Math.max(0.05f, cos) - SHOULDER;
+        return (float) Math.asin(Mth.clamp(hand / ARM_LENGTH, 0f, Mth.sin(ARM_UP)));
     }
 
     /** For {@code TorsoLean}: {pitch, yaw, roll, shift (pixels), the part of the yaw the head does not take}; {@code null} for none. */
@@ -175,8 +196,8 @@ public final class WallSqueeze {
         for (int i = 0; i < 2; i++) {
             ModelPart arm = parts.apply(i == 0 ? "right_arm" : "left_arm");
             if (arm == null) continue;
-            // Out, for a hanging right arm, is +zRot; for a left one -zRot. Turned, out is along the gap.
-            float out = (i == 0 ? ARM_OUT : -ARM_OUT) * s.turned;
+            // Up from the side, for a hanging right arm, is +zRot; for a left one -zRot.
+            float out = i == 0 ? s.upRight : -s.upLeft;
             arm.xRot = Mth.lerp(s.arms, arm.xRot, arm.xRot * ARM_SWING_KEPT);
             arm.zRot = Mth.lerp(s.arms, arm.zRot, out);
         }
