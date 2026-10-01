@@ -59,7 +59,8 @@ public final class BlockUse implements InteractionProvider {
     private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox(), new Campfire(), new Vault(), new HandCrank(),
             new Composter(), new FlowerPot(), new RespawnAnchor(), new NoteBlock(), new Repeater(), new Comparator(),
             new DaylightDetector(), new Cake(), new Barrel(), new Candle(), new ValveHandle(), new SteeringWheel(),
-            new CraftingTable(), new Stonecutter(), new Bell(), new FenceGate());
+            new CraftingTable(), new Stonecutter(), new Bell(), new FenceGate(), new Cauldron(), new Beehive(),
+            new CandleCake(), new Tnt(), new Crafter(), new EnchantingTable(), new CartographyTable());
 
     /** Below a button press, above doors and chests. */
     private static final int PRIORITY = 8;

@@ -351,6 +351,14 @@ to a connection that never negotiated their channels, and the keep-alive would t
 {"bot": {"swing": true}}   {"bot": {"remove": true}}                     "name": "Bob" when there are several
 ```
 
+**Extending EMF ATLAS**: the stands are generated - edit `polygon/build_polygon.py`, then run it with
+`ATLAS_WORLD="run/mctest/Test/saves/EMF ATLAS - Animation Campus"` to write the pack into the map
+itself; in game `/reload` and `/function emf_atlas:interactions` adds zone 03's second row (z 2097:
+cauldrons, hive and nest, candle cake, candles, TNT, crafter, enchanting and cartography tables, a
+barrel with what they take) without rebuilding the rest. `/function emf_atlas:restock` (and the
+button by the row) puts back what a use takes away. A command block under the TNT kills it lit.
+A bot's `"item"` is sent to the clients by the step itself - nothing ticks a bot.
+
 **Ten bots in EMF ATLAS** (world `EMF ATLAS - Animation Campus`, zone 03 INTERACTIONS; the map is
 built by `polygon/build_polygon.py` + `detail_polygon.py`): `scenarios/atlas_bots.py` writes
 `atlas-bots.json` (spawn and start) and `atlas-bots-stop.json`. Wall stone/oak buttons and a lever,

@@ -1,8 +1,11 @@
 """Build the EMF Compat Atlas campus as an editable Minecraft 1.21.1 data pack."""
 import json
+import os
 from pathlib import Path
 
-OUT = Path('run/mctest/Test/saves/ParCool Test/datapacks/emf_atlas')
+# The world the pack is written into: the one the campus was first built in, or ATLAS_WORLD -
+# the finished map itself (run/mctest/Test/saves/EMF ATLAS - Animation Campus) to extend it in place.
+OUT = Path(os.environ.get('ATLAS_WORLD', 'run/mctest/Test/saves/ParCool Test')) / 'datapacks/emf_atlas'
 FUN = OUT / 'data/emf_atlas/function'
 FUN.mkdir(parents=True, exist_ok=True)
 (OUT / 'pack.mcmeta').write_text(json.dumps({'pack': {'pack_format': 48, 'description': 'EMF ATLAS • interactive animation campus'}}, ensure_ascii=False))
@@ -125,6 +128,35 @@ for i,typ in enumerate(['oak','iron']):
     block(a,152,z+10,typ+'_door[facing=south,half=upper]')
     block(a-1,150,z+10,'gold_block');block(a-1,151,z+10,'lever[face=floor]')
 chest(x+4,z+37,['book 16','writable_book','flower_pot','poppy 16','bone_meal 64','wheat_seeds 64','honeycomb','flint_and_steel','music_disc_cat','glowstone 16','trial_key','ominous_trial_key'],'Набор взаимодействий')
+# 03, more: the blocks a hand uses by what it holds (cauldrons, hives, candles, TNT) and the tables.
+# Also written as its own function, interactions.mcfunction, to add them to a map already built;
+# restock.mcfunction puts back what a use takes away (honey, water, the candle, the TNT).
+more=len(commands)
+used=[('cauldron','Ведро / бутыль','с водой'),
+ ('water_cauldron[level=3]','Ведро, бутылка','крашеная броня'),
+ ('lava_cauldron','Пустое ведро',''),
+ ('powder_snow_cauldron[level=3]','Пустое ведро',''),
+ ('beehive[facing=south,honey_level=5]','Бутылка','или ножницы'),
+ ('bee_nest[facing=south,honey_level=5]','Бутылка','или ножницы'),
+ ('candle_cake','Огниво / пустая','рука / съесть'),
+ ('candle[candles=4]','Огниво / пустая','рука'),
+ ('tnt','Огниво','или огн. заряд'),
+ ('crafter[orientation=south_up]','ПКМ: слоты','вкл/выкл, предмет'),
+ ('enchanting_table','Смотри на книгу','обе руки'),
+ ('cartography_table','ПКМ: рука','водит по карте')]
+restock=[]
+for i,(b,how,more_how) in enumerate(used):
+    # The first takes the grid's last free place; the rest a row of their own, 3 apart.
+    a,c=(x+39,z+30) if i==0 else (x+4+i*3,z+37)
+    block(a,151,c,b)
+    restock.append(f'setblock {a} 151 {c} {b}')
+    sign(a,151,c+2,[b.split('[')[0][:18],how,more_how,'Встань вплотную'])
+    # Lit TNT is taken away at once: the stand shows the hand at the fuse, and the campus stays whole.
+    if b=='tnt': block(a,149,c,'repeating_command_block{Command:"kill @e[type=tnt,distance=..4]",auto:1b,TrackOutput:0b}')
+(FUN/'restock.mcfunction').write_text('\n'.join(restock)+'\n')
+button(x+43,z+35,'Восстановить стенды','function emf_atlas:restock')
+chest(x+43,z+30,['bucket','water_bucket','lava_bucket','powder_snow_bucket','glass_bottle 16','potion[potion_contents={potion:"minecraft:water"}]','shears','flint_and_steel','fire_charge 16','leather_chestplate[dyed_color={rgb:11546150}]','honeycomb 16','oak_planks 64','cobblestone 64','lapis_lazuli 64','book 16','filled_map','paper 16','glass_pane 16'],'Вёдра / огонь / столы')
+(FUN/'interactions.mcfunction').write_text('\n'.join(commands[more:])+'\n')
 # 04: crank wall in three heights; valves, wheel, throttle and chain conveyor.
 x,z=2060,2116
 fill(x+3,151,z+4,x+43,154,z+4,'andesite')

@@ -118,6 +118,9 @@ public final class Bot {
             if (v.has("item")) {
                 ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(v.get("item").getAsString())));
                 bot.setItemInHand(InteractionHand.MAIN_HAND, stack);
+                // Nothing ticks a bot, so nothing sends what it holds: tell those who see it.
+                bot.serverLevel().getChunkSource().broadcast(bot, new net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket(
+                        bot.getId(), java.util.List.of(com.mojang.datafixers.util.Pair.of(net.minecraft.world.entity.EquipmentSlot.MAINHAND, stack.copy()))));
             }
             if (v.has("sneak")) {
                 boolean sneak = v.get("sneak").getAsBoolean();

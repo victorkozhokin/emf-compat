@@ -17,6 +17,12 @@ final class Spots {
         return new BlockTarget.Spot(new Vec3(pos.getX() + x / 16, pos.getY() + y / 16, pos.getZ() + z / 16), UP);
     }
 
+    /** The middle of the block's side towards {@code side}, {@code up} blocks over its bottom: the hand comes at it from outside. */
+    static BlockTarget.Spot side(BlockPos pos, Direction side, double up) {
+        Vec3 out = Vec3.atLowerCornerOf(side.getNormal());
+        return new BlockTarget.Spot(new Vec3(pos.getX() + 0.5, pos.getY() + up, pos.getZ() + 0.5).add(out.scale(0.5)), out);
+    }
+
     /**
      * A point of a model made facing south, pixels, turned as the blockstate turns it for
      * {@code facing} (south 0, west 90, north 180, east 270 degrees clockwise from above), on its
