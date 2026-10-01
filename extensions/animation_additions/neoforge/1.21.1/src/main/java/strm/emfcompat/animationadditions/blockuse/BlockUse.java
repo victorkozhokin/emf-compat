@@ -57,6 +57,8 @@ public final class BlockUse implements InteractionProvider {
     public static final BlockUse INSTANCE = new BlockUse();
     public static final String KEY_ENABLED = "blockuse.enabled";
 
+    private static final String SUPPLEMENTARIES = "net.mehvahdjukaar.supplementaries.common.block.blocks.";
+
     private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox(), new Campfire(), new Vault(), new HandCrank(),
             new Composter(), new FlowerPot(), new RespawnAnchor(), new NoteBlock(), new Repeater(), new Comparator(),
             new DaylightDetector(), new Cake(), new Barrel(), new Candle(), new ValveHandle(), new SteeringWheel(),
@@ -71,6 +73,13 @@ public final class BlockUse implements InteractionProvider {
             ItemRest.front("dev.simulated_team.simulated.content.blocks.nav_table.NavTableBlock", "getHeldItem"),
             ItemRest.front("dev.eriksonn.aeronautics.content.blocks.mounted_potato_cannon.MountedPotatoCannonBlock", "getInventory"),
             new Typewriter(),
+            new SuppCrank(), new BookPile(),
+            ItemRest.inside(SUPPLEMENTARIES + "ItemShelfBlock", "", 5),
+            new ItemRest(SUPPLEMENTARIES + "PedestalBlock", "", 17),
+            new ItemRest(SUPPLEMENTARIES + "JarBlock", "", 14),
+            ItemRest.front(SUPPLEMENTARIES + "HourGlassBlock", ""),
+            ItemRest.front(SUPPLEMENTARIES + "NoticeBoardBlock", ""),
+            new ItemRest(SUPPLEMENTARIES + "FlowerBoxBlock", "", 8),
             // The two for whatever is left of a block, in this order: its value boxes, then anywhere on it.
             new ValuePanel(), new Panel());
 

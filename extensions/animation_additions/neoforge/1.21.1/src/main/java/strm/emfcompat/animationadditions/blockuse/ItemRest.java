@@ -3,6 +3,7 @@ package strm.emfcompat.animationadditions.blockuse;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -13,10 +14,12 @@ import net.neoforged.neoforge.items.IItemHandler;
 /**
  * A block of a mod's that items are put on or into by hand and taken back - Create's depot,
  * mechanical crafter, deployer, packager, frogport; Simulated's navigation table; Aeronautics'
- * mounted potato cannon: with something in the hand, or something in the block, the hand goes to
+ * mounted potato cannon; Supplementaries' item shelf, pedestal, jar, hourglass, notice board,
+ * flower box: with something in the hand, or something in the block, the hand goes to
  * where the item goes - the top, or the side the block faces; the item put there, the hand puts
  * it; taken, it takes it. Optional: the block and what it holds are found by name (a method or a
- * field giving an {@code ItemStack} or an item handler), and what it holds is every client's to
+ * field giving an {@code ItemStack} or an item handler; with none named, the block entity itself,
+ * a container), and what it holds is every client's to
  * see - this is any player's.
  *
  * <p>A belt, a funnel, the block's own work change what it holds too: it is a hand's doing only
@@ -27,8 +30,10 @@ final class ItemRest implements BlockTarget {
 
     private final String blockClass;
     private final ModAccess held;
-    /** The top the item lies on, pixels; negative for the middle of the side the block faces. */
+    /** The top the item lies on, pixels; negative for the side the block faces. */
     private final double top;
+    /** On the side the block faces: how far in from that side the item is, pixels. */
+    private final double inset;
 
     /** What the block holds, what the player held, and the arm's swing. */
     private record Seen(BlockState block, String item, int count, String hand, boolean swinging, int swingTime) {
@@ -36,14 +41,24 @@ final class ItemRest implements BlockTarget {
 
     /** Where the item goes is the block's top, {@code top} pixels up. */
     ItemRest(String blockClass, String accessor, double top) {
+        this(blockClass, accessor, top, 0);
+    }
+
+    private ItemRest(String blockClass, String accessor, double top, double inset) {
         this.blockClass = blockClass;
-        this.held = new ModAccess(accessor);
+        this.held = accessor.isEmpty() ? null : new ModAccess(accessor);
         this.top = top;
+        this.inset = inset;
     }
 
     /** Where the item goes is the side the block faces (its {@code facing}). */
     static ItemRest front(String blockClass, String accessor) {
         return new ItemRest(blockClass, accessor, -1);
+    }
+
+    /** Where the item goes is {@code inset} pixels in from the side the block faces - a shelf on a wall. */
+    static ItemRest inside(String blockClass, String accessor, double inset) {
+        return new ItemRest(blockClass, accessor, -1, inset);
     }
 
     @Override
@@ -77,8 +92,13 @@ final class ItemRest implements BlockTarget {
 
     /** How many items the block holds. */
     private int count(Level level, BlockPos pos) {
-        Object value = held.read(level.getBlockEntity(pos));
+        Object value = holds(level, pos);
         if (value instanceof ItemStack stack) return stack.getCount();
+        if (value instanceof Container container) {
+            int count = 0;
+            for (int i = 0; i < container.getContainerSize(); i++) count += container.getItem(i).getCount();
+            return count;
+        }
         if (!(value instanceof IItemHandler handler)) return 0;
         int count = 0;
         for (int i = 0; i < handler.getSlots(); i++) count += handler.getStackInSlot(i).getCount();
@@ -87,8 +107,14 @@ final class ItemRest implements BlockTarget {
 
     /** The first item the block holds; {@code null} with none. */
     private String item(Level level, BlockPos pos) {
-        Object value = held.read(level.getBlockEntity(pos));
+        Object value = holds(level, pos);
         if (value instanceof ItemStack stack) return stack.isEmpty() ? null : stack.getItem().toString();
+        if (value instanceof Container container) {
+            for (int i = 0; i < container.getContainerSize(); i++) {
+                if (!container.getItem(i).isEmpty()) return container.getItem(i).getItem().toString();
+            }
+            return null;
+        }
         if (!(value instanceof IItemHandler handler)) return null;
         for (int i = 0; i < handler.getSlots(); i++) {
             if (!handler.getStackInSlot(i).isEmpty()) return handler.getStackInSlot(i).getItem().toString();
@@ -96,10 +122,17 @@ final class ItemRest implements BlockTarget {
         return null;
     }
 
+    /** What the block's accessor gives; with no accessor, the block entity itself - a container. */
+    private Object holds(Level level, BlockPos pos) {
+        Object entity = level.getBlockEntity(pos);
+        return held == null ? entity : held.read(entity);
+    }
+
     private Spot rest(BlockPos pos, BlockState block) {
         if (top >= 0) return Spots.top(pos, 8, top, 8);
         Property<?> facing = block.getBlock().getStateDefinition().getProperty("facing");
         Direction side = facing != null && block.getValue(facing) instanceof Direction d ? d : Direction.UP;
-        return Spots.side(pos, side, 0.5);
+        Spot spot = Spots.side(pos, side, 0.5);
+        return inset == 0 ? spot : new Spot(spot.point().subtract(spot.out().scale(inset / 16)), spot.out());
     }
 }

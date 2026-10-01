@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * The blocks of Create and of the mods made on it that a click works but leaves nothing a hand
+ * The blocks of Create, of the mods made on it and of Supplementaries that a click works but leaves nothing a hand
  * could be told by - it opens a screen (a sequenced gearshift, a display link, a stock ticker, a
  * station, a postbox), assembles (a bearing), sends an item on (a funnel): looked at, the hand
  * waits at the point of the block the look is on; the player's arm swung - a use that did
@@ -23,6 +23,8 @@ import java.util.UUID;
  * box or a gesture of its own has that where it applies and this elsewhere.</p>
  */
 final class Panel implements BlockTarget {
+
+    private static final String SUPPLEMENTARIES = "net.mehvahdjukaar.supplementaries.common.block.blocks.";
 
     private static final List<String> BLOCKS = List.of(
             "com.simibubi.create.content.kinetics.transmission.sequencer.SequencedGearshiftBlock",
@@ -41,7 +43,14 @@ final class Panel implements BlockTarget {
             "dev.simulated_team.simulated.content.blocks.rope.rope_winch.RopeWinchBlock",
             "dev.simulated_team.simulated.content.blocks.handle.HandleBlock",
             "dev.simulated_team.simulated.content.blocks.portable_engine.PortableEngineBlock",
-            "dev.eriksonn.aeronautics.content.blocks.hot_air.hot_air_burner.HotAirBurnerBlock");
+            "dev.eriksonn.aeronautics.content.blocks.hot_air.hot_air_burner.HotAirBurnerBlock",
+            // Supplementaries: a globe pushed round, a board drawn on where the chalk is, levers, lids, locks.
+            SUPPLEMENTARIES + "GlobeBlock", SUPPLEMENTARIES + "SconceLeverBlock", SUPPLEMENTARIES + "BlackboardBlock",
+            SUPPLEMENTARIES + "SafeBlock", SUPPLEMENTARIES + "LunchBoxBlock", SUPPLEMENTARIES + "AbstractPresentBlock",
+            SUPPLEMENTARIES + "CageBlock", SUPPLEMENTARIES + "FaucetBlock", SUPPLEMENTARIES + "BellowsBlock",
+            SUPPLEMENTARIES + "SpeakerBlock", SUPPLEMENTARIES + "TurnTableBlock", SUPPLEMENTARIES + "SackBlock",
+            SUPPLEMENTARIES + "CannonBlock", SUPPLEMENTARIES + "PulleyBlock", SUPPLEMENTARIES + "LockBlock",
+            SUPPLEMENTARIES + "DoormatBlock");
 
     private static final Map<Class<?>, Boolean> KNOWN = new HashMap<>();
 
