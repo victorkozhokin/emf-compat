@@ -17,16 +17,16 @@ import java.util.Optional;
  * <p>A class that names another mod's types in its members (a ComputerCraft peripheral) cannot be
  * looked through without that mod - a {@code LinkageError}: the class it extends is tried next.</p>
  */
-final class ModAccess {
+public final class ModAccess {
 
     private final String name;
     private final Map<Class<?>, Optional<AccessibleObject>> members = new HashMap<>();
 
-    ModAccess(String name) {
+    public ModAccess(String name) {
         this.name = name;
     }
 
-    Object read(Object target) {
+    public Object read(Object target) {
         if (target == null) return null;
         Optional<AccessibleObject> member = members.computeIfAbsent(target.getClass(), this::find);
         if (member.isEmpty()) return null;
@@ -58,7 +58,7 @@ final class ModAccess {
     }
 
     /** Whether {@code type} is, extends or implements the class named. */
-    static boolean is(Class<?> type, String className) {
+    public static boolean is(Class<?> type, String className) {
         for (Class<?> c = type; c != null; c = c.getSuperclass()) {
             if (c.getName().equals(className)) return true;
             for (Class<?> i : c.getInterfaces()) if (is(i, className)) return true;

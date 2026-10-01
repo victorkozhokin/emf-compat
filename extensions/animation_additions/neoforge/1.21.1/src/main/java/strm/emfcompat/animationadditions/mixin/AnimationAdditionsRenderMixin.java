@@ -17,6 +17,7 @@ import strm.emfcompat.animationadditions.footgrounding.compat.FootGrounding;
 import strm.emfcompat.animationadditions.footgrounding.compat.HorseFootGrounding;
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.animationadditions.motion.MotionRuntime;
+import strm.emfcompat.animationadditions.ejector.EjectorLaunch;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.core.ik.IKFrame;
 
@@ -45,6 +46,7 @@ public class AnimationAdditionsRenderMixin {
                 Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
         MotionRuntime.modelPose(player);
         InteractionRuntime.modelPose(player, frame);
+        EjectorLaunch.modelPose(player);
         TorsoLean.modelPose(player);
     }
 

@@ -6,6 +6,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
 import strm.emfcompat.animationadditions.blockuse.BlockUse;
+import strm.emfcompat.animationadditions.ejector.EjectorLaunch;
 import strm.emfcompat.animationadditions.footgrounding.compat.FootGrounding;
 import strm.emfcompat.animationadditions.interaction.Effector;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
@@ -96,7 +97,7 @@ public final class TorsoLean {
                 target[0] += head[0] * FOLLOW_PITCH * head[2];
                 target[1] += Math.max(-MAX_YAW, Math.min(MAX_YAW, head[1] * FOLLOW_YAW)) * head[2];
             }
-            for (float[] press : new float[][]{ButtonPress.torsoHint(uuid), BlockUse.torsoHint(uuid)}) {
+            for (float[] press : new float[][]{ButtonPress.torsoHint(uuid), BlockUse.torsoHint(uuid), EjectorLaunch.torsoHint(uuid)}) {
                 if (press == null) continue;
                 target[0] += press[0];
                 target[1] += press[1];

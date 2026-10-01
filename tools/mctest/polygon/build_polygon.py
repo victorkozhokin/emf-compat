@@ -212,7 +212,7 @@ chest(x+37,z+29,['create:track 64','create:track_station','create:controls 2','c
 # The rest of Create and Aeronautics a hand uses: items put in and taken, panels and screens, the typewriter.
 machines=[[('create:mechanical_crafter[facing=south]','Предмет: ПКМ','пустой: забрать'),('create:deployer[facing=south]','Предмет в руку','механизма'),
   ('create:packager[facing=south]','Посылка','положить/взять'),('create:package_frogport','Посылка: ПКМ',''),('create:white_postbox[facing=south]','ПКМ: окно',''),
-  ('create:weighted_ejector[facing=south]','Предмет: ПКМ','')],
+  ('create:weighted_ejector[facing=south]','Встань: бросок','Shift: стоять')],
  [('create:sequenced_gearshift','ПКМ: окно',''),('create:display_link[facing=up]','ПКМ: окно',''),('create:stock_ticker[facing=south]','ПКМ: окно',''),
   ('create:redstone_requester','ПКМ: окно',''),('create:mechanical_bearing[facing=up]','Пустой рукой','сборка'),('create:mechanical_arm','Режим: панель',''),
   ('simulated:linked_typewriter[facing=south]','Обе руки','на клавишах'),('simulated:navigation_table[facing=up]','Предмет цели','ПКМ'),
@@ -224,6 +224,9 @@ for row,(a0,c) in enumerate([(x+23,z+33),(x+8,z+37)]):
         restock.append(f'setblock {a} 151 {c} air')
         restock.append(f'setblock {a} 151 {c} {b}')
         sign(a,151,c+2,[b.split(':')[1].split('[')[0][:18],how,more_how,'Стоя и сидя'])
+# The weighted ejector throws whoever steps on it: a motor winds it up, and it is aimed 12 blocks south, 3 up.
+block(x+37,151,z+33,'create:creative_motor[facing=east]')
+for target in (commands,restock): target.append(f'data merge block {x+38} 151 {z+33} {{HorizontalDistance:12,VerticalDistance:3}}')
 (FUN/'restock.mcfunction').write_text('\n'.join(restock)+'\n')
 button(x+25,z+23,'Восстановить стенды','function emf_atlas:restock')
 chest(x+23,z+19,['iron_ingot 16','create:andesite_alloy 16','oak_planks 16','coal 16','create:blaze_cake 4','water_bucket','bucket','honey_bottle 4','potion[potion_contents={potion:"minecraft:water"}]','create:wrench','create:filter 4','redstone 16','potato 32','compass','create:cardboard_package_10x12','supplementaries:rope 16'],'Предметы / топливо')

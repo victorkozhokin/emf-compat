@@ -17,6 +17,7 @@ import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
 import strm.emfcompat.animationadditions.blockuse.BlockUse;
 import strm.emfcompat.animationadditions.doorhold.DoorHold;
 import strm.emfcompat.animationadditions.furniture.Furniture;
+import strm.emfcompat.animationadditions.ejector.EjectorLaunch;
 import strm.emfcompat.animationadditions.mining.Mining;
 import strm.emfcompat.animationadditions.motion.PoseInertia;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
@@ -61,6 +62,7 @@ public class EMFCompatAnimationAdditionsMod {
             DoorHold.register(config);
             Furniture.register(config);
             Mining.register(config);
+            EjectorLaunch.register(config);
             // Order is only the log's order; who wins is the arbiter's call.
             InteractionRuntime.register(WallHand.INSTANCE);
             InteractionRuntime.register(PlantReach.INSTANCE);
