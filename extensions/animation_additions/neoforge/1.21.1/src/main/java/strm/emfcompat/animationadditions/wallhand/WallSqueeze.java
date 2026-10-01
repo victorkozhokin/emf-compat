@@ -15,7 +15,6 @@ import strm.emfcompat.animationadditions.interaction.Effector;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
-import strm.emfcompat.animationadditions.motion.MotionRuntime;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.EMFCompatCore;
@@ -35,7 +34,7 @@ import java.util.function.Function;
  *   shoulders - the torso turns, a shoulder first, until it fits, the head still looking where it looked.</li>
  * </ul>
  *
- * <p>Turned to fit, the hands go onto the walls and, moving, push along them ({@link #aimArms}).
+ * <p>Turned to fit, the hands go onto the walls, one ahead and one behind ({@link #aimArms}).
  * Squeezed, the arms are kept still, and turned to fit they come up from the sides, as far as the walls let them: a turned torso swings its arms across the gap,
  * into the walls. The legs are inside the box as they are. The torso's part is asked of
  * {@code TorsoLean} ({@link #torsoHint}); any player's, moving or not.</p>
@@ -70,7 +69,7 @@ public final class WallSqueeze {
      * behind: this far at most, radians, and each only as far as its hand stays out of the wall on
      * its side. The torso turns this much past what the shoulders need, to leave the arms that room.
      */
-    private static final float ARM_UP = (float) Math.toRadians(40), TURN_PAST = (float) Math.toRadians(8);
+    private static final float ARM_UP = (float) Math.toRadians(40), TURN_PAST = (float) Math.toRadians(4);
     private static final float ARM_LENGTH = 12f;
     private static final float NO_WALL = 1e6f;
     /**
@@ -79,14 +78,6 @@ public final class WallSqueeze {
      * from the shoulder is reached for.
      */
     private static final float PALM = 10f, PALM_BELOW = 3f, WALL_REACH = 9f;
-    /**
-     * Moving, the hands help along, one after the other: the palm goes ahead along the wall and up -
-     * the arm out from the body - and comes back down towards it, this much either way of its rest,
-     * radians, once every {@link #PUSH_EVERY} blocks walked.
-     */
-    private static final float PUSH = 0.38f;
-    private static final double PUSH_EVERY = 1.3;
-
     private WallSqueeze() {
     }
 
@@ -99,10 +90,8 @@ public final class WallSqueeze {
         float upRight, upLeft;
         /** The walls, pixels from the middle of the body to the right and to the left; huge with none. */
         float wallRight = NO_WALL, wallLeft = NO_WALL;
-        /** How much the hands are on the walls, 0..1, smoothed; how much the player moves, 0..1; which way, -1..1. */
-        float hands, moving, way = 1f;
-        /** Where in its cycle the pushing along is, radians. */
-        float phase;
+        /** How much the hands are on the walls, 0..1, smoothed; and which way the torso is turned, 1 to the right, -1 to the left. */
+        float hands, side = 1f;
         String logged = "off";
     }
 
@@ -146,7 +135,8 @@ public final class WallSqueeze {
             if (left > 0.01f) {
                 float full = Mth.clamp(left / TURN_FULL_AT, 0f, 1f);
                 float turn = Math.min(MAX_TURN, fitting(left) + TURN_PAST);
-                s.turn = full * turn * (inRight >= inLeft ? 1f : -1f);
+                s.side = inRight >= inLeft ? 1f : -1f;
+                s.turn = full * turn * s.side;
                 // The room each side has from where the shifted body is, pixels.
                 s.wallRight = roomRight < LOOK ? (float) (roomRight / PIXEL) : NO_WALL;
                 s.wallLeft = roomLeft < LOOK ? (float) (roomLeft / PIXEL) : NO_WALL;
@@ -161,10 +151,6 @@ public final class WallSqueeze {
         }
         s.arms += (squeezed - s.arms) * Smoothing.follow(dt, SECONDS);
         s.hands += ((decided.equals("turn") ? squeezed : 0f) - s.hands) * Smoothing.follow(dt, SECONDS);
-        MotionRuntime.Motion motion = MotionRuntime.get(uuid);
-        s.moving += (Mth.clamp(motion.speed(), 0f, 1f) - s.moving) * Smoothing.follow(dt, 0.2);
-        if (Math.abs(motion.forward()) > 0.3f) s.way += (Math.signum(motion.forward()) - s.way) * Smoothing.follow(dt, 0.15);
-        s.phase = (float) ((s.phase + 2 * Math.PI * motion.speed() / PUSH_EVERY * dt) % (2 * Math.PI));
         s.upRight += (upRight - s.upRight) * Smoothing.follow(dt, SECONDS);
         s.upLeft += (upLeft - s.upLeft) * Smoothing.follow(dt, SECONDS);
         if (!decided.equals(s.logged)) {
@@ -235,11 +221,13 @@ public final class WallSqueeze {
     }
 
     /**
-     * The hands on the walls. Turned to fit, each arm goes to the wall nearer its shoulder - which
-     * wall that is goes by where the turn has put the shoulder - the palm a little below the
-     * shoulder and ahead along the wall, as far as the arm's length leaves; moving, the palms push
-     * along in turn. An arm with no wall in reach keeps its place up from the side. Called after the
-     * torso has turned: the arm is aimed from where its shoulder is drawn.
+     * The hands on the walls. Turned to fit - to the right against a wall on the right - the right
+     * shoulder has gone back and the left one ahead: the right arm is drawn back and reaches for
+     * the wall behind it, the left one is put out ahead onto its wall; turned to the left, the other
+     * way round. Each to the wall nearer its shoulder, the palm a little below the shoulder and as
+     * far along the wall as the arm's length leaves. An arm with no wall in reach keeps its place up
+     * from the side. Called after the torso has turned: the arm is aimed from where its shoulder is
+     * drawn.
      */
     public static void aimArms(UUID uuid, Function<String, ModelPart> parts) {
         State s = STATES.fresh(uuid);
@@ -258,10 +246,11 @@ public final class WallSqueeze {
             // What the arm's length leaves in the wall's plane, shared between ahead and down.
             float inPlane = (float) Math.sqrt(PALM * PALM - across * across);
             float rest = (float) Math.asin(Math.min(1f, PALM_BELOW / inPlane));
-            float down = Mth.clamp(rest + PUSH * s.moving * Mth.sin(s.phase + (right ? 0f : Mth.PI)), -0.3f, 1.3f);
             float dx = (onRight ? -across : across) / PALM;
-            float dy = inPlane * Mth.sin(down) / PALM;
-            float dz = -inPlane * Mth.cos(down) * s.way / PALM;
+            float dy = inPlane * Mth.sin(rest) / PALM;
+            // The arm of the shoulder that has gone back reaches back along its wall; the other, ahead (-z).
+            boolean back = right == (s.side > 0f);
+            float dz = (back ? inPlane : -inPlane) * Mth.cos(rest) / PALM;
             // The arm hangs along +y; turned by x then z it points along (-sin z cos x, cos z cos x, sin x).
             float x = (float) Math.asin(Mth.clamp(dz, -1f, 1f));
             float z = (float) Math.atan2(-dx, dy);
