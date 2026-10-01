@@ -25,6 +25,7 @@ public final class FootGroundingFeature {
     public static final String KEY_ENABLED = "footgrounding.enabled";
     public static final String KEY_HORSES = "footgrounding.horses";
     public static final String KEY_TRACE = "footgrounding.trace";
+    public static final String KEY_TERRAIN = "footgrounding.terrain_balance";
 
     /** Whether the rider being drawn was moved with its horse, so the post event undoes it. */
     private static boolean riderMoved;
@@ -36,6 +37,9 @@ public final class FootGroundingFeature {
         config.addBoolean(KEY_ENABLED, "Foot IK (experimental)", true,
                 "On", "On uneven ground (steps, slabs) lower the body and raise the leg on the step, so both feet stand.",
                 "Off", "Leave the legs to EMF; one foot may hang in the air.")
+                .addBoolean(KEY_TERRAIN, "Balance on narrow supports and slopes", true,
+                        "On", "Bring the feet onto narrow collision surfaces and balance with the torso and free arms.",
+                        "Off", "Only correct the height of the feet.")
                 .addBoolean(KEY_HORSES, "Foot IK for horses", true,
                         "On", "Horses, donkeys and mules also stand on uneven ground: the body is lowered and pitched, and the rider goes down with it.",
                         "Off", "Only players.")
@@ -50,6 +54,10 @@ public final class FootGroundingFeature {
 
     public static boolean isTrace() {
         return EMFCompatConfig.getBoolean(KEY_TRACE, false);
+    }
+
+    public static boolean isTerrainEnabled() {
+        return EMFCompatConfig.getBoolean(KEY_TERRAIN, true);
     }
 
     public static boolean isHorsesEnabled() {

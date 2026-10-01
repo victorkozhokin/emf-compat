@@ -4,11 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -54,10 +50,9 @@ public final class FootGrounding {
     /** Probe offsets around the foot centre, model pixels: the sole is 4x4, so just inside its corners. */
     private static final float[][] PROBES = {{0, 0}, {1.8f, 1.8f}, {-1.8f, 1.8f}, {1.8f, -1.8f}, {-1.8f, -1.8f}};
     /**
-     * Rays start this far above the ground level, blocks, so a step in front of the foot - higher
-     * than where the foot is now - is seen too. A rise past {@link #MAX_STEP} is a wall.
+     * How far a missing floor is below ground level, blocks. TerrainBalance owns the rays;
+     * a rise past {@link #MAX_STEP} is still a wall rather than a step.
      */
-    private static final double RAY_UP = 0.7;
     private static final double RAY_DOWN = 0.8;
 
     /** Below this, model pixels, a foot counts as standing on its floor. */
@@ -130,6 +125,7 @@ public final class FootGrounding {
 
     private static final class State {
         float lower, rightBend, leftBend;
+        final TerrainBalance terrain = new TerrainBalance();
         /** The legs as the animation left them last frame, {xRot, yRot, zRot, x, y, z, yScale}; null before one. */
         float[] rightPose, leftPose;
         /** The legs' pitch at the last solve, to see which way each swings. */
@@ -182,24 +178,30 @@ public final class FootGrounding {
 
         if (state.lastPosition != null && state.lastPosition.distanceToSqr(player.position()) > 4) {
             resetContacts(state);
+            state.terrain.reset();
             state.lower = state.rightBend = state.leftBend = 0f;
         }
         state.lastPosition = player.position();
         String why = ineligible(player);
         if (why != null) {
             resetContacts(state);
+            state.terrain.reset();
             decided = "off:" + why;
         } else {
             Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             IKFrame frame = IKFrame.capture(stack.last().pose(), camera);
+            if (FootGroundingFeature.isTerrainEnabled()) state.terrain.solve(player, frame, state.rightPose, state.leftPose, dt);
+            else state.terrain.reset();
+            Vector3f rightHip = state.terrain.hip(RIGHT_HIP, true);
+            Vector3f leftHip = state.terrain.hip(LEFT_HIP, false);
             // The body goes by the floor under the hips: steady whatever the stride does. A foot
             // swung far back in the stride is in the air anyway and must not pull the body down.
             // Measured from where the model stands before this frame's lowering.
             // A floor above the straight leg is only the model shifted down by something else
             // (the crouch's render offset, an animation library moving the whole pose): never
             // lift the legs for it.
-            float rawRight = drop(player, frame, RIGHT_HIP, null);
-            float rawLeft = drop(player, frame, LEFT_HIP, null);
+            float rawRight = drop(player, frame, rightHip, null);
+            float rawLeft = drop(player, frame, leftHip, null);
             right = Math.max(0f, rawRight);
             left = Math.max(0f, rawLeft);
             // Down onto the lowest floor under a foot; a foot over a drop-off does not count.
@@ -227,8 +229,8 @@ public final class FootGrounding {
                 footRight = stride.right;
                 footLeft = stride.left;
             } else {
-                plantRight = plant(player, frame, RIGHT_HIP, state.rightPose, targetLower, rawRight);
-                plantLeft = plant(player, frame, LEFT_HIP, state.leftPose, targetLower, rawLeft);
+                plantRight = plant(player, frame, rightHip, state.terrain.pose(state.rightPose, true), targetLower, rawRight);
+                plantLeft = plant(player, frame, leftHip, state.terrain.pose(state.leftPose, false), targetLower, rawLeft);
                 // Both feet on one level with a step next to them - the hitbox resting on it (none
                 // of the feet over it) or the player standing in front of it: one foot goes up.
                 boolean level = Math.abs(right - left) < MIN_STEP && right <= MAX_STEP;
@@ -306,6 +308,7 @@ public final class FootGrounding {
 
         // Per-frame trace while the feet do anything; debug only.
         if (FootGroundingFeature.isTrace() && why == null) {
+            LOGGER.info("[TerrainTrace] {} {}", player.getName().getString(), state.terrain.trace());
             LOGGER.info("[FootTrace] x={} y={} z={} R={} L={} fR={} fL={} w={} low={} tl={} pr={} pl={} rb={} lb={} rp={} lp={} rs={} ls={} rt={} lt={} ry={} ly={}",
                     String.format("%.3f", player.getX()), String.format("%.3f", player.getY()),
                     String.format("%.3f", player.getZ()),
@@ -436,7 +439,7 @@ public final class FootGrounding {
      */
     private static Stride stride(AbstractClientPlayer player, IKFrame frame, State state,
                                  float rawRight, float rawLeft, double dt) {
-        float[] r = state.rightPose, l = state.leftPose;
+        float[] r = state.terrain.pose(state.rightPose, true), l = state.terrain.pose(state.leftPose, false);
         Vec3 motion = new Vec3(player.getX() - player.xo, 0, player.getZ() - player.zo);
         if (r == null || l == null || motion.length() < WALKING) {
             state.lastRightX = Float.NaN;
@@ -465,8 +468,8 @@ public final class FootGrounding {
         }
         // Blocks a second, for where a swinging foot will come down.
         Vec3 velocity = motion.scale(20);
-        float right = step(player, frame, state.right, RIGHT_HIP, r, rawRight, way, velocity);
-        float left = step(player, frame, state.left, LEFT_HIP, l, rawLeft, way, velocity);
+        float right = step(player, frame, state.right, state.terrain.hip(RIGHT_HIP, true), r, rawRight, way, velocity);
+        float left = step(player, frame, state.left, state.terrain.hip(LEFT_HIP, false), l, rawLeft, way, velocity);
         return new Stride(right, left);
     }
 
@@ -543,13 +546,9 @@ public final class FootGrounding {
         Vec3 best = null;
         for (float[] probe : PROBES) {
             Vec3 foot = frame.jointWorld(new Vector3f(base).add(probe[0], 0f, probe[1])).add(offset);
-            BlockHitResult hit = player.level().clip(new ClipContext(
-                    foot.add(0, RAY_UP, 0), foot.add(0, -RAY_DOWN, 0),
-                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
-            if (hit.getType() == HitResult.Type.MISS || hit.getDirection() != Direction.UP) continue;
-            if (hit.isInside() || hit.getLocation().y >= foot.y + RAY_UP - 0.01) continue;
-            // The floor as drawn: an ejector's lid is up over its box while its spring winds.
-            Vec3 floor = EjectorLid.onLid(player, hit);
+            TerrainBalance.Floor hit = TerrainBalance.floor(player, foot);
+            if (hit == null) continue;
+            Vec3 floor = hit.position();
             if (best == null || floor.y > best.y) best = floor;
         }
         Vec3 ground = frame.jointWorld(new Vector3f(hip).add(0f, LEG, 0f));
@@ -609,14 +608,9 @@ public final class FootGrounding {
         Vec3 best = null;
         for (float[] probe : PROBES) {
             Vec3 foot = frame.jointWorld(new Vector3f(base).add(probe[0], 0f, probe[1]));
-            BlockHitResult hit = player.level().clip(new ClipContext(
-                    foot.add(0, RAY_UP, 0), foot.add(0, -RAY_DOWN, 0),
-                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
-            if (hit.getType() == HitResult.Type.MISS || hit.getDirection() != Direction.UP) continue;
-            // A ray that starts inside a block (a wall ahead) hits right where it starts.
-            if (hit.isInside() || hit.getLocation().y >= foot.y + RAY_UP - 0.01) continue;
-            // The floor as drawn: an ejector's lid is up over its box while its spring winds.
-            Vec3 floor = EjectorLid.onLid(player, hit);
+            TerrainBalance.Floor hit = TerrainBalance.floor(player, foot);
+            if (hit == null) continue;
+            Vec3 floor = hit.position();
             if (best == null || floor.y > best.y) best = floor;
         }
         if (best == null) return (float) (RAY_DOWN * 16);
@@ -702,6 +696,14 @@ public final class FootGrounding {
     public static void apply(UUID uuid, Function<String, ModelPart> parts) {
         offset(parts.apply("right_leg"), legOffset(uuid, true), -1f);
         offset(parts.apply("left_leg"), legOffset(uuid, false), 1f);
+        State state = STATES.fresh(uuid);
+        if (state != null) state.terrain.apply(uuid, parts, state.rightPose, state.leftPose);
+    }
+
+    /** Direct additive torso angles and waist shift from the supporting surface. */
+    public static float[] terrainHint(UUID uuid) {
+        State state = STATES.fresh(uuid);
+        return state == null ? null : state.terrain.hint(state.support);
     }
 
     /**
