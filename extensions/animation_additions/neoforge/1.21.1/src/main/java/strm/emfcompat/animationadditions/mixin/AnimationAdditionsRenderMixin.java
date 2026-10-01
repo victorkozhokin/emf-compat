@@ -49,7 +49,7 @@ public class AnimationAdditionsRenderMixin {
         MotionRuntime.modelPose(player);
         InteractionRuntime.modelPose(player, frame);
         EjectorLaunch.modelPose(player);
-        WallSqueeze.modelPose(player);
+        WallSqueeze.modelPose(player, frame);
         TorsoLean.modelPose(player);
     }
 

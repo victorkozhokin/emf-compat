@@ -13,6 +13,17 @@ Atlas text displays can crash Minecraft's glyph upload independently of the anim
 `scenarios/atlas-terrain-balance.json` tests standing/crouching contact and transitions
 on its fence, wall, iron bars and slopes. Navigation: the **10 / BALANCE LAB** button at the hub.
 
+Zone 11 / **WALL CONTACT LAB** extends the eastern annex with a narrow passage, a normal-width
+passage and broken walls. Generate only that section with `polygon/wallhand_section.py`, then
+`/reload` and `/function emf_atlas:wallhand` in the sandbox. The zone 10 button leads to it;
+direct entry is `/tp @s 2317 151 2107 180 0`.
+Run `scenarios/atlas-wallhand.json`, save the driver result as `build/wall-after.json`, then run
+`python3 tools/mctest/wallhand_report.py`. It asserts stable turn direction, settled palm contact,
+exit release and hand ownership. Teleports are followed by `look` to explicitly set body yaw:
+vanilla teleport alone can leave the old torso heading even after the head turns.
+The optional third argument `wallhand` to `polygon/publish_terrain_section.py` publishes only
+this section's chunks/function/tagged labels, with the same backup and entity-preservation rules.
+
 Launches any Modrinth profile in a throwaway sandbox, with this repo's freshly built jars in place
 of the installed ones, and drives it from inside: commands, key presses, camera, screenshots, and
 probes into the core. Written so animation work can be checked in game without asking the user to

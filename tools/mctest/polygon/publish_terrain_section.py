@@ -1,4 +1,4 @@
-"""Publish only zone 10's chunks from a stopped sandbox into a closed Atlas world.
+"""Publish one generated annex's chunks from a stopped sandbox into a closed Atlas world.
 
 Requires nbtlib (uv run --offline --with nbtlib python ... SOURCE DESTINATION).
 Preserves unrelated region records, original entities, player data and level.dat.
@@ -14,6 +14,9 @@ import subprocess
 import sys
 import zlib
 import nbtlib as n
+
+SECTION = sys.argv[3] if len(sys.argv) > 3 else "terrain"
+if SECTION not in {"terrain", "wallhand"}: raise ValueError("Unknown Atlas section")
 
 def records(path):
     raw=path.read_bytes() if path.exists() else bytes(8192)
@@ -51,7 +54,7 @@ def compressed(file):
     body=b'\x02'+zlib.compress(stream.getvalue())
     return struct.pack('>I',len(body))+body
 
-def ours(entity): return "atlas_terrain" in [str(tag) for tag in entity.get("Tags",[])]
+def ours(entity): return "atlas_"+SECTION in [str(tag) for tag in entity.get("Tags",[])]
 
 def publish(source,destination):
     if source.resolve()==destination.resolve(): raise ValueError("Separate sandbox required")
@@ -61,7 +64,7 @@ def publish(source,destination):
         raise RuntimeError("Original Atlas is open; do not publish while Minecraft uses it")
     if open_files.returncode!=1 or open_files.stderr.strip():
         raise RuntimeError("Could not verify that original Atlas is closed: "+open_files.stderr)
-    function=Path('datapacks/emf_atlas/data/emf_atlas/function/terrain.mcfunction')
+    function=Path(f'datapacks/emf_atlas/data/emf_atlas/function/{SECTION}.mcfunction')
     script=(source/function).read_text()
     chunks=set()
     for line in script.splitlines():
@@ -107,12 +110,12 @@ def publish(source,destination):
         if current!=data: raise RuntimeError('Original changed during preparation: '+str(path))
     for path,data in updates.items():
         target=destination/path;target.parent.mkdir(parents=True,exist_ok=True)
-        staging=target.with_suffix(target.suffix+'.terrain-tmp');staging.write_bytes(data);staging.replace(target)
+        staging=target.with_suffix(target.suffix+f'.{SECTION}-tmp');staging.write_bytes(data);staging.replace(target)
         if hashlib.sha256(target.read_bytes()).digest()!=hashlib.sha256(data).digest():
             raise RuntimeError('Write verification failed: '+str(target))
     report={'world':str(destination),'chunks':sorted(chunks),'labels_added':entity_count,
             'files':[str(p) for p in updates],'backup':str(backup),'untouched':['level.dat','playerdata','unrelated region records','existing entities']}
-    Path('build/atlas/terrain-publish.json').write_text(json.dumps(report,indent=2))
+    Path(f'build/atlas/{SECTION}-publish.json').write_text(json.dumps(report,indent=2))
     print(json.dumps(report,indent=2))
 
 if __name__=='__main__': publish(Path(sys.argv[1]),Path(sys.argv[2]))
