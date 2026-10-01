@@ -12,7 +12,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import java.util.List;
 
 /**
- * Simulated's linked typewriter: looked at, both hands are over its keyboard, one on each half; a
+ * Simulated's linked typewriter: looked at, both hands are over its keyboard, one on each half,
+ * and stay there while the player types on it, wherever they look; a
  * key going down ({@code getPressedKeys}, every client's to see), the main hand strikes the keys.
  * Optional, by name. The keyboard is the low front of the model ({@code linked_typewriter/block},
  * made facing north: z 0..7, the keys' tops at about y 4.5).
@@ -23,6 +24,9 @@ final class Typewriter implements BlockTarget {
     private static final ModAccess PRESSED = new ModAccess("getPressedKeys");
     /** The keys, pixels in the model: their height, how far from the front, and each hand off the middle. */
     private static final double KEYS_Y = 4.5, KEYS_Z = 3.5, HAND = 3;
+
+    /** Who types on it ({@code currentUser}, sent to every client). */
+    private static final ModAccess USER = new ModAccess("currentUser");
 
     private record Seen(BlockState block, List<?> pressed) {
     }
@@ -40,6 +44,12 @@ final class Typewriter implements BlockTarget {
     @Override
     public Spot supportHand(AbstractClientPlayer player, BlockPos pos, BlockState block) {
         return keys(pos, block, player.getMainArm() == HumanoidArm.RIGHT ? HAND : -HAND);
+    }
+
+    /** Typing, the player looks round freely - the keys take the keyboard, not the look: the hands stay on them. */
+    @Override
+    public boolean holds(AbstractClientPlayer player, Level level, BlockPos pos, BlockState block) {
+        return player.getUUID().equals(USER.read(level.getBlockEntity(pos)));
     }
 
     @Override

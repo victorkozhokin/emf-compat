@@ -42,6 +42,14 @@ public interface BlockTarget {
         return null;
     }
 
+    /**
+     * Whether the player is at work on the block and the hands stay on it wherever the look goes -
+     * typing on a typewriter. Asked of the block the hands are on already.
+     */
+    default boolean holds(AbstractClientPlayer player, Level level, BlockPos pos, BlockState block) {
+        return false;
+    }
+
     /** Whether the body reaches with the hand past the arm's length, as for a lever ({@code ReachPose}). */
     default boolean reachPose() {
         return false;

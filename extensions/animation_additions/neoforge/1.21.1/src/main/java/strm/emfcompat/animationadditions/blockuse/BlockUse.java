@@ -348,6 +348,14 @@ public final class BlockUse implements InteractionProvider {
                 }
             }
         }
+        // At work on the block the hands are on: they stay, wherever the look goes.
+        if (state.pos != null && state.target != null) {
+            BlockState kept = player.level().getBlockState(state.pos);
+            if (state.target.matches(kept) && state.target.holds(player, player.level(), state.pos, kept)) {
+                return state.target.hover(player, state.pos, kept,
+                        new BlockHitResult(Vec3.atCenterOf(state.pos), net.minecraft.core.Direction.UP, state.pos, false));
+            }
+        }
         // Our own player: the game's crosshair target, the block a click uses. Sable's sub-levels
         // (Aeronautics' craft) are in it, but not in a plain pick; others' is the pick.
         HitResult hit = player == Minecraft.getInstance().player && Minecraft.getInstance().hitResult != null
