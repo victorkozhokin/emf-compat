@@ -153,6 +153,7 @@ public final class BlockUse implements InteractionProvider {
         /** Smoothed visual extension; the entity pose and crouching flag never change. */
         float standUp;
         boolean crouching, overhead, groundReach;
+        final CrankStance.State stance = new CrankStance.State();
         final LowReach.State lowReach = new LowReach.State();
         long tracedAt;
         long contactAt;
@@ -340,6 +341,9 @@ public final class BlockUse implements InteractionProvider {
                     + (right ? "-R" : "-L"));
         } finally {
             state.shown = shown;
+            CrankStance.observe(state.stance, player, context.frame(),
+                    shown && state.target instanceof HandCrank && state.pos != null
+                            ? HandCrank.angle(player.level(), state.pos) : null);
             state.standUp = ReachEnvelope.follow(state.standUp, standUp, context.dt());
             double dt = context.dt();
             state.stretch += (stretchTarget - state.stretch)
@@ -448,6 +452,7 @@ public final class BlockUse implements InteractionProvider {
         float lowWeight = INSTANCE.isEnabled() && state.groundReach && lowFree
                 && EMFCompatConfig.getBoolean(ButtonPress.KEY_STRETCH, true)
                 ? InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id()) : 0;
+        state.lowReach.weightShift = CrankStance.apply(state.stance, parts, lowWeight);
         LowReach.apply(parts, state.right, state.grip, lowWeight, state.lowReach);
         long now = System.nanoTime();
         double dt = state.contactAt == 0 ? 0 : (now - state.contactAt) * 1e-9;

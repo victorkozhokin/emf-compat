@@ -1,0 +1,1475 @@
+[
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 350 152 7.5"
+  },
+  {
+    "wait": 30
+  },
+  {
+    "cmd": "fill 345 150 4 360 155 12 air"
+  },
+  {
+    "cmd": "fill 345 149 4 360 149 12 smooth_stone"
+  },
+  {
+    "cmd": "time set noon"
+  },
+  {
+    "cmd": "gamemode survival"
+  },
+  {
+    "config": {
+      "parcool.enabled": false,
+      "footgrounding.trace": true,
+      "lookat.enabled": false,
+      "blockuse.enabled": true,
+      "buttonpress.enabled": true,
+      "doorhold.enabled": true,
+      "furniture.enabled": true
+    }
+  },
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 345 150 7.5"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "cmd": "fill 349 150 6 353 154 8 air"
+  },
+  {
+    "cmd": "setblock 352 151 7 stone"
+  },
+  {
+    "cmd": "setblock 351 150 7 create:hand_crank[facing=west]"
+  },
+  {
+    "cmd": "item replace entity @s weapon.mainhand with air"
+  },
+  {
+    "cmd": "tp @s 350.6 150 7.5 -90 51.22"
+  },
+  {
+    "look": [
+      -90,
+      51.21563589970348
+    ]
+  },
+  {
+    "camera": "back"
+  },
+  {
+    "orbit": [
+      90,
+      10,
+      3
+    ]
+  },
+  {
+    "hideGui": true
+  },
+  {
+    "hideScreen": true
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "wait": 25
+  },
+  {
+    "cmd": "tp @s 350.6 150 7.5 -90 51.22"
+  },
+  {
+    "wait": 5
+  },
+  {
+    "log": "interaction START stance"
+  },
+  {
+    "state": true
+  },
+  {
+    "orbit": [
+      60,
+      10,
+      3
+    ]
+  },
+  {
+    "hold": "use"
+  },
+  {
+    "log": "stancecase:standing"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-00"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-01"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-02"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-03"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-04"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-05"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-06"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-07"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-08"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-09"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-10"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-11"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-12"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-13"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-14"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-15"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-16"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-17"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-18"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-19"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-20"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-21"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-22"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-23"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-24"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-25"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-26"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-27"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-28"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-standing-29"
+  },
+  {
+    "hold": "sneak"
+  },
+  {
+    "log": "stancecase:reverse-crouch"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-00"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-01"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-02"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-03"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-04"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-05"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-06"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-07"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-08"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-09"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-10"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-11"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-12"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-13"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-14"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-15"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-16"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-17"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-18"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-19"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-20"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-21"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-22"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-23"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-24"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-25"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-26"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-27"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-28"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-crouch-29"
+  },
+  {
+    "release": "sneak"
+  },
+  {
+    "log": "stancecase:reverse-standing"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-00"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-01"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-02"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-03"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-04"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-05"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-06"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-07"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-08"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-09"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-10"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-11"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-12"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-13"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-14"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-15"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-16"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-17"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-18"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-19"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-20"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-21"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-22"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-23"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-24"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-25"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-26"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-27"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-28"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-reverse-standing-29"
+  },
+  {
+    "release": "use"
+  },
+  {
+    "look": [
+      -90,
+      -80
+    ]
+  },
+  {
+    "log": "stancecase:release"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-00"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-01"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-02"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-03"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-04"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-05"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-06"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-07"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-08"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-09"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-10"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-11"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-12"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-13"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-14"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-15"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-16"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-17"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-18"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-release-19"
+  },
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 345 150 7.5"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "cmd": "fill 349 150 6 353 154 8 air"
+  },
+  {
+    "cmd": "setblock 352 151 7 stone"
+  },
+  {
+    "cmd": "setblock 351 150 7 create:hand_crank[facing=west]"
+  },
+  {
+    "cmd": "item replace entity @s weapon.mainhand with air"
+  },
+  {
+    "cmd": "tp @s 350.5 150 7.5 -90 48.24"
+  },
+  {
+    "look": [
+      -90,
+      48.23970029610225
+    ]
+  },
+  {
+    "camera": "back"
+  },
+  {
+    "orbit": [
+      90,
+      10,
+      3
+    ]
+  },
+  {
+    "hideGui": true
+  },
+  {
+    "hideScreen": true
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "wait": 25
+  },
+  {
+    "cmd": "tp @s 350.5 150 7.5 -90 48.24"
+  },
+  {
+    "wait": 5
+  },
+  {
+    "log": "interaction START fence-stance"
+  },
+  {
+    "state": true
+  },
+  {
+    "cmd": "setblock 350 149 7 oak_fence"
+  },
+  {
+    "cmd": "tp @s 350.5 150.5 7.5 -90 58.3"
+  },
+  {
+    "look": [
+      -90,
+      58.3
+    ]
+  },
+  {
+    "wait": 25
+  },
+  {
+    "orbit": [
+      60,
+      10,
+      3
+    ]
+  },
+  {
+    "hold": "use"
+  },
+  {
+    "log": "stancecase:fence"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-00"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-01"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-02"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-03"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-04"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-05"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-06"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-07"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-08"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-09"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-10"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-11"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-12"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-13"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-14"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-15"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-16"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-17"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-18"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-19"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-20"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-21"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-22"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-23"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stance-fence-24"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "look": [
+      -90,
+      -80
+    ]
+  },
+  {
+    "wait": 30
+  }
+]

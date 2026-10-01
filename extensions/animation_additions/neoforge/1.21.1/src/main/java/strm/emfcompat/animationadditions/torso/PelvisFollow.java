@@ -4,7 +4,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /** Move the hips with obstacle clearance while retaining the already solved soles. */
-final class PelvisFollow {
+public final class PelvisFollow {
     record Leg(Vector3f pivot, float pitch, float yaw, float roll) {}
     record Part(Vector3f pivot, float pitch, float yaw, float roll) {}
 
@@ -67,6 +67,43 @@ final class PelvisFollow {
             else { low = amount; result = candidate; }
         }
         return result;
+    }
+
+    /** Reach a new stepping sole without stretching the straight pack leg. */
+    static Leg sole(Vector3f pivot, float pitch, float yaw, float roll, float length,
+                    Vector3f offset, float twist) {
+        if (length < 1e-4f) return new Leg(new Vector3f(pivot),pitch,yaw,roll);
+        Quaternionf original = new Quaternionf().rotationZYX(roll, yaw, pitch);
+        Vector3f before = original.transform(new Vector3f(0, length, 0));
+        Vector3f direction = new Vector3f(before).add(offset);
+        float yy = length * length - direction.x * direction.x - direction.z * direction.z;
+        if (yy < 0) return new Leg(new Vector3f(pivot), pitch, yaw, roll);
+        float y = Math.copySign((float)Math.sqrt(yy), before.y);
+        Vector3f hip = new Vector3f(pivot).add(0, direction.y - y, 0);
+        direction.y = y;
+        Quaternionf q = new Quaternionf().rotationTo(before, direction).mul(original)
+                .rotateY(twist).normalize();
+        Vector3f angles = angles(q);
+        return new Leg(hip, angles.x, angles.y, angles.z);
+    }
+
+    /** Stepping layer: carry the torso by the achieved mean hip displacement. */
+    public static void step(java.util.function.Function<String, net.minecraft.client.model.geom.ModelPart> parts,
+                            Vector3f right, Vector3f left, float rightTwist, float leftTwist) {
+        var r = parts.apply("right_leg"); var l = parts.apply("left_leg");
+        if (r == null || l == null) return;
+        Vector3f before = new Vector3f((r.x+l.x)*.5f, (r.y+l.y)*.5f, (r.z+l.z)*.5f);
+        for (var leg : new net.minecraft.client.model.geom.ModelPart[]{r,l}) {
+            var moved = sole(new Vector3f(leg.x,leg.y,leg.z), leg.xRot,leg.yRot,leg.zRot,
+                    12*leg.yScale, leg==r ? right : left, leg==r ? rightTwist : leftTwist);
+            leg.setPos(moved.pivot.x, moved.pivot.y, moved.pivot.z);
+            leg.setRotation(moved.pitch,moved.yaw,moved.roll);
+        }
+        Vector3f delta = new Vector3f((r.x+l.x)*.5f,(r.y+l.y)*.5f,(r.z+l.z)*.5f).sub(before);
+        for (String name : new String[]{"body","head","hat","right_arm","left_arm"}) {
+            var part = parts.apply(name);
+            if (part != null) part.setPos(part.x+delta.x,part.y+delta.y,part.z+delta.z);
+        }
     }
 
     private static Leg trial(Vector3f pivot, float pitch, float yaw, float roll, float length,

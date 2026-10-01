@@ -13,6 +13,7 @@ public final class LowReach {
     public static final class State {
         final Quaternionf turn = new Quaternionf();
         final Vector3f shift = new Vector3f();
+        public float weightShift;
         float frame = -1;
         long updatedAt;
 
@@ -38,6 +39,7 @@ public final class LowReach {
             Quaternionf wanted = LowReachMath.turn(shoulder, point, 11, (float)Math.toRadians(40));
             Vector3f fitted = new Quaternionf(wanted).transform(new Vector3f(shoulder)).add(hips);
             Vector3f move = LowReachMath.shift(fitted, target, 11, 3.5f);
+            move.x += state.weightShift;
             float k = Smoothing.follow(dt, .14);
             state.turn.slerp(new Quaternionf().slerp(wanted, weight), k).normalize();
             state.shift.lerp(move.mul(weight), k);

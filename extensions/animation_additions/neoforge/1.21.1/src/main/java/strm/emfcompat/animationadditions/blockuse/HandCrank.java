@@ -89,7 +89,7 @@ final class HandCrank implements BlockTarget {
     }
 
     /** The handle's angle as drawn this frame, degrees; {@code null} when it cannot be told. */
-    private static Float angle(Level level, BlockPos pos) {
+    static Float angle(Level level, BlockPos pos) {
         if (failed) return null;
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity == null) return null;

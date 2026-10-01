@@ -106,4 +106,23 @@ class PelvisFollowTest {
             assertEquals(.2f, neutral.yaw()); assertEquals(.1f, neutral.roll());
         }
     }
+    @Test void setupStepReachesItsLiftedSoleWithoutStretchAndToeTwistDoesNotUnplantIt() {
+        Vector3f hip = new Vector3f(2,12,0);
+        for (float pitch : new float[]{-.1f,.1f,.4f})
+            for (float side : new float[]{-1.5f,1.5f})
+                for (float lift : new float[]{0,-.4f,-.65f}) {
+                    Vector3f offset=new Vector3f(side,lift,.8f);
+                    Vector3f expected=PelvisFollow.waist(hip,pitch,0,0,12).add(offset);
+                    var leg=PelvisFollow.sole(hip,pitch,0,0,12,offset,.07f);
+                    Vector3f actual=PelvisFollow.waist(leg.pivot(),leg.pitch(),leg.yaw(),leg.roll(),12);
+                    assertTrue(actual.distance(expected)<1e-4f);
+                    assertEquals(12,actual.distance(leg.pivot()),1e-4f);
+                }
+    }
+    @Test void hiddenZeroLengthLegKeepsItsOriginalPose() {
+        Vector3f hip=new Vector3f(2,12,0);
+        var leg=PelvisFollow.sole(hip,.4f,.2f,.1f,0,new Vector3f(1,-.5f,1),.1f);
+        assertEquals(hip,leg.pivot());assertEquals(.4f,leg.pitch());
+        assertEquals(.2f,leg.yaw());assertEquals(.1f,leg.roll());
+    }
 }
