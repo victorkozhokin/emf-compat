@@ -8,6 +8,20 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BalanceMathTest {
+    @Test void counterbalanceIsMirroredBoundedAndContinuousThroughNeutral() {
+        float previous = 0;
+        for (int i = 0; i <= 300; i++) {
+            float angle = (float)Math.toRadians(i * 0.1);
+            float value = BalanceMath.counterbalance(angle);
+            assertEquals(-value, BalanceMath.counterbalance(-angle), 1e-6);
+            assertTrue(value >= previous && value <= 1);
+            assertTrue(value - previous < 0.017f, "no jump at the onset or full-strength threshold");
+            if (i <= 30) assertEquals(0, value, 1e-6);
+            if (i >= 120) assertEquals(1, value, 1e-6);
+            previous = value;
+        }
+    }
+
     @Test void balanceStrideKeepsSmallSwingsAndSoftensExtremeSprintContinuously() {
         for (float pitch = -2.2f; pitch <= 2.2f; pitch += 0.01f) {
             assertEquals(pitch, BalanceMath.balancePitch(pitch, 0));

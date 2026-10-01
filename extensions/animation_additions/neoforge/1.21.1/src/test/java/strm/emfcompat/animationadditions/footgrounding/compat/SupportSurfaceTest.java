@@ -6,6 +6,17 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SupportSurfaceTest {
+    @Test void imbalanceUsesAcrossBeamOffsetInsteadOfDistanceToItsEnd() {
+        for (int sign : new int[]{-1, 1}) {
+            List<SupportSurface.Point> offset = new ArrayList<>();
+            for (int z = -8; z <= 8; z++) offset.add(new SupportSurface.Point(sign * 6, z * 1.5f));
+            assertEquals(sign * 6, new SupportSurface(offset, 1.5f, 12).lateralOffset(), 1e-5);
+        }
+        List<SupportSurface.Point> end = new ArrayList<>();
+        for (int z = 2; z <= 8; z++) end.add(new SupportSurface.Point(0, z * 1.5f));
+        assertEquals(0, new SupportSurface(end, 1.5f, 12).lateralOffset(), 1e-5);
+    }
+
     @Test void expandedScanKeepsBothFenceEdgesAtHitboxOverhang() {
         for (int sign : new int[]{-1, 1}) {
             List<SupportSurface.Point> small = new ArrayList<>(), expanded = new ArrayList<>();

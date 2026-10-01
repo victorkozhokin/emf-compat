@@ -9,6 +9,14 @@ final class BalanceMath {
     record Leg(float pitch, float yaw, float roll, float pivotY) {}
     record Sample(float x, float z, float height) {}
 
+    /** Signed rightward imbalance. Start gently after 3 degrees, reach full at 12.
+     * Smoothstep gives a quiet neutral pose and no abrupt threshold at either end. */
+    static float counterbalance(float lean) {
+        float strength = SupportSurface.clamp((Math.abs(lean) - (float)Math.toRadians(3))
+                / (float)Math.toRadians(9), 0, 1);
+        return Math.copySign(strength * strength * (3 - 2 * strength), lean);
+    }
+
     /** Keep the rhythm of the pack, but soften extreme straight-leg sprint swings on beams. */
     static float balancePitch(float pitch, float weight) {
         float magnitude = Math.abs(pitch);

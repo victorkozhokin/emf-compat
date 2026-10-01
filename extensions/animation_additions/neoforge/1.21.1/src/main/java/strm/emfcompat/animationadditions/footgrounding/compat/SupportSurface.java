@@ -64,6 +64,12 @@ final class SupportSurface {
         return new Placement(x + dx * limit, z + dz * limit);
     }
 
+    /** Across-strip displacement towards support, projected onto model X (left).
+     * Ignore position along the beam: approaching its end is not a sideways lean. */
+    float lateralOffset() {
+        return (cx * nx + cz * nz) * nx;
+    }
+
     /** Stagger idle feet along the beam, with five pixels between their centres.
      * Blend out as the pack starts its stride; do not pin both moving soles to fixed marks. */
     Placement stance(float x, float z, float side, float weight) {

@@ -36,6 +36,7 @@ final class TerrainBalance {
     private float sampledYaw;
     private float pitchTarget, rollTarget;
     private float narrow, pitch, roll;
+    private float counterbalance;
     private final float[] right = new float[2], left = new float[2];
     private boolean armsFree;
     private boolean raisedCollision;
@@ -94,6 +95,11 @@ final class TerrainBalance {
         float k = Smoothing.snapFirst(dt, 0.12);
         narrow += (surface.narrow - narrow) * k;
         pitch += (pitchTarget - pitch) * k; roll += (rollTarget - roll) * k;
+        // +roll leans right. Support on model +X means the body overhangs to the
+        // right; include that offset even on a flat fence with upright tread normals.
+        float lean = roll + surface.lateralOffset() * narrow * (float)Math.toRadians(12) / 6;
+        float counterTarget = BalanceMath.counterbalance(lean) * narrow;
+        counterbalance += (counterTarget - counterbalance) * Smoothing.snapFirst(dt, 0.16);
         float idle = SupportSurface.clamp(1 - player.walkAnimation.speed() / 0.25f, 0, 1);
         shift(balanced(r), -1.9f, right, dt, idle); shift(balanced(l), 1.9f, left, dt, idle);
         armsFree = !player.swinging && !player.isUsingItem()
@@ -103,6 +109,7 @@ final class TerrainBalance {
     void reset() {
         surface = EMPTY; sampledPosition = null; sampledAt = 0;
         pitchTarget = rollTarget = pitch = roll = narrow = 0;
+        counterbalance = 0;
         right[0] = right[1] = left[0] = left[1] = 0;
         armsFree = false;
         raisedCollision = false;
@@ -142,7 +149,8 @@ final class TerrainBalance {
     float[] hint(float support) {
         // Phase comes from the pack's actual stance foot, not an independent sine wave.
         float side = (1 - 2 * support) * narrow;
-        return new float[]{pitch, 0, roll - side * 0.045f, side * 0.7f};
+        return new float[]{pitch, 0, roll - side * 0.045f
+                - counterbalance * (float)Math.toRadians(4), side * 0.7f};
     }
 
     boolean needsSoleContact() { return raisedCollision; }
@@ -154,8 +162,10 @@ final class TerrainBalance {
         move(parts.apply("left_leg"), left, balanced(l), gait);
         float[] wall = WallSqueeze.torsoHint(uuid);
         if (!armsFree || wall != null && (Math.abs(wall[1]) > 0.01f || wall.length > 3 && Math.abs(wall[3]) > 0.01f)) return;
-        arm(parts.apply("right_arm"), -1, narrow * (1 - InteractionRuntime.weight(uuid, Effector.RIGHT_ARM)));
-        arm(parts.apply("left_arm"), 1, narrow * (1 - InteractionRuntime.weight(uuid, Effector.LEFT_ARM)));
+        arm(parts.apply("right_arm"), -1, narrow * (1 - InteractionRuntime.weight(uuid, Effector.RIGHT_ARM)),
+                Math.max(0, -counterbalance));
+        arm(parts.apply("left_arm"), 1, narrow * (1 - InteractionRuntime.weight(uuid, Effector.LEFT_ARM)),
+                Math.max(0, counterbalance));
     }
 
     private static void move(ModelPart leg, float[] shift, float[] animated, float gait) {
@@ -179,10 +189,10 @@ final class TerrainBalance {
         leg.y += solved.pivotY();
     }
 
-    private static void arm(ModelPart arm, float side, float weight) {
+    private static void arm(ModelPart arm, float side, float weight, float counter) {
         if (arm == null) return;
         // Moderate spread, well below a T pose; existing arm swing remains visible.
-        arm.zRot -= side * 0.55f * weight;
+        arm.zRot -= side * (0.55f + counter * (float)Math.toRadians(25)) * weight;
         arm.xRot *= 1 - 0.35f * weight;
     }
 
@@ -192,7 +202,7 @@ final class TerrainBalance {
 
     String trace() {
         return "points=" + surface.points.size() + " narrow=" + narrow + " pitch=" + pitch
-                + " roll=" + roll + " rx=" + right[0] + " rz=" + right[1]
+                + " roll=" + roll + " counter=" + counterbalance + " rx=" + right[0] + " rz=" + right[1]
                 + " lx=" + left[0] + " lz=" + left[1];
     }
 
