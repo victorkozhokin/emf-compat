@@ -94,6 +94,12 @@ public final class BlockUse implements InteractionProvider {
     private static final double GESTURE_SECONDS = 0.35;
     private static final double GRIP_SECONDS = 0.05;
     /**
+     * Levers held on a moving train: the player is carried by the train a tick at a time and the
+     * train is drawn between ticks, so the levers shake against the body by that much. Against the
+     * body they hardly move at all - followed this slowly, the shake is gone.
+     */
+    private static final double HELD_GRIP_SECONDS = 0.18;
+    /**
      * The torso going with a hand that goes round ({@link BlockTarget#swayCentre}), radians at most:
      * forwards and back with the hand further and nearer, and lower; turned after it to either side.
      */
@@ -243,10 +249,11 @@ public final class BlockUse implements InteractionProvider {
                         postureTarget.y - shoulder.y, postureTarget.z - shoulder.z, ARM);
             }
             Effector effector = right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
-            if (centre != null || !state.shown || right != state.right || InteractionRuntime.weight(player.getUUID(), effector, id()) < 1e-3f) {
+            boolean fresh = !state.shown || right != state.right || InteractionRuntime.weight(player.getUUID(), effector, id()) < 1e-3f;
+            if (centre != null || fresh) {
                 state.grip.set(model);
             } else {
-                state.grip.lerp(model, Smoothing.follow(context.dt(), GRIP_SECONDS));
+                state.grip.lerp(model, Smoothing.follow(context.dt(), held != null ? HELD_GRIP_SECONDS : GRIP_SECONDS));
             }
             state.right = right;
             if (centre != null) {
@@ -268,6 +275,7 @@ public final class BlockUse implements InteractionProvider {
             BlockTarget.Spot support = held != null ? held.support()
                     : state.target.supportHand(player, state.pos, player.level().getBlockState(state.pos));
             if (support != null && held == null) support = inWorld(space, support);
+            boolean supported = state.support;
             state.support = support != null;
             if (support != null) {
                 Vec3 otherPoint = support.point().add(support.out().scale((held != null ? 0f : HOVER_OUT) / 16.0));
@@ -276,7 +284,9 @@ public final class BlockUse implements InteractionProvider {
                     context.decide("support-out-of-reach");
                     return;
                 }
-                state.supportGrip.set(frame.relativeToJoint(otherPoint, new Vector3f()));
+                Vector3f otherModel = frame.relativeToJoint(otherPoint, new Vector3f());
+                if (held == null || fresh || !supported) state.supportGrip.set(otherModel);
+                else state.supportGrip.lerp(otherModel, Smoothing.follow(context.dt(), HELD_GRIP_SECONDS));
                 if (state.target instanceof SteeringWheel) {
                     state.lean[2] = WheelGeometry.steeringRoll(
                             right ? state.grip.y : state.supportGrip.y,
