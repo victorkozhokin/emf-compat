@@ -6,6 +6,35 @@ import org.joml.Vector3f;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PelvisFollowTest {
+    @Test void crouchedTorsoAttachmentStaysAtRealHipCentreThroughLargeYaw() {
+        Vector3f body = new Vector3f(0, 5, 1), hips = new Vector3f(0, 10, -2);
+        for (float pitch : new float[]{0.3f, 0.55f, 0.8f}) {
+            Quaternionf original = new Quaternionf().rotationZYX(0.12f, 0.2f, pitch);
+            Vector3f attachment = new Quaternionf(original).conjugate().transform(new Vector3f(hips).sub(body));
+            for (float yaw : new float[]{-1.2f, -0.7f, 0.7f, 1.2f}) {
+                Quaternionf turn = new Quaternionf().rotationZYX(0.05f, yaw, 0.08f);
+                var carried = PelvisFollow.carry(body, pitch, 0.2f, 0.12f, turn, hips, 1.5f);
+                Vector3f after = new Quaternionf().rotationZYX(carried.roll(), carried.yaw(), carried.pitch())
+                        .transform(new Vector3f(attachment)).add(carried.pivot());
+                assertTrue(after.distance(new Vector3f(hips).add(1.5f, 0, 0)) < 1e-4f,
+                        "torso attachment must not orbit away from the animated hips");
+            }
+        }
+    }
+
+    @Test void carriedMeshUsesTheSameRotationAsItsPivot() {
+        Vector3f pivot = new Vector3f(-2, 3, 1), waist = new Vector3f(0, 10, -2);
+        Vector3f local = new Vector3f(1, 7, -2);
+        Quaternionf original = new Quaternionf().rotationZYX(-0.1f, 0.3f, 0.6f);
+        Quaternionf turn = new Quaternionf().rotationZYX(0.07f, 1.1f, -0.1f);
+        Vector3f expected = turn.transform(original.transform(new Vector3f(local)).add(pivot).sub(waist))
+                .add(waist).add(-1, 0, 0);
+        var moved = PelvisFollow.carry(pivot, 0.6f, 0.3f, -0.1f, turn, waist, -1);
+        Vector3f actual = new Quaternionf().rotationZYX(moved.roll(), moved.yaw(), moved.pitch())
+                .transform(new Vector3f(local)).add(moved.pivot());
+        assertTrue(actual.distance(expected) < 1e-4f);
+    }
+
     @Test void crouchedWaistIsAtAnimatedBodyBottom() {
         Vector3f pivot = new Vector3f(0, 3, 2);
         Vector3f waist = PelvisFollow.waist(pivot, 0.55f, 0, 0, 12);

@@ -6,6 +6,23 @@ import org.joml.Vector3f;
 /** Move the hips with obstacle clearance while retaining the already solved soles. */
 final class PelvisFollow {
     record Leg(Vector3f pivot, float pitch, float yaw, float roll) {}
+    record Part(Vector3f pivot, float pitch, float yaw, float roll) {}
+
+    static Part carry(Vector3f pivot, float pitch, float yaw, float roll,
+                      Quaternionf turn, Vector3f waist, float shift) {
+        Vector3f moved = new Quaternionf(turn).transform(new Vector3f(pivot).sub(waist)).add(waist);
+        moved.x += shift;
+        Quaternionf rotation = new Quaternionf(turn).mul(new Quaternionf().rotationZYX(roll, yaw, pitch)).normalize();
+        Vector3f angles = angles(rotation);
+        return new Part(moved, angles.x, angles.y, angles.z);
+    }
+
+    private static Vector3f angles(Quaternionf q) {
+        return new Vector3f(
+                (float)Math.atan2(2 * (q.w * q.x + q.y * q.z), 1 - 2 * (q.x * q.x + q.y * q.y)),
+                (float)Math.asin(Math.max(-1, Math.min(1, 2 * (q.w * q.y - q.z * q.x)))),
+                (float)Math.atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z)));
+    }
 
     static Vector3f waist(Vector3f pivot, float pitch, float yaw, float roll, float length) {
         return new Quaternionf().rotationZYX(roll, yaw, pitch)

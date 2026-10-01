@@ -1,0 +1,20 @@
+[
+  {"releaseAll":true},
+  {"hideGui":true},
+  {"camera":"back"},
+  {"orbit":[15,8,3.5]},
+  {"config":{"wallhand.trace":true}},
+  {"cmd":"tp @s 2251.94 151 2071.5 0 0"},
+  {"look":[0,0]},
+  {"hold":"sneak"},
+  {"wait":40},
+  {"model":"player"},
+  {"screenshot":"pelvis-fixed-rear-fence"},
+  {"cmd":"tp @s 2253.31 151 2093.5 0 0"},
+  {"look":[0,0]},
+  {"hold":"sneak"},
+  {"wait":40},
+  {"model":"player"},
+  {"screenshot":"pelvis-fixed-rear-stone"},
+  {"releaseAll":true}
+]
