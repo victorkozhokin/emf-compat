@@ -38,22 +38,34 @@ public final class EjectorLid {
     /** A floor probe's hit, lifted onto the lid when it fell on an ejector whose lid is up; the hit itself otherwise. */
     public static Vec3 onLid(Level level, BlockHitResult hit) {
         Vec3 at = hit.getLocation();
-        BlockPos pos = hit.getBlockPos();
+        double y = topAt(level, hit.getBlockPos(), at.x, at.z);
+        return y > at.y ? new Vec3(at.x, y, at.z) : at;
+    }
+
+    /**
+     * How far over {@code y} the lid is at this spot, blocks, for whoever stands on the ejector
+     * there; 0 with no ejector under the spot, its lid shut, or the lid not over it.
+     */
+    public static double over(Level level, double x, double y, double z) {
+        double top = topAt(level, BlockPos.containing(x, y - 0.01, z), x, z);
+        return top > y ? top - y : 0;
+    }
+
+    /** The world y of the lid's top over a spot of the ejector at {@code pos}; NaN when it is no ejector, its lid is shut or not over the spot. */
+    private static double topAt(Level level, BlockPos pos, double x, double z) {
         BlockState block = level.getBlockState(pos);
-        if (failed || !ModAccess.is(block.getBlock().getClass(), BLOCK) || !block.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) return at;
+        if (failed || !ModAccess.is(block.getBlock().getClass(), BLOCK) || !block.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) return Double.NaN;
         double angle = progress(level, pos) * OPEN;
-        if (angle < 1e-3) return at;
+        if (angle < 1e-3) return Double.NaN;
         Direction facing = block.getValue(BlockStateProperties.HORIZONTAL_FACING);
         // Level, from the hinge towards the lid's far end: against the way the block faces.
         double fromFront = facing.getAxis() == Direction.Axis.X
-                ? (facing.getStepX() > 0 ? pos.getX() + 1 - at.x : at.x - pos.getX())
-                : (facing.getStepZ() > 0 ? pos.getZ() + 1 - at.z : at.z - pos.getZ());
-        double level0 = fromFront - HINGE_IN;
-        // The point of the plate's top over this spot: along the plate a, across it the top's height over the hinge.
-        double along = (level0 + TOP_OVER_HINGE * Math.sin(angle)) / Math.cos(angle);
-        if (along < PLATE_FROM || along > PLATE_TO) return at;
-        double y = pos.getY() + HINGE_UP + along * Math.sin(angle) + TOP_OVER_HINGE * Math.cos(angle);
-        return y > at.y ? new Vec3(at.x, y, at.z) : at;
+                ? (facing.getStepX() > 0 ? pos.getX() + 1 - x : x - pos.getX())
+                : (facing.getStepZ() > 0 ? pos.getZ() + 1 - z : z - pos.getZ());
+        // The point of the plate's top over this spot: along the plate, and the top's height over the hinge across it.
+        double along = (fromFront - HINGE_IN + TOP_OVER_HINGE * Math.sin(angle)) / Math.cos(angle);
+        if (along < PLATE_FROM || along > PLATE_TO) return Double.NaN;
+        return pos.getY() + HINGE_UP + along * Math.sin(angle) + TOP_OVER_HINGE * Math.cos(angle);
     }
 
     private static double progress(Level level, BlockPos pos) {

@@ -66,6 +66,8 @@ public final class FootGrounding {
     private static final float MAX_STEP = 10f;
     /** How far the body is lowered at most, model pixels. A slab is ~8.5. */
     private static final float MAX_LOWER = 9f;
+    /** How far the body is raised at most onto an ejector's lid, model pixels. */
+    private static final float MAX_LID = 14f;
     /** How far forward (pitch) a raised leg turns at most; the rest of the rise is the hip moving up. */
     private static final double MAX_BEND = Math.toRadians(12);
 
@@ -164,7 +166,8 @@ public final class FootGrounding {
         double dt = EntityStates.due(entry, now);
         if (dt >= 0) solve(player, stack, state, dt);
 
-        if (state.lower > 1e-3f) {
+        // Down onto a lower floor; up (negative) only onto an ejector's raised lid.
+        if (Math.abs(state.lower) > 1e-3f) {
             // Model space: +y is down, one unit is 16 pixels.
             stack.translate(0f, state.lower / 16f, 0f);
         }
@@ -257,6 +260,23 @@ public final class FootGrounding {
             }
         }
 
+        // On an ejector whose lid is up the floor is the lid as drawn, over the box the player
+        // stands on: the whole body goes up onto it, by the lower foot's share, and the other
+        // foot the rest - and both come down with the lid as the spring winds.
+        if (why == null) {
+            Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+            IKFrame frame = IKFrame.capture(stack.last().pose(), camera);
+            float lidRight = lid(player, frame, RIGHT_HIP), lidLeft = lid(player, frame, LEFT_HIP);
+            if (lidRight > 0f || lidLeft > 0f) {
+                float body = Math.min(lidRight, lidLeft);
+                targetLower = -body;
+                plantRight = Math.min(MAX_STEP, lidRight - body);
+                plantLeft = Math.min(MAX_STEP, lidLeft - body);
+                reachRight[0] = reachRight[1] = reachLeft[0] = reachLeft[1] = 0f;
+                decided = "lid";
+            }
+        }
+
         // Body and legs both from their targets, not the legs from the smoothed body: the legs
         // neither lag the body nor keep turning after it has settled. A foot goes up onto a step
         // quickly, so it does not sink into it, and comes back down gently.
@@ -307,6 +327,13 @@ public final class FootGrounding {
                     String.format("%.2f", right), String.format("%.2f", left));
             state.logged = decided;
         }
+    }
+
+    /** How far the raised lid of an ejector the player stands on is over the foot under this hip, model pixels; 0 for none. */
+    private static float lid(AbstractClientPlayer player, IKFrame frame, Vector3f hip) {
+        Vec3 foot = frame.jointWorld(new Vector3f(hip).add(0f, LEG, 0f));
+        double over = EjectorLid.over(player.level(), foot.x, player.getY(), foot.z);
+        return (float) Math.min(MAX_LID, over * 16 / SCALE);
     }
 
     /**
