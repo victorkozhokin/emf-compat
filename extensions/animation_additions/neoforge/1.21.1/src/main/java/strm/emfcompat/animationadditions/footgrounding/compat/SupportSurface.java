@@ -11,6 +11,10 @@ final class SupportSurface {
     private final float cx, cz, nx, nz;
 
     SupportSurface(List<Point> points, float spacing) {
+        this(points, spacing, 6);
+    }
+
+    SupportSurface(List<Point> points, float spacing, float halfExtent) {
         this.points = List.copyOf(points);
         float x = 0, z = 0;
         for (Point p : points) { x += p.x; z += p.z; }
@@ -32,7 +36,7 @@ final class SupportSurface {
         float width = max - min + spacing;
         // A wall is wider than a fence, but still narrower than a full block. A strip
         // must have two sampled edges: a single edge of an ordinary floor is not a beam.
-        float boundary = 6 * (Math.abs(nx) + Math.abs(nz));
+        float boundary = halfExtent * (Math.abs(nx) + Math.abs(nz));
         float origin = cx * nx + cz * nz;
         boolean bounded = min + origin > -boundary + spacing * 0.5f
                 && max + origin < boundary - spacing * 0.5f;

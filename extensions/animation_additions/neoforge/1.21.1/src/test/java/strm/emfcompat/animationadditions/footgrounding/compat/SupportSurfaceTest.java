@@ -6,6 +6,33 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SupportSurfaceTest {
+    @Test void expandedScanKeepsBothFenceEdgesAtHitboxOverhang() {
+        for (int sign : new int[]{-1, 1}) {
+            List<SupportSurface.Point> small = new ArrayList<>(), expanded = new ArrayList<>();
+            for (int x = -8; x <= 8; x++) for (int z = -8; z <= 8; z++) {
+                // Player centre is 0.41 blocks off a quarter-block fence strip.
+                if (Math.abs(x * 1.5f + sign * 7f) > 2) continue;
+                var point = new SupportSurface.Point(x * 1.5f, z * 1.5f);
+                expanded.add(point);
+                if (Math.abs(x) <= 4 && Math.abs(z) <= 4) small.add(point);
+            }
+            assertEquals(0, new SupportSurface(small, 1.5f).narrow,
+                    "original scan loses the second edge");
+            var fence = new SupportSurface(expanded, 1.5f, 12);
+            assertTrue(fence.narrow > 0.7f);
+            var foot = fence.place(0, 0);
+            assertEquals(-sign * 6, foot.x(), 1e-4, "bounded correction towards actual support");
+        }
+    }
+
+    @Test void expandedScanStillRejectsBroadFloorEdgeAndMissingSupport() {
+        List<SupportSurface.Point> edge = new ArrayList<>();
+        for (int x = -8; x <= -4; x++) for (int z = -8; z <= 8; z++)
+            edge.add(new SupportSurface.Point(x * 1.5f, z * 1.5f));
+        assertEquals(0, new SupportSurface(edge, 1.5f, 12).narrow);
+        assertEquals(0, new SupportSurface(List.of(), 1.5f, 12).narrow);
+    }
+
     @Test void idleFeetAreSeparatedAndStrideIsReleasedAtEveryHeading() {
         for (int degrees = 0; degrees < 180; degrees += 5) {
             var beam = strip(Math.toRadians(degrees));

@@ -56,22 +56,29 @@ final class TerrainBalance {
             Vec3 normal = Vec3.ZERO;
             raisedCollision = false;
             contactDrop = 0;
-            for (int x = -4; x <= 4; x++) for (int z = -4; z <= 4; z++) {
-                Vec3 foot = frame.jointWorld(new Vector3f(x * SPACING, 24, z * SPACING));
-                Floor hit = floor(player, foot, spaces);
-                if (hit != null && Math.abs(hit.supportY - player.getY()) <= 0.6) {
-                    float height = frame.relativeToJoint(hit.position, new Vector3f(0, 24, 0)).y;
-                    heights.add(new BalanceMath.Sample(x * SPACING, z * SPACING, height));
+            // Near a fence edge the hitbox can still overlap its support while the model
+            // centre is outside it. The small scan then sees only one edge and mistakes
+            // the fence for broad floor. Expand only when that scan cannot identify a beam.
+            for (int radius : new int[]{4, 8}) {
+                for (int x = -radius; x <= radius; x++) for (int z = -radius; z <= radius; z++) {
+                    if (radius == 8 && Math.abs(x) <= 4 && Math.abs(z) <= 4) continue;
+                    Vec3 foot = frame.jointWorld(new Vector3f(x * SPACING, 24, z * SPACING));
+                    Floor hit = floor(player, foot, spaces);
+                    if (hit != null && Math.abs(hit.supportY - player.getY()) <= 0.6) {
+                        float height = frame.relativeToJoint(hit.position, new Vector3f(0, 24, 0)).y;
+                        heights.add(new BalanceMath.Sample(x * SPACING, z * SPACING, height));
+                    }
+                    // Only the surface carrying the hitbox, never a distant floor below a fence
+                    // or a wall above it. Slabs/stairs still use the existing vertical foot solver.
+                    if (hit == null || Math.abs(hit.supportY - player.getY()) > 0.15) continue;
+                    points.add(new SupportSurface.Point(x * SPACING, z * SPACING));
+                    raisedCollision |= hit.supportY - hit.position.y > 0.2;
+                    contactDrop = Math.max(contactDrop, (float)((hit.supportY - hit.position.y) * 16 / 0.9375));
+                    normal = normal.add(hit.normal);
                 }
-                // Only the surface carrying the hitbox, never a distant floor below a fence
-                // or a wall above it. Slabs/stairs still use the existing vertical foot solver.
-                if (hit == null || Math.abs(hit.supportY - player.getY()) > 0.15) continue;
-                points.add(new SupportSurface.Point(x * SPACING, z * SPACING));
-                raisedCollision |= hit.supportY - hit.position.y > 0.2;
-                contactDrop = Math.max(contactDrop, (float)((hit.supportY - hit.position.y) * 16 / 0.9375));
-                normal = normal.add(hit.normal);
+                surface = new SupportSurface(points, SPACING, radius * SPACING);
+                if (surface.narrow > 0 || radius == 4 && points.size() == 81) break;
             }
-            surface = new SupportSurface(points, SPACING);
             pitchTarget = rollTarget = 0;
             if (!points.isEmpty()) {
                 Vec3 n = normal.normalize();
