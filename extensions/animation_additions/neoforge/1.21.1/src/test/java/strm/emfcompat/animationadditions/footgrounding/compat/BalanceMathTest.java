@@ -8,6 +8,30 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BalanceMathTest {
+    @Test void balanceStrideKeepsSmallSwingsAndSoftensExtremeSprintContinuously() {
+        for (float pitch = -2.2f; pitch <= 2.2f; pitch += 0.01f) {
+            assertEquals(pitch, BalanceMath.balancePitch(pitch, 0));
+            float limited = BalanceMath.balancePitch(pitch, 1);
+            assertTrue(Math.abs(limited) <= 1.25f);
+            assertTrue(Math.abs(limited - BalanceMath.balancePitch(pitch + 0.01f, 1)) <= 0.01001f);
+            if (Math.abs(pitch) <= 0.85f) assertEquals(pitch, limited);
+        }
+    }
+    @Test void sprintNeverFlipsLegHemisphereOrPullsHipIntoTorso() {
+        for (float pitch = -2.1f; pitch <= 2.1f; pitch += 0.025f)
+            for (float dx : new float[]{-6, -1.9f, 1.9f, 6})
+                for (float dz : new float[]{-6, 0, 6}) {
+                    Vector3f before = new Quaternionf().rotationZYX(0.1f, 0.15f, pitch)
+                            .transform(new Vector3f(0, 12, 0));
+                    var result = BalanceMath.leg(pitch, 0.15f, 0.1f, 12, dx, dz);
+                    Vector3f after = new Quaternionf().rotationZYX(result.roll(), result.yaw(), result.pitch())
+                            .transform(new Vector3f(0, 12, 0));
+                    assertTrue(before.y * after.y >= -1e-4, "preserve the pack swing hemisphere");
+                    assertTrue(Math.abs(result.pivotY()) <= 1.2501f, "bounded hip compensation");
+                    assertEquals(before.y, after.y + result.pivotY(), 1e-4);
+                    assertEquals(12, after.length(), 1e-4);
+                }
+    }
     @Test void straightLegIkKeepsSoleHeightThroughoutTheStride() {
         for (float pitch = -0.7f; pitch <= 0.7f; pitch += 0.1f)
             for (float yaw : new float[]{-0.2f, 0, 0.2f})

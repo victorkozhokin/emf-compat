@@ -205,8 +205,12 @@ public final class FootGrounding {
             right = Math.max(0f, rawRight);
             left = Math.max(0f, rawLeft);
             // Down onto the lowest floor under a foot; a foot over a drop-off does not count.
-            float low = Math.max(right, left) <= MAX_STEP ? Math.max(right, left) : Math.min(right, left);
-            if (low >= MIN_STEP && low <= MAX_STEP) targetLower = Math.min(low, MAX_LOWER);
+            // A fence/wall's invisible collision cap is not an upward step. Allow its
+            // measured outline gap without expanding the normal step prediction horizon.
+            float contactLimit = Math.max(MAX_STEP, state.terrain.contactDrop() + 0.1f);
+            float lowerLimit = Math.max(MAX_LOWER, state.terrain.contactDrop() + 0.1f);
+            float low = Math.max(right, left) <= contactLimit ? Math.max(right, left) : Math.min(right, left);
+            if (low >= MIN_STEP && low <= contactLimit) targetLower = Math.min(low, lowerLimit);
             decided = targetLower > 0f ? "lowered" : "flat";
 
             Stride stride = stride(player, frame, state, rawRight, rawLeft, dt);
@@ -223,7 +227,7 @@ public final class FootGrounding {
                 // shorter, so held up by the foot behind, the front one hung in the air.
                 if (state.right.descending()) onFeet = Math.max(onFeet, stride.right);
                 if (state.left.descending()) onFeet = Math.max(onFeet, stride.left);
-                targetLower = Math.max(0f, Math.min(MAX_LOWER, onFeet));
+                targetLower = Math.max(0f, Math.min(lowerLimit, onFeet));
                 // The feet are placed below, against the body as it is drawn this frame.
                 decided = "stride";
                 footRight = stride.right;
@@ -311,7 +315,7 @@ public final class FootGrounding {
         // whole visual model by that pack-derived gap without raising the legs back again.
         // Separate from state.lower so plant/stride cannot cancel this contact correction.
         float soleTarget = why == null && state.terrain.needsSoleContact()
-                ? SoleContact.lowering(state.rightPose, state.leftPose) : 0;
+                ? SoleContact.lowering(state.terrain.pose(state.rightPose, true), state.terrain.pose(state.leftPose, false)) : 0;
         state.soleLower += (soleTarget - state.soleLower) * Smoothing.snapFirst(dt, 0.08);
 
         // Per-frame trace while the feet do anything; debug only.
@@ -572,7 +576,7 @@ public final class FootGrounding {
         Vec3 centre = frame.jointWorld(probeBase(hip, pose, sole));
         float drop = frame.relativeToJoint(new Vec3(centre.x, y, centre.z), hip).y - LEG;
         float foot = drop - Math.min(0f, hipDrop);
-        if (foot > MAX_STEP || foot < -MAX_STEP) foot = standing(hipDrop);
+        if (foot > Math.max(MAX_STEP, standing(hipDrop) + 0.1f) || foot < -MAX_STEP) foot = standing(hipDrop);
         return foot;
     }
 
@@ -590,7 +594,9 @@ public final class FootGrounding {
      * ground level, as in vanilla, instead of the body sinking into the air after it.
      */
     private static float standing(float hipDrop) {
-        return hipDrop > MAX_STEP ? 0f : Math.max(0f, hipDrop);
+        // A wall outline may be 10.67 pixels below its collision cap. This fallback
+        // retains that known contact when a swinging sole temporarily leaves the strip.
+        return hipDrop > 12 ? 0f : Math.max(0f, hipDrop);
     }
 
     /** Why the feet are left alone this frame, or {@code null} when they are grounded. */

@@ -39,6 +39,7 @@ final class TerrainBalance {
     private final float[] right = new float[2], left = new float[2];
     private boolean armsFree;
     private boolean raisedCollision;
+    private float contactDrop;
 
     void solve(AbstractClientPlayer player, IKFrame frame, float[] r, float[] l, double dt) {
         long now = System.nanoTime();
@@ -54,6 +55,7 @@ final class TerrainBalance {
             List<BalanceMath.Sample> heights = new ArrayList<>();
             Vec3 normal = Vec3.ZERO;
             raisedCollision = false;
+            contactDrop = 0;
             for (int x = -4; x <= 4; x++) for (int z = -4; z <= 4; z++) {
                 Vec3 foot = frame.jointWorld(new Vector3f(x * SPACING, 24, z * SPACING));
                 Floor hit = floor(player, foot, spaces);
@@ -66,6 +68,7 @@ final class TerrainBalance {
                 if (hit == null || Math.abs(hit.supportY - player.getY()) > 0.15) continue;
                 points.add(new SupportSurface.Point(x * SPACING, z * SPACING));
                 raisedCollision |= hit.supportY - hit.position.y > 0.2;
+                contactDrop = Math.max(contactDrop, (float)((hit.supportY - hit.position.y) * 16 / 0.9375));
                 normal = normal.add(hit.normal);
             }
             surface = new SupportSurface(points, SPACING);
@@ -84,7 +87,8 @@ final class TerrainBalance {
         float k = Smoothing.snapFirst(dt, 0.12);
         narrow += (surface.narrow - narrow) * k;
         pitch += (pitchTarget - pitch) * k; roll += (rollTarget - roll) * k;
-        shift(r, -1.9f, right, dt); shift(l, 1.9f, left, dt);
+        float idle = SupportSurface.clamp(1 - player.walkAnimation.speed() / 0.25f, 0, 1);
+        shift(balanced(r), -1.9f, right, dt, idle); shift(balanced(l), 1.9f, left, dt, idle);
         armsFree = !player.swinging && !player.isUsingItem()
                 && !PoseManager.hasArmPoseExcept(player.getUUID(), "");
     }
@@ -95,14 +99,15 @@ final class TerrainBalance {
         right[0] = right[1] = left[0] = left[1] = 0;
         armsFree = false;
         raisedCollision = false;
+        contactDrop = 0;
     }
 
-    private void shift(float[] pose, float hip, float[] shift, double dt) {
+    private void shift(float[] pose, float hip, float[] shift, double dt, float idle) {
         Vector3f sole = new Vector3f(0, 12, 0);
         if (pose != null) new Quaternionf().rotationZYX(pose[2], pose[1], pose[0]).transform(sole);
         float x = (pose == null ? hip : pose[3]) + sole.x;
         float z = (pose == null ? 0 : pose[5]) + sole.z;
-        SupportSurface.Placement target = surface.place(x, z);
+        SupportSurface.Placement target = surface.stance(x, z, Math.signum(hip), idle);
         float k = Smoothing.snapFirst(dt, 0.06);
         shift[0] += (target.x() - x - shift[0]) * k;
         shift[1] += (target.z() - z - shift[1]) * k;
@@ -115,8 +120,15 @@ final class TerrainBalance {
 
     float[] pose(float[] pose, boolean r) {
         if (pose == null) return null;
-        float[] copy = pose.clone(), shift = r ? right : left;
+        float[] copy = balanced(pose), shift = r ? right : left;
         copy[3] += shift[0]; copy[5] += shift[1];
+        return copy;
+    }
+
+    private float[] balanced(float[] pose) {
+        if (pose == null) return null;
+        float[] copy = pose.clone();
+        copy[0] = BalanceMath.balancePitch(copy[0], SupportSurface.clamp(narrow * 3, 0, 1));
         return copy;
     }
 
@@ -127,17 +139,22 @@ final class TerrainBalance {
     }
 
     boolean needsSoleContact() { return raisedCollision; }
+    float contactDrop() { return Math.min(12, contactDrop); }
 
     void apply(UUID uuid, Function<String, ModelPart> parts, float[] r, float[] l) {
-        move(parts.apply("right_leg"), right, r); move(parts.apply("left_leg"), left, l);
+        float gait = SupportSurface.clamp(narrow * 3, 0, 1);
+        move(parts.apply("right_leg"), right, balanced(r), gait);
+        move(parts.apply("left_leg"), left, balanced(l), gait);
         float[] wall = WallSqueeze.torsoHint(uuid);
         if (!armsFree || wall != null && (Math.abs(wall[1]) > 0.01f || wall.length > 3 && Math.abs(wall[3]) > 0.01f)) return;
         arm(parts.apply("right_arm"), -1, narrow * (1 - InteractionRuntime.weight(uuid, Effector.RIGHT_ARM)));
         arm(parts.apply("left_arm"), 1, narrow * (1 - InteractionRuntime.weight(uuid, Effector.LEFT_ARM)));
     }
 
-    private static void move(ModelPart leg, float[] shift, float[] animated) {
-        if (leg == null || Math.abs(shift[0]) + Math.abs(shift[1]) < 1e-4f) return;
+    private static void move(ModelPart leg, float[] shift, float[] animated, float gait) {
+        if (leg == null) return;
+        leg.xRot = BalanceMath.balancePitch(leg.xRot, gait);
+        if (Math.abs(shift[0]) + Math.abs(shift[1]) < 1e-4f) return;
         float dx = shift[0], dz = shift[1];
         if (animated != null) {
             Vector3f packed = new Quaternionf().rotationZYX(animated[2], animated[1], animated[0])

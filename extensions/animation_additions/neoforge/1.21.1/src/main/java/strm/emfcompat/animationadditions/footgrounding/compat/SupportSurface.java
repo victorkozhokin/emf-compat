@@ -30,7 +30,13 @@ final class SupportSurface {
             min = Math.min(min, across); max = Math.max(max, across);
         }
         float width = max - min + spacing;
-        narrow = points.isEmpty() ? 0 : clamp((7 - width) / 4, 0, 1);
+        // A wall is wider than a fence, but still narrower than a full block. A strip
+        // must have two sampled edges: a single edge of an ordinary floor is not a beam.
+        float boundary = 6 * (Math.abs(nx) + Math.abs(nz));
+        float origin = cx * nx + cz * nz;
+        boolean bounded = min + origin > -boundary + spacing * 0.5f
+                && max + origin < boundary - spacing * 0.5f;
+        narrow = points.isEmpty() || !bounded ? 0 : clamp((11 - width) / 8, 0, 1);
     }
 
     /** Pull the sole towards the support's centre line, then verify it against actual samples.
@@ -52,6 +58,16 @@ final class SupportSurface {
         float length = (float) Math.hypot(dx, dz);
         float limit = length > 6 ? 6 / length : 1;
         return new Placement(x + dx * limit, z + dz * limit);
+    }
+
+    /** Stagger idle feet along the beam, with five pixels between their centres.
+     * Blend out as the pack starts its stride; do not pin both moving soles to fixed marks. */
+    Placement stance(float x, float z, float side, float weight) {
+        float tx = nz, tz = -nx;
+        if (tx < -0.1f || Math.abs(tx) <= 0.1f && tz < 0) { tx = -tx; tz = -tz; }
+        float along = (x - cx) * tx + (z - cz) * tz;
+        float offset = (side * 2.5f - along) * weight * narrow;
+        return place(x + offset * tx, z + offset * tz);
     }
 
     static float clamp(float v, float low, float high) { return Math.max(low, Math.min(high, v)); }

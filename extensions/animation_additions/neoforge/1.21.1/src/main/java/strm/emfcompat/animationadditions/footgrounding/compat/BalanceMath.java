@@ -9,15 +9,33 @@ final class BalanceMath {
     record Leg(float pitch, float yaw, float roll, float pivotY) {}
     record Sample(float x, float z, float height) {}
 
+    /** Keep the rhythm of the pack, but soften extreme straight-leg sprint swings on beams. */
+    static float balancePitch(float pitch, float weight) {
+        float magnitude = Math.abs(pitch);
+        if (magnitude <= 0.85f) return pitch;
+        float limited = 0.85f + 0.4f * (float)Math.tanh((magnitude - 0.85f) / 0.4f);
+        return Math.copySign(magnitude + (limited - magnitude) * weight, pitch);
+    }
+
     static Leg leg(float pitch, float yaw, float roll, float length, float dx, float dz) {
         if (length < 1e-4f) return new Leg(pitch, yaw, roll, 0);
         Quaternionf rotation = new Quaternionf().rotationZYX(roll, yaw, pitch);
         Vector3f before = rotation.transform(new Vector3f(0, length, 0));
         float x = before.x + dx, z = before.z + dz;
         float horizontal = (float)Math.hypot(x, z);
-        float max = Math.max(0, length * 0.98f);
+        float max = length;
         if (horizontal > max) { x *= max / horizontal; z *= max / horizontal; }
-        float y = (float)Math.sqrt(Math.max(0, length * length - x * x - z * z));
+        float y = Math.copySign((float)Math.sqrt(Math.max(0, length * length - x * x - z * z)), before.y);
+        // Sprint poses can pass horizontal. Keep that hemisphere instead of folding the
+        // limb through the torso, and never lift its hip several pixels to reach a beam.
+        float boundedY = SupportSurface.clamp(y, before.y - 1.25f, before.y + 1.25f);
+        if (boundedY != y) {
+            float reach = (float)Math.sqrt(Math.max(0, length * length - boundedY * boundedY));
+            float h = (float)Math.hypot(x, z);
+            if (h > 1e-5f) { x *= reach / h; z *= reach / h; }
+            else { x = reach; z = 0; }
+            y = boundedY;
+        }
         Vector3f after = new Vector3f(x, y, z);
         Quaternionf correction = new Quaternionf().rotationTo(before, after);
         Quaternionf q = correction.mul(rotation).normalize();

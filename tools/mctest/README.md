@@ -4,7 +4,13 @@ For new animation tests, extend the existing **EMF ATLAS - Animation Campus** wi
 section instead of placing another detached rig. Use a sandbox copy for verification, keep GUI
 hidden, and preserve the original world's other sections when exporting changes. Zone 10 is the
 balance annex: `polygon/terrain_section.py` writes only `emf_atlas:terrain`; it does not rebuild
-the campus. `scenarios/atlas-terrain-balance.json` tests standing/crouching contact and transitions
+the campus. `scenarios/atlas-balance-regression.json` records idle/crouched/crosswise stance and
+sprint on fence, stone wall and a full floor, including model transforms and ground states.
+Save its results as `build/balance-regression-after.json`, then run
+`python3 tools/mctest/balance_regression_report.py` for assertions and a GUI-free frame gallery.
+Use the Test profile's enabled FA+Player packs at startup; reloading fonts in front of the
+Atlas text displays can crash Minecraft's glyph upload independently of the animation hooks.
+`scenarios/atlas-terrain-balance.json` tests standing/crouching contact and transitions
 on its fence, wall, iron bars and slopes. Navigation: the **10 / BALANCE LAB** button at the hub.
 
 Launches any Modrinth profile in a throwaway sandbox, with this repo's freshly built jars in place

@@ -6,6 +6,25 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SupportSurfaceTest {
+    @Test void idleFeetAreSeparatedAndStrideIsReleasedAtEveryHeading() {
+        for (int degrees = 0; degrees < 180; degrees += 5) {
+            var beam = strip(Math.toRadians(degrees));
+            var r = beam.stance(-1.9f, 0, -1, 1);
+            var l = beam.stance(1.9f, 0, 1, 1);
+            assertEquals(5, Math.hypot(r.x() - l.x(), r.z() - l.z()), 1e-4,
+                    "separate idle soles along the supported direction, heading=" + degrees);
+            assertEquals(beam.place(-1.9f, 3), beam.stance(-1.9f, 3, -1, 0));
+        }
+    }
+
+    @Test void stoneWallWithTwoEdgesIsNarrowButAFullBlockEdgeIsNot() {
+        List<SupportSurface.Point> points = new ArrayList<>();
+        for (int x = -2; x <= 2; x++) for (int z = -4; z <= 4; z++)
+            points.add(new SupportSurface.Point(x * 1.5f, z * 1.5f));
+        var wall = new SupportSurface(points, 1.5f);
+        assertTrue(wall.narrow > 0);
+        assertTrue(wall.place(1.9f, 0).x() < 1.9f);
+    }
     private static SupportSurface strip(double angle) {
         List<SupportSurface.Point> points = new ArrayList<>();
         for (int i = -4; i <= 4; i++) {
