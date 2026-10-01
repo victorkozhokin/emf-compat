@@ -27,7 +27,8 @@ import java.util.function.Function;
  *
  * <p>It turns round the waist. In the player model the head, the arms and the torso are siblings,
  * not children of one another, so turning the torso alone would tear them off: their pivots are
- * carried round the waist with it and they get the same turn. The legs stay. Applied before the
+ * carried round the waist with it and they get the same turn. Obstacle clearance also carries
+ * the hips a little while retaining the solved soles. Applied before the
  * arm aims, so a hand on a wall aims from where the shoulder really is.</p>
  *
  * <p>Everything is small on purpose - a few degrees, a pixel - and smoothed.</p>
@@ -67,6 +68,7 @@ public final class TorsoLean {
     private static final class State {
         /** {pitch, yaw, roll, shift x, the part of the yaw the head stays out of} as shown, smoothed. */
         final float[] lean = new float[5];
+        float wallYaw, wallShift, legShare;
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -124,6 +126,12 @@ public final class TorsoLean {
         float k = Smoothing.snapFirst(dt, SECONDS);
         float[] lean = entry.value.lean;
         for (int i = 0; i < 5; i++) lean[i] += (target[i] - lean[i]) * k;
+        float[] wall = on ? WallSqueeze.torsoHint(uuid) : null;
+        State state = entry.value;
+        state.wallYaw += ((wall == null ? 0 : wall[1]) - state.wallYaw) * k;
+        state.wallShift += ((wall == null ? 0 : wall[3]) - state.wallShift) * k;
+        float share = player.isCrouching() ? 0.35f : 0.15f;
+        state.legShare += (share - state.legShare) * k;
     }
 
     private static float clamp(float v) {
@@ -139,7 +147,19 @@ public final class TorsoLean {
         ModelPart body = parts.apply("body");
         if (body == null) return;
         Quaternionf turn = new Quaternionf().rotationZYX(lean[2], lean[1], lean[0]);
-        Vector3f waist = new Vector3f(body.x, body.y + WAIST, body.z);
+        // FA's crouch already pitches the body. Its bottom, not a vertical point
+        // below the neck, is the pelvis attachment that must stay under the torso.
+        Vector3f waist = PelvisFollow.waist(new Vector3f(body.x, body.y, body.z),
+                body.xRot, body.yRot, body.zRot, WAIST * body.yScale);
+        for (String name : new String[]{"right_leg", "left_leg"}) {
+            ModelPart leg = parts.apply(name);
+            if (leg == null) continue;
+            var follow = PelvisFollow.leg(new Vector3f(leg.x, leg.y, leg.z),
+                    leg.xRot, leg.yRot, leg.zRot, 12 * leg.yScale, waist,
+                    state.wallYaw * state.legShare, state.wallShift);
+            leg.x = follow.pivot().x; leg.y = follow.pivot().y; leg.z = follow.pivot().z;
+            leg.xRot = follow.pitch(); leg.yRot = follow.yaw(); leg.zRot = follow.roll();
+        }
         carry(body, turn, waist, lean);
         for (String name : CARRIED) {
             ModelPart part = parts.apply(name);

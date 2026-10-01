@@ -1,0 +1,58 @@
+package strm.emfcompat.animationadditions.torso;
+
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+/** Move the hips with obstacle clearance while retaining the already solved soles. */
+final class PelvisFollow {
+    record Leg(Vector3f pivot, float pitch, float yaw, float roll) {}
+
+    static Vector3f waist(Vector3f pivot, float pitch, float yaw, float roll, float length) {
+        return new Quaternionf().rotationZYX(roll, yaw, pitch)
+                .transform(new Vector3f(0, length, 0)).add(pivot);
+    }
+
+    static Leg leg(Vector3f pivot, float pitch, float yaw, float roll, float length,
+                   Vector3f waist, float turn, float shift) {
+        if (length < 1e-4f || Math.abs(turn) + Math.abs(shift) < 1e-5f)
+            return new Leg(new Vector3f(pivot), pitch, yaw, roll);
+        Quaternionf original = new Quaternionf().rotationZYX(roll, yaw, pitch);
+        Vector3f before = original.transform(new Vector3f(0, length, 0));
+        Vector3f sole = new Vector3f(before).add(pivot);
+        // A near-horizontal sprint leg has little vertical reach left. Reduce hip
+        // movement instead of stretching it, lifting it abruptly or moving its sole.
+        Leg full = trial(pivot, pitch, yaw, roll, length, waist, turn, shift, original, before, sole, 1);
+        if (full != null) return full;
+        float low = 0, high = 1;
+        Leg result = new Leg(new Vector3f(pivot), pitch, yaw, roll);
+        for (int i = 0; i < 12; i++) {
+            float amount = (low + high) * 0.5f;
+            Leg candidate = trial(pivot, pitch, yaw, roll, length, waist, turn, shift, original, before, sole, amount);
+            if (candidate == null) high = amount;
+            else { low = amount; result = candidate; }
+        }
+        return result;
+    }
+
+    private static Leg trial(Vector3f pivot, float pitch, float yaw, float roll, float length,
+                             Vector3f waist, float turn, float shift, Quaternionf original,
+                             Vector3f before, Vector3f sole, float amount) {
+        Quaternionf rotation = new Quaternionf().rotationY(turn * amount);
+        Vector3f hip = rotation.transform(new Vector3f(pivot).sub(waist)).add(waist);
+        hip.x += shift * amount;
+        float x = sole.x - hip.x, z = sole.z - hip.z;
+        float yy = length * length - x * x - z * z;
+        if (yy < 0) return null;
+        float y = Math.copySign((float)Math.sqrt(yy), before.y);
+        hip.y = sole.y - y;
+        if (Math.abs(hip.y - pivot.y) > 0.75f) return null;
+        Quaternionf swung = rotation.mul(new Quaternionf(original));
+        Vector3f direction = swung.transform(new Vector3f(0, length, 0));
+        Quaternionf q = new Quaternionf().rotationTo(direction, new Vector3f(x, y, z))
+                .mul(swung).normalize();
+        float px = (float)Math.atan2(2 * (q.w * q.x + q.y * q.z), 1 - 2 * (q.x * q.x + q.y * q.y));
+        float py = (float)Math.asin(Math.max(-1, Math.min(1, 2 * (q.w * q.y - q.z * q.x))));
+        float pz = (float)Math.atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z));
+        return new Leg(hip, px, py, pz);
+    }
+}
