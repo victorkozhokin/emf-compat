@@ -70,7 +70,7 @@ public final class EjectorLaunch {
         float brace, flight, rise;
         /** How much of the brace is the crouch drawn for a player who does not sneak, smoothed. */
         float drawn;
-        String logged = "";
+        String logged = "off";
     }
 
     public static void register(ConfigRegistry.Section config) {
