@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.ik.IKFrame;
 import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
+import strm.emfcompat.animationadditions.ejector.EjectorLid;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
 
@@ -520,7 +521,9 @@ public final class FootGrounding {
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
             if (hit.getType() == HitResult.Type.MISS || hit.getDirection() != Direction.UP) continue;
             if (hit.isInside() || hit.getLocation().y >= foot.y + RAY_UP - 0.01) continue;
-            if (best == null || hit.getLocation().y > best.y) best = hit.getLocation();
+            // The floor as drawn: an ejector's lid is up over its box while its spring winds.
+            Vec3 floor = EjectorLid.onLid(player.level(), hit);
+            if (best == null || floor.y > best.y) best = floor;
         }
         Vec3 ground = frame.jointWorld(new Vector3f(hip).add(0f, LEG, 0f));
         if (best == null) return ground.y - standing(hipDrop) * SCALE / 16;
@@ -585,7 +588,9 @@ public final class FootGrounding {
             if (hit.getType() == HitResult.Type.MISS || hit.getDirection() != Direction.UP) continue;
             // A ray that starts inside a block (a wall ahead) hits right where it starts.
             if (hit.isInside() || hit.getLocation().y >= foot.y + RAY_UP - 0.01) continue;
-            if (best == null || hit.getLocation().y > best.y) best = hit.getLocation();
+            // The floor as drawn: an ejector's lid is up over its box while its spring winds.
+            Vec3 floor = EjectorLid.onLid(player.level(), hit);
+            if (best == null || floor.y > best.y) best = floor;
         }
         if (best == null) return (float) (RAY_DOWN * 16);
         Vec3 centre = frame.jointWorld(base);
