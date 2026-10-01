@@ -101,6 +101,8 @@ public final class BlockUse implements InteractionProvider {
     private static final double RANGE = 3.0;
     /** Past the arm's length, as a share of it: further and the hand does not go. */
     private static final float MAX_REACH = 2.5f;
+    /** Extra half-block of arm-space allowance for the high part of a grounded crank orbit. */
+    private static final float GROUNDED_CRANK_REACH = 3.25f;
     /** Faster than this, blocks per tick, the player walks past. */
     private static final double SLOW_BELOW = 0.15;
 
@@ -150,7 +152,7 @@ public final class BlockUse implements InteractionProvider {
         float stretch;
         /** Smoothed visual extension; the entity pose and crouching flag never change. */
         float standUp;
-        boolean crouching, overhead, lowGround;
+        boolean crouching, overhead, groundReach;
         final LowReach.State lowReach = new LowReach.State();
         long tracedAt;
         long contactAt;
@@ -182,7 +184,7 @@ public final class BlockUse implements InteractionProvider {
         boolean shown = false;
         float standUp = 0f;
         state.crouching = player.getPose() == Pose.CROUCHING;
-        state.lowGround = false;
+        state.groundReach = false;
         float stretchTarget = 0f;
         try {
             // On a seat the hands use what is in front of them as standing; the body stays seated.
@@ -258,7 +260,9 @@ public final class BlockUse implements InteractionProvider {
             boolean right = player.getMainArm() == HumanoidArm.RIGHT;
             Vector3f shoulder = right ? RIGHT_SHOULDER : LEFT_SHOULDER;
             IKResult ik = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
-            if (ik == null || ik.reach() > MAX_REACH) {
+            float reachLimit = state.target instanceof HandCrank && player.onGround() && !seated
+                    ? GROUNDED_CRANK_REACH : MAX_REACH;
+            if (ik == null || ik.reach() > reachLimit) {
                 context.decide("out-of-reach");
                 return;
             }
@@ -271,8 +275,8 @@ public final class BlockUse implements InteractionProvider {
             if (centre != null) centre = space.toWorld(centre);
             Vector3f postureTarget = centre == null ? model : frame.relativeToJoint(centre.add(0, 7 / 16.0, 0), new Vector3f());
             state.overhead = postureTarget.y < shoulder.y;
-            state.lowGround = state.crouching && player.onGround() && !seated
-                    && state.target != null && state.target.reachPose() && model.y > shoulder.y + 4;
+            state.groundReach = player.onGround() && !seated
+                    && state.target != null && state.target.reachPose() && (!state.crouching || model.y > shoulder.y + 4);
             if (state.target != null && state.target.reachPose() && state.crouching && !seated) {
                 standUp = ReachEnvelope.upright(postureTarget.x - shoulder.x,
                         postureTarget.y - shoulder.y, postureTarget.z - shoulder.z, ARM);
@@ -297,7 +301,7 @@ public final class BlockUse implements InteractionProvider {
                 // Past the arm's length the whole body reaches, as for a lever.
                 Vector3f reachTarget = centre == null ? model : frame.relativeToJoint(centre, new Vector3f());
                 stretchTarget = ReachPose.weight(new Vector3f(reachTarget).sub(shoulder).length() / ARM) * (1f - standUp);
-                if (!state.lowGround) ReachPose.lean(reachTarget, stretchTarget, state.lean);
+                if (!state.groundReach) ReachPose.lean(reachTarget, stretchTarget, state.lean);
                 // The pack already folds the crouching torso: do not add another full floor reach.
                 if (state.crouching) state.lean[0] = Math.min(state.lean[0], (float) Math.toRadians(20));
             }
@@ -422,7 +426,7 @@ public final class BlockUse implements InteractionProvider {
         float w = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
         ReachPose.upright(parts, state.standUp * w);
         boolean free = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) < 0.01f;
-        ReachPose.balance(parts, state.right, state.stretch * w, free, !state.lowGround && !state.lowReach.active());
+        ReachPose.balance(parts, state.right, state.stretch * w, free, !state.groundReach && !state.lowReach.active());
     }
 
     /**
@@ -441,7 +445,7 @@ public final class BlockUse implements InteractionProvider {
         State state = STATES.fresh(uuid);
         if (state == null) return;
         boolean lowFree = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) <= 0.01f;
-        float lowWeight = INSTANCE.isEnabled() && state.lowGround && lowFree
+        float lowWeight = INSTANCE.isEnabled() && state.groundReach && lowFree
                 && EMFCompatConfig.getBoolean(ButtonPress.KEY_STRETCH, true)
                 ? InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id()) : 0;
         LowReach.apply(parts, state.right, state.grip, lowWeight, state.lowReach);
@@ -449,7 +453,7 @@ public final class BlockUse implements InteractionProvider {
         double dt = state.contactAt == 0 ? 0 : (now - state.contactAt) * 1e-9;
         state.contactAt = now;
         boolean enabled = INSTANCE.isEnabled() && state.target != null
-                && state.target.quietsSwing() && state.overhead
+                && state.target.quietsSwing() && state.overhead && !state.groundReach
                 && InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) <= 0.01f;
         float w = enabled ? InteractionRuntime.weight(uuid,
                 state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id()) : 0f;

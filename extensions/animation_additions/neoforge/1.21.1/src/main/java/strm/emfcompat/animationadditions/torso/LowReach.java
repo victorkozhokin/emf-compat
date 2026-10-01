@@ -7,7 +7,7 @@ import strm.emfcompat.animationadditions.interaction.Smoothing;
 import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.function.Function;
 
-/** Low hand contact with a grounded pelvis, applied after the ordinary torso layers. */
+/** Hand contact with a grounded pelvis, applied after the ordinary torso layers. */
 public final class LowReach {
     private LowReach() {}
     public static final class State {
@@ -16,7 +16,7 @@ public final class LowReach {
         float frame = -1;
         long updatedAt;
 
-        /** Keep both soles planted while the low contact fades away. */
+        /** Keep both soles planted while the grounded contact fades away. */
         public boolean active() {
             return shift.lengthSquared() > 1e-6f || Math.abs(turn.x) + Math.abs(turn.y) + Math.abs(turn.z) > 1e-3f;
         }
