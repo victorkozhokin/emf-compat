@@ -1,5 +1,7 @@
 package strm.emfcompat.animationadditions.blockuse;
 
+import strm.emfcompat.animationadditions.torso.LowReach;
+
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.Minecraft;
 import strm.emfcompat.animationadditions.buttonpress.ReachEnvelope;
@@ -148,7 +150,8 @@ public final class BlockUse implements InteractionProvider {
         float stretch;
         /** Smoothed visual extension; the entity pose and crouching flag never change. */
         float standUp;
-        boolean crouching, overhead;
+        boolean crouching, overhead, lowGround;
+        final LowReach.State lowReach = new LowReach.State();
         long tracedAt;
         long contactAt;
         final Quaternionf contactTurn = new Quaternionf();
@@ -179,6 +182,7 @@ public final class BlockUse implements InteractionProvider {
         boolean shown = false;
         float standUp = 0f;
         state.crouching = player.getPose() == Pose.CROUCHING;
+        state.lowGround = false;
         float stretchTarget = 0f;
         try {
             // On a seat the hands use what is in front of them as standing; the body stays seated.
@@ -267,6 +271,8 @@ public final class BlockUse implements InteractionProvider {
             if (centre != null) centre = space.toWorld(centre);
             Vector3f postureTarget = centre == null ? model : frame.relativeToJoint(centre.add(0, 7 / 16.0, 0), new Vector3f());
             state.overhead = postureTarget.y < shoulder.y;
+            state.lowGround = state.crouching && player.onGround() && !seated
+                    && state.target != null && state.target.reachPose() && model.y > shoulder.y + 4;
             if (state.target != null && state.target.reachPose() && state.crouching && !seated) {
                 standUp = ReachEnvelope.upright(postureTarget.x - shoulder.x,
                         postureTarget.y - shoulder.y, postureTarget.z - shoulder.z, ARM);
@@ -291,7 +297,7 @@ public final class BlockUse implements InteractionProvider {
                 // Past the arm's length the whole body reaches, as for a lever.
                 Vector3f reachTarget = centre == null ? model : frame.relativeToJoint(centre, new Vector3f());
                 stretchTarget = ReachPose.weight(new Vector3f(reachTarget).sub(shoulder).length() / ARM) * (1f - standUp);
-                ReachPose.lean(reachTarget, stretchTarget, state.lean);
+                if (!state.lowGround) ReachPose.lean(reachTarget, stretchTarget, state.lean);
                 // The pack already folds the crouching torso: do not add another full floor reach.
                 if (state.crouching) state.lean[0] = Math.min(state.lean[0], (float) Math.toRadians(20));
             }
@@ -416,7 +422,7 @@ public final class BlockUse implements InteractionProvider {
         float w = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
         ReachPose.upright(parts, state.standUp * w);
         boolean free = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) < 0.01f;
-        ReachPose.balance(parts, state.right, state.stretch * w, free);
+        ReachPose.balance(parts, state.right, state.stretch * w, free, !state.lowGround && !state.lowReach.active());
     }
 
     /**
@@ -434,6 +440,11 @@ public final class BlockUse implements InteractionProvider {
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         State state = STATES.fresh(uuid);
         if (state == null) return;
+        boolean lowFree = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) <= 0.01f;
+        float lowWeight = INSTANCE.isEnabled() && state.lowGround && lowFree
+                && EMFCompatConfig.getBoolean(ButtonPress.KEY_STRETCH, true)
+                ? InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id()) : 0;
+        LowReach.apply(parts, state.right, state.grip, lowWeight, state.lowReach);
         long now = System.nanoTime();
         double dt = state.contactAt == 0 ? 0 : (now - state.contactAt) * 1e-9;
         state.contactAt = now;

@@ -122,6 +122,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         // The torso before the arm aims: a hand on a wall aims from where the shoulder has gone.
         TorsoLean.apply(uuid, parts);
         BlockUse.reachContact(uuid, parts);
+        ButtonPress.reachContact(uuid, parts);
         InteractionRuntime.apply(uuid, parts);
         // The hands on the walls of a narrow gap, from where the turned torso has put the shoulders.
         WallSqueeze.aimArms(uuid, parts);

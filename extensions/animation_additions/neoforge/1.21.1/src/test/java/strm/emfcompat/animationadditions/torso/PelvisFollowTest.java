@@ -80,4 +80,30 @@ class PelvisFollowTest {
             }
         }
     }
+    @Test void lowReachTranslationRetainsSolesAndLimitsHipHeight() {
+        Vector3f pivot = new Vector3f(2, 12, 4);
+        for (float pitch = -2; pitch <= 2; pitch += .07f)
+            for (float dx : new float[]{-3.5f, 0, 3.5f})
+                for (float dz : new float[]{-3.5f, 0, 3.5f}) {
+                    Vector3f sole = PelvisFollow.waist(pivot, pitch, .2f, .1f, 12);
+                    var leg = PelvisFollow.translate(pivot, pitch, .2f, .1f, 12, dx, dz);
+                    assertTrue(sole.distance(PelvisFollow.waist(leg.pivot(), leg.pitch(), leg.yaw(), leg.roll(), 12)) < .001f);
+                    assertTrue(Math.abs(leg.pivot().y - pivot.y) <= 2.0001f);
+                }
+    }
+
+    @Test void translationReleaseIsContinuousAndNeutralPoseIsExact() {
+        Vector3f pivot = new Vector3f(2, 12, 4);
+        for (float pitch : new float[]{.5f, 1.4f, 1.7f}) {
+            Vector3f previous = new Vector3f(pivot);
+            for (int i = 0; i <= 4000; i++) {
+                var leg = PelvisFollow.translate(pivot, pitch, .2f, .1f, 12, i * 3.5f / 4000, -i * 3.5f / 4000);
+                assertTrue(previous.distance(leg.pivot()) < .02f, "pitch=" + pitch + " i=" + i + " jump=" + previous.distance(leg.pivot()));
+                previous = leg.pivot();
+            }
+            var neutral = PelvisFollow.translate(pivot, pitch, .2f, .1f, 12, 0, 0);
+            assertEquals(pivot, neutral.pivot()); assertEquals(pitch, neutral.pitch());
+            assertEquals(.2f, neutral.yaw()); assertEquals(.1f, neutral.roll());
+        }
+    }
 }

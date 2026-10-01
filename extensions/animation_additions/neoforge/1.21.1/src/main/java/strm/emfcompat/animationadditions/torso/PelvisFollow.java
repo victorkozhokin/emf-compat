@@ -38,13 +38,31 @@ final class PelvisFollow {
         Vector3f sole = new Vector3f(before).add(pivot);
         // A near-horizontal sprint leg has little vertical reach left. Reduce hip
         // movement instead of stretching it, lifting it abruptly or moving its sole.
-        Leg full = trial(pivot, pitch, yaw, roll, length, waist, turn, shift, original, before, sole, 1);
+        Leg full = trial(pivot, pitch, yaw, roll, length, waist, turn, shift, original, before, sole, 1, 0, .75f, 0);
         if (full != null) return full;
         float low = 0, high = 1;
         Leg result = new Leg(new Vector3f(pivot), pitch, yaw, roll);
         for (int i = 0; i < 12; i++) {
             float amount = (low + high) * 0.5f;
-            Leg candidate = trial(pivot, pitch, yaw, roll, length, waist, turn, shift, original, before, sole, amount);
+            Leg candidate = trial(pivot, pitch, yaw, roll, length, waist, turn, shift, original, before, sole, amount, 0, .75f, 0);
+            if (candidate == null) high = amount;
+            else { low = amount; result = candidate; }
+        }
+        return result;
+    }
+
+    static Leg translate(Vector3f pivot, float pitch, float yaw, float roll, float length, float dx, float dz) {
+        if (length < 1e-4f || Math.abs(dx) + Math.abs(dz) < 1e-5f) return new Leg(new Vector3f(pivot), pitch, yaw, roll);
+        Quaternionf original = new Quaternionf().rotationZYX(roll, yaw, pitch);
+        Vector3f before = original.transform(new Vector3f(0, length, 0));
+        Vector3f sole = new Vector3f(before).add(pivot);
+        float low = 0, high = 1;
+        Leg result = new Leg(new Vector3f(pivot), pitch, yaw, roll);
+        Leg full = trial(pivot, pitch, yaw, roll, length, pivot, 0, dx, original, before, sole, 1, dz, 2, Math.min(.75f, Math.abs(before.y)));
+        if (full != null) return full;
+        for (int i = 0; i < 12; i++) {
+            float amount = (low + high) * .5f;
+            Leg candidate = trial(pivot, pitch, yaw, roll, length, pivot, 0, dx, original, before, sole, amount, dz, 2, Math.min(.75f, Math.abs(before.y)));
             if (candidate == null) high = amount;
             else { low = amount; result = candidate; }
         }
@@ -53,16 +71,18 @@ final class PelvisFollow {
 
     private static Leg trial(Vector3f pivot, float pitch, float yaw, float roll, float length,
                              Vector3f waist, float turn, float shift, Quaternionf original,
-                             Vector3f before, Vector3f sole, float amount) {
+                             Vector3f before, Vector3f sole, float amount, float shiftZ, float heightLimit, float minVertical) {
         Quaternionf rotation = new Quaternionf().rotationY(turn * amount);
         Vector3f hip = rotation.transform(new Vector3f(pivot).sub(waist)).add(waist);
         hip.x += shift * amount;
+        hip.z += shiftZ * amount;
         float x = sole.x - hip.x, z = sole.z - hip.z;
         float yy = length * length - x * x - z * z;
-        if (yy < 0) return null;
+        // Avoid a singular fully horizontal leg while shifting the low-reach pelvis.
+        if (yy < minVertical * minVertical) return null;
         float y = Math.copySign((float)Math.sqrt(yy), before.y);
         hip.y = sole.y - y;
-        if (Math.abs(hip.y - pivot.y) > 0.75f) return null;
+        if (Math.abs(hip.y - pivot.y) > heightLimit) return null;
         Quaternionf swung = rotation.mul(new Quaternionf(original));
         Vector3f direction = swung.transform(new Vector3f(0, length, 0));
         Quaternionf q = new Quaternionf().rotationTo(direction, new Vector3f(x, y, z))

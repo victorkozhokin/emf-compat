@@ -1,5 +1,7 @@
 package strm.emfcompat.animationadditions.buttonpress;
 
+import strm.emfcompat.animationadditions.torso.LowReach;
+
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -155,6 +157,8 @@ public final class ButtonPress implements InteractionProvider {
         float legWeight;
         /** How far into the reaching pose, 0..1, as shown. */
         float stretch;
+        boolean lowGround;
+        final LowReach.State lowReach = new LowReach.State();
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -185,6 +189,7 @@ public final class ButtonPress implements InteractionProvider {
         state.lean[0] = state.lean[1] = state.lean[2] = 0f;
         float[] legTarget = null;
         float stretchTarget = 0f;
+        state.lowGround = false;
         try {
             String why = ineligible(player);
             if (why != null) {
@@ -241,6 +246,8 @@ public final class ButtonPress implements InteractionProvider {
             if (InteractionRuntime.weight(player.getUUID(), Effector.RIGHT_ARM, id()) < 1e-3f) state.button.set(hand.button);
             else state.button.lerp(hand.button, Smoothing.follow(dt, GRIP_SECONDS));
             state.armRight = hand.right;
+            state.lowGround = hand.right && player.isCrouching() && player.onGround() && !Seated.seated(player)
+                    && hand.button.y > RIGHT_SHOULDER.y + 4;
             if (pressing) {
                 state.lean[0] = hand.pitch;
                 state.lean[1] = hand.yaw;
@@ -250,7 +257,7 @@ public final class ButtonPress implements InteractionProvider {
             if (hand.right && !Seated.seated(player) && EMFCompatConfig.getBoolean(KEY_STRETCH, true)) {
                 float reach = new Vector3f(hand.button).sub(RIGHT_SHOULDER).length() / ARM;
                 stretchTarget = ReachPose.weight(reach);
-                ReachPose.lean(hand.button, stretchTarget, state.lean);
+                if (!state.lowGround) ReachPose.lean(hand.button, stretchTarget, state.lean);
             }
             out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING,
                     hand.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, aim));
@@ -554,6 +561,16 @@ public final class ButtonPress implements InteractionProvider {
         arm.yRot += IKMath.wrap(y - arm.yRot) * w;
     }
 
+    /** Ground-supported reach before the final hand aim, shared with the low crank. */
+    public static void reachContact(UUID uuid, Function<String, ModelPart> parts) {
+        State state = STATES.fresh(uuid);
+        if (state == null || !EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
+        float weight = state.lowGround && INSTANCE.isEnabled() && EMFCompatConfig.getBoolean(KEY_STRETCH, true)
+                && InteractionRuntime.weight(uuid, Effector.LEFT_ARM) <= 0.01f
+                ? InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id()) : 0;
+        LowReach.apply(parts, state.armRight, state.button, weight, state.lowReach);
+    }
+
     /**
      * Puts a foot on its button over whatever the feet were given. Called after the pack has animated.
      */
@@ -563,7 +580,7 @@ public final class ButtonPress implements InteractionProvider {
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         float owned = InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id());
         ReachPose.balance(parts, true, state.stretch * owned,
-                InteractionRuntime.weight(uuid, Effector.LEFT_ARM) < 0.01f);
+                InteractionRuntime.weight(uuid, Effector.LEFT_ARM) < 0.01f, !state.lowGround && !state.lowReach.active());
         if (state.legWeight < 1e-3f) return;
         ModelPart leg = parts.apply(state.footRight ? "right_leg" : "left_leg");
         if (leg == null) return;
