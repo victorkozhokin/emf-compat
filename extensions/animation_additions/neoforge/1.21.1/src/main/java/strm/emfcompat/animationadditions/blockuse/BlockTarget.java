@@ -20,7 +20,14 @@ public interface BlockTarget {
     /** What the hand does: puts something in, takes it out, or taps. */
     enum Motion {PUT, TAKE, TAP}
 
-    record Gesture(Spot spot, Motion motion) {
+    /**
+     * What the hand does and where; {@code sweep}, when not {@code null}, is how far and which way
+     * it also goes across the spot while it does it - a push along a surface.
+     */
+    record Gesture(Spot spot, Motion motion, Vec3 sweep) {
+        Gesture(Spot spot, Motion motion) {
+            this(spot, motion, null);
+        }
     }
 
     boolean matches(BlockState block);

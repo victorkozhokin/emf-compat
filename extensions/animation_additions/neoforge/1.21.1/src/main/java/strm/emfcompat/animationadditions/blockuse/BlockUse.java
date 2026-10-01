@@ -73,7 +73,7 @@ public final class BlockUse implements InteractionProvider {
             ItemRest.front("dev.simulated_team.simulated.content.blocks.nav_table.NavTableBlock", "getHeldItem"),
             ItemRest.front("dev.eriksonn.aeronautics.content.blocks.mounted_potato_cannon.MountedPotatoCannonBlock", "getInventory"),
             new Typewriter(),
-            new SuppCrank(), new BookPile(),
+            new SuppCrank(), new BookPile(), new Globe(),
             ItemRest.inside(SUPPLEMENTARIES + "ItemShelfBlock", "", 5),
             new ItemRest(SUPPLEMENTARIES + "PedestalBlock", "", 17),
             new ItemRest(SUPPLEMENTARIES + "JarBlock", "", 14),
@@ -244,6 +244,11 @@ public final class BlockUse implements InteractionProvider {
 
             IKFrame frame = context.frame();
             Vec3 point = spot.point().add(spot.out().scale(outwards / 16.0));
+            if (state.gesture != null && state.gesture.sweep() != null) {
+                // Across the spot, from half the sweep before it to half past it, eased at both ends.
+                double along = t * t * (3 - 2 * t) - 0.5;
+                point = point.add(space.directionToWorld(state.gesture.sweep()).scale(along));
+            }
             Vector3f model = frame.relativeToJoint(point, new Vector3f());
             // The hand that holds what is used.
             boolean right = player.getMainArm() == HumanoidArm.RIGHT;
