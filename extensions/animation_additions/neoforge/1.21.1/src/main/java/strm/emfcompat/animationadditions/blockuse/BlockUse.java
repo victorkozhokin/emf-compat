@@ -60,7 +60,9 @@ public final class BlockUse implements InteractionProvider {
             new Composter(), new FlowerPot(), new RespawnAnchor(), new NoteBlock(), new Repeater(), new Comparator(),
             new DaylightDetector(), new Cake(), new Barrel(), new Candle(), new ValveHandle(), new SteeringWheel(),
             new CraftingTable(), new Stonecutter(), new Bell(), new FenceGate(), new Cauldron(), new Beehive(),
-            new CandleCake(), new Tnt(), new Crafter(), new EnchantingTable(), new CartographyTable());
+            new CandleCake(), new Tnt(), new Crafter(), new EnchantingTable(), new CartographyTable(),
+            new ItemRest("com.simibubi.create.content.logistics.depot.DepotBlock", "getHeldItem", 13),
+            new ItemDrain(), new Basin(), new BlazeBurner());
 
     /** Below a button press, above doors and chests. */
     private static final int PRIORITY = 8;

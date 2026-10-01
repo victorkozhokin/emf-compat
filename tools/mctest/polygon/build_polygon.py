@@ -175,6 +175,23 @@ block(x+26,151,z+26,'simulated:throttle_lever')
 for a in [x+5,x+17]: fill(a,151,z+27,a,155,z+27,'create:metal_girder')
 block(x+5,156,z+27,'create:chain_conveyor{Connections:[[12,0,0]]}')
 block(x+17,156,z+27,'create:chain_conveyor{Connections:[[-12,0,0]]}')
+# 04, more: the blocks an item is put on or into by hand. Also its own function, create_items.mcfunction,
+# to add them to a map already built; the restock button's function puts the stands back.
+more=len(commands)
+rests=[('create:depot','Предмет: ПКМ','пустой: забрать'),
+ ('create:item_drain','Ведро / бутыль','пустой: забрать'),
+ ('create:basin{InputItems:{Size:9,Items:[{Slot:0,id:"minecraft:iron_ingot",count:8}]}}','Пустой рукой','забрать всё'),
+ ('create:blaze_burner[blaze=smouldering,facing=south]','Уголь','или Blaze Cake')]
+for i,(b,how,more_how) in enumerate(rests):
+    a=x+5+i*4
+    block(a,151,z+21,b)
+    restock.append(f'setblock {a} 151 {z+21} air')
+    restock.append(f'setblock {a} 151 {z+21} {b}')
+    sign(a,151,z+23,[b.split(':')[1].split('[')[0].split('{')[0][:18],how,more_how,'Встань вплотную'])
+(FUN/'restock.mcfunction').write_text('\n'.join(restock)+'\n')
+button(x+25,z+23,'Восстановить стенды','function emf_atlas:restock')
+chest(x+23,z+19,['iron_ingot 16','create:andesite_alloy 16','oak_planks 16','coal 16','create:blaze_cake 4','water_bucket','bucket','honey_bottle 4','potion[potion_contents={potion:"minecraft:water"}]'],'Предметы / топливо')
+(FUN/'create_items.mcfunction').write_text('\n'.join(commands[more:])+'\n')
 chest(x+4,z+36,['create:wrench','create:extendo_grip','create:potato_cannon','potato 64','create:clipboard','create:linked_controller','create:cardboard_helmet','create:cardboard_chestplate','create:cardboard_leggings','create:cardboard_boots','create:super_glue','create:controls','create:track','create:track_station'],'Create / сборка транспорта')
 text(x+13,158,z+27,'CHAIN CONVEYOR','yellow',.8)
 # 05 water, mounts, seats and elevated flight deck.
