@@ -92,6 +92,8 @@ public final class WallSqueeze {
         float turn, shift;
         /** How squeezed the arms are, 0..1, smoothed. */
         float arms;
+        /** Clearance only affects the arm whose side actually has a nearby wall. */
+        float rightClearance, leftClearance;
         /** How far up from the side each arm is held, radians, smoothed. */
         float upRight, upLeft;
         /** The walls, pixels from the middle of the body to the right and to the left; huge with none. */
@@ -128,18 +130,21 @@ public final class WallSqueeze {
         State s = entry.value;
         if (s.lastPosition != null && s.lastPosition.distanceToSqr(player.position()) > 4) {
             s.arms = s.hands = s.upRight = s.upLeft = 0;
+            s.rightClearance = s.leftClearance = 0;
             for (var contact : s.contacts) { contact.weight = 0; contact.known = false; }
         }
         s.lastPosition = player.position();
         s.player = player; s.frame = frame; s.dt = dt; s.solvedAt = now;
         s.spaces = SubLevels.around(player.level(), player.getBoundingBox().inflate(1));
         s.turn = s.shift = 0f;
+        s.wallRight = s.wallLeft = NO_WALL;
         String decided = "off";
         boolean on = EMFCompatConfig.getBoolean(KEY_ENABLED, true) && EMFCompatCore.isCompatEnabled()
                 && !EMFCompatCore.isLocalPlayerInFirstPerson(uuid)
                 && !player.isPassenger() && !player.isSleeping() && !player.isFallFlying() && !player.isSwimming()
                 && (player.getPose() == Pose.STANDING || player.getPose() == Pose.CROUCHING);
         float squeezed = 0f, upRight = 0f, upLeft = 0f;
+        boolean rightWall = false, leftWall = false;
         if (on) {
             float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
             Vec3 at = player.getPosition(partial);
@@ -148,6 +153,10 @@ public final class WallSqueeze {
             Vec3 forward = new Vec3(-Math.sin(yaw), 0, Math.cos(yaw));
             Vec3 right = new Vec3(-Math.cos(yaw), 0, -Math.sin(yaw));
             double roomRight = room(player, at, forward, right, s.spaces), roomLeft = room(player, at, forward, right.scale(-1), s.spaces);
+            rightWall = roomRight < NEED;
+            leftWall = roomLeft < NEED;
+            s.wallRight = roomRight < LOOK ? (float) (roomRight / PIXEL) : NO_WALL;
+            s.wallLeft = roomLeft < LOOK ? (float) (roomLeft / PIXEL) : NO_WALL;
             // How far each arm is in its wall, and how far the body can go the other way, pixels.
             float inRight = (float) (Math.max(0, NEED - roomRight) / PIXEL), inLeft = (float) (Math.max(0, NEED - roomLeft) / PIXEL);
             float spareRight = (float) (Math.max(0, roomRight - NEED) / PIXEL), spareLeft = (float) (Math.max(0, roomLeft - NEED) / PIXEL);
@@ -162,10 +171,8 @@ public final class WallSqueeze {
                 s.side = WallPoseMath.side(s.side, inRight, inLeft, s.arms > 0.05f);
                 s.turn = full * turn * s.side;
                 // The room each side has from where the shifted body is, pixels.
-                s.wallRight = roomRight < LOOK ? (float) (roomRight / PIXEL) : NO_WALL;
-                s.wallLeft = roomLeft < LOOK ? (float) (roomLeft / PIXEL) : NO_WALL;
-                upRight = full * up(turn, (float) (roomRight / PIXEL) + over);
-                upLeft = full * up(turn, (float) (roomLeft / PIXEL) - over);
+                upRight = rightWall ? full * up(turn, (float) (roomRight / PIXEL) + over) : 0;
+                upLeft = leftWall ? full * up(turn, (float) (roomLeft / PIXEL) - over) : 0;
                 squeezed = full;
                 decided = "turn";
             } else if (Math.abs(over) > 0.05f) {
@@ -174,6 +181,8 @@ public final class WallSqueeze {
             }
         }
         s.arms += (squeezed - s.arms) * Smoothing.follow(dt, SECONDS);
+        s.rightClearance += ((rightWall ? squeezed : 0) - s.rightClearance) * Smoothing.follow(dt, SECONDS);
+        s.leftClearance += ((leftWall ? squeezed : 0) - s.leftClearance) * Smoothing.follow(dt, SECONDS);
         float grip = decided.equals("turn") && player.onGround() && !player.isSprinting() ? squeezed : 0;
         s.hands += (grip - s.hands) * Smoothing.follow(dt, SECONDS);
         s.upRight += (upRight - s.upRight) * Smoothing.follow(dt, SECONDS);
@@ -260,7 +269,7 @@ public final class WallSqueeze {
         for (int i = 0; i < 2; i++) {
             ModelPart arm = parts.apply(i == 0 ? "right_arm" : "left_arm");
             if (arm == null || occupied(s, i == 0)) continue;
-            float weight = s.arms * (1 - ownership(uuid, i == 0));
+            float weight = (i == 0 ? s.rightClearance : s.leftClearance) * (1 - ownership(uuid, i == 0));
             // Up from the side, for a hanging right arm, is +zRot; for a left one -zRot.
             float out = i == 0 ? s.upRight : -s.upLeft;
             arm.xRot = Mth.lerp(weight, arm.xRot, arm.xRot * ARM_SWING_KEPT);
@@ -273,8 +282,8 @@ public final class WallSqueeze {
      * shoulder has gone back and the left one ahead: the right arm is drawn back and reaches for
      * the wall behind it, the left one is put out ahead onto its wall; turned to the left, the other
      * way round. Each to the wall nearer its shoulder, the palm a little below the shoulder and as
-     * far along the wall as the arm's length leaves. An arm with no wall in reach keeps its place up
-     * from the side. Called after the torso has turned: the arm is aimed from where its shoulder is
+     * far along the wall as the arm's length leaves. An arm with no wall on its side retains its
+     * resource-pack pose. Called after the torso has turned: the arm is aimed from where its shoulder is
      * drawn.
      */
     public static void aimArms(UUID uuid, Function<String, ModelPart> parts) {

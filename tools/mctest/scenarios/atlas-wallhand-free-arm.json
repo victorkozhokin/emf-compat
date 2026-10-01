@@ -1,0 +1,250 @@
+[
+  {
+    "releaseAll": true
+  },
+  {
+    "hideGui": true
+  },
+  {
+    "camera": "back"
+  },
+  {
+    "orbit": [
+      180,
+      18,
+      3.5
+    ]
+  },
+  {
+    "cmd": "clear @s"
+  },
+  {
+    "config": {
+      "wallhand.enabled": true,
+      "wallhand.squeeze": true,
+      "wallhand.trace": true
+    }
+  },
+  {
+    "log": "wall-free:external-right"
+  },
+  {
+    "cmd": "tp @s 2307.31 151 2071.5 0 0"
+  },
+  {
+    "look": [
+      0,
+      0
+    ]
+  },
+  {
+    "wait": 60
+  },
+  {
+    "screenshot": "wall-free-external-right"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "wall-free-external-right-walk-0"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "wall-free-external-right-walk-1"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "wall-free-external-right-walk-2"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "wall-free-external-right-walk-3"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "wall-free-external-right-walk-4"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "wall-free-external-right-walk-5"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "wait": 30
+  },
+  {
+    "log": "wall-free:external-left"
+  },
+  {
+    "cmd": "tp @s 2303.69 151 2071.5 0 0"
+  },
+  {
+    "look": [
+      0,
+      0
+    ]
+  },
+  {
+    "wait": 60
+  },
+  {
+    "screenshot": "wall-free-external-left"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "wall-free-external-left-walk-0"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "wall-free-external-left-walk-1"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "wall-free-external-left-walk-2"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "wall-free-external-left-walk-3"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "wall-free-external-left-walk-4"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "wall-free-external-left-walk-5"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "wait": 30
+  },
+  {
+    "log": "wall-free:narrow"
+  },
+  {
+    "cmd": "tp @s 2315.59375 151 2071.5 0 0"
+  },
+  {
+    "look": [
+      0,
+      0
+    ]
+  },
+  {
+    "wait": 60
+  },
+  {
+    "screenshot": "wall-free-narrow"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "wall-free:one-wall-transition"
+  },
+  {
+    "cmd": "tp @s 2325.69 151 2075.5 0 0"
+  },
+  {
+    "look": [
+      0,
+      0
+    ]
+  },
+  {
+    "wait": 60
+  },
+  {
+    "screenshot": "wall-free-one-wall-transition"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  }
+]
