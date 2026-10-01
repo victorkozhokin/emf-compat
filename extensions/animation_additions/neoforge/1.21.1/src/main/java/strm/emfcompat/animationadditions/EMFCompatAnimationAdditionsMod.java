@@ -23,6 +23,7 @@ import strm.emfcompat.animationadditions.motion.PoseInertia;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.animationadditions.plantreach.PlantReach;
 import strm.emfcompat.animationadditions.wallhand.WallHand;
+import strm.emfcompat.animationadditions.wallhand.WallSqueeze;
 
 /**
  * Animation Additions: small player-animation features that are not a compat layer for any one
@@ -53,6 +54,7 @@ public class EMFCompatAnimationAdditionsMod {
         if (FMLEnvironment.dist == Dist.CLIENT) {
             FootGroundingFeature.register(config);
             WallHand.register(config);
+            WallSqueeze.register(config);
             PlantReach.register(config);
             LookAt.register(config);
             TorsoLean.register(config);

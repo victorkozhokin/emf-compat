@@ -13,6 +13,7 @@ import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
 import strm.emfcompat.animationadditions.motion.MotionRuntime;
+import strm.emfcompat.animationadditions.wallhand.WallSqueeze;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.EMFCompatCore;
@@ -64,8 +65,8 @@ public final class TorsoLean {
     }
 
     private static final class State {
-        /** {pitch, yaw, roll, shift x} as shown, smoothed. */
-        final float[] lean = new float[4];
+        /** {pitch, yaw, roll, shift x, the part of the yaw the head stays out of} as shown, smoothed. */
+        final float[] lean = new float[5];
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -88,7 +89,7 @@ public final class TorsoLean {
         EntityStates.Entry<State> entry = STATES.seen(uuid, now);
         double dt = EntityStates.due(entry, now);
         if (dt < 0) return;
-        float[] target = new float[4];
+        float[] target = new float[5];
         boolean on = isEnabled() && EMFCompatCore.isCompatEnabled()
                 && !EMFCompatCore.isLocalPlayerInFirstPerson(uuid);
         if (on) {
@@ -97,11 +98,14 @@ public final class TorsoLean {
                 target[0] += head[0] * FOLLOW_PITCH * head[2];
                 target[1] += Math.max(-MAX_YAW, Math.min(MAX_YAW, head[1] * FOLLOW_YAW)) * head[2];
             }
-            for (float[] press : new float[][]{ButtonPress.torsoHint(uuid), BlockUse.torsoHint(uuid), EjectorLaunch.torsoHint(uuid)}) {
+            for (float[] press : new float[][]{ButtonPress.torsoHint(uuid), BlockUse.torsoHint(uuid), EjectorLaunch.torsoHint(uuid), WallSqueeze.torsoHint(uuid)}) {
                 if (press == null) continue;
                 target[0] += press[0];
                 target[1] += press[1];
                 target[2] += press[2];
+                // A hint may also shift the torso, and say how much of its yaw the head stays out of.
+                if (press.length > 3) target[3] += press[3];
+                if (press.length > 4) target[4] += press[4];
             }
             if (EMFCompatConfig.getBoolean(KEY_MOTION, true)) {
                 MotionRuntime.Motion m = MotionRuntime.get(uuid);
@@ -119,7 +123,7 @@ public final class TorsoLean {
         }
         float k = Smoothing.snapFirst(dt, SECONDS);
         float[] lean = entry.value.lean;
-        for (int i = 0; i < 4; i++) lean[i] += (target[i] - lean[i]) * k;
+        for (int i = 0; i < 5; i++) lean[i] += (target[i] - lean[i]) * k;
     }
 
     private static float clamp(float v) {
@@ -139,7 +143,10 @@ public final class TorsoLean {
         carry(body, turn, waist, lean);
         for (String name : CARRIED) {
             ModelPart part = parts.apply(name);
-            if (part != null) carry(part, turn, waist, lean);
+            if (part == null) continue;
+            carry(part, turn, waist, lean);
+            // Turned to fit a gap, the head keeps looking where it looked.
+            if (name.equals("head") || name.equals("hat")) part.yRot -= lean[4];
         }
     }
 

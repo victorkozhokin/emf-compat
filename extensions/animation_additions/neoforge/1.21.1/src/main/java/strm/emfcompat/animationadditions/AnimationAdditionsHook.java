@@ -13,6 +13,7 @@ import strm.emfcompat.animationadditions.ejector.EjectorLaunch;
 import strm.emfcompat.animationadditions.mining.Mining;
 import strm.emfcompat.animationadditions.motion.PoseInertia;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
+import strm.emfcompat.animationadditions.wallhand.WallSqueeze;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.PoseSnapshot;
 import traben.entity_model_features.EMFAnimationApi;
@@ -114,6 +115,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         PoseInertia.apply(uuid, parts, EMFState.getFrameCounter());
         FootGrounding.apply(uuid, parts);
         EjectorLaunch.apply(uuid, parts);
+        WallSqueeze.apply(uuid, parts);
         ButtonPress.apply(uuid, parts);
         BlockUse.apply(uuid, parts);
         HorseFootGrounding.apply(uuid, parts);

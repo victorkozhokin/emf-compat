@@ -19,6 +19,7 @@ import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.animationadditions.motion.MotionRuntime;
 import strm.emfcompat.animationadditions.ejector.EjectorLaunch;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
+import strm.emfcompat.animationadditions.wallhand.WallSqueeze;
 import strm.emfcompat.core.ik.IKFrame;
 
 /**
@@ -48,6 +49,7 @@ public class AnimationAdditionsRenderMixin {
         MotionRuntime.modelPose(player);
         InteractionRuntime.modelPose(player, frame);
         EjectorLaunch.modelPose(player);
+        WallSqueeze.modelPose(player);
         TorsoLean.modelPose(player);
     }
 
