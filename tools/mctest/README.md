@@ -355,7 +355,7 @@ to a connection that never negotiated their channels, and the keep-alive would t
 `ATLAS_WORLD="run/mctest/Test/saves/EMF ATLAS - Animation Campus"` to write the pack into the map
 itself; in game `/reload` and `/function emf_atlas:interactions` adds zone 03's second row (z 2097:
 cauldrons, hive and nest, candle cake, candles, TNT, crafter, enchanting and cartography tables, a
-barrel with what they take) without rebuilding the rest. `/function emf_atlas:create_items` adds zone 04's row (z 2137: depot, item drain, basin, blaze burner, a barrel of items and fuel). `/function emf_atlas:restock` (and the
+barrel with what they take) without rebuilding the rest. `/function emf_atlas:create_items` adds zone 04's row (z 2137: depot, item drain, basin, blaze burner, a barrel of items and fuel; z 2140: the value boxes - speed controller, creative motor, brass funnel, content observer, redstone link). Our own player's interactions are only computed while it is drawn: test them in third person (`camera: back`). `/function emf_atlas:restock` (and the
 button by the row) puts back what a use takes away. A command block under the TNT kills it lit.
 A bot's `"item"` is sent to the clients by the step itself - nothing ticks a bot.
 

@@ -188,9 +188,21 @@ for i,(b,how,more_how) in enumerate(rests):
     restock.append(f'setblock {a} 151 {z+21} air')
     restock.append(f'setblock {a} 151 {z+21} {b}')
     sign(a,151,z+23,[b.split(':')[1].split('[')[0].split('{')[0][:18],how,more_how,'Встань вплотную'])
+# The value boxes: a speed set, a filter or a frequency item put in.
+panels=[('create:rotation_speed_controller[axis=x]','Панель скорости','удерживай ПКМ'),
+ ('create:creative_motor[facing=up]','Панель скорости','удерживай ПКМ'),
+ ('create:brass_funnel[facing=up]','Фильтр: ПКМ','предметом'),
+ ('create:content_observer[facing=south]','Фильтр: ПКМ','предметом'),
+ ('create:redstone_link[facing=up]','Два слота','частоты')]
+for i,(b,how,more_how) in enumerate(panels):
+    a=x+30+i*3
+    block(a,151,z+24,b)
+    restock.append(f'setblock {a} 151 {z+24} air')
+    restock.append(f'setblock {a} 151 {z+24} {b}')
+    sign(a,151,z+26,[b.split(':')[1].split('[')[0][:18],how,more_how,'Смотри на панель'])
 (FUN/'restock.mcfunction').write_text('\n'.join(restock)+'\n')
 button(x+25,z+23,'Восстановить стенды','function emf_atlas:restock')
-chest(x+23,z+19,['iron_ingot 16','create:andesite_alloy 16','oak_planks 16','coal 16','create:blaze_cake 4','water_bucket','bucket','honey_bottle 4','potion[potion_contents={potion:"minecraft:water"}]'],'Предметы / топливо')
+chest(x+23,z+19,['iron_ingot 16','create:andesite_alloy 16','oak_planks 16','coal 16','create:blaze_cake 4','water_bucket','bucket','honey_bottle 4','potion[potion_contents={potion:"minecraft:water"}]','create:wrench','create:filter 4','redstone 16'],'Предметы / топливо')
 (FUN/'create_items.mcfunction').write_text('\n'.join(commands[more:])+'\n')
 chest(x+4,z+36,['create:wrench','create:extendo_grip','create:potato_cannon','potato 64','create:clipboard','create:linked_controller','create:cardboard_helmet','create:cardboard_chestplate','create:cardboard_leggings','create:cardboard_boots','create:super_glue','create:controls','create:track','create:track_station'],'Create / сборка транспорта')
 text(x+13,158,z+27,'CHAIN CONVEYOR','yellow',.8)

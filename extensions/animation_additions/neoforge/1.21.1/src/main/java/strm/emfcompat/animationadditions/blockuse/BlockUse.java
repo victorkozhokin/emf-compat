@@ -62,7 +62,7 @@ public final class BlockUse implements InteractionProvider {
             new CraftingTable(), new Stonecutter(), new Bell(), new FenceGate(), new Cauldron(), new Beehive(),
             new CandleCake(), new Tnt(), new Crafter(), new EnchantingTable(), new CartographyTable(),
             new ItemRest("com.simibubi.create.content.logistics.depot.DepotBlock", "getHeldItem", 13),
-            new ItemDrain(), new Basin(), new BlazeBurner());
+            new ItemDrain(), new Basin(), new BlazeBurner(), new ValuePanel());
 
     /** Below a button press, above doors and chests. */
     private static final int PRIORITY = 8;
@@ -327,12 +327,19 @@ public final class BlockUse implements InteractionProvider {
         }
         BlockPos pos = blockHit.getBlockPos();
         BlockState block = player.level().getBlockState(pos);
+        // The first target of the block's with somewhere for the hand to go; with none, the first
+        // of them is still watched - a use may change the block where the hand was not waiting.
         BlockTarget target = null;
+        BlockTarget.Spot spot = null;
         for (BlockTarget each : TARGETS) {
-            if (each.matches(block)) {
+            if (!each.matches(block)) continue;
+            BlockTarget.Spot at = each.hover(player, pos, block, blockHit);
+            if (at != null) {
                 target = each;
+                spot = at;
                 break;
             }
+            if (target == null) target = each;
         }
         if (target == null) {
             state.pos = null;
@@ -344,7 +351,7 @@ public final class BlockUse implements InteractionProvider {
             state.last = target.snapshot(player, player.level(), pos, block);
         }
         state.target = target;
-        return target.hover(player, pos, block, blockHit);
+        return spot;
     }
 
     /** The limbs balancing the reaching pose. Called after the pack has animated, before the torso. */
