@@ -277,6 +277,30 @@ for i,b in enumerate(['chest','barrel','furnace']): block(x+5+i*5,151,z+27,b)
 animal('pig',x+22,z+27,'NoAI:1b,')
 sign(x+8,151,z+31,['CARRY ON','Свободные руки','Shift + ПКМ','Нести / поставить'])
 chest(x+31,z+29,['supplementaries:flute','supplementaries:slingshot','supplementaries:rope 32','supplementaries:soap','supplementaries:bubble_blower'],'Supplementaries')
+# 07, more: Supplementaries' blocks a hand uses. Also its own function, supplementaries.mcfunction,
+# to add them to a map already built. Wall-mounted ones get a block behind them.
+more=len(commands)
+supp=[[('supplementaries:crank[facing=up]','Крутить: ПКМ',''),('supplementaries:globe[facing=south]','Толкнуть: ПКМ',''),('supplementaries:globe_sepia[facing=south]','Толкнуть: ПКМ',''),
+  ('supplementaries:sconce_lever[facing=south]','Рычаг-бра','WALL'),('supplementaries:item_shelf[facing=south]','Предмет: ПКМ','WALL'),('supplementaries:pedestal','Предмет: ПКМ',''),
+  ('supplementaries:blackboard[facing=south]','Краситель / мел',''),('supplementaries:safe[facing=south]','Открыть: ПКМ',''),('supplementaries:lunch_basket[facing=south]','Крышка / еда',''),
+  ('supplementaries:present_red','Лента: ПКМ',''),('supplementaries:trapped_present','Лента: ПКМ',''),('supplementaries:cage','Предмет / моб',''),
+  ('supplementaries:notice_board[facing=south]','Книга: ПКМ',''),('supplementaries:hourglass[facing=up]','Песок / поворот','')],
+ [('supplementaries:faucet[facing=south]','Вентиль: ПКМ','WALL'),('supplementaries:bellows','Сжать',''),('supplementaries:speaker_block[facing=south]','Панель',''),
+  ('supplementaries:turn_table[facing=up]','Диск',''),('supplementaries:book_pile','Книга: ПКМ',''),('supplementaries:book_pile_horizontal','Книга: ПКМ',''),
+  ('supplementaries:jar','Положить/взять',''),('supplementaries:sack','Горловина',''),('supplementaries:flower_box[facing=south,face=floor]','Цветок: ПКМ',''),
+  ('supplementaries:planter','Растение',''),('supplementaries:cannon','Ядро / порох','')],
+ [('supplementaries:pulley_block','Верёвка: ПКМ',''),('supplementaries:lock_block','Ключ',''),('supplementaries:doormat[facing=south]','Без жеста','')]]
+for row,(a0,c) in enumerate([(x+4,z+22),(x+8,z+34),(x+36,z+29)]):
+    for i,(b,how,wall) in enumerate(supp[row]):
+        a=a0+i*3
+        if wall: block(a,151,c-1,'polished_andesite')
+        block(a,151,c,b)
+        restock.append(f'setblock {a} 151 {c} air')
+        restock.append(f'setblock {a} 151 {c} {b}')
+        sign(a,151,c+2,[b.split(':')[1].split('[')[0][:18],how,'','Стоя и сидя'])
+(FUN/'restock.mcfunction').write_text('\n'.join(restock)+'\n')
+chest(x+28,z+29,['supplementaries:rope 32','supplementaries:key','supplementaries:cannonball 16','gunpowder 16','sand 16','book 16','white_dye 16','black_dye 16','poppy 16','wheat_seeds 16','cookie 16','iron_ingot 16','redstone 16','supplementaries:soap','water_bucket','glass_bottle 16','flint_and_steel'],'Supplementaries: расходники')
+(FUN/'supplementaries.mcfunction').write_text('\n'.join(commands[more:])+'\n')
 # 08 wall/plant/mining/look at.
 x,z=2120,2172
 fill(x+3,151,z+3,x+3,154,z+21,'stone_bricks')
