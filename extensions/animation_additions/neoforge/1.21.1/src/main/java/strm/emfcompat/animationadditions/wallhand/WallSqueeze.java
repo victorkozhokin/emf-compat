@@ -33,7 +33,7 @@ import java.util.function.Function;
  *   first, until it fits, the head still looking where it looked.</li>
  * </ul>
  *
- * <p>Squeezed, the arms are kept close and still: a turned torso swings its arms across the gap,
+ * <p>Squeezed, the arms are kept still, and turned to fit they are held a little out from the torso: a turned torso swings its arms across the gap,
  * into the walls. The legs are inside the box as they are. The torso's part is asked of
  * {@code TorsoLean} ({@link #torsoHint}); any player's, moving or not.</p>
  */
@@ -60,8 +60,8 @@ public final class WallSqueeze {
     /** The turn at most; and in the wall on both sides by this much, pixels, it is all there. */
     private static final float MAX_TURN = (float) Math.toRadians(60), TURN_FULL_AT = 0.5f;
     private static final double SECONDS = 0.12;
-    /** Squeezed, the share of their swing the arms keep, and how far in they are held, radians. */
-    private static final float ARM_SWING_KEPT = 0.2f, ARM_IN = (float) Math.toRadians(4);
+    /** Squeezed, the share of their swing the arms keep; turned to fit, how far out from the torso they are held, radians. */
+    private static final float ARM_SWING_KEPT = 0.2f, ARM_OUT = (float) Math.toRadians(9);
 
     private WallSqueeze() {
     }
@@ -71,6 +71,8 @@ public final class WallSqueeze {
         float turn, lean, shift;
         /** How squeezed the arms are, 0..1, smoothed. */
         float arms;
+        /** How much of that is the turn, 0..1, smoothed: turned, the arms are held a little out, along the gap. */
+        float turned;
         String logged = "off";
     }
 
@@ -110,8 +112,8 @@ public final class WallSqueeze {
             float over = Math.min(inRight, Math.min(spareLeft, MAX_SHIFT + MAX_LEAN_PIXELS))
                     - Math.min(inLeft, Math.min(spareRight, MAX_SHIFT + MAX_LEAN_PIXELS));
             s.shift = Mth.clamp(over, -MAX_SHIFT, MAX_SHIFT);
-            // Leaning to the left is -zRot.
-            s.lean = -(float) Math.asin(Mth.clamp((over - s.shift) / WAIST_TO_SHOULDER, -1f, 1f));
+            // Leaning to the model's left (+x), the shoulders going that way over the waist, is +zRot here.
+            s.lean = (float) Math.asin(Mth.clamp((over - s.shift) / WAIST_TO_SHOULDER, -1f, 1f));
             // What is left in a wall after that: the torso turns to fit, the shoulder at the nearer wall first.
             float left = Math.max(Math.max(0f, inRight - Math.max(0f, over)), Math.max(0f, inLeft - Math.max(0f, -over)));
             if (left > 0.01f) {
@@ -125,6 +127,7 @@ public final class WallSqueeze {
             }
         }
         s.arms += (squeezed - s.arms) * Smoothing.follow(dt, SECONDS);
+        s.turned += ((decided.equals("turn") ? squeezed : 0f) - s.turned) * Smoothing.follow(dt, SECONDS);
         if (!decided.equals(s.logged)) {
             s.logged = decided;
             LOGGER.info("[WallSqueeze] {} {}", player.getName().getString(), decided);
@@ -174,10 +177,10 @@ public final class WallSqueeze {
         for (int i = 0; i < 2; i++) {
             ModelPart arm = parts.apply(i == 0 ? "right_arm" : "left_arm");
             if (arm == null) continue;
-            // In, for a hanging right arm, is -zRot; for a left one +zRot.
-            float in = i == 0 ? -ARM_IN : ARM_IN;
+            // Out, for a hanging right arm, is +zRot; for a left one -zRot. Turned, out is along the gap.
+            float out = (i == 0 ? ARM_OUT : -ARM_OUT) * s.turned;
             arm.xRot = Mth.lerp(s.arms, arm.xRot, arm.xRot * ARM_SWING_KEPT);
-            arm.zRot = Mth.lerp(s.arms, arm.zRot, in);
+            arm.zRot = Mth.lerp(s.arms, arm.zRot, out);
         }
     }
 }
