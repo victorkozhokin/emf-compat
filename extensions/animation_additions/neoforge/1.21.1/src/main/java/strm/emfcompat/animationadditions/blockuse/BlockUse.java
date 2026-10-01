@@ -294,8 +294,9 @@ public final class BlockUse implements InteractionProvider {
                     return;
                 }
                 Vector3f otherModel = frame.relativeToJoint(otherPoint, new Vector3f());
-                if (held == null || fresh || !supported) state.supportGrip.set(otherModel);
-                else state.supportGrip.lerp(otherModel, Smoothing.follow(context.dt(), HELD_GRIP_SECONDS));
+                // As the main hand: straight onto a grip that goes round (a wheel), followed otherwise.
+                if (centre != null || fresh || !supported) state.supportGrip.set(otherModel);
+                else state.supportGrip.lerp(otherModel, Smoothing.follow(context.dt(), held != null ? HELD_GRIP_SECONDS : GRIP_SECONDS));
                 if (state.target instanceof SteeringWheel) {
                     state.lean[2] = WheelGeometry.steeringRoll(
                             right ? state.grip.y : state.supportGrip.y,
