@@ -200,6 +200,15 @@ for i,(b,how,more_how) in enumerate(panels):
     restock.append(f'setblock {a} 151 {z+24} air')
     restock.append(f'setblock {a} 151 {z+24} {b}')
     sign(a,151,z+26,[b.split(':')[1].split('[')[0][:18],how,more_how,'Смотри на панель'])
+# Used sitting: a seat right behind a steering wheel. Controls: the button of contraption controls
+# in the world; a train's controls are held only on an assembled train - the barrel has what one takes.
+block(x+29,151,z+16,'create:white_seat')
+sign(x+31,151,z+16,['СИДЯ','ПКМ по подушке','смотри на руль','удерживай ПКМ'])
+for i,(b,how,more_how) in enumerate([('create:contraption_controls[facing=south]','ПКМ: кнопка','вкл / выкл'),('create:controls[facing=south]','Только на поезде','собери состав')]):
+    a=x+30+i*3
+    block(a,151,z+29,b)
+    sign(a,151,z+31,[b.split(':')[1].split('[')[0][:18],how,more_how,'Стоя и сидя'])
+chest(x+37,z+29,['create:track 64','create:track_station','create:controls 2','create:railway_casing 16','create:white_seat 4','create:super_glue','create:wrench','create:train_door 2','create:contraption_controls 2'],'Поезд: пути / станция')
 (FUN/'restock.mcfunction').write_text('\n'.join(restock)+'\n')
 button(x+25,z+23,'Восстановить стенды','function emf_atlas:restock')
 chest(x+23,z+19,['iron_ingot 16','create:andesite_alloy 16','oak_planks 16','coal 16','create:blaze_cake 4','water_bucket','bucket','honey_bottle 4','potion[potion_contents={potion:"minecraft:water"}]','create:wrench','create:filter 4','redstone 16'],'Предметы / топливо')

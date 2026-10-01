@@ -25,6 +25,7 @@ import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.InteractionContext;
 import strm.emfcompat.animationadditions.interaction.InteractionProvider;
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
+import strm.emfcompat.animationadditions.interaction.Seated;
 import strm.emfcompat.animationadditions.interaction.SubLevels;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
 import strm.emfcompat.core.ConfigRegistry;
@@ -246,7 +247,7 @@ public final class ButtonPress implements InteractionProvider {
             }
             // Past the arm's length the whole body reaches: the torso leans towards the target,
             // forwards and to its side, as far as the reach asks.
-            if (hand.right && EMFCompatConfig.getBoolean(KEY_STRETCH, true)) {
+            if (hand.right && !Seated.seated(player) && EMFCompatConfig.getBoolean(KEY_STRETCH, true)) {
                 float reach = new Vector3f(hand.button).sub(RIGHT_SHOULDER).length() / ARM;
                 stretchTarget = ReachPose.weight(reach);
                 ReachPose.lean(hand.button, stretchTarget, state.lean);
@@ -265,7 +266,7 @@ public final class ButtonPress implements InteractionProvider {
     }
 
     private static String ineligible(AbstractClientPlayer player) {
-        if (!player.onGround() || player.isPassenger() || player.isSleeping()
+        if (!Seated.steady(player) || player.isSleeping()
                 || player.isInWaterOrBubble()) return "off:state";
         if (player.getPose() != Pose.STANDING && player.getPose() != Pose.CROUCHING) return "off:pose";
         if (Math.hypot(player.getX() - player.xo, player.getZ() - player.zo) > SLOW_BELOW) return "off:moving";
@@ -483,7 +484,7 @@ public final class ButtonPress implements InteractionProvider {
      */
     private static Foot foot(AbstractClientPlayer player, IKFrame frame, BlockPos pos, BlockState block, Boolean keep) {
         if (!(block.getBlock() instanceof ButtonBlock) || block.getValue(ButtonBlock.FACE) != AttachFace.FLOOR) return null;
-        if (player.getPose() != Pose.STANDING) return null;
+        if (player.getPose() != Pose.STANDING || Seated.seated(player)) return null;
         Level level = player.level();
         SubLevels.Space space = SubLevels.at(level, pos);
         // On the floor the player stands on: a craft's deck is as high as it is drawn.

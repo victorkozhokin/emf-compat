@@ -25,6 +25,7 @@ import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.InteractionContext;
 import strm.emfcompat.animationadditions.interaction.InteractionProvider;
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
+import strm.emfcompat.animationadditions.interaction.Seated;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
@@ -62,7 +63,7 @@ public final class BlockUse implements InteractionProvider {
             new CraftingTable(), new Stonecutter(), new Bell(), new FenceGate(), new Cauldron(), new Beehive(),
             new CandleCake(), new Tnt(), new Crafter(), new EnchantingTable(), new CartographyTable(),
             new ItemRest("com.simibubi.create.content.logistics.depot.DepotBlock", "getHeldItem", 13),
-            new ItemDrain(), new Basin(), new BlazeBurner(), new ValuePanel());
+            new ItemDrain(), new Basin(), new BlazeBurner(), new ContraptionControls(), new ValuePanel());
 
     /** Below a button press, above doors and chests. */
     private static final int PRIORITY = 8;
@@ -157,7 +158,9 @@ public final class BlockUse implements InteractionProvider {
         state.crouching = player.getPose() == Pose.CROUCHING;
         float stretchTarget = 0f;
         try {
-            if (!player.onGround() || player.isPassenger() || player.isSleeping() || player.isInWaterOrBubble()
+            // On a seat the hands use what is in front of them as standing; the body stays seated.
+            boolean seated = Seated.seated(player);
+            if (!Seated.steady(player) || player.isSleeping() || player.isInWaterOrBubble()
                     || (player.getPose() != Pose.STANDING && player.getPose() != Pose.CROUCHING)) {
                 state.pos = null;
                 state.gesture = null;
@@ -182,7 +185,15 @@ public final class BlockUse implements InteractionProvider {
 
             BlockTarget.Spot spot;
             float outwards;
-            if (state.gesture != null) {
+            // Driving with a train's controls: the hands are on its levers, looked at or not.
+            TrainControls.Grips held = TrainControls.held(player);
+            if (held != null) {
+                state.gesture = null;
+                state.pos = null;
+                state.target = TrainControls.TARGET;
+                spot = held.main();
+                outwards = 0f;
+            } else if (state.gesture != null) {
                 spot = state.gesture.spot();
                 float s = (float) Math.sin(Math.PI * t);
                 switch (state.gesture.motion()) {
@@ -227,7 +238,7 @@ public final class BlockUse implements InteractionProvider {
             if (centre != null) centre = space.toWorld(centre);
             Vector3f postureTarget = centre == null ? model : frame.relativeToJoint(centre.add(0, 7 / 16.0, 0), new Vector3f());
             state.overhead = postureTarget.y < shoulder.y;
-            if (state.target != null && state.target.reachPose() && state.crouching) {
+            if (state.target != null && state.target.reachPose() && state.crouching && !seated) {
                 standUp = ReachEnvelope.upright(postureTarget.x - shoulder.x,
                         postureTarget.y - shoulder.y, postureTarget.z - shoulder.z, ARM);
             }
@@ -246,7 +257,7 @@ public final class BlockUse implements InteractionProvider {
                 state.lean[0] = Mth.clamp((-off.z + 0.5f * off.y) * k, -1f, 1f) * SWAY_PITCH;
                 state.lean[1] = Mth.clamp(-off.x * k, -1f, 1f) * SWAY_YAW;
             }
-            if (state.target != null && state.target.balancesReach() && EMFCompatConfig.getBoolean(ButtonPress.KEY_STRETCH, true)) {
+            if (state.target != null && state.target.balancesReach() && !seated && EMFCompatConfig.getBoolean(ButtonPress.KEY_STRETCH, true)) {
                 // Past the arm's length the whole body reaches, as for a lever.
                 Vector3f reachTarget = centre == null ? model : frame.relativeToJoint(centre, new Vector3f());
                 stretchTarget = ReachPose.weight(new Vector3f(reachTarget).sub(shoulder).length() / ARM) * (1f - standUp);
@@ -254,11 +265,12 @@ public final class BlockUse implements InteractionProvider {
                 // The pack already folds the crouching torso: do not add another full floor reach.
                 if (state.crouching) state.lean[0] = Math.min(state.lean[0], (float) Math.toRadians(20));
             }
-            BlockTarget.Spot support = state.target.supportHand(player, state.pos, player.level().getBlockState(state.pos));
-            if (support != null) support = inWorld(space, support);
+            BlockTarget.Spot support = held != null ? held.support()
+                    : state.target.supportHand(player, state.pos, player.level().getBlockState(state.pos));
+            if (support != null && held == null) support = inWorld(space, support);
             state.support = support != null;
             if (support != null) {
-                Vec3 otherPoint = support.point().add(support.out().scale(HOVER_OUT / 16.0));
+                Vec3 otherPoint = support.point().add(support.out().scale((held != null ? 0f : HOVER_OUT) / 16.0));
                 IKResult other = OneBoneIK.solveXY(frame, right ? LEFT_SHOULDER : RIGHT_SHOULDER, otherPoint, ARM, 0f, 0f);
                 if (other == null || other.reach() > MAX_REACH) {
                     context.decide("support-out-of-reach");
