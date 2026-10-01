@@ -302,7 +302,7 @@ for row,(a0,c) in enumerate([(x+4,z+22),(x+8,z+34),(x+36,z+29)]):
         restock.append(f'setblock {a} {y} {c} {b}')
         sign(a,151,c+2,[b.split(':')[1].split('[')[0][:18],how,'','Стоя и сидя'])
 (FUN/'restock.mcfunction').write_text('\n'.join(restock)+'\n')
-chest(x+28,z+29,['supplementaries:rope 32','supplementaries:key','supplementaries:cannonball 16','gunpowder 16','sand 16','book 16','white_dye 16','black_dye 16','poppy 16','wheat_seeds 16','cookie 16','iron_ingot 16','redstone 16','supplementaries:soap','water_bucket','glass_bottle 16','flint_and_steel'],'Supplementaries: расходники')
+chest(x+28,z+29,['supplementaries:rope 32','supplementaries:key','supplementaries:cannonball 16','gunpowder 16','sand 16','book 16','white_dye 16','black_dye 16','poppy 16','rose_bush 16','wheat_seeds 16','cookie 16','iron_ingot 16','redstone 16','supplementaries:soap','water_bucket','glass_bottle 16','flint_and_steel'],'Supplementaries: расходники')
 (FUN/'supplementaries.mcfunction').write_text('\n'.join(commands[more:])+'\n')
 # 08 wall/plant/mining/look at.
 x,z=2120,2172

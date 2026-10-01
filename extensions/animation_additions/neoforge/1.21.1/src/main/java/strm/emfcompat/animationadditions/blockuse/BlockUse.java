@@ -70,16 +70,15 @@ public final class BlockUse implements InteractionProvider {
             ItemRest.front("com.simibubi.create.content.kinetics.deployer.DeployerBlock", "heldItem"),
             ItemRest.front("com.simibubi.create.content.logistics.packager.PackagerBlock", "heldBox"),
             new ItemRest("com.simibubi.create.content.logistics.packagePort.frogport.FrogportBlock", "inventory", 12),
-            ItemRest.front("dev.simulated_team.simulated.content.blocks.nav_table.NavTableBlock", "getHeldItem"),
+            ItemRest.table("dev.simulated_team.simulated.content.blocks.nav_table.NavTableBlock", "getHeldItem"),
             ItemRest.front("dev.eriksonn.aeronautics.content.blocks.mounted_potato_cannon.MountedPotatoCannonBlock", "getInventory"),
             new Typewriter(),
-            new SuppCrank(), new BookPile(), new Globe(), new Blackboard(),
+            new SuppCrank(), new BookPile(), new Globe(), new Blackboard(), new SconceLever(), new Safe(), new FlowerBox(),
             ItemRest.inside(SUPPLEMENTARIES + "ItemShelfBlock", "", 5),
             new ItemRest(SUPPLEMENTARIES + "PedestalBlock", "", 17),
             new ItemRest(SUPPLEMENTARIES + "JarBlock", "", 14),
-            ItemRest.front(SUPPLEMENTARIES + "HourGlassBlock", ""),
+            ItemRest.upright(SUPPLEMENTARIES + "HourGlassBlock", "", 16, 12),
             ItemRest.front(SUPPLEMENTARIES + "NoticeBoardBlock", ""),
-            new ItemRest(SUPPLEMENTARIES + "FlowerBoxBlock", "", 8),
             // The two for whatever is left of a block, in this order: its value boxes, then anywhere on it.
             new ValuePanel(), new Panel());
 

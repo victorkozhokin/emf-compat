@@ -4,19 +4,23 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.IItemHandler;
+import strm.emfcompat.animationadditions.interaction.SubLevels;
 
 /**
  * A block of a mod's that items are put on or into by hand and taken back - Create's depot,
  * mechanical crafter, deployer, packager, frogport; Simulated's navigation table; Aeronautics'
  * mounted potato cannon; Supplementaries' item shelf, pedestal, jar, hourglass, notice board,
  * flower box: with something in the hand, or something in the block, the hand goes to
- * where the item goes - the top, or the side the block faces; the item put there, the hand puts
+ * where the item goes - the top, or the side the block faces (on a table that faces up both
+ * hands wait on its edges); the item put there, the hand puts
  * it; taken, it takes it. Optional: the block and what it holds are found by name (a method or a
  * field giving an {@code ItemStack} or an item handler; with none named, the block entity itself,
  * a container), and what it holds is every client's to
@@ -34,6 +38,13 @@ final class ItemRest implements BlockTarget {
     private final double top;
     /** On the side the block faces: how far in from that side the item is, pixels. */
     private final double inset;
+    /** The top the item lies on when the block is on its side (faces along the ground), pixels; negative when it is the same. */
+    private final double lying;
+    /** Whether the other hand is on the edge of the block's top while it faces up - a table. */
+    private final boolean edge;
+
+    /** A hand on a table's edge: blocks to its side and towards the player off the middle, and pixels up. */
+    private static final double EDGE_SIDE = 7.5 / 16.0, EDGE_NEAR = 3 / 16.0, EDGE_TOP = 13;
 
     /** What the block holds, what the player held, and the arm's swing. */
     private record Seen(BlockState block, String item, int count, String hand, boolean swinging, int swingTime) {
@@ -41,24 +52,36 @@ final class ItemRest implements BlockTarget {
 
     /** Where the item goes is the block's top, {@code top} pixels up. */
     ItemRest(String blockClass, String accessor, double top) {
-        this(blockClass, accessor, top, 0);
+        this(blockClass, accessor, top, 0, -1, false);
     }
 
-    private ItemRest(String blockClass, String accessor, double top, double inset) {
+    private ItemRest(String blockClass, String accessor, double top, double inset, double lying, boolean edge) {
         this.blockClass = blockClass;
         this.held = accessor.isEmpty() ? null : new ModAccess(accessor);
         this.top = top;
         this.inset = inset;
+        this.lying = lying;
+        this.edge = edge;
     }
 
     /** Where the item goes is the side the block faces (its {@code facing}). */
     static ItemRest front(String blockClass, String accessor) {
-        return new ItemRest(blockClass, accessor, -1);
+        return new ItemRest(blockClass, accessor, -1, 0, -1, false);
+    }
+
+    /** {@link #front}, and with the block facing up the hands wait on the edges of its top - a table. */
+    static ItemRest table(String blockClass, String accessor) {
+        return new ItemRest(blockClass, accessor, -1, 0, -1, true);
+    }
+
+    /** Where the item goes is the top: {@code standing} pixels up with the block upright, {@code lying} on its side - an hourglass. */
+    static ItemRest upright(String blockClass, String accessor, double standing, double lying) {
+        return new ItemRest(blockClass, accessor, standing, 0, lying, false);
     }
 
     /** Where the item goes is {@code inset} pixels in from the side the block faces - a shelf on a wall. */
     static ItemRest inside(String blockClass, String accessor, double inset) {
-        return new ItemRest(blockClass, accessor, -1, inset);
+        return new ItemRest(blockClass, accessor, -1, inset, -1, false);
     }
 
     @Override
@@ -68,7 +91,28 @@ final class ItemRest implements BlockTarget {
 
     @Override
     public Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit) {
-        return player.getMainHandItem().isEmpty() && count(player.level(), pos) == 0 ? null : rest(pos, block);
+        if (player.getMainHandItem().isEmpty() && count(player.level(), pos) == 0) return null;
+        // At a table both hands wait on its edges; the one that puts or takes goes to the item then.
+        Spot onEdge = edge(player, pos, block, true);
+        return onEdge != null ? onEdge : rest(pos, block);
+    }
+
+    @Override
+    public Spot supportHand(AbstractClientPlayer player, BlockPos pos, BlockState block) {
+        return edge(player, pos, block, false);
+    }
+
+    /** A hand's place on the edge of a table that faces up - the main hand's side or the other; {@code null} for no table. */
+    private Spot edge(AbstractClientPlayer player, BlockPos pos, BlockState block, boolean main) {
+        if (!edge || facing(block) != Direction.UP) return null;
+        Vec3 to = SubLevels.at(player.level(), pos).toLocal(player.position()).subtract(Vec3.atCenterOf(pos));
+        Vec3 toPlayer = new Vec3(to.x, 0, to.z);
+        toPlayer = toPlayer.lengthSqr() < 1e-6 ? new Vec3(0, 0, 1) : toPlayer.normalize();
+        // The player's right, facing the table.
+        Vec3 right = new Vec3(toPlayer.z, 0, -toPlayer.x);
+        double side = (player.getMainArm() == HumanoidArm.RIGHT) == main ? EDGE_SIDE : -EDGE_SIDE;
+        return new Spot(new Vec3(pos.getX() + 0.5, pos.getY() + EDGE_TOP / 16, pos.getZ() + 0.5)
+                .add(right.scale(side)).add(toPlayer.scale(EDGE_NEAR)), Spots.UP);
     }
 
     @Override
@@ -129,10 +173,15 @@ final class ItemRest implements BlockTarget {
     }
 
     private Spot rest(BlockPos pos, BlockState block) {
-        if (top >= 0) return Spots.top(pos, 8, top, 8);
-        Property<?> facing = block.getBlock().getStateDefinition().getProperty("facing");
-        Direction side = facing != null && block.getValue(facing) instanceof Direction d ? d : Direction.UP;
+        Direction side = facing(block);
+        if (top >= 0) return Spots.top(pos, 8, lying >= 0 && side.getAxis().isHorizontal() ? lying : top, 8);
         Spot spot = Spots.side(pos, side, 0.5);
         return inset == 0 ? spot : new Spot(spot.point().subtract(spot.out().scale(inset / 16)), spot.out());
+    }
+
+    /** The way the block faces; up with no {@code facing}. */
+    private static Direction facing(BlockState block) {
+        Property<?> facing = block.getBlock().getStateDefinition().getProperty("facing");
+        return facing != null && block.getValue(facing) instanceof Direction d ? d : Direction.UP;
     }
 }
