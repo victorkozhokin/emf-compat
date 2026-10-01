@@ -3,6 +3,7 @@ package strm.emfcompat.animationadditions.ejector;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -35,10 +36,12 @@ public final class EjectorLid {
     private EjectorLid() {
     }
 
-    /** A floor probe's hit, lifted onto the lid when it fell on an ejector whose lid is up; the hit itself otherwise. */
-    public static Vec3 onLid(Level level, BlockHitResult hit) {
+    /** A floor probe's hit, lifted onto the lid when it fell on an ejector beside the one who stands, its lid up; the hit itself otherwise. */
+    public static Vec3 onLid(Entity standing, BlockHitResult hit) {
         Vec3 at = hit.getLocation();
-        double y = topAt(level, hit.getBlockPos(), at.x, at.z);
+        // The ejector stood on is not a step beside the feet: the whole body goes up onto its lid ({@link #over}).
+        if (hit.getBlockPos().equals(BlockPos.containing(standing.getX(), standing.getY() - 0.01, standing.getZ()))) return at;
+        double y = topAt(standing.level(), hit.getBlockPos(), at.x, at.z);
         return y > at.y ? new Vec3(at.x, y, at.z) : at;
     }
 

@@ -41,6 +41,7 @@ public class AnimationAdditionsRenderMixin {
         }
         if (!(entity instanceof AbstractClientPlayer player)) return;
         emfcompat$quietSwing(player);
+        EjectorLaunch.crouch(player, ((LivingEntityRenderer<?, ?>) (Object) this).getModel(), stack);
         FootGrounding.modelPose(player, stack);
         IKFrame frame = IKFrame.capture(stack.last().pose(),
                 Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());

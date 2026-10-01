@@ -20,7 +20,8 @@ import java.util.function.Function;
 
 /**
  * Create's weighted ejector under a player. Standing on its lid - it is winding up, or the player
- * sneaks, which keeps it from firing - the body braces: the torso forwards, the arms back, the feet a little apart. Fired,
+ * sneaks, which keeps it from firing - the body braces: it is drawn crouching, sneaking or not,
+ * the arms back, the feet a little apart. Fired,
  * it throws the player: going up the arms are flung overhead and the legs trail, coming down the
  * arms go out to the sides and the legs apart, until the player lands.
  *
@@ -48,7 +49,7 @@ public final class EjectorLaunch {
     /** The speed up or down, blocks a second, at which the pose is all going up or all coming down. */
     private static final float FULL_RISE = 6f;
 
-    private static final float BRACE_TORSO = rad(14), BRACE_ARM_BACK = rad(35), BRACE_ARM_OUT = rad(10), BRACE_LEG_OUT = rad(9);
+    private static final float BRACE_ARM_BACK = rad(35), BRACE_ARM_OUT = rad(10), BRACE_LEG_OUT = rad(9);
     private static final float UP_TORSO = rad(-6), UP_ARM = rad(-165), UP_ARM_OUT = rad(12), UP_LEG = rad(12);
     private static final float DOWN_TORSO = rad(10), DOWN_ARM = rad(-30), DOWN_ARM_OUT = rad(75);
     private static final float DOWN_LEG = rad(15), DOWN_LEG_OUT = rad(8);
@@ -60,7 +61,7 @@ public final class EjectorLaunch {
         /** The ejector last stood on, and when. */
         BlockPos lid;
         long lidAt;
-        boolean thrown;
+        boolean thrown, braced;
         long thrownAt;
         /** As shown, smoothed: the brace, the thrown pose, going up (1) to coming down (-1). */
         float brace, flight, rise;
@@ -101,6 +102,7 @@ public final class EjectorLaunch {
             if (!on || !free || since > LONGEST_SECONDS || (player.onGround() && since > TAKE_OFF_SECONDS)) s.thrown = false;
         }
         boolean braced = lid != null && player.onGround() && !s.thrown;
+        s.braced = braced;
 
         s.brace += ((braced ? 1f : 0f) - s.brace) * Smoothing.follow(dt, BRACE_SECONDS);
         s.flight += ((s.thrown ? 1f : 0f) - s.flight) * Smoothing.follow(dt, s.thrown ? FLIGHT_IN : FLIGHT_OUT);
@@ -113,6 +115,24 @@ public final class EjectorLaunch {
             s.logged = phase;
             LOGGER.info("[Ejector] {} {}", player.getName().getString(), phase);
         }
+    }
+
+    /** The vanilla crouch drops the render by an eighth of a block, and packs count on it: model units (y down, 16 px). */
+    private static final float CROUCH_DROP = 0.125f / 0.9375f;
+
+    /**
+     * Braced on the lid the player is drawn crouching, sneaking or not: the model is told it
+     * crouches, so the pack plays its own crouch, and the render is dropped as a crouch drops it.
+     * Called before the model is animated and before anything measures from the pose stack; goes by
+     * the last frame's brace.
+     */
+    public static void crouch(AbstractClientPlayer player, net.minecraft.client.model.EntityModel<?> model,
+                              com.mojang.blaze3d.vertex.PoseStack stack) {
+        State s = STATES.fresh(player.getUUID());
+        if (s == null || !s.braced || player.isCrouching()) return;
+        if (!(model instanceof net.minecraft.client.model.HumanoidModel<?> humanoid) || humanoid.crouching) return;
+        humanoid.crouching = true;
+        stack.translate(0f, CROUCH_DROP, 0f);
     }
 
     /** The ejector the player stands in or on; {@code null} for none. Its lid is inside its block. */
@@ -136,7 +156,8 @@ public final class EjectorLaunch {
         State s = STATES.fresh(uuid);
         if (s == null || s.brace < 1e-3f && s.flight < 1e-3f) return null;
         float up = s.rise * 0.5f + 0.5f;
-        return new float[]{s.brace * BRACE_TORSO + s.flight * Mth.lerp(up, DOWN_TORSO, UP_TORSO), 0f, 0f};
+        // Braced, the torso's lean is the crouch's own.
+        return new float[]{s.flight * Mth.lerp(up, DOWN_TORSO, UP_TORSO), 0f, 0f};
     }
 
     /** The arms and the legs. Called after the pack has animated, before the torso and the hands' aims. */

@@ -549,7 +549,7 @@ public final class FootGrounding {
             if (hit.getType() == HitResult.Type.MISS || hit.getDirection() != Direction.UP) continue;
             if (hit.isInside() || hit.getLocation().y >= foot.y + RAY_UP - 0.01) continue;
             // The floor as drawn: an ejector's lid is up over its box while its spring winds.
-            Vec3 floor = EjectorLid.onLid(player.level(), hit);
+            Vec3 floor = EjectorLid.onLid(player, hit);
             if (best == null || floor.y > best.y) best = floor;
         }
         Vec3 ground = frame.jointWorld(new Vector3f(hip).add(0f, LEG, 0f));
@@ -616,7 +616,7 @@ public final class FootGrounding {
             // A ray that starts inside a block (a wall ahead) hits right where it starts.
             if (hit.isInside() || hit.getLocation().y >= foot.y + RAY_UP - 0.01) continue;
             // The floor as drawn: an ejector's lid is up over its box while its spring winds.
-            Vec3 floor = EjectorLid.onLid(player.level(), hit);
+            Vec3 floor = EjectorLid.onLid(player, hit);
             if (best == null || floor.y > best.y) best = floor;
         }
         if (best == null) return (float) (RAY_DOWN * 16);
