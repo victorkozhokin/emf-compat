@@ -20,7 +20,7 @@ import java.util.function.Function;
 
 /**
  * Create's weighted ejector under a player. Standing on its lid - it is winding up, or the player
- * sneaks, which keeps it from firing - the body braces: the torso forwards, the arms back. Fired,
+ * sneaks, which keeps it from firing - the body braces: the torso forwards, the arms back, the feet a little apart. Fired,
  * it throws the player: going up the arms are flung overhead and the legs trail, coming down the
  * arms go out to the sides and the legs apart, until the player lands.
  *
@@ -48,7 +48,7 @@ public final class EjectorLaunch {
     /** The speed up or down, blocks a second, at which the pose is all going up or all coming down. */
     private static final float FULL_RISE = 6f;
 
-    private static final float BRACE_TORSO = rad(14), BRACE_ARM_BACK = rad(35), BRACE_ARM_OUT = rad(10);
+    private static final float BRACE_TORSO = rad(14), BRACE_ARM_BACK = rad(35), BRACE_ARM_OUT = rad(10), BRACE_LEG_OUT = rad(9);
     private static final float UP_TORSO = rad(-6), UP_ARM = rad(-165), UP_ARM_OUT = rad(12), UP_LEG = rad(12);
     private static final float DOWN_TORSO = rad(10), DOWN_ARM = rad(-30), DOWN_ARM_OUT = rad(75);
     private static final float DOWN_LEG = rad(15), DOWN_LEG_OUT = rad(8);
@@ -154,6 +154,8 @@ public final class EjectorLaunch {
             }
             ModelPart leg = parts.apply(i == 0 ? "right_leg" : "left_leg");
             // Coming down the legs are apart, one ahead and one behind; going up both trail.
+            // Braced, the feet are set a little apart, on top of whatever the pack does with the legs.
+            if (leg != null) leg.zRot += side * BRACE_LEG_OUT * s.brace;
             if (leg != null) blend(leg, Mth.lerp(up, side * DOWN_LEG, UP_LEG), side * Mth.lerp(up, DOWN_LEG_OUT, 0f), s.flight);
         }
     }
