@@ -209,9 +209,24 @@ for i,(b,how,more_how) in enumerate([('create:contraption_controls[facing=south]
     block(a,151,z+29,b)
     sign(a,151,z+31,[b.split(':')[1].split('[')[0][:18],how,more_how,'Стоя и сидя'])
 chest(x+37,z+29,['create:track 64','create:track_station','create:controls 2','create:railway_casing 16','create:white_seat 4','create:super_glue','create:wrench','create:train_door 2','create:contraption_controls 2'],'Поезд: пути / станция')
+# The rest of Create and Aeronautics a hand uses: items put in and taken, panels and screens, the typewriter.
+machines=[[('create:mechanical_crafter[facing=south]','Предмет: ПКМ','пустой: забрать'),('create:deployer[facing=south]','Предмет в руку','механизма'),
+  ('create:packager[facing=south]','Посылка','положить/взять'),('create:package_frogport','Посылка: ПКМ',''),('create:white_postbox[facing=south]','ПКМ: окно',''),
+  ('create:weighted_ejector[facing=south]','Предмет: ПКМ','')],
+ [('create:sequenced_gearshift','ПКМ: окно',''),('create:display_link[facing=up]','ПКМ: окно',''),('create:stock_ticker[facing=south]','ПКМ: окно',''),
+  ('create:redstone_requester','ПКМ: окно',''),('create:mechanical_bearing[facing=up]','Пустой рукой','сборка'),('create:mechanical_arm','Режим: панель',''),
+  ('simulated:linked_typewriter[facing=south]','Обе руки','на клавишах'),('simulated:navigation_table[facing=up]','Предмет цели','ПКМ'),
+  ('simulated:rope_winch','ПКМ',''),('aeronautics:mounted_potato_cannon[facing=south]','Картофель: ПКМ',''),('aeronautics:adjustable_burner','ПКМ / панель','')]]
+for row,(a0,c) in enumerate([(x+23,z+33),(x+8,z+37)]):
+    for i,(b,how,more_how) in enumerate(machines[row]):
+        a=a0+i*3
+        block(a,151,c,b)
+        restock.append(f'setblock {a} 151 {c} air')
+        restock.append(f'setblock {a} 151 {c} {b}')
+        sign(a,151,c+2,[b.split(':')[1].split('[')[0][:18],how,more_how,'Стоя и сидя'])
 (FUN/'restock.mcfunction').write_text('\n'.join(restock)+'\n')
 button(x+25,z+23,'Восстановить стенды','function emf_atlas:restock')
-chest(x+23,z+19,['iron_ingot 16','create:andesite_alloy 16','oak_planks 16','coal 16','create:blaze_cake 4','water_bucket','bucket','honey_bottle 4','potion[potion_contents={potion:"minecraft:water"}]','create:wrench','create:filter 4','redstone 16'],'Предметы / топливо')
+chest(x+23,z+19,['iron_ingot 16','create:andesite_alloy 16','oak_planks 16','coal 16','create:blaze_cake 4','water_bucket','bucket','honey_bottle 4','potion[potion_contents={potion:"minecraft:water"}]','create:wrench','create:filter 4','redstone 16','potato 32','compass','create:cardboard_package_10x12','supplementaries:rope 16'],'Предметы / топливо')
 (FUN/'create_items.mcfunction').write_text('\n'.join(commands[more:])+'\n')
 chest(x+4,z+36,['create:wrench','create:extendo_grip','create:potato_cannon','potato 64','create:clipboard','create:linked_controller','create:cardboard_helmet','create:cardboard_chestplate','create:cardboard_leggings','create:cardboard_boots','create:super_glue','create:controls','create:track','create:track_station'],'Create / сборка транспорта')
 text(x+13,158,z+27,'CHAIN CONVEYOR','yellow',.8)

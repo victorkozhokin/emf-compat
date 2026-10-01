@@ -39,9 +39,9 @@ import java.util.UUID;
  * <p>Optional and by name all through: a block entity that is a {@code SmartBlockEntity}, its
  * behaviours that are a {@code ValueSettingsBehaviour} (their {@code getSlotPositioning()} is where
  * the box is, {@code getValueSettings()} and {@code getFilter()} what it holds) or a
- * {@code LinkBehaviour}. All of that is every client's to see, so this is any player's. The last
- * of the targets: a block with a gesture of its own keeps it, and has its boxes when that gesture
- * has nowhere for the hand to go.</p>
+ * {@code LinkBehaviour}. All of that is every client's to see, so this is any player's. After
+ * the targets of single blocks: a block with a gesture of its own keeps it, and has its boxes when
+ * that gesture has nowhere for the hand to go.</p>
  */
 final class ValuePanel implements BlockTarget {
 
@@ -210,13 +210,8 @@ final class ValuePanel implements BlockTarget {
         return is(type, LINK) ? Kind.LINK : is(type, SETTINGS) ? Kind.SETTINGS : Kind.NONE;
     }
 
-    /** Whether {@code type} is, extends or implements the class named. */
     private static boolean is(Class<?> type, String name) {
-        for (Class<?> c = type; c != null; c = c.getSuperclass()) {
-            if (c.getName().equals(name)) return true;
-            for (Class<?> i : c.getInterfaces()) if (is(i, name)) return true;
-        }
-        return false;
+        return ModAccess.is(type, name);
     }
 
     /** Calls {@code name(types...)}: {@code spec} is the argument types and values, in pairs. {@code null} when it cannot be. */

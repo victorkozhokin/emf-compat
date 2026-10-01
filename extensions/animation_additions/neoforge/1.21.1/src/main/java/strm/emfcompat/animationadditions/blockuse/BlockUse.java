@@ -63,7 +63,16 @@ public final class BlockUse implements InteractionProvider {
             new CraftingTable(), new Stonecutter(), new Bell(), new FenceGate(), new Cauldron(), new Beehive(),
             new CandleCake(), new Tnt(), new Crafter(), new EnchantingTable(), new CartographyTable(),
             new ItemRest("com.simibubi.create.content.logistics.depot.DepotBlock", "getHeldItem", 13),
-            new ItemDrain(), new Basin(), new BlazeBurner(), new ContraptionControls(), new ValuePanel());
+            new ItemDrain(), new Basin(), new BlazeBurner(), new ContraptionControls(),
+            ItemRest.front("com.simibubi.create.content.kinetics.crafter.MechanicalCrafterBlock", "getInventory"),
+            ItemRest.front("com.simibubi.create.content.kinetics.deployer.DeployerBlock", "heldItem"),
+            ItemRest.front("com.simibubi.create.content.logistics.packager.PackagerBlock", "heldBox"),
+            new ItemRest("com.simibubi.create.content.logistics.packagePort.frogport.FrogportBlock", "inventory", 12),
+            ItemRest.front("dev.simulated_team.simulated.content.blocks.nav_table.NavTableBlock", "getHeldItem"),
+            ItemRest.front("dev.eriksonn.aeronautics.content.blocks.mounted_potato_cannon.MountedPotatoCannonBlock", "getInventory"),
+            new Typewriter(),
+            // The two for whatever is left of a block, in this order: its value boxes, then anywhere on it.
+            new ValuePanel(), new Panel());
 
     /** Below a button press, above doors and chests. */
     private static final int PRIORITY = 8;
