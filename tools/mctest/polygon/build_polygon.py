@@ -283,7 +283,7 @@ more=len(commands)
 # R: used at the height of the hands - on a block; W: on a wall - a block behind it.
 supp=[[('supplementaries:crank[facing=up]','Крутить: ПКМ','R'),('supplementaries:globe[facing=south]','Толкнуть: ПКМ','R'),('supplementaries:globe_sepia[facing=south]','Толкнуть: ПКМ','R'),
   ('supplementaries:sconce_lever[facing=south]','Рычаг-бра','RW'),('supplementaries:item_shelf[facing=south]','Предмет: ПКМ','RW'),('supplementaries:pedestal','Предмет: ПКМ',''),
-  ('supplementaries:blackboard[facing=south]','Краситель / мел','R'),('supplementaries:safe[facing=south]','Открыть: ПКМ',''),('supplementaries:lunch_basket[facing=south]','Крышка / еда','R'),
+  ('supplementaries:blackboard[facing=south]','Краситель / мел','RW'),('supplementaries:safe[facing=south]','Открыть: ПКМ',''),('supplementaries:lunch_basket[facing=south]','Крышка / еда','R'),
   ('supplementaries:present_red','Лента: ПКМ',''),('supplementaries:trapped_present','Лента: ПКМ',''),('supplementaries:cage','Предмет / моб','R'),
   ('supplementaries:notice_board[facing=south]','Книга: ПКМ','R'),('supplementaries:hourglass[facing=up]','Песок / поворот','R')],
  [('supplementaries:faucet[facing=south]','Вентиль: ПКМ','RW'),('supplementaries:bellows','Сжать',''),('supplementaries:speaker_block[facing=south]','Панель','R'),
