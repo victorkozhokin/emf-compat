@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import strm.emfcompat.animationadditions.blockuse.ModAccess;
+import strm.emfcompat.animationadditions.buttonpress.ReachPose;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
 import strm.emfcompat.animationadditions.motion.MotionRuntime;
@@ -49,6 +50,8 @@ public final class EjectorLaunch {
     /** The speed up or down, blocks a second, at which the pose is all going up or all coming down. */
     private static final float FULL_RISE = 6f;
 
+    /** How far the drawn crouch is straightened, of {@code ReachPose.upright}'s all. */
+    private static final float DRAWN_UPRIGHT = 0.6f;
     private static final float BRACE_ARM_BACK = rad(35), BRACE_ARM_OUT = rad(10), BRACE_LEG_OUT = rad(9);
     private static final float UP_TORSO = rad(-6), UP_ARM = rad(-165), UP_ARM_OUT = rad(12), UP_LEG = rad(12);
     private static final float DOWN_TORSO = rad(10), DOWN_ARM = rad(-30), DOWN_ARM_OUT = rad(75);
@@ -65,6 +68,8 @@ public final class EjectorLaunch {
         long thrownAt;
         /** As shown, smoothed: the brace, the thrown pose, going up (1) to coming down (-1). */
         float brace, flight, rise;
+        /** How much of the brace is the crouch drawn for a player who does not sneak, smoothed. */
+        float drawn;
         String logged = "";
     }
 
@@ -105,6 +110,7 @@ public final class EjectorLaunch {
         s.braced = braced;
 
         s.brace += ((braced ? 1f : 0f) - s.brace) * Smoothing.follow(dt, BRACE_SECONDS);
+        s.drawn += ((braced && !player.isCrouching() ? 1f : 0f) - s.drawn) * Smoothing.follow(dt, BRACE_SECONDS);
         s.flight += ((s.thrown ? 1f : 0f) - s.flight) * Smoothing.follow(dt, s.thrown ? FLIGHT_IN : FLIGHT_OUT);
         float rise = s.thrown ? Mth.clamp(motion.vertical() / FULL_RISE, -1f, 1f) : s.rise;
         // Thrown this frame: up at once, not from wherever the last throw ended.
@@ -164,6 +170,8 @@ public final class EjectorLaunch {
     public static void apply(UUID uuid, Function<String, ModelPart> parts) {
         State s = STATES.fresh(uuid);
         if (s == null || s.brace < 1e-3f && s.flight < 1e-3f) return;
+        // The crouch drawn for one who does not sneak is a higher one: sneaking then still shows, the body going down.
+        ReachPose.upright(parts, s.drawn * DRAWN_UPRIGHT);
         float up = s.rise * 0.5f + 0.5f;
         for (int i = 0; i < 2; i++) {
             // Out, for a hanging right limb, is +zRot; for a left one -zRot. Back is +xRot.
