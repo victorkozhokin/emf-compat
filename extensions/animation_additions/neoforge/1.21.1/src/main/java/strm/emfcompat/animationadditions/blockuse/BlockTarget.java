@@ -49,6 +49,9 @@ public interface BlockTarget {
         return null;
     }
 
+    /** Rendered rotation in degrees for grounded setup steps; null for other interactions. */
+    default Float stanceAngle(Level level, BlockPos pos) { return null; }
+
     /**
      * Whether the player is at work on the block and the hands stay on it wherever the look goes -
      * typing on a typewriter. Asked of the block the hands are on already.

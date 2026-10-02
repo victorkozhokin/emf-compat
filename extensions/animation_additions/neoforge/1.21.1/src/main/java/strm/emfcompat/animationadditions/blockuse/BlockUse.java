@@ -154,6 +154,8 @@ public final class BlockUse implements InteractionProvider {
         float standUp;
         boolean crouching, overhead, groundReach;
         final CrankStance.State stance = new CrankStance.State();
+        BlockTarget stanceTarget;
+        BlockPos stancePos;
         final LowReach.State lowReach = new LowReach.State();
         long tracedAt;
         long contactAt;
@@ -277,7 +279,9 @@ public final class BlockUse implements InteractionProvider {
             Vector3f postureTarget = centre == null ? model : frame.relativeToJoint(centre.add(0, 7 / 16.0, 0), new Vector3f());
             state.overhead = postureTarget.y < shoulder.y;
             state.groundReach = player.onGround() && !seated
-                    && state.target != null && state.target.reachPose() && (!state.crouching || model.y > shoulder.y + 4);
+                    && state.target != null && state.target.reachPose()
+                    && (!state.crouching || (wheel(state) && centre != null
+                    ? frame.relativeToJoint(centre, new Vector3f()).y : model.y) > shoulder.y + 4);
             if (state.target != null && state.target.reachPose() && state.crouching && !seated) {
                 standUp = ReachEnvelope.upright(postureTarget.x - shoulder.x,
                         postureTarget.y - shoulder.y, postureTarget.z - shoulder.z, ARM);
@@ -341,15 +345,27 @@ public final class BlockUse implements InteractionProvider {
                     + (right ? "-R" : "-L"));
         } finally {
             state.shown = shown;
+            boolean wasWheel = state.stanceTarget instanceof ValveHandle || state.stanceTarget instanceof SteeringWheel;
+            if ((wheel(state) || wasWheel) && (state.stanceTarget != state.target || !java.util.Objects.equals(state.stancePos, state.pos))) {
+                state.stance.angle = null;
+                state.stance.motionAt = 0;
+                state.stance.direction = 0;
+            }
+            state.stanceTarget = state.target;
+            state.stancePos = state.pos;
             CrankStance.observe(state.stance, player, context.frame(),
-                    shown && state.target instanceof HandCrank && state.pos != null
-                            ? HandCrank.angle(player.level(), state.pos) : null);
+                    shown && state.target != null && state.pos != null
+                            ? state.target.stanceAngle(player.level(), state.pos) : null);
             state.standUp = ReachEnvelope.follow(state.standUp, standUp, context.dt());
             double dt = context.dt();
             state.stretch += (stretchTarget - state.stretch)
                     * (stretchTarget > state.stretch ? Smoothing.fadeIn(dt, ReachPose.SECONDS) : Smoothing.fadeOut(dt, ReachPose.SECONDS));
             if (state.stretch < 1e-3f) state.stretch = 0f;
         }
+    }
+
+    private static boolean wheel(State state) {
+        return state.target instanceof ValveHandle || state.target instanceof SteeringWheel;
     }
 
     private static int priority(State state) {
@@ -449,11 +465,16 @@ public final class BlockUse implements InteractionProvider {
         State state = STATES.fresh(uuid);
         if (state == null) return;
         boolean lowFree = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) <= 0.01f;
-        float lowWeight = INSTANCE.isEnabled() && state.groundReach && lowFree
+        float mainOwned = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
+        float otherOwned = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, INSTANCE.id());
+        boolean both = wheel(state) && state.support;
+        // A wheel owns both effectors together. Do not treat its supporting hand as a competing interaction.
+        float lowWeight = INSTANCE.isEnabled() && state.groundReach && (lowFree || both)
                 && EMFCompatConfig.getBoolean(ButtonPress.KEY_STRETCH, true)
-                ? InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id()) : 0;
+                ? (both ? Math.min(mainOwned, otherOwned) : mainOwned) : 0;
         state.lowReach.weightShift = CrankStance.apply(state.stance, parts, lowWeight);
-        LowReach.apply(parts, state.right, state.grip, lowWeight, state.lowReach);
+        if (both) LowReach.apply(parts, state.right, state.grip, state.supportGrip, lowWeight, state.lowReach);
+        else LowReach.apply(parts, state.right, state.grip, lowWeight, state.lowReach);
         long now = System.nanoTime();
         double dt = state.contactAt == 0 ? 0 : (now - state.contactAt) * 1e-9;
         state.contactAt = now;
@@ -521,6 +542,11 @@ public final class BlockUse implements InteractionProvider {
                     state.crouching, state.standUp, w, state.stretch,
                     new Vector3f(state.grip).sub(arm.x, arm.y, arm.z).length(),
                     supportDistance(state, parts));
+            if (wheel(state)) org.slf4j.LoggerFactory.getLogger("EMFCompatBlockUse").info(
+                    "[WheelTrace] target={} grounded={} mainWeight={} supportWeight={} roll={} load={}",
+                    state.target.getClass().getSimpleName(), state.groundReach, w,
+                    InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, INSTANCE.id()),
+                    state.lean[2], state.stance.load);
         }
     }
 

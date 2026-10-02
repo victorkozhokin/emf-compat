@@ -1,6 +1,10 @@
 package strm.emfcompat.animationadditions.blockuse;
 
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.Minecraft;
+import strm.emfcompat.animationadditions.interaction.EntityStates;
+import traben.entity_model_features.models.animation.state.EMFState;
+import java.lang.reflect.Method;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.HumanoidArm;
@@ -13,9 +17,22 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.SubLevels;
 
-/** Aeronautics' bundled Simulated steering wheel: two fixed rim grips follow its rendered angle. */
+/** Aeronautics' bundled Simulated steering wheel: six rim anchors and alternating regrips follow its rendered angle. */
 final class SteeringWheel implements BlockTarget {
     private static final WheelAngle ANGLE = new WheelAngle("getRenderAngle"); // Already radians.
+    private static final EntityStates<GripState> GRIPS = new EntityStates<>(GripState::new);
+    private static Object handler;
+    private static Method held, activeBlock;
+    private static boolean holdFailed;
+    private static final class GripState {
+        BlockPos pos;
+        BlockState mount;
+        HumanoidArm main;
+        boolean positive;
+        float frame = -1;
+        long at, traceAt;
+        SteeringGripMotion motion = new SteeringGripMotion();
+    }
     public boolean matches(BlockState block) {
         return block.getBlock().getClass().getName().equals("dev.simulated_team.simulated.content.blocks.steering_wheel.SteeringWheelBlock");
     }
@@ -29,15 +46,69 @@ final class SteeringWheel implements BlockTarget {
         Float angle = ANGLE.read(player.level(), pos);
         if (angle == null) return null;
         Direction facing = block.getValue(BlockStateProperties.HORIZONTAL_FACING);
-        // Select at rest, never swap at the half-turn: that would teleport the grips between hands.
-        // Which way the rim's +x side points, in the world: a craft may have turned the wheel.
-        Vec3 side = SubLevels.at(player.level(), pos).directionToWorld(point(pos, block, 0, new Vector3f(1, .5f, .5f))
-                .subtract(point(pos, block, 0, new Vector3f(.5f))));
-        Vec3 right = new Vec3(-player.getLookAngle().z, 0, player.getLookAngle().x);
-        boolean positive = side.dot(right) >= 0;
-        if (player.getMainArm() == HumanoidArm.LEFT) positive = !positive;
-        if (support) positive = !positive;
-        return new Spot(point(pos, block, angle, new Vector3f(positive ? 1 : 0, .5f, .5f)), Vec3.atLowerCornerOf(facing.getNormal()));
+        long now = System.nanoTime();
+        GripState state = GRIPS.seen(player.getUUID(), now).value;
+        boolean fresh = !pos.equals(state.pos) || !block.equals(state.mount)
+                || player.getMainArm() != state.main || now-state.at > 600_000_000L;
+        if (fresh) {
+            Vec3 side = SubLevels.at(player.level(), pos).directionToWorld(point(pos, block, 0, new Vector3f(1, .5f, .5f))
+                    .subtract(point(pos, block, 0, new Vector3f(.5f))));
+            Vec3 right = new Vec3(-player.getLookAngle().z, 0, player.getLookAngle().x);
+            state.positive = side.dot(right) >= 0;
+            state.pos = pos.immutable(); state.mount = block; state.main = player.getMainArm();
+            Vec3 centre = point(pos,block,0,new Vector3f(.5f));
+            Vec3 worldCentre = SubLevels.at(player.level(),pos).toWorld(centre);
+            float upper = 0;
+            if (worldCentre.y-player.getY() < .75) {
+                Vec3 tangent = SubLevels.at(player.level(),pos).directionToWorld(
+                        point(pos,block,(float)(Math.PI/2),new Vector3f(state.positive ? 1 : 0,.5f,.5f)).subtract(centre));
+                if (Math.abs(tangent.y) > .01) upper = tangent.y > 0 ? 45 : -45;
+            }
+            state.motion = new SteeringGripMotion(upper); state.frame = -1;
+        }
+        float frame = EMFState.getFrameCounter();
+        if (state.frame != frame) {
+            state.motion.advance(angle, fresh ? 0 : Math.min(.1f,(now-state.at)*1e-9f));
+            state.at = now; state.frame = frame;
+        }
+        boolean rightHand = (player.getMainArm() == HumanoidArm.RIGHT) != support;
+        int hand = rightHand ? 0 : 1;
+        boolean positive = rightHand ? state.positive : !state.positive;
+        Vec3 out = Vec3.atLowerCornerOf(facing.getNormal());
+        Vec3 grip = point(pos, block, state.motion.radians(hand), new Vector3f(positive ? 1 : 0, .5f, .5f))
+                .add(out.scale(state.motion.lift(hand)));
+        if (!support && strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature.isTrace()
+                && now-state.traceAt > 100_000_000L) {
+            state.traceAt = now;
+            org.slf4j.LoggerFactory.getLogger("EMFCompatBlockUse").info(
+                    "[RegripTrace] moving={} transfers={} rightPhase={} leftPhase={} rightLift={} leftLift={} rightSlot={} leftSlot={}",
+                    state.motion.moving(), state.motion.transfers, state.motion.radians(0), state.motion.radians(1),
+                    state.motion.lift(0), state.motion.lift(1),state.motion.slot(0),state.motion.slot(1));
+        }
+        return new Spot(grip, out);
+    }
+
+    public boolean holds(AbstractClientPlayer player, Level level, BlockPos pos, BlockState block) {
+        if (holdFailed || player != Minecraft.getInstance().player) return false;
+        try {
+            if (handler == null) {
+                handler = Class.forName("dev.simulated_team.simulated.index.SimClickInteractions")
+                        .getField("STEERING_WHEEL_MANAGER").get(null);
+                Class<?> manager = Class.forName("dev.simulated_team.simulated.util.hold_interaction.HoldInteractionManager");
+                Class<?> interaction = Class.forName("dev.simulated_team.simulated.util.hold_interaction.BlockHoldInteraction");
+                held = manager.getMethod("isActive", interaction);
+                activeBlock = handler.getClass().getMethod("isBlockActive", BlockPos.class);
+            }
+            return (boolean)held.invoke(null,handler) && (boolean)activeBlock.invoke(handler,pos);
+        } catch (ReflectiveOperationException | ClassCastException e) {
+            holdFailed = true;
+            org.slf4j.LoggerFactory.getLogger("EMFCompatBlockUse").warn("[BlockUse] cannot read held steering wheel",e);
+            return false;
+        }
+    }
+    public Float stanceAngle(Level level, BlockPos pos) {
+        Float radians = ANGLE.read(level, pos);
+        return radians == null ? null : (float) Math.toDegrees(radians);
     }
     public Vec3 swayCentre(Level level, BlockPos pos, BlockState block) {
         return point(pos, block, 0, new Vector3f(.5f));

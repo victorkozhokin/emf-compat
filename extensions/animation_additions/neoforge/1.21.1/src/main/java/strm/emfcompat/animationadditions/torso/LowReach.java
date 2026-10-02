@@ -25,6 +25,12 @@ public final class LowReach {
 
     public static void apply(Function<String, ModelPart> parts, boolean right, Vector3f target,
                              float weight, State state) {
+        apply(parts, right, target, null, weight, state);
+    }
+
+    /** Balance the torso fit between both contacts without changing the single-hand solver. */
+    public static void apply(Function<String, ModelPart> parts, boolean right, Vector3f target,
+                             Vector3f otherTarget, float weight, State state) {
         ModelPart body = parts.apply("body"), arm = parts.apply(right ? "right_arm" : "left_arm");
         ModelPart r = parts.apply("right_leg"), l = parts.apply("left_leg");
         if (body == null || arm == null || r == null || l == null) return;
@@ -39,6 +45,14 @@ public final class LowReach {
             Quaternionf wanted = LowReachMath.turn(shoulder, point, 11, (float)Math.toRadians(40));
             Vector3f fitted = new Quaternionf(wanted).transform(new Vector3f(shoulder)).add(hips);
             Vector3f move = LowReachMath.shift(fitted, target, 11, 3.5f);
+            ModelPart other = otherTarget == null ? null : parts.apply(right ? "left_arm" : "right_arm");
+            if (other != null) {
+                Vector3f otherShoulder = new Vector3f(other.x, other.y, other.z).sub(hips);
+                var fit = TwoHandReachMath.fit(shoulder, point, otherShoulder,
+                        new Vector3f(otherTarget).sub(hips), 11, (float)Math.toRadians(40));
+                wanted.set(fit.turn());
+                move.set(fit.shift());
+            }
             move.x += state.weightShift;
             float k = Smoothing.follow(dt, .14);
             state.turn.slerp(new Quaternionf().slerp(wanted, weight), k).normalize();

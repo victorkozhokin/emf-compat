@@ -359,6 +359,8 @@ public final class Driver {
                         throw new IllegalStateException("Steering wheel is not held: click its rim first");
                     handler.getClass().getMethod("activeOnMouseMove", double.class, double.class).invoke(handler, v.getAsDouble(), 0d);
                 }
+                case "steeringRelease" -> Class.forName("dev.simulated_team.simulated.util.hold_interaction.HoldInteractionManager")
+                        .getMethod("stop").invoke(null);
                 case "hideGui" -> mc.options.hideGui = v.getAsBoolean();
                 case "closeScreen" -> mc.setScreen(null);
                 case "screenshot" -> {

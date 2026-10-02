@@ -4,6 +4,8 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.entity.HumanoidArm;
+import strm.emfcompat.animationadditions.interaction.SubLevels;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
@@ -17,11 +19,26 @@ final class ValveHandle implements BlockTarget {
         return block.getBlock().getClass().getName().equals("com.simibubi.create.content.kinetics.crank.ValveHandleBlock");
     }
     public Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit) {
+        return grip(player, pos, block, false);
+    }
+    public Spot supportHand(AbstractClientPlayer player, BlockPos pos, BlockState block) {
+        return grip(player, pos, block, true);
+    }
+    private static Spot grip(AbstractClientPlayer player, BlockPos pos, BlockState block, boolean support) {
         Float degrees = ANGLE.read(player.level(), pos);
         if (degrees == null) return null;
         Direction facing = block.getValue(BlockStateProperties.FACING);
-        return new Spot(point(pos, facing, degrees, new Vector3f(2f / 16f, 6.5f / 16f, .5f)), Vec3.atLowerCornerOf(facing.getNormal()));
+        Vec3 side = SubLevels.at(player.level(), pos).directionToWorld(
+                point(pos, facing, 0, new Vector3f(1, 6.5f / 16f, .5f))
+                        .subtract(point(pos, facing, 0, new Vector3f(.5f, 6.5f / 16f, .5f))));
+        Vec3 right = new Vec3(-player.getLookAngle().z, 0, player.getLookAngle().x);
+        boolean positive = side.dot(right) >= 0;
+        if (player.getMainArm() == HumanoidArm.LEFT) positive = !positive;
+        if (support) positive = !positive;
+        return new Spot(point(pos, facing, degrees, new Vector3f(positive ? 14f / 16f : 2f / 16f, 6.5f / 16f, .5f)),
+                Vec3.atLowerCornerOf(facing.getNormal()));
     }
+    public Float stanceAngle(Level level, BlockPos pos) { return ANGLE.read(level, pos); }
     public Vec3 swayCentre(Level level, BlockPos pos, BlockState block) {
         return point(pos, block.getValue(BlockStateProperties.FACING), 0, new Vector3f(.5f, 6.5f / 16f, .5f));
     }
