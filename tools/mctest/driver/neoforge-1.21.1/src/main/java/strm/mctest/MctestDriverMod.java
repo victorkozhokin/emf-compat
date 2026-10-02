@@ -14,5 +14,6 @@ public final class MctestDriverMod {
         }
         NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> Driver.tick());
         NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.tick.ServerTickEvent.Pre event) -> CraftProbe.tick());
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) -> CraftProbe.ropeTick());
     }
 }

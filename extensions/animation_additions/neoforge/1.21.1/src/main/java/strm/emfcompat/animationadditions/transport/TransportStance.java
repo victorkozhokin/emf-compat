@@ -18,9 +18,9 @@ final class TransportStance {
     final Vector3f[] feet={new Vector3f(),new Vector3f()};
     final Vector3f start=new Vector3f(),end=new Vector3f();
     final ClearanceOffset hip=new ClearanceOffset();
-    int step=-1;float progress=1,frame=-1,stanceWeight;long at;
+    int step=-1;float progress=1,frame=-1,stanceWeight,ropeLift;long at;
     void apply(AbstractClientPlayer player,IKFrame space,SupportSearch.Deck deck,
-               Function<String,ModelPart> parts,Vector3f force,float load,float owned,boolean walking) {
+               Function<String,ModelPart> parts,Vector3f force,float load,float owned,boolean walking,float rope,boolean rightHand,boolean helper) {
         ModelPart[] legs={parts.apply("right_leg"),parts.apply("left_leg")};
         if(space==null || legs[0]==null || legs[1]==null)return;
         float counter=EMFState.getFrameCounter();
@@ -28,6 +28,9 @@ final class TransportStance {
             long now=System.nanoTime();double dt=at==0?0:Math.min(.1,(now-at)*1e-9);at=now;frame=counter;
             stanceWeight+=(owned-stanceWeight)*Smoothing.follow(dt,.16);
             boolean enabled=deck!=null && player.onGround() && !player.isPassenger() && !walking && owned>.7f;
+            boolean planted=enabled && safe(player,space,deck,legs[rightHand?1:0],feet[rightHand?1:0],feet[rightHand?1:0]);
+            float wantedLift=planted?RopePoseMath.lift(player.isCrouching(),helper)*rope*owned:0;
+            boolean lower=false;
             if(!enabled) {step=-1;for(var f:feet)f.mul(1-Smoothing.follow(dt,.14));}
             else {
                 for(int i=0;i<2;i++)if(!safe(player,space,deck,legs[i],new Vector3f(),feet[i])) {
@@ -36,6 +39,7 @@ final class TransportStance {
                 if(step<0)for(int i=0;i<2;i++) {
                     Vector3f target=BraceMath.foot(i==0,force,load).mul(owned);
                     if(target.distanceSquared(feet[i])>.12f && safe(player,space,deck,legs[i],feet[i],target)) {
+                        if(i!=(rightHand?0:1) && ropeLift>.03f) {lower=true;break;}
                         step=i;start.set(feet[i]);end.set(target);progress=0;break;
                     }
                 }
@@ -47,12 +51,19 @@ final class TransportStance {
                     }
                 }
             }
+            if(lower || step>=0 && step!=(rightHand?0:1))wantedLift=0;
+            if(step>=0 && step!=(rightHand?0:1))ropeLift=0; // Other foot is stepping: this sole stays planted.
+            ropeLift+=(wantedLift-ropeLift)*Smoothing.follow(dt,.14);
         }
         Vector3f r=new Vector3f(feet[0]),l=new Vector3f(feet[1]);
+        (rightHand?r:l).y-=ropeLift;
         if(step>=0)(step==0?r:l).y-=(float)Math.sin(Math.PI*progress)*(player.isCrouching()?.2f:.4f);
         Vector3f before=new Vector3f((legs[0].x+legs[1].x)*.5f,(legs[0].y+legs[1].y)*.5f,(legs[0].z+legs[1].z)*.5f);
         float twist=stanceWeight*(float)Math.toRadians(5);
         PelvisFollow.step(parts,r,l,-twist,twist);
+        // The lifted leg folds forward slightly instead of floating as a rigid column.
+        var raised=legs[rightHand?0:1];
+        raised.xRot-=.32f*ropeLift/1.8f;
         Vector3f delta=new Vector3f((legs[0].x+legs[1].x)*.5f,(legs[0].y+legs[1].y)*.5f,(legs[0].z+legs[1].z)*.5f).sub(before);
         Vector3f correction=hip.sample(counter,System.nanoTime(),delta).sub(delta);
         for(String name:new String[]{"body","head","hat","right_arm","left_arm"}) {

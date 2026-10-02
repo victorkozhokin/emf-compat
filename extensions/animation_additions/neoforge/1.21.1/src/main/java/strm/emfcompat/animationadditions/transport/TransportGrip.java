@@ -25,7 +25,7 @@ public final class TransportGrip implements InteractionProvider {
     private static final class State {
         AbstractClientPlayer player;IKFrame frame;SupportSearch.Deck deck;
         SubLevels.Space craft;Vec3 reference,previousLocal;int localTick=-1;
-        double relativeSpeed;boolean active,helper;float load;
+        double relativeSpeed;boolean active,helper;float load,ropeBlend;boolean ropeCrouching;
         final Vector3f force=new Vector3f(),lastTarget=new Vector3f();
         SupportSearch.Contact primary,other;Effector hand=Effector.RIGHT_ARM;
         float gap=1,helperGap=1;long searchAt,releaseUntil,helperAt,traceAt;
@@ -70,6 +70,21 @@ public final class TransportGrip implements InteractionProvider {
         s.load+=(wanted-s.load)*Smoothing.follow(context.dt(),.16);
         if(force.lengthSquared()>1e-6)force.normalize();
         s.force.lerp(force,Smoothing.follow(context.dt(),.18));
+        float ropeWanted=s.primary!=null && s.primary.rope()!=null?1:0;
+        s.ropeBlend+=(ropeWanted-s.ropeBlend)*Smoothing.follow(context.dt(),.2);
+        if(s.primary!=null && s.primary.rope()!=null) {
+            if(s.ropeCrouching!=p.isCrouching()) {
+                var next=AeronauticRopes.find(p,s.frame,spaces,s.hand==Effector.RIGHT_ARM);
+                if(next!=null)s.primary.rope().retarget(next.rope());
+                if(s.other!=null && s.other.rope()!=null) {
+                    var second=AeronauticRopes.find(p,s.frame,spaces,s.hand!=Effector.RIGHT_ARM,-.1);
+                    if(second!=null)s.other.rope().retarget(second.rope());
+                }
+                s.ropeCrouching=p.isCrouching();
+            }
+            s.primary.rope().advance(context.dt());
+            if(s.other!=null && s.other.rope()!=null)s.other.rope().advance(context.dt());
+        }
         if(s.primary!=null && (!free(p,s.hand) || !SupportSearch.valid(p,s.frame,s.primary,s.hand==Effector.RIGHT_ARM))) {
             release(s,context.now());
         }
@@ -77,7 +92,7 @@ public final class TransportGrip implements InteractionProvider {
             s.searchAt=context.now()+180_000_000L;
             for(Effector hand:new Effector[]{Effector.RIGHT_ARM,Effector.LEFT_ARM})if(free(p,hand)) {
                 var c=SupportSearch.find(p,s.frame,spaces,hand==Effector.RIGHT_ARM);
-                if(c!=null) {s.primary=c;s.hand=hand;s.gap=1;break;}
+                if(c!=null) {s.primary=c;s.hand=hand;s.gap=1;s.ropeCrouching=p.isCrouching();break;}
             }
         }
         if(s.primary==null) {
@@ -97,7 +112,8 @@ public final class TransportGrip implements InteractionProvider {
         if(s.other!=null && (!helperWanted || !free(p,other) || !SupportSearch.valid(p,s.frame,s.other,other==Effector.RIGHT_ARM)))s.other=null;
         if(helperWanted && s.other==null && free(p,other) && context.now()>=s.helperAt) {
             s.helperAt=context.now()+200_000_000L;
-            var c=SupportSearch.find(p,s.frame,spaces,other==Effector.RIGHT_ARM);
+            var c=s.primary.rope()!=null?AeronauticRopes.find(p,s.frame,spaces,other==Effector.RIGHT_ARM,-.1)
+                    :SupportSearch.find(p,s.frame,spaces,other==Effector.RIGHT_ARM);
             if(c!=null && c.world().distanceTo(s.primary.world())>.16)s.other=c;
         }
         if(s.other!=null) {offer(context,out,other,s.other);s.helper=true;}
@@ -122,14 +138,17 @@ public final class TransportGrip implements InteractionProvider {
     }
     public static float[] torsoHint(UUID uuid) {
         State s=STATES.fresh(uuid);if(s==null || !s.active || s.gap>=.08)return null;
-        float effort=s.load*ownership(uuid,s);
-        return new float[]{s.force.z*(float)Math.toRadians(9)*effort,0,
-                s.force.x*(float)Math.toRadians(10)*effort,-s.force.x*.7f*effort};
+        float owned=ownership(uuid,s),rope=s.ropeBlend*owned;
+        float effort=s.load*owned, gain=1+s.ropeBlend*(RopePoseMath.gain(s.motion.speed)-1);
+        float side=s.hand==Effector.RIGHT_ARM?-1:1;
+        return new float[]{s.force.z*(float)Math.toRadians(9+7*s.ropeBlend)*effort*gain+(float)Math.toRadians(5)*rope,
+                0,s.force.x*(float)Math.toRadians(10+6*s.ropeBlend)*effort*gain-side*(float)Math.toRadians(3)*rope,
+                -s.force.x*(.7f+.5f*s.ropeBlend)*effort};
     }
     public static void support(UUID uuid,Function<String,ModelPart> parts) {
         State s=STATES.fresh(uuid);if(s==null || s.player==null)return;
         float owned=s.gap<.08?ownership(uuid,s):0;
-        s.stance.apply(s.player,s.frame,s.deck,parts,s.force,s.load,owned,s.relativeSpeed>.2);
+        s.stance.apply(s.player,s.frame,s.deck,parts,s.force,s.load,owned,s.relativeSpeed>.2,s.ropeBlend, s.hand==Effector.RIGHT_ARM,s.helper);
     }
     public static void reach(UUID uuid,Function<String,ModelPart> parts) {
         State s=STATES.fresh(uuid);if(s==null || s.frame==null)return;
@@ -140,7 +159,9 @@ public final class TransportGrip implements InteractionProvider {
         }
         Vector3f point=s.frame.relativeToJoint(s.primary.world(),new Vector3f());s.lastTarget.set(point);
         Vector3f other=s.helper && s.other!=null?s.frame.relativeToJoint(s.other.world(),new Vector3f()):null;
-        s.reach.angleLimit=(float)Math.toRadians(12);s.reach.followSeconds=.16;
+        s.reach.angleLimit=(float)Math.toRadians(12+6*s.ropeBlend);s.reach.followSeconds=.16;
+        s.reach.weightShift=(s.hand==Effector.RIGHT_ARM?-.45f:.45f)*s.ropeBlend;
+        s.reach.weightForward=-.7f*s.ropeBlend;
         LowReach.apply(parts,s.hand==Effector.RIGHT_ARM,point,other,owned,s.reach);
     }
     public static void aim(UUID uuid,Function<String,ModelPart> parts) {
@@ -150,9 +171,9 @@ public final class TransportGrip implements InteractionProvider {
         if(EMFCompatConfig.getBoolean(KEY_TRACE,false) && System.nanoTime()-s.traceAt>100_000_000L) {
             s.traceAt=System.nanoTime();
             org.slf4j.LoggerFactory.getLogger("EMFCompatTransport").info(
-                "[TransportTrace] speed={} relative={} load={} owned={} gap={} helper={} helperGap={} step={} right={} left={} local={} world={}",
+                "[TransportTrace] speed={} relative={} load={} owned={} gap={} helper={} helperGap={} step={} right={} left={} local={} world={} rope={} lift={}",
                 s.motion.speed,s.relativeSpeed,s.load,ownership(uuid,s),s.gap,s.helper,s.helperGap,
-                s.stance.step,s.stance.feet[0],s.stance.feet[1],s.primary.point(),s.primary.world());
+                s.stance.step,s.stance.feet[0],s.stance.feet[1],s.primary.point(),s.primary.world(),s.primary.rope()!=null,s.stance.ropeLift);
         }
     }
     private static float aimOne(UUID uuid,State s,Effector hand,SupportSearch.Contact c,Function<String,ModelPart> parts) {

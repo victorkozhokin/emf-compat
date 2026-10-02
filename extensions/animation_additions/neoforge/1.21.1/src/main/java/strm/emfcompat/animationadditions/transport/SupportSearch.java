@@ -13,8 +13,9 @@ import java.util.List;
 
 /** Short local rays. Collision surfaces, or continuous slender outline-only supports. */
 final class SupportSearch {
-    record Contact(SubLevels.Space space,BlockPos block,Vec3 point,Vec3 normal,boolean outline) {
-        Vec3 world() {return space.refresh().toWorld(point);}
+    record Contact(SubLevels.Space space,BlockPos block,Vec3 point,Vec3 normal,boolean outline,AeronauticRopes.Grip rope) {
+        Contact(SubLevels.Space space,BlockPos block,Vec3 point,Vec3 normal,boolean outline) {this(space,block,point,normal,outline,null);}
+        Vec3 world() {return rope==null?space.refresh().toWorld(point):rope.world();}
     }
     record Deck(SubLevels.Space space,Vec3 local,Vec3 normal) {}
     static Deck deck(AbstractClientPlayer player,List<SubLevels.Space> spaces) {
@@ -32,6 +33,8 @@ final class SupportSearch {
         return best==null || best.space.isWorld()?null:best;
     }
     static Contact find(AbstractClientPlayer player,IKFrame frame,List<SubLevels.Space> spaces,boolean right) {
+        var physical=AeronauticRopes.find(player,frame,spaces,right);
+        if(physical!=null)return physical;
         Vector3f shoulder=new Vector3f(right?-5:5,2,0);Vec3 start=frame.jointWorld(shoulder);
         Contact best=null;double score=Double.POSITIVE_INFINITY;
         int hits=0,eligible=0,reachable=0;
@@ -62,7 +65,7 @@ final class SupportSearch {
             org.slf4j.LoggerFactory.getLogger("EMFCompatTransport").info("[SupportSearch] right={} hits={} eligible={} reachable={} found={}",right,hits,eligible,reachable,best!=null);
         return best;
     }
-    private static boolean clear(AbstractClientPlayer player,Vec3 from,Vec3 to,List<SubLevels.Space> spaces) {
+    static boolean clear(AbstractClientPlayer player,Vec3 from,Vec3 to,List<SubLevels.Space> spaces) {
         double reach=from.distanceTo(to);
         for(var space:spaces) {
             var hit=player.level().clip(new ClipContext(space.toLocal(from),space.toLocal(to),
@@ -88,6 +91,15 @@ final class SupportSearch {
     }
     static boolean valid(AbstractClientPlayer player,IKFrame frame,Contact c,boolean right) {
         if(c==null || !c.space.valid())return false;
+        if(c.rope!=null) {
+            Vector3f shoulder=new Vector3f(right?-5:5,2,0);
+            Vector3f target=frame.relativeToJoint(c.world(),new Vector3f());
+            boolean exists=c.rope.valid(),reachable=RopePoseMath.reachable(target,shoulder,right);
+            boolean unobstructed=exists && reachable && clear(player,frame.jointWorld(shoulder),c.world(),SubLevels.around(player.level(),player.getBoundingBox().inflate(1.2)));
+            if(!unobstructed && strm.emfcompat.core.EMFCompatConfig.getBoolean(TransportGrip.KEY_TRACE,false))
+                org.slf4j.LoggerFactory.getLogger("EMFCompatTransport").info("[RopeReject] exists={} reachable={} distance={} target={} right={}",exists,reachable,target.distance(shoulder),target,right);
+            return unobstructed;
+        }
         var space=c.space.refresh();var state=player.level().getBlockState(c.block);
         if(state.isAir() || state.canBeReplaced() || c.outline && !continuous(player,c.block))return false;
         Vector3f shoulder=new Vector3f(right?-5:5,2,0);
