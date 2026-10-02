@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
  * ({@code ThrottleLeverRenderer.transformHandleExternal}), so the hand is on it wherever the
  * handle is drawn, and goes along as it is dragged.</p>
  */
-final class ThrottleLever {
+public final class ThrottleLever {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatButtonPress");
     private static final String BLOCK = "dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverBlock";
@@ -37,12 +37,12 @@ final class ThrottleLever {
     private ThrottleLever() {
     }
 
-    static boolean is(BlockState block) {
+    public static boolean is(BlockState block) {
         return block.getBlock().getClass().getName().equals(BLOCK);
     }
 
     /** Where the knob is drawn now, world; {@code null} when it cannot be told. */
-    static Vec3 knob(Level level, BlockPos pos) {
+    public static Vec3 knob(Level level, BlockPos pos) {
         Method m = method();
         if (m == null) return null;
         BlockEntity entity = level.getBlockEntity(pos);
@@ -58,6 +58,16 @@ final class ThrottleLever {
             failed = true;
             return null;
         }
+    }
+
+    /** Actual held lever; looking away during a drag must not release the visual grip. */
+    public static BlockPos heldPosition() {
+        try {
+            Object handler=Class.forName("dev.simulated_team.simulated.index.SimClickInteractions")
+                    .getField("THROTTLE_LEVER_MANAGER").get(null);
+            if (!(boolean)handler.getClass().getMethod("isActive").invoke(handler)) return null;
+            return (BlockPos)handler.getClass().getMethod("getInteractionPos").invoke(handler);
+        } catch (ReflectiveOperationException | ClassCastException e) { return null; }
     }
 
     private static Method method() {

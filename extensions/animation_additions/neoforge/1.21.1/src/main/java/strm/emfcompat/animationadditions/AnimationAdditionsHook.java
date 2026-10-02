@@ -130,6 +130,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         ButtonPress.aimArm(uuid, parts);
         BlockUse.aimArm(uuid, parts);
         Mining.aimArm(uuid, parts);
+        strm.emfcompat.animationadditions.blockuse.CockpitControls.apply(uuid, parts);
         strm.emfcompat.animationadditions.interaction.HandContacts.apply(uuid, parts);
     }
 }

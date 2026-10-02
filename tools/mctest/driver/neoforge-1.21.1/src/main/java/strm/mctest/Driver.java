@@ -359,6 +359,13 @@ public final class Driver {
                         throw new IllegalStateException("Steering wheel is not held: click its rim first");
                     handler.getClass().getMethod("activeOnMouseMove", double.class, double.class).invoke(handler, v.getAsDouble(), 0d);
                 }
+                case "throttleDrag" -> {
+                    Object handler=Class.forName("dev.simulated_team.simulated.index.SimClickInteractions")
+                            .getField("THROTTLE_LEVER_MANAGER").get(null);
+                    if (!(boolean)handler.getClass().getMethod("isActive").invoke(handler))
+                        throw new IllegalStateException("Throttle is not held: click it first");
+                    handler.getClass().getMethod("activeOnMouseMove",double.class,double.class).invoke(handler,0d,v.getAsDouble());
+                }
                 case "steeringRelease" -> Class.forName("dev.simulated_team.simulated.util.hold_interaction.HoldInteractionManager")
                         .getMethod("stop").invoke(null);
                 case "hideGui" -> mc.options.hideGui = v.getAsBoolean();
@@ -508,9 +515,10 @@ public final class Driver {
             t.addProperty("world", String.format(java.util.Locale.ROOT, "%.3f %.3f %.3f", world.x, world.y, world.z));
             var entity = p.level().getBlockEntity(block.getBlockPos());
             if (entity != null) {
-                for (String method : new String[]{"getIndependentAngle", "getRenderAngle"}) {
+                for (String method : new String[]{"getIndependentAngle", "getRenderAngle", "getState"}) {
                     try {
-                        Object value = entity.getClass().getMethod(method, float.class)
+                        Object value = method.equals("getState") ? entity.getClass().getMethod(method).invoke(entity)
+                                : entity.getClass().getMethod(method, float.class)
                                 .invoke(entity, mc.getTimer().getGameTimeDeltaPartialTick(false));
                         if (value instanceof Number number) t.addProperty(method, number);
                     } catch (NoSuchMethodException ignored) {
