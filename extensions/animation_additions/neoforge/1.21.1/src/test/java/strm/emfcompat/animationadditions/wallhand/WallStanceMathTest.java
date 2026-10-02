@@ -18,7 +18,7 @@ class WallStanceMathTest {
         Vector3f v=new Vector3f(2,0,4);assertEquals(new Vector3f(),WallStanceMath.offset(v,0));assertEquals(new Vector3f(2,0,4),v);
     }
     @Test void crouchRetreatGoesBehindThePlayerWithoutSidewaysPush() {
-        assertEquals(new Vector3f(0,0,2),WallStanceMath.retreat(3));
+        assertEquals(new Vector3f(0,0,3.5f),WallStanceMath.retreat(5));
         assertEquals(new Vector3f(),WallStanceMath.retreat(-1));
         assertEquals(new Vector3f(0,0,1),WallStanceMath.retreat(1));
     }

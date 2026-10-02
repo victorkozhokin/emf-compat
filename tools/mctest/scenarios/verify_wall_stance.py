@@ -28,13 +28,18 @@ def verify(directory):
     for v in rows:
         assert abs(v['right'][1]*v['left'][1])<1e-6,'Both feet lifted together'
         for side in ['right','left']:assert math.hypot(v[side][0],v[side][2])<=1.6001
+    # An aborted unsafe step can retain its last progress; step=-1 means idle.
     settled=traces['narrow-forward-settle'][-4:]
-    assert all(v['step']==-1 and v['progress']==1 for v in settled),'Stationary feet keep stepping'
+    assert all(v['step']==-1 for v in settled),'Stationary feet keep stepping'
     for side in ['right','left']:
         assert all(math.dist(v[side],settled[0][side])<.001 for v in settled),'Stationary foot target drifts'
     for case in ['clear','disabled']:
         a=traces[case];assert a and abs(a[-1]['turn'])<.001
         assert all(math.dist(a[-1][side],(0,0,0))<.05 for side in ['right','left'])
+    pelvis=[{k:float(x) for k,x in re.findall(r'(\w+)=([-+\d.E]+)',line)} for line in (p/'final.log').read_text().splitlines() if '[PelvisTrace]' in line]
+    assert pelvis
+    assert max(v['retreat'] for v in pelvis)>2
+    assert all(-.001<=v['retreat']<=3.501 and -.001<=v['crouchRelief']<=3.251 and v['soleDrift']<.001 for v in pelvis)
     changes=[]
     for case,frames in models.items():
         if 'settle' not in case and 'walk' not in case and 'back' not in case:continue
@@ -43,7 +48,7 @@ def verify(directory):
                 delta=math.dist(a[part]['pos'],b[part]['pos']);changes.append(delta)
                 assert delta<3.5,(case,part,'Abrupt pivot displacement',delta)
     return {'commands':len(commands),'poseCases':len(models),'survivalSamples':len(states),
-            'healthySurvival':True,'oneSteppingFootAtATime':True,'maximumPlacementPixels':max(math.hypot(v[side][0],v[side][2]) for v in rows for side in ['right','left']),
+            'maximumRetreatPixels':max(v['retreat'] for v in pelvis),'maximumLiftPixels':max(v['crouchRelief'] for v in pelvis),'healthySurvival':True,'oneSteppingFootAtATime':True,'maximumPlacementPixels':max(math.hypot(v[side][0],v[side][2]) for v in rows for side in ['right','left']),
             'maximumSampledPivotChangePixels':max(changes),'clearAndDisabledReturnToNeutral':True}
 
 if __name__=='__main__':print(json.dumps(verify(sys.argv[1]),indent=2))

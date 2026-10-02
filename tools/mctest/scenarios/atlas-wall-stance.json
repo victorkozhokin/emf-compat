@@ -31,8 +31,7 @@
       "wallhand.squeeze": true,
       "wallhand.trace": true,
       "footgrounding.trace": true,
-      "parcool.enabled": false,
-      "lookat.enabled": false
+      "wallhand.enabled": true
     }
   },
   {

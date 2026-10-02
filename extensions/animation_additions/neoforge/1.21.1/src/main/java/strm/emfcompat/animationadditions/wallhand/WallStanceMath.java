@@ -8,6 +8,6 @@ final class WallStanceMath {
         float length=delta.length();if(length>1.6f)delta.mul(1.6f/length);
         return delta;
     }
-    static Vector3f retreat(float amount) {return new Vector3f(0,0,Math.max(0,Math.min(2,amount)));}
+    static Vector3f retreat(float amount) {return new Vector3f(0,0,Math.max(0,Math.min(3.5f,amount)));}
     static float ease(float p) {p=Math.max(0,Math.min(1,p));return p*p*(3-2*p);}
 }

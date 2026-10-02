@@ -13,7 +13,7 @@ def cases():
        {"cmd":"effect give @s instant_health 1 10 true"},{"cmd":"effect give @s saturation 2 10 true"},
        {"wait":40},{"hideGui":True},{"camera":"back"},
        {"config":{"wallhand.squeeze":True,"wallhand.trace":True,"footgrounding.trace":True,
-                  "parcool.enabled":False,"lookat.enabled":False}}]
+                  "wallhand.enabled":True}}]
     for name,x,z,yaw in [("narrow-forward",2315.59375,2071.5,0),
                          ("narrow-reverse",2315.59375,2080.5,180),
                          ("external-right",2307.31,2071.5,0),

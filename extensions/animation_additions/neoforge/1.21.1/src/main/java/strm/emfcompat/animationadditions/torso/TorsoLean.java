@@ -186,7 +186,7 @@ public final class TorsoLean {
         float bottomY = PelvisFollow.waist(new Vector3f(body.x, body.y, body.z),
                 body.xRot, body.yRot, body.zRot, WAIST * body.yScale).y;
         float relief = ClearancePose.lift(bottomY, waist.y, clearance, state.crouch);
-        Vector3f retreat=WallSqueeze.crouchOffset(uuid, 2f*clearance*state.crouch);
+        Vector3f retreat=WallSqueeze.crouchOffset(uuid, 3.5f*clearance*state.crouch);
         carry(body, turn, waist, carriedLean);
         body.x+=retreat.x;body.z+=retreat.z;
         body.y += carriedWaist.y - waist.y - relief; body.z += carriedWaist.z - waist.z;
@@ -196,8 +196,8 @@ public final class TorsoLean {
             Vector3f expected = new Vector3f(carriedWaist).add(carriedLean[3], -relief, 0).add(retreat);
             float soleDrift = Math.max(rightSole == null ? 0 : rightSole.distance(sole(right)),
                     leftSole == null ? 0 : leftSole.distance(sole(left)));
-            LOGGER.info("[PelvisTrace] wallYaw={} attachmentGap={} soleDrift={} crouchRelief={} hipDrop={}",
-                    state.wallYaw, attached.distance(expected), soleDrift, relief, carriedWaist.y - waist.y);
+            LOGGER.info("[PelvisTrace] wallYaw={} attachmentGap={} soleDrift={} crouchRelief={} hipDrop={} retreat={}",
+                    state.wallYaw, attached.distance(expected), soleDrift, relief, carriedWaist.y - waist.y, retreat.z);
         }
         for (String name : CARRIED) {
             ModelPart part = parts.apply(name);
