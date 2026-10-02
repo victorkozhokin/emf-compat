@@ -15,6 +15,15 @@
     "cmd": "gamemode survival"
   },
   {
+    "cmd": "gamerule doMobLoot false"
+  },
+  {
+    "cmd": "kill @e[type=item,x=435,y=149,z=-5,dx=40,dy=8,dz=25]"
+  },
+  {
+    "cmd": "kill @e[tag=emf_atlas_leash]"
+  },
+  {
     "cmd": "kill @e[tag=leash_test]"
   },
   {
@@ -83,9 +92,9 @@
   },
   {
     "orbit": [
-      30,
-      12,
-      4
+      145,
+      8,
+      3
     ]
   },
   {
@@ -1299,6 +1308,1617 @@
   },
   {
     "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 450.5 150 7.5 -90 15"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 447 150 7.5"
+  },
+  {
+    "look": [
+      -90,
+      15
+    ]
+  },
+  {
+    "wait": 25
+  },
+  {
+    "log": "leashcase:walk-forward"
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-forward-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-forward-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-forward-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-forward-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-forward-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-forward-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-forward-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-forward-07"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "leashcase:stop-walk-forward"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-11"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-12"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-13"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-14"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-forward-15"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 450.5 150 7.5 -90 15"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 447 150 7.5"
+  },
+  {
+    "look": [
+      -90,
+      15
+    ]
+  },
+  {
+    "wait": 25
+  },
+  {
+    "log": "leashcase:walk-crouch"
+  },
+  {
+    "hold": "sneak"
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-crouch-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-crouch-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-crouch-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-crouch-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-crouch-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-crouch-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-crouch-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-walk-crouch-07"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "leashcase:stop-walk-crouch"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-11"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-12"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-13"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-14"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-stop-walk-crouch-15"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 450.5 150 7.5 -90 15"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 444.5 150 7.5"
+  },
+  {
+    "wait": 25
+  },
+  {
+    "log": "leashcase:brace-behind"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-11"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-12"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-13"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-14"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-15"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-16"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-17"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-18"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-brace-behind-19"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "leashcase:turn-behind"
+  },
+  {
+    "look": [
+      -40,
+      15
+    ]
+  },
+  {
+    "wait": 10
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-turn-behind-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-turn-behind-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-turn-behind-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-turn-behind-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-turn-behind-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-turn-behind-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-turn-behind-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-turn-behind-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-turn-behind-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-turn-behind-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-turn-behind-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-turn-behind-11"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "leashcase:narrow-support"
+  },
+  {
+    "cmd": "setblock 450 150 7 oak_fence"
+  },
+  {
+    "cmd": "tp @s 450.5 151.5 7.5 -90 15"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 444.5 150 7.5"
+  },
+  {
+    "look": [
+      -90,
+      15
+    ]
+  },
+  {
+    "wait": 25
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-narrow-support-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-narrow-support-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-narrow-support-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-narrow-support-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-narrow-support-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-narrow-support-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-narrow-support-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-narrow-support-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-narrow-support-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-narrow-support-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-narrow-support-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-narrow-support-11"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "leashcase:narrow-end"
+  },
+  {
+    "cmd": "setblock 450 150 7 air"
+  },
+  {
+    "wait": 5
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "look": [
+      -90,
+      15
+    ]
+  },
+  {
+    "cmd": "tp @s 450.5 150 7.5 -90 15"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 447 150 7.5"
+  },
+  {
+    "cmd": "data merge entity @e[tag=leash_primary,limit=1] {NoAI:0b}"
+  },
+  {
+    "wait": 20
+  },
+  {
+    "log": "leashcase:animal-follows"
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-animal-follows-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-animal-follows-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-animal-follows-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-animal-follows-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-animal-follows-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-animal-follows-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-animal-follows-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-animal-follows-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-animal-follows-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-animal-follows-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-animal-follows-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-animal-follows-11"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "leashcase:follow-stop"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-follow-stop-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-follow-stop-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-follow-stop-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-follow-stop-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-follow-stop-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-follow-stop-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-follow-stop-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-follow-stop-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-follow-stop-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-follow-stop-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-follow-stop-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-follow-stop-11"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-follow-stop-12"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-follow-stop-13"
+  },
+  {
+    "state": true
+  },
+  {
+    "cmd": "data merge entity @e[tag=leash_primary,limit=1] {NoAI:1b}"
+  },
+  {
+    "cmd": "tp @s 450.5 150 7.5 -90 15"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 453.5 150 7.5"
+  },
+  {
+    "wait": 25
   },
   {
     "log": "leashcase:busy"

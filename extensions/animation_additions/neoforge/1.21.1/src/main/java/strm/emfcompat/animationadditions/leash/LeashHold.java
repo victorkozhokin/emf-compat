@@ -28,11 +28,15 @@ public final class LeashHold implements InteractionProvider {
     private static final Candidate.Timing TIMING = new Candidate.Timing(.16,.2,.08);
     private static final class State {
         final LeashMotion motion = new LeashMotion();
+        final LeashStopGesture stop = new LeashStopGesture();
         final Vector3f palm = new Vector3f(), direction = new Vector3f();
         UUID animal, attachingAnimal;
         Effector attachingHand;
         Effector hand = Effector.RIGHT_ARM;
         boolean active, grounded, hasPalm;
+        AbstractClientPlayer player;
+        float effort,stopPull;
+        final LeashStance.State stance = new LeashStance.State();
         int count;
         double distance;
         IKFrame frame;
@@ -91,7 +95,7 @@ public final class LeashHold implements InteractionProvider {
             s.hand=chosen.getUUID().equals(s.attachingAnimal) && s.attachingHand!=null ? s.attachingHand
                     : mainRight!=off ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
         }
-        s.animal=chosen.getUUID();s.frame=context.frame();
+        s.animal=chosen.getUUID();s.frame=context.frame();s.player=player;
         s.distance=chosen.distanceTo(player);
         float partial=Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
         s.playerPosition=player.getPosition(partial);
@@ -114,23 +118,27 @@ public final class LeashHold implements InteractionProvider {
         Vector3f shoulder=new Vector3f(s.hand==Effector.RIGHT_ARM ? -5 : 5,2,0);
         Vector3f direction=context.frame().relativeToJoint(anchor(chosen,partial),shoulder);
         if(direction.lengthSquared()<1e-6) direction.set(0,0,-1);else direction.normalize();
-        s.direction.set(direction);
-        float amount=Math.min(1,s.motion.load+s.motion.jerk*.3f);
-        // The slack grip rests forward of its own hip; loading lifts and extends it.
-        Vector3f relaxed=new Vector3f(0,8,-3);
-        Vector3f loaded=new Vector3f(direction).mul(8);
-        loaded.y-=s.motion.jerk*1.5f;loaded.z+=s.motion.jerk*.8f;
-        // An animal behind the player must not pull the arm through the torso.
-        loaded.x=s.hand==Effector.RIGHT_ARM ? Math.min(0,loaded.x) : Math.max(0,loaded.x);
-        loaded.z=Math.min(-2,loaded.z);
-        Vector3f wantedPalm=new Vector3f(relaxed).lerp(loaded,amount).add(shoulder);
+        if(fresh) s.direction.set(direction);
+        else s.direction.lerp(direction,Smoothing.follow(context.dt(),.12));
+        // A following animal often stays short of vanilla's elastic distance. A small
+        // walking effort shows the trailing grip without inventing an elastic impulse.
+        double walkSpeed=player.getDeltaMovement().horizontalDistance()*20;
+        s.stopPull=s.stop.advance(walkSpeed,s.distance,context.dt(),fresh || warped || !player.onGround());
+        float walking=(float)Math.min(1,player.getDeltaMovement().horizontalDistance()*20/3);
+        float trailing=LeashMotion.smooth((s.direction.z+.1f)/.7f);
+        float distance=LeashMotion.smooth((float)(s.distance-2)/2);
+        float wanted=Math.max(s.motion.load,walking*trailing*distance*.4f);
+        s.effort+=(wanted-s.effort)*Smoothing.follow(context.dt(),.16);
+        Vector3f wantedPalm=LeashPose.grip(s.direction,s.hand==Effector.RIGHT_ARM,s.effort,s.motion.jerk);
+        wantedPalm.z*=1-s.stopPull*.45f;
+        wantedPalm.x*=1-s.stopPull*.2f;
+        wantedPalm.y-=s.stopPull*.5f;
         if(!s.hasPalm) {s.palm.set(wantedPalm);s.hasPalm=true;}
         else s.palm.lerp(wantedPalm,Smoothing.follow(context.dt(),.1));
-        Vec3 target=context.frame().jointWorld(s.palm);
-        var aim=OneBoneIK.solveXY(context.frame(),shoulder,target,11,0,0);
-        if(aim==null) {context.decide("off:aim");return;}
-        out.add(Candidate.single(id(),Category.PASSIVE,30,1,TIMING,s.hand,new float[]{aim.x(),aim.y()}));
-        HandContacts.remember(context,id(),s.hand,target);
+        Vector3f aim=LeashPose.angles(LeashPose.swing(s.palm));
+        out.add(Candidate.single(id(),Category.PASSIVE,30,1,TIMING,s.hand,new float[]{aim.x,aim.y}));
+        // This grip follows the actual animated shoulder in capture(), not a fixed
+        // world contact. Generic world-target correction would undo that distinction.
         s.grounded=player.onGround() && !player.isPassenger();s.active=true;
         context.decide(s.motion.jerk>.15 ? "jerk" : s.motion.load>.1 ? "tension" : "slack");
     }
@@ -139,9 +147,16 @@ public final class LeashHold implements InteractionProvider {
         State s=STATES.fresh(uuid);
         if(s==null || !s.active || !s.grounded || !INSTANCE.isEnabled()) return null;
         float w=InteractionRuntime.weight(uuid,s.hand,INSTANCE.id());
-        float effort=s.motion.load*(1+s.motion.jerk*.3f)*w;
-        return new float[]{s.direction.z*(float)Math.toRadians(5)*effort,0,
-                s.direction.x*(float)Math.toRadians(6)*effort};
+        float effort=s.effort*(1+s.motion.jerk*.3f)*w;
+        return new float[]{s.direction.z*(float)Math.toRadians(9)*effort,0,
+                s.direction.x*(float)Math.toRadians(10)*effort};
+    }
+
+    public static void support(UUID uuid,Function<String,ModelPart> parts) {
+        State s=STATES.fresh(uuid);
+        if(s==null || s.player==null) return;
+        float owned=s.active && INSTANCE.isEnabled() ? InteractionRuntime.weight(uuid,s.hand,INSTANCE.id()) : 0;
+        LeashStance.apply(s.stance,s.player,s.frame,parts,s.direction,s.effort*owned);
     }
 
     /** Capture the final animated palm, after every torso and contact correction. */
@@ -150,7 +165,13 @@ public final class LeashHold implements InteractionProvider {
         if(s==null || !s.active || s.frame==null) return;
         ModelPart arm=parts.apply(s.hand.part);if(arm==null) return;
         float owned=InteractionRuntime.weight(uuid,s.hand,INSTANCE.id());
-        arm.zRot*=1-owned;
+        if(owned>1e-3f) {
+            // Shortest swing from a downward arm admits both forward and backward
+            // grips without the negative-acos/180-degree-yaw pole flip.
+            Quaternionf current=new Quaternionf().rotationZYX(arm.zRot,arm.yRot,arm.xRot);
+            Vector3f angles=LeashPose.angles(current.slerp(LeashPose.swing(s.palm),owned));
+            arm.setRotation(angles.x,angles.y,angles.z);
+        }
         Vector3f palm=new Quaternionf().rotationZYX(arm.zRot,arm.yRot,arm.xRot)
                 .transform(new Vector3f(0,11*arm.yScale,0)).add(arm.x,arm.y,arm.z);
         s.drawnPalm=s.frame.jointWorld(palm);
@@ -158,8 +179,8 @@ public final class LeashHold implements InteractionProvider {
         if(strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature.isTrace() && now-s.traceAt>100_000_000L) {
             s.traceAt=now;
             org.slf4j.LoggerFactory.getLogger("EMFCompatLeash").info(
-                    "[LeashTrace] count={} distance={} load={} jerk={} right={} weight={} palmX={} palmY={} palmZ={}",
-                    s.count,s.distance,s.motion.load,s.motion.jerk,s.hand==Effector.RIGHT_ARM,
+                    "[LeashTrace] count={} distance={} load={} jerk={} effort={} stopPull={} right={} weight={} palmX={} palmY={} palmZ={}",
+                    s.count,s.distance,s.motion.load,s.motion.jerk,s.effort,s.stopPull,s.hand==Effector.RIGHT_ARM,
                     InteractionRuntime.weight(uuid,s.hand,INSTANCE.id()),s.drawnPalm.x,s.drawnPalm.y,s.drawnPalm.z);
         }
     }

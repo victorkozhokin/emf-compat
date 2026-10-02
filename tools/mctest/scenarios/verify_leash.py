@@ -50,6 +50,25 @@ def verify(directory):
         gap=math.dist(palm,endpoint);gaps.append(gap)
         assert gap<.03,(name,'Rope endpoint detached from captured palm',gap)
     assert cases['taut']['models'][-1]['right_arm']['rot'] != cases['slack']['models'][-1]['right_arm']['rot']
+    for name in ['walk-forward','walk-crouch','animal-follows','follow-stop','brace-behind','narrow-support']:
+        assert all(r['count']==1 for r in cases[name]['ropes']),(name,'Lost real lead')
+    for name in ['walk-forward','walk-crouch']:
+        rotations=[v['right_arm']['rot'] for v in cases[name]['models']]
+        assert max(abs(v[1]) for v in rotations)<.2,(name,'Yaw pole flip')
+        assert max(math.dist(a,b) for a,b in zip(rotations,rotations[1:]))<.3,(name,'Discontinuous arm')
+    assert max(v.get('stopPull',0) for v in traces['stop-walk-forward'])>.8,'Stop gesture not exercised'
+    assert traces['stop-walk-forward'][-1]['stopPull']<.01,'Stop pull did not finish'
+    assert traces['brace-behind'][-1]['effort']>.99,'Grounded load missing'
+    # The brace changes both leg rotations; the torso counterbalances an animal behind.
+    brace=cases['brace-behind']['models'][-1]
+    slack=cases['slack']['models'][-1]
+    assert abs(brace['body']['rot'][0]-slack['body']['rot'][0])>.08,'Body did not counterbalance'
+    for part in ['right_leg','left_leg']:
+        assert math.dist(brace[part]['rot'],slack[part]['rot'])>.04,(part,'Brace missing')
+    narrow=(directory/'final.log').read_text().split('leashcase:narrow-support')[-1].split('leashcase:narrow-end')[0]
+    stance=[v for v in narrow.splitlines() if '[LeashStance]' in v]
+    assert stance and all('step=-1' in v for v in stance[-5:]),'Stepping off narrow support'
+
     return {'runtimeSteps':len(response['results']),'cases':len(cases),'mode':'survival',
             'health':20,'food':20,'hurtTime':0,'maximumSampledPalmGapBlocks':max(gaps),
             'offhand':True,'multipleAnimals':True,'activeControlPriority':True}

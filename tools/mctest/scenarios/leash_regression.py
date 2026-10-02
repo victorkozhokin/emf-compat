@@ -12,7 +12,8 @@ def shots(name,count=12):
 
 def fixture():
     return [{'closeScreen':True},{'releaseAll':True},{'steeringRelease':True},{'cmd':'ride @s dismount'},
-            {'cmd':'gamemode survival'},{'cmd':'kill @e[tag=leash_test]'},
+            {'cmd':'gamemode survival'},{'cmd':'gamerule doMobLoot false'},
+            {'cmd':'kill @e[type=item,x=435,y=149,z=-5,dx=40,dy=8,dz=25]'},{'cmd':'kill @e[tag=emf_atlas_leash]'},{'cmd':'kill @e[tag=leash_test]'},
             {'cmd':'fill 435 149 -5 475 149 20 smooth_stone'},{'cmd':'fill 435 150 -5 475 155 20 air'},
             {'cmd':'tp @s 450.5 150 7.5 -90 15'},
             {'cmd':'effect give @s instant_health 1 10 true'},{'cmd':'effect give @s saturation 2 10 true'},{'wait':40},
@@ -21,7 +22,7 @@ def fixture():
             {'config':{'leash.enabled':True,'lookat.enabled':False,'footgrounding.trace':True}},
             {'hideGui':True},{'hideScreen':True},{'camera':'back'},{'wait':30},
             {'look':[-90,15]},{'wait':3},{'click':'use'},{'wait':20},{'rope':True},
-            {'orbit':[30,12,4]},{'wait':5}]
+            {'orbit':[145,8,3]},{'wait':5}]
 
 
 def cases():
@@ -39,6 +40,35 @@ def cases():
           {'hold':'back'}]+shots('jerk',6)+[{'releaseAll':True}]
     s += [{'log':'leashcase:relax'},{'cmd':'tp @s 450.5 150 7.5 -90 15'},
           {'cmd':'tp @e[tag=leash_primary,limit=1] 453.5 150 7.5'},{'wait':15}]+shots('relax')
+    # Walking behind the animal, stopping and bracing use the same real attachment.
+    extra=[]
+    for name,crouch in [('walk-forward',False),('walk-crouch',True)]:
+        extra += [{'releaseAll':True},{'cmd':'tp @s 450.5 150 7.5 -90 15'},
+            {'cmd':'tp @e[tag=leash_primary,limit=1] 447 150 7.5'},{'look':[-90,15]},{'wait':25},
+            {'log':'leashcase:'+name}]
+        if crouch:extra += [{'hold':'sneak'}]
+        extra += [{'hold':'forward'}]+shots(name,8)
+        extra += [{'releaseAll':True},{'log':'leashcase:stop-'+name}]+shots('stop-'+name,16)
+    extra += [{'releaseAll':True},{'cmd':'tp @s 450.5 150 7.5 -90 15'},
+              {'cmd':'tp @e[tag=leash_primary,limit=1] 444.5 150 7.5'},{'wait':25},
+              {'log':'leashcase:brace-behind'}]+shots('brace-behind',20)
+    extra += [{'log':'leashcase:turn-behind'},{'look':[-40,15]},{'wait':10}]+shots('turn-behind',12)
+    extra += [{'releaseAll':True},{'log':'leashcase:narrow-support'},
+              {'cmd':'setblock 450 150 7 oak_fence'},
+              {'cmd':'tp @s 450.5 151.5 7.5 -90 15'},
+              {'cmd':'tp @e[tag=leash_primary,limit=1] 444.5 150 7.5'},
+              {'look':[-90,15]},{'wait':25}]+shots('narrow-support',12)
+    extra += [{'log':'leashcase:narrow-end'},{'cmd':'setblock 450 150 7 air'},{'wait':5}]
+    extra += [{'releaseAll':True},{'look':[-90,15]},
+              {'cmd':'tp @s 450.5 150 7.5 -90 15'},
+              {'cmd':'tp @e[tag=leash_primary,limit=1] 447 150 7.5'},
+              {'cmd':'data merge entity @e[tag=leash_primary,limit=1] {NoAI:0b}'},{'wait':20},
+              {'log':'leashcase:animal-follows'},{'hold':'forward'}]+shots('animal-follows',12)
+    extra += [{'releaseAll':True},{'log':'leashcase:follow-stop'}]+shots('follow-stop',14)
+    extra += [{'cmd':'data merge entity @e[tag=leash_primary,limit=1] {NoAI:1b}'},
+              {'cmd':'tp @s 450.5 150 7.5 -90 15'},
+              {'cmd':'tp @e[tag=leash_primary,limit=1] 453.5 150 7.5'},{'wait':25}]
+    s+=extra
     # Disabling must restore both ordinary pose ownership and vanilla rope endpoint.
     s += [{'log':'leashcase:busy'},{'cmd':'setblock 451 150 7 lever[face=floor,facing=west]'},
           {'look':[-90,55]},{'wait':10},{'click':'use'},{'wait':20}]+shots('busy',6)

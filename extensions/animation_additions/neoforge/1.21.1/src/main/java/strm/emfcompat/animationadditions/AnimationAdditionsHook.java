@@ -119,6 +119,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         ButtonPress.apply(uuid, parts);
         BlockUse.apply(uuid, parts);
         HorseFootGrounding.apply(uuid, parts);
+        strm.emfcompat.animationadditions.leash.LeashHold.support(uuid, parts);
         // The torso before the arm aims: a hand on a wall aims from where the shoulder has gone.
         TorsoLean.apply(uuid, parts);
         BlockUse.reachContact(uuid, parts);
