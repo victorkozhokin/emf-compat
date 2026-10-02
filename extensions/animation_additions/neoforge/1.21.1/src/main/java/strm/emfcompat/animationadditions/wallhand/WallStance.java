@@ -19,8 +19,9 @@ final class WallStance {
     int stepping=-1;
     float progress=1,draw=-1,turn;
     long at,traceAt;
+    private strm.emfcompat.animationadditions.torso.ClearanceOffset hipOffset = new strm.emfcompat.animationadditions.torso.ClearanceOffset();
 
-    void reset() {for(var f:feet)f.zero();stepping=-1;turn=0;}
+    void reset() {for(var f:feet)f.zero();stepping=-1;turn=0;hipOffset=new strm.emfcompat.animationadditions.torso.ClearanceOffset();}
 
     void apply(AbstractClientPlayer player, IKFrame space, Function<String,ModelPart> parts,
                float requestedTurn, float support, boolean enabled) {
@@ -73,7 +74,18 @@ final class WallStance {
         Vector3f r=new Vector3f(feet[0]),l=new Vector3f(feet[1]);
         if(stepping>=0)(stepping==0?r:l).y-=(float)Math.sin(Math.PI*progress)*(player.isCrouching()?.18f:.3f);
         float twist=turn*.45f;
+        Vector3f hips = new Vector3f((legs[0].x+legs[1].x)*.5f,
+                (legs[0].y+legs[1].y)*.5f,(legs[0].z+legs[1].z)*.5f);
         PelvisFollow.step(parts,r,l,twist,twist);
+        Vector3f achieved = new Vector3f((legs[0].x+legs[1].x)*.5f,
+                (legs[0].y+legs[1].y)*.5f,(legs[0].z+legs[1].z)*.5f).sub(hips);
+        Vector3f correction=hipOffset.sample(counter,System.nanoTime(),achieved).sub(achieved);
+        // Keep the solved soles, but don't transmit a reach-limit change straight
+        // to the chest. Only this stance's additive hip displacement is filtered.
+        for(String name:new String[]{"body","head","hat","right_arm","left_arm"}) {
+            ModelPart part=parts.apply(name);
+            if(part!=null)part.setPos(part.x+correction.x,part.y+correction.y,part.z+correction.z);
+        }
         if(strm.emfcompat.core.EMFCompatConfig.getBoolean(WallSqueeze.KEY_TRACE,false)
                 && System.nanoTime()-traceAt>100_000_000L) {
             traceAt=System.nanoTime();

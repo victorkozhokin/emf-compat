@@ -72,6 +72,8 @@ public final class TorsoLean {
         /** {pitch, yaw, roll, shift x, the part of the yaw the head stays out of} as shown, smoothed. */
         final float[] lean = new float[5];
         float wallYaw, wallShift, legShare, crouch;
+        final ClearanceOffset clearanceOffset = new ClearanceOffset();
+        final ClearanceOffset contactBody = new ClearanceOffset(true);
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -183,17 +185,35 @@ public final class TorsoLean {
             carriedWaist.add(0, achieved.y, achieved.z);
         }
         float clearance = Math.min(1, Math.abs(state.wallYaw) / .5f + Math.abs(state.wallShift) / 1.5f);
-        float bottomY = PelvisFollow.waist(new Vector3f(body.x, body.y, body.z),
-                body.xRot, body.yRot, body.zRot, WAIST * body.yScale).y;
-        float relief = ClearancePose.lift(bottomY, waist.y, clearance, state.crouch);
+        float relief = ClearancePose.lift(clearance, state.crouch);
         Vector3f retreat=WallSqueeze.crouchOffset(uuid, 3.5f*clearance*state.crouch);
+        // Separate obstacle translation from the authored gait and other interactions.
+        // The animated hip centre otherwise makes a steady wall yaw bob the chest
+        // sharply on every stride; instantaneous reach correction adds another bob.
+        Quaternionf withoutWall = new Quaternionf().rotationZYX(lean[2], lean[1]-state.wallYaw, lean[0]);
+        Vector3f basePivot = PelvisFollow.carry(new Vector3f(body.x,body.y,body.z),
+                body.xRot,body.yRot,body.zRot,withoutWall,waist,lean[3]-state.wallShift).pivot();
         carry(body, turn, waist, carriedLean);
         body.x+=retreat.x;body.z+=retreat.z;
         body.y += carriedWaist.y - waist.y - relief; body.z += carriedWaist.z - waist.z;
+        Vector3f requestedOffset = new Vector3f(body.x,body.y,body.z).sub(basePivot);
+        Vector3f correction = state.clearanceOffset.sample(
+                traben.entity_model_features.models.animation.state.EMFState.getFrameCounter(),
+                System.nanoTime(),requestedOffset).sub(requestedOffset);
+        body.x+=correction.x;body.y+=correction.y;body.z+=correction.z;
+        // The turned chest makes the pack's fast pelvis bob much more visible.
+        // Give the contacted upper body inertia, while retaining the gait's legs
+        // and the whole-model ground/stair translation.
+        Vector3f pivot = new Vector3f(body.x,body.y,body.z);
+        Vector3f contactRelease=state.contactBody.sample(
+                traben.entity_model_features.models.animation.state.EMFState.getFrameCounter(),
+                System.nanoTime(),pivot).sub(pivot).mul(clearance);
+        body.x+=contactRelease.x;body.y+=contactRelease.y;body.z+=contactRelease.z;
+        correction.add(contactRelease);
         if (trace) {
             Vector3f attached = new Quaternionf().rotationZYX(body.zRot, body.yRot, body.xRot)
                     .transform(attachment).add(body.x, body.y, body.z);
-            Vector3f expected = new Vector3f(carriedWaist).add(carriedLean[3], -relief, 0).add(retreat);
+            Vector3f expected = new Vector3f(carriedWaist).add(carriedLean[3], -relief, 0).add(retreat).add(correction);
             float soleDrift = Math.max(rightSole == null ? 0 : rightSole.distance(sole(right)),
                     leftSole == null ? 0 : leftSole.distance(sole(left)));
             LOGGER.info("[PelvisTrace] wallYaw={} attachmentGap={} soleDrift={} crouchRelief={} hipDrop={} retreat={}",
@@ -207,7 +227,7 @@ public final class TorsoLean {
                         part.xRot, part.yRot, part.zRot, turn, waist, carriedLean[3]);
                 part.setPos(carried.pivot().x, carried.pivot().y, carried.pivot().z);
             } else carry(part, turn, waist, carriedLean);
-            part.x+=retreat.x;part.z+=retreat.z;
+            part.x+=retreat.x+correction.x;part.y+=correction.y;part.z+=retreat.z+correction.z;
             part.y += carriedWaist.y - waist.y - relief; part.z += carriedWaist.z - waist.z;
         }
     }
