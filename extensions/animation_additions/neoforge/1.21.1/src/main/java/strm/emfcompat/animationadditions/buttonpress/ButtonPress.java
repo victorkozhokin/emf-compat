@@ -159,6 +159,10 @@ public final class ButtonPress implements InteractionProvider {
         float stretch;
         boolean groundReach;
         final LowReach.State lowReach = new LowReach.State();
+        final Vector3f leverLoad = new Vector3f();
+        final LeverStep leverStep = new LeverStep();
+        boolean vanillaLever;
+        long tracedAt;
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -189,6 +193,8 @@ public final class ButtonPress implements InteractionProvider {
         state.lean[0] = state.lean[1] = state.lean[2] = 0f;
         float[] legTarget = null;
         float stretchTarget = 0f;
+        Vector3f leverWanted = new Vector3f();
+        state.vanillaLever = false;
         state.groundReach = false;
         try {
             String why = ineligible(player);
@@ -248,6 +254,9 @@ public final class ButtonPress implements InteractionProvider {
             state.armRight = hand.right;
             state.groundReach = hand.right && player.onGround() && !Seated.seated(player)
                     && (!player.isCrouching() || hand.button.y > RIGHT_SHOULDER.y + 4);
+            state.vanillaLever = block.getBlock() instanceof LeverBlock;
+            if (state.vanillaLever && state.groundReach)
+                leverWanted.set(LeverEffort.shift(hand.button, pressing));
             if (pressing) {
                 state.lean[0] = hand.pitch;
                 state.lean[1] = hand.yaw;
@@ -265,6 +274,9 @@ public final class ButtonPress implements InteractionProvider {
             context.claimArms();
             context.decide((pressing ? "press-" : "hover-") + (hand.right ? "R" : "L"));
         } finally {
+            state.leverStep.observe(player, context.frame(), state.vanillaLever && state.groundReach, state.button, state.pressedAt);
+            state.leverLoad.lerp(leverWanted, Smoothing.follow(dt, leverWanted.lengthSquared()>state.leverLoad.lengthSquared() ? .09 : .14));
+            if (state.leverLoad.lengthSquared()<1e-8f) state.leverLoad.zero();
             legs(state, legTarget, dt);
             state.stretch += (stretchTarget - state.stretch)
                     * (stretchTarget > state.stretch ? Smoothing.fadeIn(dt, ReachPose.SECONDS) : Smoothing.fadeOut(dt, ReachPose.SECONDS));
@@ -568,7 +580,19 @@ public final class ButtonPress implements InteractionProvider {
         float weight = state.groundReach && INSTANCE.isEnabled() && EMFCompatConfig.getBoolean(KEY_STRETCH, true)
                 && InteractionRuntime.weight(uuid, Effector.LEFT_ARM) <= 0.01f
                 ? InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id()) : 0;
+        state.lowReach.weightShift = state.vanillaLever ? state.leverLoad.x : 0;
+        state.lowReach.weightForward = state.vanillaLever ? state.leverLoad.z : 0;
+        state.leverStep.apply(parts, weight);
         LowReach.apply(parts, state.armRight, state.button, weight, state.lowReach);
+        long now=System.nanoTime();
+        if ((state.vanillaLever || state.leverStep.consumed>0) && FootGroundingFeature.isTrace() && now-state.tracedAt>50_000_000L) {
+            state.tracedAt=now;
+            org.slf4j.LoggerFactory.getLogger("EMFCompatButtonPress").info(
+                    "[LeverPoseTrace] grounded={} weight={} loadX={} loadZ={} pressing={} step={} progress={} footX={} footZ={}",
+                    state.groundReach,weight,state.leverLoad.x,state.leverLoad.z,
+                    state.pressedAt!=NEVER && (now-state.pressedAt)*1e-9<PRESS_SECONDS,
+                    state.leverStep.foot,state.leverStep.progress,state.leverStep.offset.x,state.leverStep.offset.z);
+        }
     }
 
     /**

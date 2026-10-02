@@ -14,6 +14,7 @@ public final class LowReach {
         final Quaternionf turn = new Quaternionf();
         final Vector3f shift = new Vector3f();
         public float weightShift;
+        public float weightForward;
         float frame = -1;
         long updatedAt;
 
@@ -54,6 +55,7 @@ public final class LowReach {
                 move.set(fit.shift());
             }
             move.x += state.weightShift;
+            move.z += state.weightForward;
             float k = Smoothing.follow(dt, .14);
             state.turn.slerp(new Quaternionf().slerp(wanted, weight), k).normalize();
             state.shift.lerp(move.mul(weight), k);
