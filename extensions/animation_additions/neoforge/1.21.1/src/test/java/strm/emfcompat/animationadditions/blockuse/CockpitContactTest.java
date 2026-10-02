@@ -17,4 +17,19 @@ class CockpitContactTest {
         var q=CockpitContact.fit(r,l,new Vector3f(r).add(0,0,-11),new Vector3f(l).add(0,0,-11));
         assertEquals(0,q.angle(),1e-5);
     }
+    @Test void lowThrottleLeansTowardEitherSideWithoutSacrificingTheWheel() {
+        // Actual FA+Player shoulder and target samples from the seated mixed-control test.
+        Vector3f[][] cases={
+            {new Vector3f(-4.170f,-9.492f,-2.009f),new Vector3f(5.623f,-8.979f,-.051f),
+             new Vector3f(-8.529f,-12.179f,-10.940f),new Vector3f(17.070f,-7.953f,-11.040f)},
+            {new Vector3f(-5.558f,-9.226f,-.445f),new Vector3f(4.331f,-9.744f,-1.838f),
+             new Vector3f(-17.070f,-8.003f,-11.122f),new Vector3f(7.701f,-16.127f,-10.051f)}
+        };
+        for(var c:cases) {
+            var q=CockpitContact.fit(c[0],c[1],c[2],c[3]);
+            for(int hand=0;hand<2;hand++)
+                assertTrue(Math.abs(q.transform(new Vector3f(c[hand])).distance(c[hand+2])-11)<2.08f);
+            assertTrue(q.angle()<Math.toRadians(26));
+        }
+    }
 }

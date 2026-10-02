@@ -211,7 +211,9 @@ public final class CockpitControls implements InteractionProvider {
             long now=System.nanoTime();double dt=state.contactAt==0?0:Math.min(.1,(now-state.contactAt)*1e-9);state.contactAt=now;
             state.contactFrame=traben.entity_model_features.models.animation.state.EMFState.getFrameCounter();
             var ra=parts.apply("right_arm");var la=parts.apply("left_arm");Quaternionf wanted=new Quaternionf();
-            if(working>=0 && state.typing[working] && state.motion.mix(working)>.99f && ra!=null && la!=null)
+            // Fit the actual pack shoulders to both contacts for either side control.
+            // A low throttle needs the same seated lean as the keyboard.
+            if(working>=0 && state.motion.mix(working)>.99f && ra!=null && la!=null)
                 wanted=CockpitContact.fit(new Vector3f(ra.x,ra.y,ra.z).sub(waist),new Vector3f(la.x,la.y,la.z).sub(waist),
                         new Vector3f(state.grips[0]).sub(waist),new Vector3f(state.grips[1]).sub(waist));
             state.contact.slerp(wanted,Smoothing.follow(dt,.12));

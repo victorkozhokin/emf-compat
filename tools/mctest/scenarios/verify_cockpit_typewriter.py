@@ -24,7 +24,7 @@ def verify():
             v={k:float(a)for k,a in re.findall(r'(\w+)=([-+\d.E]+)',line)};v['shown']='shown=true'in line;v['typing']='typing=true'in line
             for hand in ['right','left']:v[hand+'Target']=list(map(float,re.search(hand+r'Target=\(([^)]*)\)',line)[1].split()))
             groups[phase]['trace'].append(v)
-    summary={};healthy=0
+    summary={};healthy=0;contact_errors=[]
     for name,g in groups.items():
         t=g['trace'];assert t,name
         healthy+=len(g['states']);assert all(s['gameMode']=='survival' and s['health']==20 and s['food']==20 and s['hurtTime']==0 for s in g['states']),name
@@ -47,17 +47,17 @@ def verify():
         if name.endswith('return')or name=='removed':assert t[-1]['rightMix']==t[-1]['leftMix']==0,name
         model=g['models'][-1]['parts'];last=t[-1]
         gaps={h:math.dist(palm(model[h+'_arm']),last[h+'Target'])/16 for h in ['right','left']}
-        assert max(gaps.values())<.13,(name,gaps)
+        if max(gaps.values())>=.13:contact_errors.append({'case':name,'palmGapBlocks':gaps})
         if active:
             rim='left' if hand==0 else 'right'
-            assert all(math.dist(palm(m['parts'][rim+'_arm']),last[rim+'Target'])/16<.13 for m in g['models']),(name,'Rim contact lost during key movement')
+            if not all(math.dist(palm(m['parts'][rim+'_arm']),last[rim+'Target'])/16<.13 for m in g['models']):contact_errors.append({'case':name,'error':'Rim contact lost during key movement'})
         # Allow the existing FA seated idle sway (baseline reaches .3 model pixels).
         for leg in ['right_leg','left_leg']:
             first=g['models'][0]['parts'][leg]
             assert all(math.dist(m['parts'][leg]['pos'],first['pos'])<.4 for m in g['models']),name
         summary[name]={'frames':len(g['models']),'palmGapBlocks':gaps,'key':last['key'],'rightMix':last['rightMix'],'leftMix':last['leftMix']}
     assert healthy==336,healthy
-    summary['healthySamples']=healthy;(ROOT/'verified.json').write_text(json.dumps(summary,indent=2));shutil.copyfile('run/mctest/Test/logs/latest.log',ROOT/'game.log')
+    summary['contactErrors']=contact_errors;summary['healthySamples']=healthy;(ROOT/'verified.json').write_text(json.dumps(summary,indent=2));shutil.copyfile('run/mctest/Test/logs/latest.log',ROOT/'game.log')
     shots=ROOT/'shots';shots.mkdir(exist_ok=True)
     for g in groups.values():
         for src in g['shots']:shutil.copyfile(src,shots/Path(src).name)
@@ -72,5 +72,9 @@ def verify():
     for name,g in groups.items():
         src=Path(g['shots'][-1]).name;html+=f'<a href="shots/{src}" title="{name}"><img src="shots/{src}"></a>'
     html+='<p><a href="verified.json">Измерения контактов и проверенные сценарии</a></p>'; (ROOT/'index.html').write_text(html)
+    assert not contact_errors,contact_errors
     return summary
-if __name__=='__main__':print(json.dumps(verify(),indent=2))
+if __name__=='__main__':
+    import argparse
+    parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,default=ROOT);args=parser.parse_args();ROOT=args.output
+    print(json.dumps(verify(),indent=2))
