@@ -404,6 +404,7 @@ public final class Driver {
                     result.add("packs", packs(mc, v.getAsJsonArray()));
                     return 1;
                 }
+                case "typewriterBind", "typewriterActivate", "typewriterKey", "typewriterState" -> result.add("typewriter",TypewriterProbe.run(mc,kind,v));
                 case "rope" -> {
                     var p=requirePlayer(player);
                     Vec3 endpoint=p.getRopeHoldPosition(mc.getTimer().getGameTimeDeltaPartialTick(false));

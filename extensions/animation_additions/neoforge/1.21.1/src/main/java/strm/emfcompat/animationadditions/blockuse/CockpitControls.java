@@ -22,16 +22,21 @@ public final class CockpitControls implements InteractionProvider {
     public static final CockpitControls INSTANCE=new CockpitControls();
     private static final EntityStates<State> STATES=new EntityStates<>(State::new);
     private static final SteeringWheel WHEEL=new SteeringWheel();
+    private static final Typewriter TYPEWRITER=new Typewriter();
     private static final Vector3f[] SHOULDERS={new Vector3f(-5,2,0),new Vector3f(5,2,0)};
     private static final Candidate.Timing TIMING=new Candidate.Timing(.12,.18,.06);
     private static final class State {
         UUID seat;
         BlockPos wheel;
         final BlockPos[] throttle=new BlockPos[2];
+        final boolean[] typing=new boolean[2];
+        final TypingMotion keys=new TypingMotion();
         final BlockTarget.Spot[] rim=new BlockTarget.Spot[2];
         final Vector3f[] grips={new Vector3f(),new Vector3f()};
         final CockpitMotion motion=new CockpitMotion();
         final Vector3f lean=new Vector3f();
+        final Quaternionf contact=new Quaternionf();
+        long contactAt;float contactFrame=-1;
         Vec3 right;
         final Vector3f[] lever={new Vector3f(),new Vector3f()};
         boolean shown, held;
@@ -54,7 +59,7 @@ public final class CockpitControls implements InteractionProvider {
             UUID seat=player.getVehicle().getUUID();
             if (!seat.equals(state.seat)) {
                 state.seat=seat;state.wheel=null;state.motion.away=state.motion.moving=-1;state.motion.progress=1;
-                Arrays.fill(state.throttle,null);Arrays.fill(state.rim,null);
+                Arrays.fill(state.throttle,null);Arrays.fill(state.rim,null);Arrays.fill(state.typing,false);state.keys.reset();
             }
             BlockHitResult hit=player==Minecraft.getInstance().player && Minecraft.getInstance().hitResult instanceof BlockHitResult b
                     ? b : player.pick(3,1,false) instanceof BlockHitResult b ? b : null;
@@ -76,7 +81,16 @@ public final class CockpitControls implements InteractionProvider {
             }
             BlockPos requested=player==Minecraft.getInstance().player ? ThrottleLever.heldPosition() : null;
             state.held=requested!=null;
-            Vec3 knob=requested==null ? null : ThrottleLever.knob(player.level(),requested);
+            boolean typing=false;
+            if(requested==null) {
+                requested=Typewriter.activePosition(player);
+                typing=requested!=null && TYPEWRITER.matches(player.level().getBlockState(requested));
+                if(!typing)requested=null;
+            }
+            state.keys.advance(typing?Typewriter.pressedKey():-1,context.dt());
+            Vec3 knob=requested==null ? null : typing
+                    ? Typewriter.cockpitSpot(requested,player.level().getBlockState(requested),-1,true).point()
+                    : ThrottleLever.knob(player.level(),requested);
             if (knob!=null) knob=SubLevels.toWorld(player.level(),requested,knob);
             int request=-1;
             if (knob!=null && knob.distanceTo(centre)<2.5 && (state.held || Visibility.visible(player,requested,knob))) {
@@ -86,7 +100,7 @@ public final class CockpitControls implements InteractionProvider {
                 if (request>=0 && (state.motion.working()<0 || state.motion.working()!=request
                         || state.motion.moving<0)) {
                     if (state.motion.mix(request)==0) state.lever[request].set(model);
-                    state.throttle[request]=requested.immutable();
+                    state.throttle[request]=requested.immutable();state.typing[request]=typing;
                 }
             }
             Vec3 origin=context.frame().jointWorld(new Vector3f());
@@ -109,14 +123,19 @@ public final class CockpitControls implements InteractionProvider {
                 Vector3f target=context.frame().relativeToJoint(rim,new Vector3f());
                 float mix=state.motion.mix(hand);
                 if (mix>0 && state.throttle[hand]!=null) {
-                    Vec3 local=ThrottleLever.knob(player.level(),state.throttle[hand]);
+                    BlockPos control=state.throttle[hand];
+                    var controlBlock=player.level().getBlockState(control);
+                    Vec3 local=state.typing[hand]
+                            ? TYPEWRITER.matches(controlBlock)?Typewriter.cockpitSpot(control,controlBlock,state.keys.key,hand==0).point():null
+                            : ThrottleLever.knob(player.level(),control);
                     if (local!=null) {
                         Vector3f lever=context.frame().relativeToJoint(SubLevels.toWorld(player.level(),state.throttle[hand],local),new Vector3f());
                         state.lever[hand].lerp(lever,Smoothing.follow(context.dt(),.06));
                     }
                     target.lerp(state.lever[hand],mix);
                     wantedLean.y+=(hand==0 ? 1 : -1)*(float)Math.toRadians(10)*mix;
-                    wantedLean.z+=(hand==0 ? -1 : 1)*(float)Math.toRadians(3)*mix;
+                    wantedLean.z+=(hand==0 ? -1 : 1)*(float)Math.toRadians(state.typing[hand]?3+5*state.keys.effort:3)*mix;
+                    if(state.typing[hand])wantedLean.x+=(float)Math.toRadians(5)*state.keys.effort*mix;
                 }
                 target.y-=state.motion.lift(hand);
                 state.grips[hand].set(target);
@@ -128,20 +147,21 @@ public final class CockpitControls implements InteractionProvider {
             if (state.motion.working()<0) wantedLean.z=WheelGeometry.steeringRoll(state.grips[0].y,state.grips[1].y);
             out.add(Candidate.of(id(),Category.USE,14,1,TIMING,aims));
             context.claimArms();state.shown=true;
-            context.decide(request<0 ? "wheel" : request==0 ? "throttle-R" : "throttle-L");
+            context.decide(request<0 ? "wheel" : request==0 ? typing?"typing-R":"throttle-R" : typing?"typing-L":"throttle-L");
         } finally {
             state.lean.lerp(wantedLean,Smoothing.follow(context.dt(),.18));
             if (strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature.isTrace()
                     && context.now()-state.traceAt>100_000_000L) {
                 state.traceAt=context.now();
                 org.slf4j.LoggerFactory.getLogger("EMFCompatCockpit").info(
-                        "[CockpitTrace] seated={} shown={} moving={} away={} returning={} progress={} rightMix={} leftMix={} rightWeight={} leftWeight={} throttleHeld={} request={} rimRight={} rimLeft={}",
+                        "[CockpitTrace] seated={} shown={} moving={} away={} returning={} progress={} rightMix={} leftMix={} rightWeight={} leftWeight={} throttleHeld={} request={} rimRight={} rimLeft={} typing={} key={} effort={} rightTarget={} leftTarget={}",
                         Seated.seated(player),state.shown,state.motion.moving,state.motion.away,state.motion.returning,
                         state.motion.progress,state.motion.mix(0),state.motion.mix(1),
                         InteractionRuntime.weight(player.getUUID(),Effector.RIGHT_ARM,id()),
                         InteractionRuntime.weight(player.getUUID(),Effector.LEFT_ARM,id()),state.held,state.request,
                         state.rim[0]==null || state.wheel==null ? -1 : state.rim[0].point().distanceTo(WHEEL.swayCentre(player.level(),state.wheel,player.level().getBlockState(state.wheel))),
-                        state.rim[1]==null || state.wheel==null ? -1 : state.rim[1].point().distanceTo(WHEEL.swayCentre(player.level(),state.wheel,player.level().getBlockState(state.wheel))));
+                        state.rim[1]==null || state.wheel==null ? -1 : state.rim[1].point().distanceTo(WHEEL.swayCentre(player.level(),state.wheel,player.level().getBlockState(state.wheel))),
+                        state.request>=0 && state.typing[state.request],state.keys.key,state.keys.effort,state.grips[0],state.grips[1]);
             }
         }
     }
@@ -183,7 +203,25 @@ public final class CockpitControls implements InteractionProvider {
             Vector3f pos=turn.transform(new Vector3f(part.x,part.y,part.z).sub(waist)).add(waist);
             part.setPos(pos.x,pos.y,pos.z);
             if (!name.equals("head") && !name.equals("hat")) {
-                part.yRot+=state.lean.y*weight;part.zRot+=state.lean.z*weight;
+                part.xRot+=state.lean.x*weight;part.yRot+=state.lean.y*weight;part.zRot+=state.lean.z*weight;
+            }
+        }
+        int working=state.motion.working();
+        if(state.contactFrame!=traben.entity_model_features.models.animation.state.EMFState.getFrameCounter()) {
+            long now=System.nanoTime();double dt=state.contactAt==0?0:Math.min(.1,(now-state.contactAt)*1e-9);state.contactAt=now;
+            state.contactFrame=traben.entity_model_features.models.animation.state.EMFState.getFrameCounter();
+            var ra=parts.apply("right_arm");var la=parts.apply("left_arm");Quaternionf wanted=new Quaternionf();
+            if(working>=0 && state.typing[working] && state.motion.mix(working)>.99f && ra!=null && la!=null)
+                wanted=CockpitContact.fit(new Vector3f(ra.x,ra.y,ra.z).sub(waist),new Vector3f(la.x,la.y,la.z).sub(waist),
+                        new Vector3f(state.grips[0]).sub(waist),new Vector3f(state.grips[1]).sub(waist));
+            state.contact.slerp(wanted,Smoothing.follow(dt,.12));
+        }
+        for(String name:new String[]{"body","head","hat","right_arm","left_arm"}) {
+            var p=parts.apply(name);if(p==null)continue;
+            Vector3f at=state.contact.transform(new Vector3f(p.x,p.y,p.z).sub(waist)).add(waist);p.setPos(at.x,at.y,at.z);
+            if(!name.equals("head") && !name.equals("hat")) {
+                var angles=new Quaternionf(state.contact).mul(new Quaternionf().rotationZYX(p.zRot,p.yRot,p.xRot)).getEulerAnglesZYX(new Vector3f());
+                p.setRotation(angles.x,angles.y,angles.z);
             }
         }
         ModelPart head=parts.apply("head");
