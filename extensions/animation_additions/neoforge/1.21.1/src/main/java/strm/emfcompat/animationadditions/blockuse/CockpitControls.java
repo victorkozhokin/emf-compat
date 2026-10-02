@@ -37,6 +37,7 @@ public final class CockpitControls implements InteractionProvider {
         boolean shown, held;
         int request=-1;
         long traceAt;
+        float headYaw;
     }
     public String id() {return "CockpitControls";}
     public boolean isEnabled() {return BlockUse.INSTANCE.isEnabled() && ButtonPress.INSTANCE.isEnabled();}
@@ -74,7 +75,6 @@ public final class CockpitControls implements InteractionProvider {
                 state.wheel=null;context.decide("off:wheel-range");return;
             }
             BlockPos requested=player==Minecraft.getInstance().player ? ThrottleLever.heldPosition() : null;
-            if (requested==null && hit!=null && ThrottleLever.is(player.level().getBlockState(hit.getBlockPos()))) requested=hit.getBlockPos();
             state.held=requested!=null;
             Vec3 knob=requested==null ? null : ThrottleLever.knob(player.level(),requested);
             if (knob!=null) knob=SubLevels.toWorld(player.level(),requested,knob);
@@ -89,6 +89,10 @@ public final class CockpitControls implements InteractionProvider {
                     state.throttle[request]=requested.immutable();
                 }
             }
+            Vec3 origin=context.frame().jointWorld(new Vector3f());
+            Vector3f view=context.frame().relativeToJoint(origin.add(player.getViewVector(1)),new Vector3f());
+            float head=(float)Math.toRadians(CockpitFacing.head((float)Math.toDegrees(CockpitFacing.angle(view.x,view.z)),0));
+            state.headYaw+=IKMath.wrap(head-state.headYaw)*Smoothing.follow(context.dt(),.12);
             state.request=request;
             // Freeze the remaining rim contact during a handover. The stored point is in the
             // wheel's block space, so it still follows a moving craft rather than the world.
@@ -140,6 +144,27 @@ public final class CockpitControls implements InteractionProvider {
         }
     }
 
+    /** Rotate only this rendered model toward the wheel; camera and gameplay yaw stay free. */
+    public static float orient(AbstractClientPlayer player,com.mojang.blaze3d.vertex.PoseStack stack) {
+        State state=STATES.fresh(player.getUUID());
+        if (state==null || !state.shown || !INSTANCE.isEnabled() || !Seated.seated(player)
+                || !player.getVehicle().getUUID().equals(state.seat) || state.wheel==null
+                || !EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) return 0;
+        var block=player.level().getBlockState(state.wheel);
+        if (!WHEEL.matches(block)) return 0;
+        Vec3 centre=SubLevels.toWorld(player.level(),state.wheel,WHEEL.swayCentre(player.level(),state.wheel,block));
+        if (centre.distanceTo(player.getEyePosition())>2.25) return 0;
+        var frame=strm.emfcompat.core.ik.IKFrame.capture(stack.last().pose(),
+                Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
+        Vec3 origin=frame.jointWorld(new Vector3f());
+        // Facing is horizontal in the world, including on a pitched craft.
+        Vec3 direction=centre.subtract(player.position());
+        Vector3f local=frame.relativeToJoint(origin.add(direction.x,0,direction.z),new Vector3f());
+        float angle=CockpitFacing.angle(local.x,local.z);
+        stack.mulPose(new Quaternionf().rotationY(angle));
+        return angle;
+    }
+
     /** Bounded turn above the seat, then aim from the actual pack shoulders. */
     public static void apply(UUID uuid,Function<String,ModelPart> parts) {
         State state=STATES.fresh(uuid);
@@ -159,6 +184,9 @@ public final class CockpitControls implements InteractionProvider {
                 part.yRot+=state.lean.y*weight;part.zRot+=state.lean.z*weight;
             }
         }
+        ModelPart head=parts.apply("head");
+        if (head!=null && InteractionRuntime.aim(uuid,Effector.HEAD)==null)
+            head.yRot+=IKMath.wrap(state.headYaw-head.yRot)*weight;
         for(int hand=0;hand<2;hand++) {
             ModelPart arm=parts.apply(hand==0?"right_arm":"left_arm");if(arm==null) continue;
             Vector3f to=new Vector3f(state.grips[hand]).sub(arm.x,arm.y,arm.z).normalize();

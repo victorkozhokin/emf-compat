@@ -359,6 +359,15 @@ public final class Driver {
                         throw new IllegalStateException("Steering wheel is not held: click its rim first");
                     handler.getClass().getMethod("activeOnMouseMove", double.class, double.class).invoke(handler, v.getAsDouble(), 0d);
                 }
+                case "throttleHold" -> {
+                    Object handler=Class.forName("dev.simulated_team.simulated.index.SimClickInteractions")
+                            .getField("THROTTLE_LEVER_MANAGER").get(null);
+                    JsonArray position=v.getAsJsonArray();
+                    var block=new net.minecraft.core.BlockPos(position.get(0).getAsInt(),position.get(1).getAsInt(),position.get(2).getAsInt());
+                    handler.getClass().getMethod("startHold",net.minecraft.world.level.Level.class,
+                            net.minecraft.world.entity.player.Player.class,net.minecraft.core.BlockPos.class)
+                            .invoke(handler,requirePlayer(player).level(),player,block);
+                }
                 case "throttleDrag" -> {
                     Object handler=Class.forName("dev.simulated_team.simulated.index.SimClickInteractions")
                             .getField("THROTTLE_LEVER_MANAGER").get(null);

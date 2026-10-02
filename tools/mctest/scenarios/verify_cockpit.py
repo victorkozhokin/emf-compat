@@ -26,7 +26,8 @@ def verify(directory):
             assert all(v['shown'] for v in frames),(name,'Pose dropped')
             assert min(min(v['rightWeight'],v['leftWeight']) for v in frames)>.99,(name,'Ownership dropped')
     for name,hand in [('right',0),('right-drag',0),('right-look-away',0),('left',1),('left-drag',1)]:
-        assert all(v['request']==hand for v in cases[name]),(name,'Wrong hand')
+        assert all(v['request']==hand for v in cases[name] if v['held']),(name,'Wrong held hand')
+        assert all(v['request']==-1 for v in cases[name] if not v['held']),(name,'Camera hover freed a hand')
         assert any(v['held'] for v in cases[name]),(name,'Only hover tested')
         assert cases[name][-1]['rightMix' if hand==0 else 'leftMix']==1,name
     for name in ['return-right','return-both','remove-throttle']:

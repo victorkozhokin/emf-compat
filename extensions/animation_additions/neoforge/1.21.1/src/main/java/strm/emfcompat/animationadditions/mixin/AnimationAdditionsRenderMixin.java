@@ -41,6 +41,7 @@ public class AnimationAdditionsRenderMixin {
             return;
         }
         if (!(entity instanceof AbstractClientPlayer player)) return;
+        strm.emfcompat.animationadditions.blockuse.CockpitControls.orient(player, stack);
         emfcompat$quietSwing(player);
         EjectorLaunch.crouch(player, ((LivingEntityRenderer<?, ?>) (Object) this).getModel(), stack);
         FootGrounding.modelPose(player, stack);

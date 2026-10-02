@@ -31,22 +31,31 @@ def shots(name,count=18,drag=None):
 def cases():
     steps=fixture()
     steps += [{"log":"cockpitcase:wheel"},{"click":"use"},{"wait":5}]+shots('wheel',drag={"steeringDrag":20})
-    steps += [{"steeringRelease":True},{"log":"cockpitcase:right"},{"look":[-90,45]},{"wait":2},{"click":"use"},{"wait":2}]+shots('right')
+    steps += [{"steeringRelease":True},{"log":"cockpitcase:right"},{"look":[-90,45]},{"wait":2},{"throttleHold":[371,150,7]},{"wait":2}]+shots('right')
     steps += [{"log":"cockpitcase:right-drag"}]+shots('right-drag',drag={"throttleDrag":-10})
     steps += [{"log":"cockpitcase:right-look-away"},{"look":[180,22]}]+shots('right-look-away',count=8)
     steps += [{"steeringRelease":True},{"log":"cockpitcase:return-right"}]+shots('return-right')
-    steps += [{"log":"cockpitcase:left"},{"look":[90,45]},{"wait":2},{"click":"use"},{"wait":2}]+shots('left')
+    steps += [{"log":"cockpitcase:left"},{"look":[90,45]},{"wait":2},{"throttleHold":[369,150,7]},{"wait":2}]+shots('left')
     steps += [{"log":"cockpitcase:left-drag"}]+shots('left-drag',drag={"throttleDrag":-10})
     steps += shots('left-reverse',drag={"throttleDrag":10})
-    steps += [{"steeringRelease":True},{"log":"cockpitcase:direct-switch"},{"look":[-90,45]},{"wait":2},{"click":"use"},{"wait":2}]+shots('direct-switch',count=24)
+    steps += [{"steeringRelease":True},{"log":"cockpitcase:direct-switch"},{"look":[-90,45]},{"wait":2},{"throttleHold":[371,150,7]},{"wait":2}]+shots('direct-switch',count=24)
     steps += [{"steeringRelease":True},{"log":"cockpitcase:return-both"},{"look":[180,22]}]+shots('return-both')
     steps += [{"log":"cockpitcase:wheel-resume"},{"click":"use"},{"wait":2}]+shots('wheel-resume',drag={"steeringDrag":-20})
-    steps += [{"steeringRelease":True},{"log":"cockpitcase:remove-throttle"},{"look":[-90,45]},{"wait":2},{"click":"use"},{"wait":2},{"wait":10},
+    steps += [{"steeringRelease":True},{"log":"cockpitcase:remove-throttle"},{"look":[-90,45]},{"wait":2},{"throttleHold":[371,150,7]},{"wait":2},{"wait":10},
               {"cmd":"setblock 371 150 7 air"}]+shots('remove-throttle')
     steps += [{"steeringRelease":True},{"log":"cockpitcase:dismount"},{"cmd":"ride @s dismount"},{"wait":20},{"model":"player"},
               {"screenshot":"cockpit-dismount"},{"log":"cockpitend"}]
     return steps
 
 
+def facing_sweep():
+    steps=fixture()+[{"click":"use"},{"wait":5}]
+    for i,yaw in enumerate([180,150,120,90,60,30,0,-30,-60,-90,-120,-150,180]):
+        steps += [{"look":[yaw,10]},{"wait":8},{"model":"player"},
+                  {"screenshot":f"cockpit-facing-yaw-{i:02}"},{"state":True}]
+    return steps+[{"steeringRelease":True},{"cmd":"ride @s dismount"},{"wait":15}]
+
+
 if __name__=='__main__':
     Path(__file__).with_name('atlas-cockpit.json').write_text(json.dumps(cases(),indent=2)+'\n')
+    Path(__file__).with_name('atlas-cockpit-facing.json').write_text(json.dumps(facing_sweep(),indent=2)+'\n')

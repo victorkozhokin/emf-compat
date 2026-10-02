@@ -6,6 +6,24 @@ import org.joml.Vector3f;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PelvisFollowTest {
+    @Test void gazeAndAuthoredHeadRollSurviveCombinedClearanceTurns() {
+        Vector3f neck = new Vector3f(0, -2, 1), waist = new Vector3f(0, 12, -2);
+        for (float pitch : new float[]{-.9f, 0, .7f})
+            for (float yaw : new float[]{-1.4f, -.5f, .5f, 1.4f})
+                for (float roll : new float[]{-.2f, 0, .2f})
+                    for (float turnYaw : new float[]{-1.2f, 0, 1.2f}) {
+                        Quaternionf turn = new Quaternionf().rotationZYX(.25f, turnYaw, .45f);
+                        var head = PelvisFollow.carryGaze(neck, pitch, yaw, roll, turn, waist, 1.5f);
+                        Vector3f expectedNeck = turn.transform(new Vector3f(neck).sub(waist)).add(waist).add(1.5f,0,0);
+                        assertTrue(expectedNeck.distance(head.pivot()) < 1e-5f);
+                        Quaternionf before = new Quaternionf().rotationZYX(roll,yaw,pitch);
+                        Quaternionf after = new Quaternionf().rotationZYX(head.roll(),head.yaw(),head.pitch());
+                        for (Vector3f axis : new Vector3f[]{new Vector3f(0,0,-1),new Vector3f(0,-1,0)})
+                            assertTrue(before.transform(new Vector3f(axis)).distance(after.transform(new Vector3f(axis))) < 1e-5f);
+                        assertEquals(new Vector3f(0,-2,1), neck);
+                    }
+    }
+
     @Test void crouchedTorsoAttachmentStaysAtRealHipCentreThroughLargeYaw() {
         Vector3f body = new Vector3f(0, 5, 1), hips = new Vector3f(0, 10, -2);
         for (float pitch : new float[]{0.3f, 0.55f, 0.8f}) {

@@ -17,6 +17,14 @@ public final class PelvisFollow {
         return new Part(moved, angles.x, angles.y, angles.z);
     }
 
+    /** Carry the neck attachment without changing the pack's gaze or an authored head pose. */
+    static Part carryGaze(Vector3f pivot, float pitch, float yaw, float roll,
+                          Quaternionf turn, Vector3f waist, float shift) {
+        Vector3f moved = new Quaternionf(turn).transform(new Vector3f(pivot).sub(waist)).add(waist);
+        moved.x += shift;
+        return new Part(moved, pitch, yaw, roll);
+    }
+
     private static Vector3f angles(Quaternionf q) {
         return new Vector3f(
                 (float)Math.atan2(2 * (q.w * q.x + q.y * q.z), 1 - 2 * (q.x * q.x + q.y * q.y)),

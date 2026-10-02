@@ -195,10 +195,12 @@ public final class TorsoLean {
         for (String name : CARRIED) {
             ModelPart part = parts.apply(name);
             if (part == null) continue;
-            carry(part, turn, waist, carriedLean);
+            if (name.equals("head") || name.equals("hat")) {
+                var carried = PelvisFollow.carryGaze(new Vector3f(part.x, part.y, part.z),
+                        part.xRot, part.yRot, part.zRot, turn, waist, carriedLean[3]);
+                part.setPos(carried.pivot().x, carried.pivot().y, carried.pivot().z);
+            } else carry(part, turn, waist, carriedLean);
             part.y += carriedWaist.y - waist.y; part.z += carriedWaist.z - waist.z;
-            // Turned to fit a gap, the head keeps looking where it looked.
-            if (name.equals("head") || name.equals("hat")) part.yRot -= lean[4];
         }
     }
 

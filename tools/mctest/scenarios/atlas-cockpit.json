@@ -355,7 +355,11 @@
     "wait": 2
   },
   {
-    "click": "use"
+    "throttleHold": [
+      371,
+      150,
+      7
+    ]
   },
   {
     "wait": 2
@@ -1015,7 +1019,11 @@
     "wait": 2
   },
   {
-    "click": "use"
+    "throttleHold": [
+      369,
+      150,
+      7
+    ]
   },
   {
     "wait": 2
@@ -1642,7 +1650,11 @@
     "wait": 2
   },
   {
-    "click": "use"
+    "throttleHold": [
+      371,
+      150,
+      7
+    ]
   },
   {
     "wait": 2
@@ -2287,7 +2299,11 @@
     "wait": 2
   },
   {
-    "click": "use"
+    "throttleHold": [
+      371,
+      150,
+      7
+    ]
   },
   {
     "wait": 2
