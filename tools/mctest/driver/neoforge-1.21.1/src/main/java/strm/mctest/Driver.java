@@ -392,6 +392,16 @@ public final class Driver {
                     result.add("packs", packs(mc, v.getAsJsonArray()));
                     return 1;
                 }
+                case "rope" -> {
+                    var p=requirePlayer(player);
+                    Vec3 endpoint=p.getRopeHoldPosition(mc.getTimer().getGameTimeDeltaPartialTick(false));
+                    JsonArray point=new JsonArray();point.add(endpoint.x);point.add(endpoint.y);point.add(endpoint.z);
+                    JsonObject info=new JsonObject();info.add("endpoint",point);
+                    int count=0;
+                    for (var animal:p.level().getEntities(p,p.getBoundingBox().inflate(12),candidate->true))
+                        if(animal instanceof net.minecraft.world.entity.Leashable leash && leash.getLeashHolder()==p)count++;
+                    info.addProperty("count",count);result.add("rope",info);
+                }
                 case "model" -> result.add("model", model(mc, v));
                 case "log" -> LOG.info("[mctest] {}", v.getAsString());
                 case "maxFps" -> {
@@ -486,6 +496,10 @@ public final class Driver {
         s.addProperty("dimension", p.level().dimension().location().toString());
         s.add("pos", GSON.toJsonTree(new double[]{p.getX(), p.getY(), p.getZ()}));
         s.add("rot", GSON.toJsonTree(new float[]{p.getYRot(), p.getXRot()}));
+        s.addProperty("health",p.getHealth());
+        s.addProperty("food",p.getFoodData().getFoodLevel());
+        s.addProperty("saturation",p.getFoodData().getSaturationLevel());
+        s.addProperty("hurtTime",p.hurtTime);
         s.addProperty("pose", p.getPose().name());
         s.addProperty("crouching", p.isCrouching());
         s.addProperty("onGround", p.onGround());

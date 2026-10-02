@@ -57,6 +57,7 @@ public class EMFCompatAnimationAdditionsMod {
             WallSqueeze.register(config);
             PlantReach.register(config);
             LookAt.register(config);
+            strm.emfcompat.animationadditions.leash.LeashHold.register(config);
             TorsoLean.register(config);
             PoseInertia.register(config);
             ButtonPress.register(config);
@@ -69,6 +70,7 @@ public class EMFCompatAnimationAdditionsMod {
             InteractionRuntime.register(WallHand.INSTANCE);
             InteractionRuntime.register(PlantReach.INSTANCE);
             InteractionRuntime.register(LookAt.INSTANCE);
+            InteractionRuntime.register(strm.emfcompat.animationadditions.leash.LeashHold.INSTANCE);
             InteractionRuntime.register(ButtonPress.INSTANCE);
             InteractionRuntime.register(BlockUse.INSTANCE);
             InteractionRuntime.register(strm.emfcompat.animationadditions.blockuse.CockpitControls.INSTANCE);

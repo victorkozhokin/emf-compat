@@ -8,6 +8,8 @@
     "horsesync.AbstractHorseRendererAccessor",
     "horsesync.PlayerModelMixin",
     "AnimationAdditionsRenderMixin",
+    "LeashPlayerMixin",
+    "LeashInteractionMixin",
     "LevelRendererAccessor"
   ],
   "injectors": {

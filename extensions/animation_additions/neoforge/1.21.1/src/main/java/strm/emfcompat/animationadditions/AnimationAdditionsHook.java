@@ -132,5 +132,6 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         Mining.aimArm(uuid, parts);
         strm.emfcompat.animationadditions.blockuse.CockpitControls.apply(uuid, parts);
         strm.emfcompat.animationadditions.interaction.HandContacts.apply(uuid, parts);
+        strm.emfcompat.animationadditions.leash.LeashHold.capture(uuid, parts);
     }
 }

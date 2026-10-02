@@ -1,0 +1,2285 @@
+[
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "steeringRelease": true
+  },
+  {
+    "cmd": "ride @s dismount"
+  },
+  {
+    "cmd": "gamemode survival"
+  },
+  {
+    "cmd": "kill @e[tag=leash_test]"
+  },
+  {
+    "cmd": "fill 435 149 -5 475 149 20 smooth_stone"
+  },
+  {
+    "cmd": "fill 435 150 -5 475 155 20 air"
+  },
+  {
+    "cmd": "tp @s 450.5 150 7.5 -90 15"
+  },
+  {
+    "cmd": "effect give @s instant_health 1 10 true"
+  },
+  {
+    "cmd": "effect give @s saturation 2 10 true"
+  },
+  {
+    "wait": 40
+  },
+  {
+    "cmd": "summon cow 452.5 150 7.5 {NoAI:1b,Tags:[\"leash_test\",\"leash_primary\"]}"
+  },
+  {
+    "cmd": "item replace entity @s weapon.mainhand with lead"
+  },
+  {
+    "cmd": "item replace entity @s weapon.offhand with air"
+  },
+  {
+    "config": {
+      "leash.enabled": true,
+      "lookat.enabled": false,
+      "footgrounding.trace": true
+    }
+  },
+  {
+    "hideGui": true
+  },
+  {
+    "hideScreen": true
+  },
+  {
+    "camera": "back"
+  },
+  {
+    "wait": 30
+  },
+  {
+    "look": [
+      -90,
+      15
+    ]
+  },
+  {
+    "wait": 3
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 20
+  },
+  {
+    "rope": true
+  },
+  {
+    "orbit": [
+      30,
+      12,
+      4
+    ]
+  },
+  {
+    "wait": 5
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "leashcase:slack"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 453.5 150 7.5"
+  },
+  {
+    "wait": 10
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-slack-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-slack-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-slack-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-slack-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-slack-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-slack-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-slack-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-slack-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-slack-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-slack-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-slack-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-slack-11"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "leashcase:taut"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 457 150 7.5"
+  },
+  {
+    "wait": 10
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-11"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "leashcase:taut-crouch"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 457 150 7.5"
+  },
+  {
+    "wait": 10
+  },
+  {
+    "hold": "sneak"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-crouch-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-crouch-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-crouch-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-crouch-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-crouch-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-crouch-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-crouch-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-crouch-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-crouch-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-crouch-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-crouch-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-taut-crouch-11"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "leashcase:side"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 453.5 150 12.5"
+  },
+  {
+    "wait": 10
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-side-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-side-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-side-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-side-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-side-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-side-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-side-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-side-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-side-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-side-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-side-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-side-11"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "leashcase:behind"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 446.5 150 7.5"
+  },
+  {
+    "wait": 10
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-behind-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-behind-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-behind-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-behind-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-behind-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-behind-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-behind-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-behind-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-behind-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-behind-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-behind-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-behind-11"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "leashcase:high"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 454.5 152 7.5"
+  },
+  {
+    "wait": 10
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-high-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-high-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-high-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-high-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-high-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-high-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-high-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-high-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-high-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-high-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-high-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-high-11"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "leashcase:jerk"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 456.3 150 7.5"
+  },
+  {
+    "wait": 15
+  },
+  {
+    "hold": "back"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-jerk-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-jerk-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-jerk-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-jerk-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-jerk-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-jerk-05"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "leashcase:relax"
+  },
+  {
+    "cmd": "tp @s 450.5 150 7.5 -90 15"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 453.5 150 7.5"
+  },
+  {
+    "wait": 15
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-relax-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-relax-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-relax-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-relax-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-relax-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-relax-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-relax-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-relax-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-relax-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-relax-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-relax-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-relax-11"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "leashcase:busy"
+  },
+  {
+    "cmd": "setblock 451 150 7 lever[face=floor,facing=west]"
+  },
+  {
+    "look": [
+      -90,
+      55
+    ]
+  },
+  {
+    "wait": 10
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 20
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-busy-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-busy-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-busy-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-busy-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-busy-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-busy-05"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "leashcase:busy-return"
+  },
+  {
+    "cmd": "setblock 451 150 7 air"
+  },
+  {
+    "look": [
+      -90,
+      15
+    ]
+  },
+  {
+    "wait": 25
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-busy-return-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-busy-return-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-busy-return-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-busy-return-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-busy-return-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-busy-return-05"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "leashcase:first-person"
+  },
+  {
+    "camera": "first"
+  },
+  {
+    "wait": 30
+  },
+  {
+    "rope": true
+  },
+  {
+    "state": true
+  },
+  {
+    "camera": "back"
+  },
+  {
+    "wait": 30
+  },
+  {
+    "log": "leashcase:disabled"
+  },
+  {
+    "config": {
+      "leash.enabled": false
+    }
+  },
+  {
+    "wait": 30
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-disabled-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-disabled-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-disabled-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-disabled-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-disabled-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-disabled-05"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "leashcase:reenabled"
+  },
+  {
+    "config": {
+      "leash.enabled": true
+    }
+  },
+  {
+    "wait": 30
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-reenabled-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-reenabled-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-reenabled-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-reenabled-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-reenabled-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-reenabled-05"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "leashcase:break"
+  },
+  {
+    "cmd": "tp @e[tag=leash_primary,limit=1] 465.5 150 7.5"
+  },
+  {
+    "wait": 25
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-break-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-break-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-break-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-break-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-break-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-break-05"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "leashcase:detach"
+  },
+  {
+    "cmd": "kill @e[tag=leash_test]"
+  },
+  {
+    "wait": 30
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-detach-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-detach-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-detach-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-detach-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-detach-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-detach-05"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "leashcase:offhand"
+  },
+  {
+    "cmd": "summon cow 452.5 150 7.5 {NoAI:1b,Tags:[\"leash_test\",\"leash_primary\"]}"
+  },
+  {
+    "cmd": "item replace entity @s weapon.mainhand with air"
+  },
+  {
+    "cmd": "item replace entity @s weapon.offhand with lead"
+  },
+  {
+    "look": [
+      -90,
+      15
+    ]
+  },
+  {
+    "wait": 15
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 25
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-offhand-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-offhand-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-offhand-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-offhand-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-offhand-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-offhand-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-offhand-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-offhand-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-offhand-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-offhand-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-offhand-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-offhand-11"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "leashcase:multiple"
+  },
+  {
+    "cmd": "summon cow 452.5 150 8.5 {NoAI:1b,Tags:[\"leash_test\",\"leash_second\"]}"
+  },
+  {
+    "cmd": "data modify entity @e[tag=leash_second,limit=1] leash.UUID set from entity @s UUID"
+  },
+  {
+    "wait": 15
+  },
+  {
+    "cmd": "tp @e[tag=leash_second,limit=1] 456 150 8.5"
+  },
+  {
+    "wait": 15
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-multiple-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-multiple-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-multiple-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-multiple-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-multiple-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-multiple-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-multiple-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-multiple-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-multiple-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-multiple-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-multiple-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-multiple-11"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "leashcase:fence"
+  },
+  {
+    "cmd": "setblock 453 150 7 oak_fence"
+  },
+  {
+    "cmd": "execute as @e[tag=leash_test] run data modify entity @s leash set value [I;453,150,7]"
+  },
+  {
+    "wait": 30
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-fence-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-fence-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-fence-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-fence-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-fence-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "leash-fence-05"
+  },
+  {
+    "state": true
+  },
+  {
+    "cmd": "kill @e[tag=leash_test]"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "leashend"
+  }
+]
