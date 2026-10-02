@@ -58,6 +58,7 @@ public class EMFCompatAnimationAdditionsMod {
             PlantReach.register(config);
             LookAt.register(config);
             strm.emfcompat.animationadditions.leash.LeashHold.register(config);
+            strm.emfcompat.animationadditions.transport.TransportGrip.register(config);
             TorsoLean.register(config);
             PoseInertia.register(config);
             ButtonPress.register(config);
@@ -72,6 +73,7 @@ public class EMFCompatAnimationAdditionsMod {
             InteractionRuntime.register(PlantReach.INSTANCE);
             InteractionRuntime.register(LookAt.INSTANCE);
             InteractionRuntime.register(strm.emfcompat.animationadditions.leash.LeashHold.INSTANCE);
+            InteractionRuntime.register(strm.emfcompat.animationadditions.transport.TransportGrip.INSTANCE);
             InteractionRuntime.register(ButtonPress.INSTANCE);
             InteractionRuntime.register(strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.INSTANCE);
             InteractionRuntime.register(BlockUse.INSTANCE);

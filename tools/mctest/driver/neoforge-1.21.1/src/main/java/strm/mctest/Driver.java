@@ -424,6 +424,7 @@ public final class Driver {
                     if (v.getAsString().equals("start")) Frames.start();
                     else result.add("frames", Frames.report());
                 }
+                case "craft" -> result.add("craft",CraftProbe.run(mc,v.getAsJsonObject()));
                 case "bot" -> result.add("bot", Bot.run(mc, v.getAsJsonObject()));
                 case "menuClick" -> {
                     // A click on a slot of the open menu, as the mouse makes one: {"slot": 1, "button": 1, "type": "PICKUP"}.
@@ -509,6 +510,15 @@ public final class Driver {
         s.add("pos", GSON.toJsonTree(new double[]{p.getX(), p.getY(), p.getZ()}));
         s.add("rot", GSON.toJsonTree(new float[]{p.getYRot(), p.getXRot()}));
         s.addProperty("health",p.getHealth());
+        s.addProperty("mainItem",BuiltInRegistries.ITEM.getKey(p.getMainHandItem().getItem()).toString());
+        s.addProperty("offItem",BuiltInRegistries.ITEM.getKey(p.getOffhandItem().getItem()).toString());
+        try {
+            Class<?> runtime=Class.forName("strm.emfcompat.animationadditions.interaction.InteractionRuntime");
+            Class<?> effector=Class.forName("strm.emfcompat.animationadditions.interaction.Effector");
+            Method weight=runtime.getMethod("weight",UUID.class,effector,String.class);
+            s.addProperty("transportRight",(Float)weight.invoke(null,p.getUUID(),effector.getField("RIGHT_ARM").get(null),"TransportGrip"));
+            s.addProperty("transportLeft",(Float)weight.invoke(null,p.getUUID(),effector.getField("LEFT_ARM").get(null),"TransportGrip"));
+        } catch(ReflectiveOperationException ignored) { /* Optional animation extension. */ }
         s.addProperty("food",p.getFoodData().getFoodLevel());
         s.addProperty("saturation",p.getFoodData().getSaturationLevel());
         s.addProperty("hurtTime",p.hurtTime);

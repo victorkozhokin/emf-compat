@@ -105,7 +105,7 @@ public final class TorsoLean {
                 target[0] += head[0] * FOLLOW_PITCH * head[2];
                 target[1] += Math.max(-MAX_YAW, Math.min(MAX_YAW, head[1] * FOLLOW_YAW)) * head[2];
             }
-            for (float[] press : new float[][]{ButtonPress.torsoHint(uuid), strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.torsoHint(uuid), BlockUse.torsoHint(uuid), EjectorLaunch.torsoHint(uuid), WallSqueeze.torsoHint(uuid), FootGrounding.terrainHint(uuid), strm.emfcompat.animationadditions.leash.LeashHold.torsoHint(uuid)}) {
+            for (float[] press : new float[][]{ButtonPress.torsoHint(uuid), strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.torsoHint(uuid), BlockUse.torsoHint(uuid), EjectorLaunch.torsoHint(uuid), WallSqueeze.torsoHint(uuid), strm.emfcompat.animationadditions.transport.TransportGrip.torsoHint(uuid), FootGrounding.terrainHint(uuid), strm.emfcompat.animationadditions.leash.LeashHold.torsoHint(uuid)}) {
                 if (press == null) continue;
                 target[0] += press[0];
                 target[1] += press[1];
