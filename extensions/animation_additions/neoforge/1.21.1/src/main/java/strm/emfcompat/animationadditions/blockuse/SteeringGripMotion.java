@@ -35,7 +35,7 @@ final class SteeringGripMotion {
                 int hand = (next+n)%2;
                 float phase = angle+offsets[hand];
                 float error = phase-centres[hand];
-                if (Math.abs(error) > (centres[hand] == 0 ? (hand == 0 ? 45 : 65) : 30)) {
+                if (Math.abs(error) > (centres[hand] == 0 ? (hand == 0 ? 35 : 55) : 30)) {
                     moving = hand;
                     elapsed = 0;
                     from = offsets[hand];
@@ -58,8 +58,8 @@ final class SteeringGripMotion {
     }
 
     private float bounded(int hand,float phase) {
-        float lo = centres[hand] == 0 ? -85 : centres[hand]-40;
-        float hi = centres[hand] == 0 ? 85 : centres[hand]+40;
+        float lo = centres[hand] == 0 ? -70 : centres[hand]-40;
+        float hi = centres[hand] == 0 ? 70 : centres[hand]+40;
         return Math.max(lo,Math.min(hi,phase));
     }
 

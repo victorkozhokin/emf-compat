@@ -22,6 +22,8 @@ def verify(directory):
         assert frames,name
         for v in frames:
             assert v['rightMix']==0 or v['leftMix']==0,(name,'Both hands leave the rim',v)
+            if v['shown']:
+                assert .499 <= v['rimRight'] <= .55 and .499 <= v['rimLeft'] <= .55,(name,'Grip left rim for hub',v)
         if name!='dismount':
             assert all(v['shown'] for v in frames),(name,'Pose dropped')
             assert min(min(v['rightWeight'],v['leftWeight']) for v in frames)>.99,(name,'Ownership dropped')

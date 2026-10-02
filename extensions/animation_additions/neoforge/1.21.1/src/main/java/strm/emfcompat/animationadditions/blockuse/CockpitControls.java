@@ -135,11 +135,13 @@ public final class CockpitControls implements InteractionProvider {
                     && context.now()-state.traceAt>100_000_000L) {
                 state.traceAt=context.now();
                 org.slf4j.LoggerFactory.getLogger("EMFCompatCockpit").info(
-                        "[CockpitTrace] seated={} shown={} moving={} away={} returning={} progress={} rightMix={} leftMix={} rightWeight={} leftWeight={} throttleHeld={} request={}",
+                        "[CockpitTrace] seated={} shown={} moving={} away={} returning={} progress={} rightMix={} leftMix={} rightWeight={} leftWeight={} throttleHeld={} request={} rimRight={} rimLeft={}",
                         Seated.seated(player),state.shown,state.motion.moving,state.motion.away,state.motion.returning,
                         state.motion.progress,state.motion.mix(0),state.motion.mix(1),
                         InteractionRuntime.weight(player.getUUID(),Effector.RIGHT_ARM,id()),
-                        InteractionRuntime.weight(player.getUUID(),Effector.LEFT_ARM,id()),state.held,state.request);
+                        InteractionRuntime.weight(player.getUUID(),Effector.LEFT_ARM,id()),state.held,state.request,
+                        state.rim[0]==null || state.wheel==null ? -1 : state.rim[0].point().distanceTo(WHEEL.swayCentre(player.level(),state.wheel,player.level().getBlockState(state.wheel))),
+                        state.rim[1]==null || state.wheel==null ? -1 : state.rim[1].point().distanceTo(WHEEL.swayCentre(player.level(),state.wheel,player.level().getBlockState(state.wheel))));
             }
         }
     }
@@ -194,6 +196,7 @@ public final class CockpitControls implements InteractionProvider {
             float yaw=(float)Math.atan2(-to.x,-to.z);
             arm.xRot+=IKMath.wrap(pitch-arm.xRot)*weight;
             arm.yRot+=IKMath.wrap(yaw-arm.yRot)*weight;
+            arm.zRot*=1-weight;
         }
     }
 }

@@ -53,8 +53,9 @@ final class SteeringWheel implements BlockTarget {
         if (fresh) {
             Vec3 side = SubLevels.at(player.level(), pos).directionToWorld(point(pos, block, 0, new Vector3f(1, .5f, .5f))
                     .subtract(point(pos, block, 0, new Vector3f(.5f))));
-            Vec3 right = new Vec3(-player.getLookAngle().z, 0, player.getLookAngle().x);
-            state.positive = side.dot(right) >= 0;
+            Vec3 toward = SubLevels.toWorld(player.level(),pos,point(pos,block,0,new Vector3f(.5f)))
+                    .subtract(player.position());
+            state.positive = WheelGeometry.positiveSide((float)side.x,(float)side.z,(float)toward.x,(float)toward.z);
             state.pos = pos.immutable(); state.mount = block; state.main = player.getMainArm();
             Vec3 centre = point(pos,block,0,new Vector3f(.5f));
             Vec3 worldCentre = SubLevels.at(player.level(),pos).toWorld(centre);
