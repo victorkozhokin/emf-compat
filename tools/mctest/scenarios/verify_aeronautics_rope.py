@@ -44,7 +44,7 @@ def verify():
                        'bodyPitchSpan':max(p[0]for p in body)-min(p[0]for p in body),
                        'helperContact':any(x['helper'] and x['helperGap']<.13 for x in t),
                        'radiusErrorMax':max(abs(r-4)for r in radii)}
-    assert summary['circle-slow']['liftMaxPixels']>1 and {0,1}.issubset(summary['circle-slow']['steps'])
+    assert all(g['liftMaxPixels']<.031 and g['steps']==[-1] for g in summary.values()),summary
     assert summary['circle-fast']['helperContact']
     assert summary['circle-fast']['bodyPitchSpan']>summary['circle-slow']['bodyPitchSpan']
     summary.update(healthySamples=len(ss),commands=len(result),guiHidden=True,fps=20,

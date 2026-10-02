@@ -23,5 +23,11 @@ final class RopePoseMath {
         return point.apply(i).lerp(point.apply(i+1),coordinate-i);
     }
     static float gain(double speed) {return 1+.65f*(float)Math.max(0,Math.min(1,speed/5));}
+    static org.joml.Vector3f foot(boolean right) {
+        return new org.joml.Vector3f(right?-.75f:.75f,0,.9f);
+    }
+    static float edgeLift(boolean enabled,boolean planted,boolean edge,boolean crouching,boolean helper) {
+        return enabled && planted && edge && !helper?lift(crouching,false):0;
+    }
     static float lift(boolean crouching,boolean helper) {return (crouching?.7f:1.8f)*(helper?.35f:1);}
 }

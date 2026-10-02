@@ -141,14 +141,20 @@ public final class TransportGrip implements InteractionProvider {
         float owned=ownership(uuid,s),rope=s.ropeBlend*owned;
         float effort=s.load*owned, gain=1+s.ropeBlend*(RopePoseMath.gain(s.motion.speed)-1);
         float side=s.hand==Effector.RIGHT_ARM?-1:1;
-        return new float[]{s.force.z*(float)Math.toRadians(9+7*s.ropeBlend)*effort*gain+(float)Math.toRadians(5)*rope,
-                0,s.force.x*(float)Math.toRadians(10+6*s.ropeBlend)*effort*gain-side*(float)Math.toRadians(3)*rope,
+        Vector3f lean=new Vector3f(s.lastTarget.x,0,s.lastTarget.z);
+        if(lean.lengthSquared()>.01f)lean.normalize();
+        float edge=s.stance.ropeLift/1.8f*owned;
+        return new float[]{s.force.z*(float)Math.toRadians(9+7*s.ropeBlend)*effort*gain+(float)Math.toRadians(5)*rope-lean.z*(float)Math.toRadians(10)*edge,
+                0,s.force.x*(float)Math.toRadians(10+6*s.ropeBlend)*effort*gain-side*(float)Math.toRadians(3)*rope+lean.x*(float)Math.toRadians(8)*edge,
                 -s.force.x*(.7f+.5f*s.ropeBlend)*effort};
     }
     public static void support(UUID uuid,Function<String,ModelPart> parts) {
         State s=STATES.fresh(uuid);if(s==null || s.player==null)return;
-        float owned=s.gap<.08?ownership(uuid,s):0;
-        s.stance.apply(s.player,s.frame,s.deck,parts,s.force,s.load,owned,s.relativeSpeed>.2,s.ropeBlend, s.hand==Effector.RIGHT_ARM,s.helper);
+        // Native rope interpolation may briefly move the palm by a few pixels.
+        // Keep the settled soles through that small error instead of restarting both steps.
+        float tolerance=s.primary!=null && s.primary.rope()!=null?.18f:.08f;
+        float owned=s.gap<tolerance?ownership(uuid,s):0;
+        s.stance.apply(s.player,s.frame,s.deck,parts,s.force,s.load,owned,s.relativeSpeed>.2,s.ropeBlend, s.hand==Effector.RIGHT_ARM,s.helper,s.primary==null?null:s.primary.world());
     }
     public static void reach(UUID uuid,Function<String,ModelPart> parts) {
         State s=STATES.fresh(uuid);if(s==null || s.frame==null)return;

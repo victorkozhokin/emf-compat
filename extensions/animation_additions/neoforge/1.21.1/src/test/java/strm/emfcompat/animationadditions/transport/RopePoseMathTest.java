@@ -3,6 +3,19 @@ import org.joml.Vector3d;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 class RopePoseMathTest {
+    @Test void raisedFootRequiresAnEdgeAndAPlantedOppositeSole() {
+        assertTrue(RopePoseMath.edgeLift(true,true,true,false,false)>0);
+        assertEquals(0,RopePoseMath.edgeLift(true,true,false,false,false));
+        assertEquals(0,RopePoseMath.edgeLift(true,false,true,false,false));
+        assertEquals(0,RopePoseMath.edgeLift(false,true,true,false,false));
+        assertEquals(0,RopePoseMath.edgeLift(true,true,true,false,true));
+    }
+    @Test void ropeStanceIsMirroredAndDoesNotDependOnCircularAcceleration() {
+        var right=RopePoseMath.foot(true);var left=RopePoseMath.foot(false);
+        assertEquals(-right.x,left.x);assertEquals(right.z,left.z);assertTrue(left.z>0);
+        assertEquals(0,right.y);assertEquals(0,left.y);
+        assertTrue(right.distance(left)>1);
+    }
     @Test void segmentProjectionStaysOnTheRopeAndHandlesDegeneratePoints() {
         Vector3d a=new Vector3d(20_000_000,1,0),b=new Vector3d(20_000_000,5,0);
         assertEquals(.5,RopePoseMath.fraction(a,b,new Vector3d(20_000_001,3,0)),1e-9);
