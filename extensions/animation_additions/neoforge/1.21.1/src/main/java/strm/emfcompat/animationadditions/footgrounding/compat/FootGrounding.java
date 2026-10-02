@@ -227,6 +227,9 @@ public final class FootGrounding {
                 // shorter, so held up by the foot behind, the front one hung in the air.
                 if (state.right.descending()) onFeet = Math.max(onFeet, stride.right);
                 if (state.left.descending()) onFeet = Math.max(onFeet, stride.left);
+                onFeet = StepSupport.bodyDrop(onFeet, right, left, player.getY(),
+                        state.right.plantedY, state.left.plantedY,
+                        state.right.descending() || state.left.descending());
                 targetLower = Math.max(0f, Math.min(lowerLimit, onFeet));
                 // The feet are placed below, against the body as it is drawn this frame.
                 decided = "stride";

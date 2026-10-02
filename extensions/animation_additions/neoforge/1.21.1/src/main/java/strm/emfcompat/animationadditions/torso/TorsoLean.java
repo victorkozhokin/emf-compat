@@ -71,7 +71,7 @@ public final class TorsoLean {
     private static final class State {
         /** {pitch, yaw, roll, shift x, the part of the yaw the head stays out of} as shown, smoothed. */
         final float[] lean = new float[5];
-        float wallYaw, wallShift, legShare;
+        float wallYaw, wallShift, legShare, crouch;
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -135,6 +135,7 @@ public final class TorsoLean {
         state.wallShift += ((wall == null ? 0 : wall[3]) - state.wallShift) * k;
         float share = player.isCrouching() ? 0.35f : 0.15f;
         state.legShare += (share - state.legShare) * k;
+        state.crouch += ((player.isCrouching() ? 1 : 0) - state.crouch) * k;
     }
 
     private static float clamp(float v) {
@@ -181,16 +182,20 @@ public final class TorsoLean {
             carriedLean[3] += achieved.x - state.wallShift;
             carriedWaist.add(0, achieved.y, achieved.z);
         }
+        float clearance = Math.min(1, Math.abs(state.wallYaw) / .5f + Math.abs(state.wallShift) / 1.5f);
+        float bottomY = PelvisFollow.waist(new Vector3f(body.x, body.y, body.z),
+                body.xRot, body.yRot, body.zRot, WAIST * body.yScale).y;
+        float relief = ClearancePose.lift(bottomY, waist.y, clearance, state.crouch);
         carry(body, turn, waist, carriedLean);
-        body.y += carriedWaist.y - waist.y; body.z += carriedWaist.z - waist.z;
+        body.y += carriedWaist.y - waist.y - relief; body.z += carriedWaist.z - waist.z;
         if (trace) {
             Vector3f attached = new Quaternionf().rotationZYX(body.zRot, body.yRot, body.xRot)
                     .transform(attachment).add(body.x, body.y, body.z);
-            Vector3f expected = new Vector3f(carriedWaist).add(carriedLean[3], 0, 0);
+            Vector3f expected = new Vector3f(carriedWaist).add(carriedLean[3], -relief, 0);
             float soleDrift = Math.max(rightSole == null ? 0 : rightSole.distance(sole(right)),
                     leftSole == null ? 0 : leftSole.distance(sole(left)));
-            LOGGER.info("[PelvisTrace] wallYaw={} attachmentGap={} soleDrift={}",
-                    state.wallYaw, attached.distance(expected), soleDrift);
+            LOGGER.info("[PelvisTrace] wallYaw={} attachmentGap={} soleDrift={} crouchRelief={} hipDrop={}",
+                    state.wallYaw, attached.distance(expected), soleDrift, relief, carriedWaist.y - waist.y);
         }
         for (String name : CARRIED) {
             ModelPart part = parts.apply(name);
@@ -200,7 +205,7 @@ public final class TorsoLean {
                         part.xRot, part.yRot, part.zRot, turn, waist, carriedLean[3]);
                 part.setPos(carried.pivot().x, carried.pivot().y, carried.pivot().z);
             } else carry(part, turn, waist, carriedLean);
-            part.y += carriedWaist.y - waist.y; part.z += carriedWaist.z - waist.z;
+            part.y += carriedWaist.y - waist.y - relief; part.z += carriedWaist.z - waist.z;
         }
     }
 

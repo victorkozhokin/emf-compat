@@ -1,0 +1,3497 @@
+[
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 304 152 7.5"
+  },
+  {
+    "wait": 30
+  },
+  {
+    "cmd": "fill 300 150 4 320 154 26 air"
+  },
+  {
+    "cmd": "fill 300 149 4 320 149 26 smooth_stone"
+  },
+  {
+    "cmd": "fill 305 150 5 310 150 9 stone_slab"
+  },
+  {
+    "cmd": "fill 305 150 14 305 150 16 stone_stairs[facing=east]"
+  },
+  {
+    "cmd": "fill 306 150 14 306 150 16 stone"
+  },
+  {
+    "cmd": "fill 306 151 14 306 151 16 stone_stairs[facing=east]"
+  },
+  {
+    "cmd": "fill 307 150 14 312 151 16 stone"
+  },
+  {
+    "cmd": "fill 308 150 20 308 153 21 stone"
+  },
+  {
+    "cmd": "time set noon"
+  },
+  {
+    "cmd": "weather clear"
+  },
+  {
+    "cmd": "gamerule doDaylightCycle false"
+  },
+  {
+    "cmd": "gamemode survival"
+  },
+  {
+    "config": {
+      "footgrounding.enabled": true,
+      "footgrounding.trace": true,
+      "parcool.enabled": false,
+      "lookat.enabled": false
+    }
+  },
+  {
+    "cmd": "effect give @s minecraft:instant_health 1 10 true"
+  },
+  {
+    "cmd": "effect give @s minecraft:saturation 2 10 true"
+  },
+  {
+    "wait": 40
+  },
+  {
+    "cmd": "clear @s"
+  },
+  {
+    "hideGui": true
+  },
+  {
+    "camera": "back"
+  },
+  {
+    "config": {
+      "wallhand.squeeze": true,
+      "wallhand.trace": true
+    }
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 2307.31 151 2071.5 0 0"
+  },
+  {
+    "look": [
+      0,
+      0
+    ]
+  },
+  {
+    "hold": "sneak"
+  },
+  {
+    "orbit": [
+      145,
+      8,
+      3.5
+    ]
+  },
+  {
+    "config": {
+      "wallhand.squeeze": false
+    }
+  },
+  {
+    "wait": 40
+  },
+  {
+    "log": "clearancecase:wall-right-False"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-right-False"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 2307.31 151 2071.5 0 0"
+  },
+  {
+    "look": [
+      0,
+      0
+    ]
+  },
+  {
+    "hold": "sneak"
+  },
+  {
+    "orbit": [
+      145,
+      8,
+      3.5
+    ]
+  },
+  {
+    "config": {
+      "wallhand.squeeze": true
+    }
+  },
+  {
+    "wait": 40
+  },
+  {
+    "log": "clearancecase:wall-right-True"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-right-True"
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-right-True-walk-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-right-True-walk-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-right-True-walk-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-right-True-walk-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-right-True-walk-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-right-True-walk-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-right-True-walk-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-right-True-walk-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-right-True-walk-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-right-True-walk-09"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "wait": 30
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 2303.69 151 2071.5 0 0"
+  },
+  {
+    "look": [
+      0,
+      0
+    ]
+  },
+  {
+    "hold": "sneak"
+  },
+  {
+    "orbit": [
+      145,
+      8,
+      3.5
+    ]
+  },
+  {
+    "config": {
+      "wallhand.squeeze": false
+    }
+  },
+  {
+    "wait": 40
+  },
+  {
+    "log": "clearancecase:wall-left-False"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-left-False"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 2303.69 151 2071.5 0 0"
+  },
+  {
+    "look": [
+      0,
+      0
+    ]
+  },
+  {
+    "hold": "sneak"
+  },
+  {
+    "orbit": [
+      145,
+      8,
+      3.5
+    ]
+  },
+  {
+    "config": {
+      "wallhand.squeeze": true
+    }
+  },
+  {
+    "wait": 40
+  },
+  {
+    "log": "clearancecase:wall-left-True"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-left-True"
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-left-True-walk-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-left-True-walk-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-left-True-walk-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-left-True-walk-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-left-True-walk-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-left-True-walk-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-left-True-walk-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-left-True-walk-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-left-True-walk-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "wall-left-True-walk-09"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "wait": 30
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 2315.59375 151 2071.5 0 0"
+  },
+  {
+    "look": [
+      0,
+      0
+    ]
+  },
+  {
+    "hold": "sneak"
+  },
+  {
+    "orbit": [
+      180,
+      8,
+      3.5
+    ]
+  },
+  {
+    "config": {
+      "wallhand.squeeze": false
+    }
+  },
+  {
+    "wait": 40
+  },
+  {
+    "log": "clearancecase:narrow-False"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "narrow-False"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 2315.59375 151 2071.5 0 0"
+  },
+  {
+    "look": [
+      0,
+      0
+    ]
+  },
+  {
+    "hold": "sneak"
+  },
+  {
+    "orbit": [
+      180,
+      8,
+      3.5
+    ]
+  },
+  {
+    "config": {
+      "wallhand.squeeze": true
+    }
+  },
+  {
+    "wait": 40
+  },
+  {
+    "log": "clearancecase:narrow-True"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "narrow-True"
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "narrow-True-walk-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "narrow-True-walk-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "narrow-True-walk-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "narrow-True-walk-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "narrow-True-walk-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "narrow-True-walk-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "narrow-True-walk-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "narrow-True-walk-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "narrow-True-walk-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "narrow-True-walk-09"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "wait": 30
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 2251.94 151 2071.5 0 0"
+  },
+  {
+    "look": [
+      0,
+      0
+    ]
+  },
+  {
+    "hold": "sneak"
+  },
+  {
+    "orbit": [
+      145,
+      8,
+      3.5
+    ]
+  },
+  {
+    "config": {
+      "wallhand.squeeze": false
+    }
+  },
+  {
+    "wait": 40
+  },
+  {
+    "log": "clearancecase:fence-False"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "fence-False"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 2251.94 151 2071.5 0 0"
+  },
+  {
+    "look": [
+      0,
+      0
+    ]
+  },
+  {
+    "hold": "sneak"
+  },
+  {
+    "orbit": [
+      145,
+      8,
+      3.5
+    ]
+  },
+  {
+    "config": {
+      "wallhand.squeeze": true
+    }
+  },
+  {
+    "wait": 40
+  },
+  {
+    "log": "clearancecase:fence-True"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "fence-True"
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "fence-True-walk-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "fence-True-walk-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "fence-True-walk-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "fence-True-walk-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "fence-True-walk-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "fence-True-walk-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "fence-True-walk-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "fence-True-walk-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "fence-True-walk-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "screenshot": "fence-True-walk-09"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "wait": 30
+  },
+  {
+    "model": "player"
+  },
+  {
+    "state": true
+  },
+  {
+    "config": {
+      "wallhand.squeeze": true
+    }
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 303.8 150 15 -90 0"
+  },
+  {
+    "look": [
+      -90,
+      0
+    ]
+  },
+  {
+    "wait": 30
+  },
+  {
+    "orbit": [
+      90,
+      5,
+      3
+    ]
+  },
+  {
+    "log": "stairs-up START"
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-12"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-15"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-18"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-21"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-24"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-27"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-30"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-33"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-36"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-39"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-up-42"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "stairs-up END"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 308 152 15 90 0"
+  },
+  {
+    "look": [
+      90,
+      0
+    ]
+  },
+  {
+    "wait": 30
+  },
+  {
+    "orbit": [
+      90,
+      5,
+      3
+    ]
+  },
+  {
+    "log": "stairs-down START"
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-12"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-15"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-18"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-21"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-24"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-27"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-30"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-33"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-36"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-39"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-down-42"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "stairs-down END"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 303.8 150 15 90 0"
+  },
+  {
+    "look": [
+      90,
+      0
+    ]
+  },
+  {
+    "wait": 30
+  },
+  {
+    "orbit": [
+      90,
+      5,
+      3
+    ]
+  },
+  {
+    "log": "stairs-back START"
+  },
+  {
+    "hold": "back"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-12"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-15"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-18"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-21"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-24"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-27"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-30"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-33"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-36"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-39"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-back-42"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "stairs-back END"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 303.8 150 15 -90 0"
+  },
+  {
+    "look": [
+      -90,
+      0
+    ]
+  },
+  {
+    "wait": 30
+  },
+  {
+    "orbit": [
+      90,
+      5,
+      3
+    ]
+  },
+  {
+    "log": "stairs-sprint START"
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "hold": "sprint"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-sprint-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-sprint-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-sprint-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-sprint-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-sprint-12"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-sprint-15"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-sprint-18"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-sprint-21"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-sprint-24"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-sprint-27"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "stairs-sprint END"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 304.3 150 15 -90 0"
+  },
+  {
+    "look": [
+      -90,
+      0
+    ]
+  },
+  {
+    "wait": 30
+  },
+  {
+    "orbit": [
+      90,
+      5,
+      3
+    ]
+  },
+  {
+    "log": "stairs-crouch START"
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "hold": "sneak"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-12"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-15"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-18"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-21"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-24"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-27"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-30"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-33"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-36"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-39"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-42"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-45"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-48"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-51"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-54"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-57"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-60"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-63"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-66"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "stairs-crouch-69"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "stairs-crouch END"
+  },
+  {
+    "config": {
+      "wallhand.trace": false,
+      "footgrounding.trace": false
+    }
+  }
+]
