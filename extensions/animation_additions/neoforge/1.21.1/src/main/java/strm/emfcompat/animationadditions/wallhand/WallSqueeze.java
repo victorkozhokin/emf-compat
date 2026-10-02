@@ -41,7 +41,7 @@ import java.util.function.Function;
  *
  * <p>Turned to fit, the hands go onto the walls, one ahead and one behind ({@link #aimArms}).
  * Squeezed, the arms are kept still, and turned to fit they come up from the sides, as far as the walls let them: a turned torso swings its arms across the gap,
- * into the walls. The legs are inside the box as they are. The torso's part is asked of
+ * into the walls. The feet adjust their stance in short alternating steps. The torso's part is asked of
  * {@code TorsoLean} ({@link #torsoHint}); any player's, moving or not.</p>
  */
 public final class WallSqueeze {
@@ -90,6 +90,7 @@ public final class WallSqueeze {
     private static final class State {
         /** Asked of the torso this frame: the turn, radians; the shift, pixels (+ is the model's left). */
         float turn, shift;
+        final WallStance stance = new WallStance();
         /** How squeezed the arms are, 0..1, smoothed. */
         float arms;
         /** Clearance only affects the arm whose side actually has a nearby wall. */
@@ -130,6 +131,7 @@ public final class WallSqueeze {
         State s = entry.value;
         if (s.lastPosition != null && s.lastPosition.distanceToSqr(player.position()) > 4) {
             s.arms = s.hands = s.upRight = s.upLeft = 0;
+            s.stance.reset();
             s.rightClearance = s.leftClearance = 0;
             for (var contact : s.contacts) { contact.weight = 0; contact.known = false; }
         }
@@ -260,6 +262,33 @@ public final class WallSqueeze {
         // The passive WallHand provider hands over to the squeeze contacts, not an item/swing.
         return Math.max(0, InteractionRuntime.weight(uuid, effector)
                 - InteractionRuntime.weight(uuid, effector, "WallHand"));
+    }
+
+    public static void support(UUID uuid, Function<String,ModelPart> parts) {
+        State s=STATES.fresh(uuid);
+        if(s==null || s.player==null)return;
+        s.stance.apply(s.player,s.frame,parts,s.turn,
+                strm.emfcompat.animationadditions.footgrounding.compat.FootGrounding.supportWeight(uuid),
+                EMFCompatConfig.getBoolean(KEY_ENABLED,true) && EMFCompatCore.isCompatEnabled()
+                        && strm.emfcompat.animationadditions.torso.TorsoLean.isEnabled());
+    }
+
+    /** Retreat along the player's facing, so a side twist does not push into its wall. */
+    public static Vector3f crouchOffset(UUID uuid, float amount) {
+        State s=STATES.fresh(uuid);
+        if(s==null || s.frame==null || s.player==null)return new Vector3f();
+        // Model +Z is behind the player. Check the actual rear surface rather
+        // than deriving retreat from chest yaw, which would turn it sideways.
+        Vector3f at=new Vector3f(0,10,0),offset=WallStanceMath.retreat(amount);
+        var from=s.frame.jointWorld(at);var to=s.frame.jointWorld(new Vector3f(at).add(offset));
+        var hit=s.player.level().clip(new net.minecraft.world.level.ClipContext(from,to,
+                net.minecraft.world.level.ClipContext.Block.COLLIDER,
+                net.minecraft.world.level.ClipContext.Fluid.NONE,s.player));
+        if(hit.getType()==net.minecraft.world.phys.HitResult.Type.BLOCK) {
+            double length=from.distanceTo(to);
+            offset.mul(length<1e-6 ? 0 : (float)Math.max(0,(from.distanceTo(hit.getLocation())-.05)/length));
+        }
+        return offset;
     }
 
     /** The arms close and still. Called after the pack has animated, before the torso and the hands' aims. */

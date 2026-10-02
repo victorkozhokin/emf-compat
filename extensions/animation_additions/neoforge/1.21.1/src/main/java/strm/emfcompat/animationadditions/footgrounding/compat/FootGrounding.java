@@ -719,6 +719,12 @@ public final class FootGrounding {
         if (state != null) state.terrain.apply(uuid, parts, state.rightPose, state.leftPose);
     }
 
+    /** Existing FA walking phase for other additive support layers. */
+    public static float supportWeight(UUID uuid) {
+        State state=STATES.fresh(uuid);
+        return state==null ? .5f : state.support;
+    }
+
     /** Direct additive torso angles and waist shift from the supporting surface. */
     public static float[] terrainHint(UUID uuid) {
         State state = STATES.fresh(uuid);
