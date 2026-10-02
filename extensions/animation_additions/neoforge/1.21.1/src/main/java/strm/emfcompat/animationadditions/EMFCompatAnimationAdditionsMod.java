@@ -61,6 +61,7 @@ public class EMFCompatAnimationAdditionsMod {
             TorsoLean.register(config);
             PoseInertia.register(config);
             ButtonPress.register(config);
+            strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.register(config);
             BlockUse.register(config);
             DoorHold.register(config);
             Furniture.register(config);
@@ -72,6 +73,7 @@ public class EMFCompatAnimationAdditionsMod {
             InteractionRuntime.register(LookAt.INSTANCE);
             InteractionRuntime.register(strm.emfcompat.animationadditions.leash.LeashHold.INSTANCE);
             InteractionRuntime.register(ButtonPress.INSTANCE);
+            InteractionRuntime.register(strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.INSTANCE);
             InteractionRuntime.register(BlockUse.INSTANCE);
             InteractionRuntime.register(strm.emfcompat.animationadditions.blockuse.CockpitControls.INSTANCE);
             InteractionRuntime.register(DoorHold.INSTANCE);

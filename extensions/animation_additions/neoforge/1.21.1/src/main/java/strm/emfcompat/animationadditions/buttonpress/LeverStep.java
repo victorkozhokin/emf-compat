@@ -20,6 +20,7 @@ final class LeverStep {
     long press, consumed, at;
     float frame = -1, progress = 1;
     int foot;
+    float stride=1,duration=.24f,height=.35f;
     final Vector3f grip = new Vector3f(), offset = new Vector3f();
     final Vector3f start = new Vector3f(), end = new Vector3f();
 
@@ -44,7 +45,7 @@ final class LeverStep {
                     consumed=press;
                     if (offset.lengthSquared()<1e-5f && progress>=1) {
                         foot=grip.x<=0 ? 0 : 1;
-                        Vector3f wanted=LeverEffort.step(grip);
+                        Vector3f wanted=LeverEffort.step(grip).mul(stride);
                         if (safe(legs[foot],offset,wanted)) begin(wanted);
                     }
                 }
@@ -53,14 +54,14 @@ final class LeverStep {
                 if (progress<1) {
                     if (!safe(legs[foot],start,end)) {offset.set(start);progress=1;}
                     else {
-                        progress=Math.min(1,progress+dt/.24f);
+                        progress=Math.min(1,progress+dt/duration);
                         offset.set(start).lerp(end,LeverEffort.ease(progress));
                     }
                 }
             }
         }
         Vector3f stepping=new Vector3f(offset);
-        if (progress<1) stepping.y-=LeverEffort.lift(progress)*(player.isCrouching()?.2f:.35f);
+        if (progress<1) stepping.y-=LeverEffort.lift(progress)*(player.isCrouching()?height*.57f:height);
         PelvisFollow.step(parts,foot==0 ? stepping : new Vector3f(),foot==1 ? stepping : new Vector3f(),0,0);
     }
 

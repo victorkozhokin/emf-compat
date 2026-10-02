@@ -43,21 +43,35 @@ public final class ThrottleLever {
 
     /** Where the knob is drawn now, world; {@code null} when it cannot be told. */
     public static Vec3 knob(Level level, BlockPos pos) {
-        Method m = method();
-        if (m == null) return null;
-        BlockEntity entity = level.getBlockEntity(pos);
-        if (entity == null) return null;
+        Vec3[] grips=grips(level,pos);
+        return grips==null ? null : grips[0].add(grips[1]).scale(.5);
+    }
+
+    /** Two separated material points across the real handle, transformed by its renderer. */
+    public static Vec3[] grips(Level level,BlockPos pos) {
+        Method m=method();BlockEntity entity=level.getBlockEntity(pos);
+        if(m==null || entity==null || !is(level.getBlockState(pos))) return null;
         try {
-            PoseStack stack = new PoseStack();
-            m.invoke(null, entity, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false), stack);
-            Vector3f at = stack.last().pose().transformPosition(new Vector3f(KNOB));
-            // The block's own corner added in double: a pose stack is float, off by whole blocks in a sub-level's plot.
-            return new Vec3(pos.getX() + (double) at.x, pos.getY() + (double) at.y, pos.getZ() + (double) at.z);
-        } catch (Throwable t) {
-            if (!failed) LOGGER.warn("[ButtonPress] could not place the throttle lever's knob", t);
-            failed = true;
-            return null;
+            PoseStack stack=new PoseStack();
+            m.invoke(null,entity,Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false),stack);
+            Vec3[] result=new Vec3[2];
+            for(int i=0;i<2;i++) {
+                Vector3f at=stack.last().pose().transformPosition(new Vector3f(KNOB).add(i==0 ? -.08f : .08f,0,0));
+                result[i]=new Vec3(pos.getX()+(double)at.x,pos.getY()+(double)at.y,pos.getZ()+(double)at.z);
+            }
+            return result;
+        } catch(Throwable t) {
+            if(!failed)LOGGER.warn("[ButtonPress] could not place the throttle lever's knob",t);
+            failed=true;return null;
         }
+    }
+
+    /** Read the actual 0..15 signal, without inventing resistance or changing control input. */
+    public static Integer signal(Level level,BlockPos pos) {
+        BlockEntity entity=level.getBlockEntity(pos);
+        if(entity==null || !is(level.getBlockState(pos)))return null;
+        try {return (Integer)entity.getClass().getMethod("getState").invoke(entity);}
+        catch(ReflectiveOperationException | ClassCastException e) {return null;}
     }
 
     /** Actual held lever; looking away during a drag must not release the visual grip. */

@@ -13,6 +13,8 @@ public final class LowReach {
     public static final class State {
         final Quaternionf turn = new Quaternionf();
         final Vector3f shift = new Vector3f();
+        public double followSeconds=.14;
+        public float angleLimit=(float)Math.toRadians(40);
         public float weightShift;
         public float weightForward;
         float frame = -1;
@@ -43,20 +45,20 @@ public final class LowReach {
             state.updatedAt = now; state.frame = frame;
             Vector3f shoulder = new Vector3f(arm.x, arm.y, arm.z).sub(hips);
             Vector3f point = new Vector3f(target).sub(hips);
-            Quaternionf wanted = LowReachMath.turn(shoulder, point, 11, (float)Math.toRadians(40));
+            Quaternionf wanted = LowReachMath.turn(shoulder, point, 11, state.angleLimit);
             Vector3f fitted = new Quaternionf(wanted).transform(new Vector3f(shoulder)).add(hips);
             Vector3f move = LowReachMath.shift(fitted, target, 11, 3.5f);
             ModelPart other = otherTarget == null ? null : parts.apply(right ? "left_arm" : "right_arm");
             if (other != null) {
                 Vector3f otherShoulder = new Vector3f(other.x, other.y, other.z).sub(hips);
                 var fit = TwoHandReachMath.fit(shoulder, point, otherShoulder,
-                        new Vector3f(otherTarget).sub(hips), 11, (float)Math.toRadians(40));
+                        new Vector3f(otherTarget).sub(hips), 11, state.angleLimit);
                 wanted.set(fit.turn());
                 move.set(fit.shift());
             }
             move.x += state.weightShift;
             move.z += state.weightForward;
-            float k = Smoothing.follow(dt, .14);
+            float k = Smoothing.follow(dt, state.followSeconds);
             state.turn.slerp(new Quaternionf().slerp(wanted, weight), k).normalize();
             state.shift.lerp(move.mul(weight), k);
         }

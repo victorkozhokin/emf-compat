@@ -124,6 +124,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         TorsoLean.apply(uuid, parts);
         BlockUse.reachContact(uuid, parts);
         ButtonPress.reachContact(uuid, parts);
+        strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.reachContact(uuid, parts);
         InteractionRuntime.apply(uuid, parts);
         // The hands on the walls of a narrow gap, from where the turned torso has put the shoulders.
         WallSqueeze.aimArms(uuid, parts);
@@ -133,6 +134,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         Mining.aimArm(uuid, parts);
         strm.emfcompat.animationadditions.blockuse.CockpitControls.apply(uuid, parts);
         strm.emfcompat.animationadditions.interaction.HandContacts.apply(uuid, parts);
+        strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.aimArms(uuid, parts);
         strm.emfcompat.animationadditions.leash.LeashHold.capture(uuid, parts);
     }
 }
