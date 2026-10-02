@@ -61,19 +61,6 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
     }
 
     @Override
-    public boolean onAnimationStart(AnimationContext context, boolean isCancelledByHook) {
-        try {
-            strm.emfcompat.animationadditions.blockuse.CrankTiptoe.restore(context.animatingModelRoot().getAllVanillaPartsByNameEMF()::get);
-        } catch (Throwable t) {
-            if (!failureLogged) {
-                failureLogged = true;
-                LOGGER.warn("[AnimationAdditions] failed to restore additive proportions", t);
-            }
-        }
-        return true;
-    }
-
-    @Override
     public void onAnimationEnd(AnimationContext context, boolean wasCancelledByHook) {
         try {
             EMFEntityRenderState state = context.activeState();
@@ -86,10 +73,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
             for (String[] layer : LAYERS) {
                 ModelPart outer = parts.get(layer[0]);
                 ModelPart limb = parts.get(layer[1]);
-                if (outer != null && limb != null) {
-                    strm.emfcompat.animationadditions.blockuse.CrankTiptoe.rememberOuter(limb,outer);
-                    PoseSnapshot.copy(limb, outer);
-                }
+                if (outer != null && limb != null) PoseSnapshot.copy(limb, outer);
             }
         } catch (Throwable t) {
             // A throw out of an animation hook makes EMF disable the model's animations for good.

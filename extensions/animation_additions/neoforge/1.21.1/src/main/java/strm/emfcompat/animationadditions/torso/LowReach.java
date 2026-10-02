@@ -14,7 +14,6 @@ public final class LowReach {
         final Quaternionf turn = new Quaternionf();
         final Vector3f shift = new Vector3f();
         public float weightShift;
-        public float armLength = 11;
         float frame = -1;
         long updatedAt;
 
@@ -37,9 +36,9 @@ public final class LowReach {
             state.updatedAt = now; state.frame = frame;
             Vector3f shoulder = new Vector3f(arm.x, arm.y, arm.z).sub(hips);
             Vector3f point = new Vector3f(target).sub(hips);
-            Quaternionf wanted = LowReachMath.turn(shoulder, point, state.armLength, (float)Math.toRadians(40));
+            Quaternionf wanted = LowReachMath.turn(shoulder, point, 11, (float)Math.toRadians(40));
             Vector3f fitted = new Quaternionf(wanted).transform(new Vector3f(shoulder)).add(hips);
-            Vector3f move = LowReachMath.shift(fitted, target, state.armLength, 3.5f);
+            Vector3f move = LowReachMath.shift(fitted, target, 11, 3.5f);
             move.x += state.weightShift;
             float k = Smoothing.follow(dt, .14);
             state.turn.slerp(new Quaternionf().slerp(wanted, weight), k).normalize();
@@ -63,20 +62,6 @@ public final class LowReach {
             part.setPos(moved.pivot().x + achieved.x, moved.pivot().y + achieved.y, moved.pivot().z + achieved.z);
             if (!name.equals("head") && !name.equals("hat"))
                 part.setRotation(moved.pitch(), moved.yaw(), moved.roll());
-        }
-    }
-    /** Fine continuous fit after the smoothed effort pose, without delaying a moving grip. */
-    public static void contact(Function<String, ModelPart> parts, boolean right, Vector3f target, float length, float weight) {
-        ModelPart arm=parts.apply(right?"right_arm":"left_arm"),r=parts.apply("right_leg"),l=parts.apply("left_leg");
-        if(arm==null||r==null||l==null||weight<1e-3f)return;
-        Vector3f hips=new Vector3f((r.x+l.x)*.5f,(r.y+l.y)*.5f,(r.z+l.z)*.5f);
-        Quaternionf turn=new Quaternionf().slerp(LowReachMath.turn(new Vector3f(arm.x,arm.y,arm.z).sub(hips),
-                new Vector3f(target).sub(hips),length,(float)Math.toRadians(40)),weight);
-        for(String name:new String[]{"body","head","hat","right_arm","left_arm"}) {
-            ModelPart part=parts.apply(name);if(part==null)continue;
-            var moved=PelvisFollow.carry(new Vector3f(part.x,part.y,part.z),part.xRot,part.yRot,part.zRot,turn,hips,0);
-            part.setPos(moved.pivot().x,moved.pivot().y,moved.pivot().z);
-            if(!name.equals("head")&&!name.equals("hat"))part.setRotation(moved.pitch(),moved.yaw(),moved.roll());
         }
     }
 }

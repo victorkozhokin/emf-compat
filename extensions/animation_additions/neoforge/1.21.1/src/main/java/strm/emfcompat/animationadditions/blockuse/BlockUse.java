@@ -153,8 +153,6 @@ public final class BlockUse implements InteractionProvider {
         /** Smoothed visual extension; the entity pose and crouching flag never change. */
         float standUp;
         boolean crouching, overhead, groundReach;
-        float reachUp;
-        final CrankTiptoe.State tiptoe = new CrankTiptoe.State();
         final CrankStance.State stance = new CrankStance.State();
         final LowReach.State lowReach = new LowReach.State();
         long tracedAt;
@@ -188,7 +186,6 @@ public final class BlockUse implements InteractionProvider {
         float standUp = 0f;
         state.crouching = player.getPose() == Pose.CROUCHING;
         state.groundReach = false;
-        state.reachUp=0;
         float stretchTarget = 0f;
         try {
             // On a seat the hands use what is in front of them as standing; the body stays seated.
@@ -279,8 +276,6 @@ public final class BlockUse implements InteractionProvider {
             if (centre != null) centre = space.toWorld(centre);
             Vector3f postureTarget = centre == null ? model : frame.relativeToJoint(centre.add(0, 7 / 16.0, 0), new Vector3f());
             state.overhead = postureTarget.y < shoulder.y;
-            if(state.target instanceof HandCrank && !state.crouching && player.onGround() && !seated)
-                state.reachUp=ReachEnvelope.smooth((-postureTarget.y-8)/10);
             state.groundReach = player.onGround() && !seated
                     && state.target != null && state.target.reachPose() && (!state.crouching || model.y > shoulder.y + 4);
             if (state.target != null && state.target.reachPose() && state.crouching && !seated) {
@@ -457,12 +452,8 @@ public final class BlockUse implements InteractionProvider {
         float lowWeight = INSTANCE.isEnabled() && state.groundReach && lowFree
                 && EMFCompatConfig.getBoolean(ButtonPress.KEY_STRETCH, true)
                 ? InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id()) : 0;
-        ModelPart palmArm=parts.apply(state.right ? "right_arm" : "left_arm");
-        state.lowReach.armLength=state.target instanceof HandCrank && palmArm!=null ? CrankPalm.local(palmArm).length() : ARM;
         state.lowReach.weightShift = CrankStance.apply(state.stance, parts, lowWeight);
         LowReach.apply(parts, state.right, state.grip, lowWeight, state.lowReach);
-        CrankTiptoe.apply(parts,state.reachUp*lowWeight,state.tiptoe);
-        if(state.target instanceof HandCrank) LowReach.contact(parts,state.right,state.grip,state.lowReach.armLength,lowWeight);
         long now = System.nanoTime();
         double dt = state.contactAt == 0 ? 0 : (now - state.contactAt) * 1e-9;
         state.contactAt = now;
@@ -504,7 +495,6 @@ public final class BlockUse implements InteractionProvider {
         arm.xRot += IKMath.wrap(x - arm.xRot) * w;
         arm.yRot += IKMath.wrap(y - arm.yRot) * w;
         arm.zRot *= 1f - w;
-        if(state.target instanceof HandCrank) CrankPalm.aim(arm,CrankPalm.local(arm),state.grip,w);
         if (state.support) {
             Effector other = state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM;
             float otherWeight = InteractionRuntime.weight(uuid, other, INSTANCE.id());
@@ -531,10 +521,6 @@ public final class BlockUse implements InteractionProvider {
                     state.crouching, state.standUp, w, state.stretch,
                     new Vector3f(state.grip).sub(arm.x, arm.y, arm.z).length(),
                     supportDistance(state, parts));
-            if(state.target instanceof HandCrank) org.slf4j.LoggerFactory.getLogger("EMFCompatBlockUse").info(
-                    "[PalmTrace] weight={} gap={} length={} tiptoe={} bodyScale={} rightScale={} leftScale={}",
-                    w,CrankPalm.point(arm,CrankPalm.local(arm)).distance(state.grip),state.lowReach.armLength,
-                    state.tiptoe.weight,parts.apply("body").yScale,parts.apply("right_leg").yScale,parts.apply("left_leg").yScale);
         }
     }
 
