@@ -389,6 +389,10 @@ public final class Driver {
                 }
                 case "steeringRelease" -> Class.forName("dev.simulated_team.simulated.util.hold_interaction.HoldInteractionManager")
                         .getMethod("stop").invoke(null);
+                case "mainArm" -> {
+                    mc.options.mainHand().set(v.getAsString().equals("left")?net.minecraft.world.entity.HumanoidArm.LEFT:net.minecraft.world.entity.HumanoidArm.RIGHT);
+                    mc.options.broadcastOptions();
+                }
                 case "hideGui" -> mc.options.hideGui = v.getAsBoolean();
                 case "closeScreen" -> mc.setScreen(null);
                 case "screenshot" -> {
@@ -396,6 +400,13 @@ public final class Driver {
                     Screenshot.grab(mc.gameDirectory, name, mc.getMainRenderTarget(), msg -> { });
                     result.addProperty("screenshot",
                             mc.gameDirectory.toPath().resolve("screenshots").resolve(name).toAbsolutePath().toString());
+                }
+                case "tableState" -> {
+                    JsonArray a=v.getAsJsonArray();
+                    var be=mc.level.getBlockEntity(new net.minecraft.core.BlockPos(a.get(0).getAsInt(),a.get(1).getAsInt(),a.get(2).getAsInt()));
+                    var held=(net.minecraft.world.item.ItemStack)be.getClass().getMethod("getHeldItem").invoke(be);
+                    JsonObject t=new JsonObject();t.addProperty("item",BuiltInRegistries.ITEM.getKey(held.getItem()).toString());
+                    t.addProperty("count",held.getCount());result.add("table",t);
                 }
                 case "state" -> result.add("state", state(mc));
                 case "config" -> config(v.getAsJsonObject());
@@ -681,6 +692,10 @@ public final class Driver {
         if(entity==mc.player)try {
             var cls=Class.forName("strm.emfcompat.animationadditions.blockuse.CockpitControls");
             out.add("cockpit",new com.google.gson.Gson().toJsonTree(cls.getMethod("snapshot",java.util.UUID.class).invoke(null,entity.getUUID())));
+        } catch(ClassNotFoundException ignored) { }
+        if(entity==mc.player)try {
+            var cls=Class.forName("strm.emfcompat.animationadditions.blockuse.BlockUse");
+            out.add("tableSupport",new com.google.gson.Gson().toJsonTree(cls.getMethod("tableSnapshot",java.util.UUID.class).invoke(null,entity.getUUID())));
         } catch(ClassNotFoundException ignored) { }
         return out;
     }

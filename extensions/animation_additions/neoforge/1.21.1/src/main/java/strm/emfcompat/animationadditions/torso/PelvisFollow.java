@@ -95,6 +95,20 @@ public final class PelvisFollow {
         return new Leg(hip, angles.x, angles.y, angles.z);
     }
 
+    /** Small weight transfer with both solved soles retained; carry the torso by the achieved shift. */
+    public static void shift(java.util.function.Function<String,net.minecraft.client.model.geom.ModelPart> parts,float dx,float dz) {
+        var r=parts.apply("right_leg");var l=parts.apply("left_leg");if(r==null || l==null)return;
+        var before=new Vector3f((r.x+l.x)*.5f,(r.y+l.y)*.5f,(r.z+l.z)*.5f);
+        for(var p:new net.minecraft.client.model.geom.ModelPart[]{r,l}) {
+            var moved=translate(new Vector3f(p.x,p.y,p.z),p.xRot,p.yRot,p.zRot,12*p.yScale,dx,dz);
+            p.setPos(moved.pivot.x,moved.pivot.y,moved.pivot.z);p.setRotation(moved.pitch,moved.yaw,moved.roll);
+        }
+        var delta=new Vector3f((r.x+l.x)*.5f,(r.y+l.y)*.5f,(r.z+l.z)*.5f).sub(before);
+        for(String name:new String[]{"body","head","hat","right_arm","left_arm"}) {
+            var p=parts.apply(name);if(p!=null)p.setPos(p.x+delta.x,p.y+delta.y,p.z+delta.z);
+        }
+    }
+
     /** Stepping layer: carry the torso by the achieved mean hip displacement. */
     public static void step(java.util.function.Function<String, net.minecraft.client.model.geom.ModelPart> parts,
                             Vector3f right, Vector3f left, float rightTwist, float leftTwist) {

@@ -158,6 +158,10 @@ public final class BlockUse implements InteractionProvider {
         BlockPos stancePos;
         final LowReach.State lowReach = new LowReach.State();
         long tracedAt;
+        final TableSupport.State table=new TableSupport.State();
+        BlockTarget tableTarget;
+        long tableUntil;
+        boolean tableUnloading;
         long contactAt;
         final Quaternionf contactTurn = new Quaternionf();
     }
@@ -188,6 +192,7 @@ public final class BlockUse implements InteractionProvider {
         float standUp = 0f;
         state.crouching = player.getPose() == Pose.CROUCHING;
         state.groundReach = false;
+        state.tableUnloading=false;
         float stretchTarget = 0f;
         try {
             // On a seat the hands use what is in front of them as standing; the body stays seated.
@@ -239,7 +244,18 @@ public final class BlockUse implements InteractionProvider {
                 }
             } else {
                 boolean still = Math.hypot(player.getX() - player.xo, player.getZ() - player.zo) <= SLOW_BELOW;
+                BlockPos oldPos=state.pos;BlockTarget oldTarget=state.target;
                 spot = still ? look(player, state) : null;
+                if(spot!=null && state.target!=null && state.target.supportSurface(player.level().getBlockState(state.pos))!=null)
+                    state.tableUntil=now+350_000_000L;
+                if(spot==null && still && oldPos!=null && oldTarget!=null && now<state.tableUntil) {
+                    BlockState oldBlock=player.level().getBlockState(oldPos);
+                    if(oldTarget.matches(oldBlock) && oldTarget.supportSurface(oldBlock)!=null
+                            && SubLevels.toWorld(player.level(),oldPos,Vec3.atCenterOf(oldPos)).distanceTo(player.position())<2) {
+                        state.pos=oldPos;state.target=oldTarget;state.tableUnloading=true;
+                        spot=oldTarget.hover(player,oldPos,oldBlock,new BlockHitResult(Vec3.atCenterOf(oldPos),net.minecraft.core.Direction.UP,oldPos,false));
+                    }
+                }
                 outwards = HOVER_OUT;
             }
             if (spot == null) {
@@ -249,6 +265,9 @@ public final class BlockUse implements InteractionProvider {
             // Targets work in their block's own space; on a craft (a Sable sub-level) that is a
             // plot far off, drawn moved and turned: the hand goes to where it is drawn.
             SubLevels.Space space = state.pos == null ? SubLevels.WORLD : SubLevels.at(player.level(), state.pos);
+            boolean table=state.target!=null && state.pos!=null && state.target.supportSurface(player.level().getBlockState(state.pos))!=null;
+            if(table)state.tableTarget=state.target;
+            if(table && state.gesture==null)outwards=.5f;
             spot = inWorld(space, spot);
 
             IKFrame frame = context.frame();
@@ -316,7 +335,7 @@ public final class BlockUse implements InteractionProvider {
             boolean supported = state.support;
             state.support = support != null;
             if (support != null) {
-                Vec3 otherPoint = support.point().add(support.out().scale((held != null ? 0f : HOVER_OUT) / 16.0));
+                Vec3 otherPoint = support.point().add(support.out().scale((held != null ? 0f : table ? .5f : HOVER_OUT) / 16.0));
                 IKResult other = OneBoneIK.solveXY(frame, right ? LEFT_SHOULDER : RIGHT_SHOULDER, otherPoint, ARM, 0f, 0f);
                 if (other == null || other.reach() > MAX_REACH) {
                     context.decide("support-out-of-reach");
@@ -430,6 +449,8 @@ public final class BlockUse implements InteractionProvider {
             return null;
         }
         if (!pos.equals(state.pos) || target != state.target) {
+            state.table.motion.load=state.table.motion.settled=0;state.table.supportGap=Float.POSITIVE_INFINITY;
+            state.table.turn.identity();
             state.gesture = null;
             state.pos = pos.immutable();
             state.last = target.snapshot(player, player.level(), pos, block);
@@ -441,7 +462,9 @@ public final class BlockUse implements InteractionProvider {
     /** The limbs balancing the reaching pose. Called after the pack has animated, before the torso. */
     public static void apply(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
-        if (state == null || !INSTANCE.isEnabled()) return;
+        if (state == null) return;
+        state.table.snapshot.clear();
+        if(!INSTANCE.isEnabled())return;
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         float w = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
         ReachPose.upright(parts, state.standUp * w);
@@ -464,6 +487,11 @@ public final class BlockUse implements InteractionProvider {
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         State state = STATES.fresh(uuid);
         if (state == null) return;
+        if(state.target!=null && state.target==state.tableTarget && (state.pos==null || state.target.supportSurface(net.minecraft.client.Minecraft.getInstance().level.getBlockState(state.pos))!=null)) {
+            float tableWeight=Math.min(InteractionRuntime.weight(uuid,Effector.RIGHT_ARM,INSTANCE.id()),InteractionRuntime.weight(uuid,Effector.LEFT_ARM,INSTANCE.id()));
+            TableSupport.apply(state.table,parts,net.minecraft.client.Minecraft.getInstance().level.getPlayerByUUID(uuid) instanceof AbstractClientPlayer p?p:null,
+                    state.shown && !state.tableUnloading,state.right,state.grip,state.supportGrip,tableWeight);
+        }
         boolean lowFree = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) <= 0.01f;
         float mainOwned = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
         float otherOwned = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, INSTANCE.id());
@@ -532,6 +560,7 @@ public final class BlockUse implements InteractionProvider {
                 }
             }
         }
+        TableSupport.capture(state.table,parts,state.right,state.grip,state.supportGrip);
         long now = System.nanoTime();
         if (strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature.isTrace()
                 && now - state.tracedAt > 100_000_000L) {
@@ -548,6 +577,11 @@ public final class BlockUse implements InteractionProvider {
                     InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, INSTANCE.id()),
                     state.lean[2], state.stance.load);
         }
+    }
+
+    /** Same-render table measurements for native regression checks. */
+    public static Map<String,Object> tableSnapshot(UUID uuid) {
+        State s=STATES.fresh(uuid);return s==null?Map.of():new java.util.LinkedHashMap<>(s.table.snapshot);
     }
 
     private static float supportDistance(State state, Function<String, ModelPart> parts) {

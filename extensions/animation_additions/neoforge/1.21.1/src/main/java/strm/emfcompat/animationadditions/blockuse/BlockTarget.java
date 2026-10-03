@@ -38,6 +38,9 @@ public interface BlockTarget {
      */
     Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit);
 
+    /** Explicit horizontal tabletop; null for walls and unrelated interactive blocks. */
+    default TableSurface supportSurface(BlockState block) { return null; }
+
     /** Optional other-hand contact; both hands are arbitrated together. */
     default Spot supportHand(AbstractClientPlayer player, BlockPos pos, BlockState block) { return null; }
 
