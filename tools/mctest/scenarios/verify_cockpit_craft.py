@@ -26,8 +26,8 @@ def verify():
         gaps={h:max(c[h+'Gap']for c in snapshots)for h in ['right','left']}
         check(max(gaps.values())<.13,'render-frame palm contact exceeds 0.13 blocks')
         check(all(abs(c['facingErrorDegrees'])<.1 and abs(c['deckUpErrorDegrees'])<.1 for c in snapshots),'orientation does not follow deck')
-        check(all(c['rightFootPlanted']and c['leftFootPlanted']for c in snapshots[-8:]),'feet have no stable reachable support')
-        check(all(max(c['rightFootGap'],c['leftFootGap'])<.03 for c in snapshots[-8:]),'solved feet do not touch deck')
+        check(all(max(c['rightSeatPenetration'],c['leftSeatPenetration'])<.02 for c in snapshots),'leg volume penetrates native cushion')
+        check(all(abs(c['pelvisAboveSeat']-2.25/16)<.03 for c in snapshots[-8:]),'hip not supported by seat cushion')
         check(max(c['seatGap']for c in snapshots)<.03,'pelvis separates from native seat anchor')
         physical=not name.endswith('stationary')
         check(all(c['physical']==physical and (not physical or c['handleValid'])for c in g['craft']),'not live native rigid body')

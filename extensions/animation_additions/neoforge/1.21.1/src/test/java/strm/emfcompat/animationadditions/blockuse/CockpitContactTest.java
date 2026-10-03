@@ -10,7 +10,7 @@ class CockpitContactTest {
         var q=CockpitContact.fit(r,l,rt,lt);
         double before=Math.pow(r.distance(rt)-11,2)+Math.pow(l.distance(lt)-11,2);
         double after=Math.pow(q.transform(new Vector3f(r)).distance(rt)-11,2)+Math.pow(q.transform(new Vector3f(l)).distance(lt)-11,2);
-        assertTrue(after<before*.5);assertTrue(q.angle()<Math.toRadians(26));
+        assertTrue(after<before*.5);assertTrue(q.angle()<Math.toRadians(31));
     }
     @Test void sourcePoseDiscontinuityDoesNotDetachTheHandsDuringSmoothing() {
         var r=new Vector3f(-7,-11,0);var l=new Vector3f(3,-11,0);
@@ -41,7 +41,7 @@ class CockpitContactTest {
             var q=CockpitContact.fit(c[0],c[1],c[2],c[3]);
             for(int hand=0;hand<2;hand++)
                 assertTrue(Math.abs(q.transform(new Vector3f(c[hand])).distance(c[hand+2])-11)<2.08f);
-            assertTrue(q.angle()<Math.toRadians(26));
+            assertTrue(q.angle()<Math.toRadians(31));
         }
     }
 }

@@ -17,7 +17,7 @@ import strm.emfcompat.core.ik.IKMath;
 import java.util.*;
 import java.util.function.Function;
 
-/** Seated wheel / side throttle handovers. The seat anchors the pelvis; free feet seek reachable deck support. */
+/** Seated wheel / side throttle handovers. The seat supports the pelvis and seated thigh volume. */
 public final class CockpitControls implements InteractionProvider {
     public static final CockpitControls INSTANCE=new CockpitControls();
     private static final EntityStates<State> STATES=new EntityStates<>(State::new);
@@ -50,8 +50,12 @@ public final class CockpitControls implements InteractionProvider {
         double dt;
         float rightGap,leftGap,seatGap;
         int seatSince;
-        float feetFrame=Float.NaN;
-        final float[] legPitch={Float.NaN,Float.NaN},footGap=new float[2];
+        float seatFrame=Float.NaN;
+        long seatAt;
+        double seatHeight=Double.NaN;
+        double seatTop=Double.NaN;
+        BlockPos seatBlock;
+        java.util.List<net.minecraft.world.phys.AABB> seatBoxes=java.util.List.of();
 
         final Vector3f[] lever={new Vector3f(),new Vector3f()};
         boolean shown, held;
@@ -74,10 +78,10 @@ public final class CockpitControls implements InteractionProvider {
             }
             UUID seat=player.getVehicle().getUUID();
             if (!seat.equals(state.seat)) {
-                state.seat=seat;state.seatSince=player.tickCount;state.feetFrame=Float.NaN;state.wheel=null;state.motion.away=state.motion.moving=-1;state.motion.progress=1;
+                state.seat=seat;state.seatSince=player.tickCount;state.seatFrame=Float.NaN;state.seatAt=0;state.seatHeight=Double.NaN;state.wheel=null;state.motion.away=state.motion.moving=-1;state.motion.progress=1;
                 Arrays.fill(state.throttle,null);Arrays.fill(state.rim,null);Arrays.fill(state.typing,false);state.keys.reset();
                 state.pelvisLocal=null;state.craft=null;state.contact.identity();state.contactAt=0;
-                state.transport=new strm.emfcompat.animationadditions.transport.TransportMotion();Arrays.fill(state.legPitch,Float.NaN);
+                state.transport=new strm.emfcompat.animationadditions.transport.TransportMotion();
             }
             BlockHitResult hit=player==Minecraft.getInstance().player && Minecraft.getInstance().hitResult instanceof BlockHitResult b
                     ? b : player.pick(3,1,false) instanceof BlockHitResult b ? b : null;
@@ -244,6 +248,7 @@ public final class CockpitControls implements InteractionProvider {
     public static void frame(AbstractClientPlayer player,strm.emfcompat.core.ik.IKFrame frame) {
         State s=STATES.fresh(player.getUUID());if(s==null)return;
         s.frame=frame;
+        if(s.craft!=null)s.craft=s.craft.refresh();
         if(s.craft!=null && s.shown)for(int hand=0;hand<2;hand++)
             if(s.gripLocal[hand]!=null)s.grips[hand].set(frame.relativeToJoint(s.craft.toWorld(s.gripLocal[hand]),new Vector3f()));
     }
@@ -261,18 +266,46 @@ public final class CockpitControls implements InteractionProvider {
         if(state.frame!=null && state.craft!=null) {
             // Preserve the pack's mounting offset relative to the actual seat entity, not a fixed world point.
             // Native chairs supply their own passenger heights; the same anchor follows a moving sub-level.
-            Vec3 seat=state.craft.toLocal(seatWorld(state.player));
-            // Let the native pack finish its mounting transition before fixing the sitting anchor.
+            Vec3 nativeSeat=state.player.getVehicle().getPosition(1);
+            var seatSpace=SubLevels.at(state.player.level(),BlockPos.containing(nativeSeat));
+            // A seat entity already lives in the sub-level plot: do not round-trip its position
+            // through independently interpolated render transforms to choose its support block.
+            Vec3 seat=seatSpace.same(state.craft)?nativeSeat:state.craft.toLocal(seatSpace.toWorld(nativeSeat));
+            seatSurface(state,seat);
+            // Finish the native mounting transition, then keep its horizontal mounting offset.
+            // A tall chair must support the thigh volume, not bury the captured hip in its cushion.
             if(state.pelvisLocal==null || state.player.tickCount-state.seatSince<12)
                 state.pelvisLocal=state.craft.toLocal(state.frame.jointWorld(waist)).subtract(seat);
-            Vector3f anchor=state.frame.relativeToJoint(state.craft.toWorld(seat.add(state.pelvisLocal)),new Vector3f());
-            Vector3f delta=new Vector3f(anchor).sub(waist);if(delta.length()>1.5f)delta.normalize(1.5f);
+            Vec3 hip=seat.add(state.pelvisLocal);
+            float draw=traben.entity_model_features.models.animation.state.EMFState.getFrameCounter();
+            if(!Double.isNaN(state.seatTop)) {
+                double height=state.seatTop+2.25/16;
+                if(Double.isNaN(state.seatHeight))state.seatHeight=height;
+                if(state.seatFrame!=draw) {
+                    long now=System.nanoTime();double dt=state.seatAt==0?.05:Math.min(.1,(now-state.seatAt)*1e-9);
+                    state.seatFrame=draw;state.seatAt=now;
+                    state.seatHeight+=(height-state.seatHeight)*Smoothing.follow(dt,.12);
+                }
+                hip=new Vec3(hip.x,state.seatHeight,hip.z);
+            }
+            Vector3f anchor=state.frame.relativeToJoint(state.craft.toWorld(hip),new Vector3f());
+            // Smooth only a change of seat height in deck coordinates. Render-frame compensation
+            // must follow the actual moving seat immediately, otherwise the thighs lag through it.
+            Vector3f delta=new Vector3f(anchor).sub(waist);
+            float lateral=(float)Math.hypot(delta.x,delta.z);
+            if(lateral>1.5f){delta.x*=1.5f/lateral;delta.z*=1.5f/lateral;}
+            delta.y=Math.max(-8,Math.min(8,delta.y));
             state.seatGap=new Vector3f(anchor).sub(new Vector3f(waist).add(new Vector3f(delta).mul(weight))).length()/16;
             for(String name:new String[]{"body","head","hat","right_arm","left_arm","right_leg","left_leg"}) {
                 var part=parts.apply(name);if(part!=null)part.setPos(part.x+delta.x*weight,part.y+delta.y*weight,part.z+delta.z*weight);
             }
             waist.add(delta.mul(weight));
-            seatedFeet(state,r,l,weight);
+            // FA+Player has rigid legs: lowering the whole thigh to plant a foot drives it through the chair.
+            // Keep a seated thigh above the cushion until an articulated lower leg can reach a footrest.
+            if(!Double.isNaN(state.seatTop))for(ModelPart leg:new ModelPart[]{r,l}) {
+                leg.xRot+=IKMath.wrap(-(float)Math.PI/2-leg.xRot)*weight;
+                leg.zRot*=1-weight;
+            }
         }
         Quaternionf turn=new Quaternionf().rotationZYX(state.lean.z*weight,state.lean.y*weight,state.lean.x*weight);
         for (String name:new String[]{"body","head","hat","right_arm","left_arm"}) {
@@ -328,9 +361,14 @@ public final class CockpitControls implements InteractionProvider {
         state.snapshot.put("rightMix",state.motion.mix(0));state.snapshot.put("leftMix",state.motion.mix(1));state.snapshot.put("seatGap",state.seatGap);
         state.snapshot.put("inertiaPitch",state.inertia.x);state.snapshot.put("inertiaRoll",state.inertia.z);state.snapshot.put("speed",state.transport.speed);
         state.snapshot.put("seat",state.seat.toString());state.snapshot.put("craft",state.craft!=null && !state.craft.isWorld());
-        state.snapshot.put("rightFootPlanted",!Float.isNaN(state.legPitch[0]));state.snapshot.put("leftFootPlanted",!Float.isNaN(state.legPitch[1]));
-        if(!Float.isNaN(state.legPitch[0]))state.snapshot.put("rightFootGap",state.footGap[0]);
-        if(!Float.isNaN(state.legPitch[1]))state.snapshot.put("leftFootGap",state.footGap[1]);
+        if(!Double.isNaN(state.seatTop)) {
+            state.snapshot.put("seatSurfaceY",state.seatTop);
+            state.snapshot.put("seatedHipY",state.seatHeight);
+            state.snapshot.put("pelvisAboveSeat",state.craft.toLocal(state.frame.jointWorld(waist)).y-state.seatTop);
+            state.snapshot.put("rightSeatPenetration",seatPenetration(state,r));
+            state.snapshot.put("leftSeatPenetration",seatPenetration(state,l));
+        }
+        state.snapshot.put("rightThighPitch",r.xRot);state.snapshot.put("leftThighPitch",l.xRot);
         state.snapshot.put("key",state.keys.key);state.snapshot.put("request",state.request);
         Vec3 origin=state.frame.jointWorld(new Vector3f());
         Vec3 wheel=SubLevels.toWorld(state.player.level(),state.wheel,WHEEL.swayCentre(state.player.level(),state.wheel,state.player.level().getBlockState(state.wheel)));
@@ -343,35 +381,30 @@ public final class CockpitControls implements InteractionProvider {
     public static Map<String,Object> snapshot(UUID player) {
         State s=STATES.fresh(player);return s==null?Map.of():new LinkedHashMap<>(s.snapshot);
     }
-    private static void seatedFeet(State s,ModelPart right,ModelPart left,float weight) {
-        var player=s.player;if(player==null || !Seated.seated(player))return;
-        float frame=traben.entity_model_features.models.animation.state.EMFState.getFrameCounter();
-        boolean advance=s.feetFrame!=frame;s.feetFrame=frame;
-        for(int hand=0;hand<2;hand++) {
-            var leg=hand==0?right:left;
-            if(!advance) {
-                if(!Float.isNaN(s.legPitch[hand])) {
-                    leg.xRot+=IKMath.wrap(s.legPitch[hand]-leg.xRot)*weight;
-                    leg.yRot+=((hand==0?.12f:-.12f)-leg.yRot)*weight;leg.zRot*=1-weight;
-                }
-                continue;
-            }
-            Vector3f tip=new Quaternionf().rotationZYX(0,hand==0?.12f:-.12f,leg.xRot)
-                    .transform(new Vector3f(0,12,0)).add(leg.x,leg.y,leg.z);
-            Vec3 probe=s.craft.toLocal(s.frame.jointWorld(tip));
-            var hit=player.level().clip(new net.minecraft.world.level.ClipContext(probe.add(0,.6,0),probe.add(0,-1.1,0),
-                    net.minecraft.world.level.ClipContext.Block.COLLIDER,net.minecraft.world.level.ClipContext.Fluid.NONE,player));
-            if(hit.getType()!=net.minecraft.world.phys.HitResult.Type.BLOCK){s.legPitch[hand]=Float.NaN;continue;}
-            Vector3f floor=s.frame.relativeToJoint(s.craft.toWorld(hit.getLocation()),new Vector3f());
-            float down=floor.y-leg.y;
-            if(down<3 || down>12.4f){s.legPitch[hand]=Float.NaN;continue;}
-            float desired=-(float)Math.acos(Math.max(0,Math.min(1,down/12)));
-            float current=Float.isNaN(s.legPitch[hand])?leg.xRot:s.legPitch[hand];
-            s.legPitch[hand]=current+(desired-current)*Smoothing.follow(s.dt,.18);
-            leg.xRot+=IKMath.wrap(s.legPitch[hand]-leg.xRot)*weight;
-            leg.yRot+=((hand==0?.12f:-.12f)-leg.yRot)*weight;
-            leg.zRot*=1-weight;
-            s.footGap[hand]=Math.abs(leg.y+12*leg.yScale*(float)Math.cos(leg.xRot)*(float)Math.cos(leg.zRot)-floor.y)/16;
+    private static void seatSurface(State s,Vec3 seat) {
+        s.seatBlock=BlockPos.containing(seat);
+        var block=s.player.level().getBlockState(s.seatBlock);
+        s.seatBoxes=block.getCollisionShape(s.player.level(),s.seatBlock).toAabbs();
+        s.seatTop=Double.NaN;
+        for(var box:s.seatBoxes) {
+            double x=seat.x-s.seatBlock.getX(),z=seat.z-s.seatBlock.getZ();
+            if(x>=box.minX && x<=box.maxX && z>=box.minZ && z<=box.maxZ)
+                s.seatTop=Double.isNaN(s.seatTop)?s.seatBlock.getY()+box.maxY:Math.max(s.seatTop,s.seatBlock.getY()+box.maxY);
         }
+    }
+    private static float seatPenetration(State s,ModelPart leg) {
+        var q=new Quaternionf().rotationZYX(leg.zRot,leg.yRot,leg.xRot);
+        var centre=q.transform(new Vector3f(0,6*leg.yScale,0)).add(leg.x,leg.y,leg.z);
+        Vec3 local=s.craft.toLocal(s.frame.jointWorld(centre));
+        Vector3f at=new Vector3f((float)(local.x-s.seatBlock.getX()),(float)(local.y-s.seatBlock.getY()),(float)(local.z-s.seatBlock.getZ()));
+        Vector3f[] half={new Vector3f(2.25f*leg.xScale,0,0),new Vector3f(0,6.25f*leg.yScale,0),new Vector3f(0,0,2.25f*leg.zScale)};
+        for(int i=0;i<3;i++) {
+            Vec3 endpoint=s.craft.toLocal(s.frame.jointWorld(q.transform(half[i]).add(centre)));
+            half[i].set((float)(endpoint.x-local.x),(float)(endpoint.y-local.y),(float)(endpoint.z-local.z));
+        }
+        float penetration=0;
+        for(var box:s.seatBoxes)penetration=Math.max(penetration,SeatLegClearance.penetration(at,half,
+                new Vector3f((float)box.minX,(float)box.minY,(float)box.minZ),new Vector3f((float)box.maxX,(float)box.maxY,(float)box.maxZ)));
+        return penetration;
     }
 }
