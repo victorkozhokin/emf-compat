@@ -75,7 +75,7 @@ public final class BlockUse implements InteractionProvider {
             ItemRest.table("dev.simulated_team.simulated.content.blocks.nav_table.NavTableBlock", "getHeldItem"),
             ItemRest.front("dev.eriksonn.aeronautics.content.blocks.mounted_potato_cannon.MountedPotatoCannonBlock", "getInventory"),
             new Typewriter(),
-            new SuppCrank(), new BookPile(), new Globe(), new Blackboard(), new SconceLever(), new Safe(), new FlowerBox(),
+            new Bellows(), new SuppCrank(), new BookPile(), new Globe(), new Blackboard(), new SconceLever(), new Safe(), new FlowerBox(),
             ItemRest.inside(SUPPLEMENTARIES + "ItemShelfBlock", "", 5),
             new ItemRest(SUPPLEMENTARIES + "PedestalBlock", "", 17),
             new ItemRest(SUPPLEMENTARIES + "JarBlock", "", 14),
@@ -159,6 +159,7 @@ public final class BlockUse implements InteractionProvider {
         final LowReach.State lowReach = new LowReach.State();
         long tracedAt;
         final TableSupport.State table=new TableSupport.State();
+        final TableSupport.State bellows=new TableSupport.State();
         BlockTarget tableTarget;
         long tableUntil;
         boolean tableUnloading;
@@ -267,7 +268,7 @@ public final class BlockUse implements InteractionProvider {
             SubLevels.Space space = state.pos == null ? SubLevels.WORLD : SubLevels.at(player.level(), state.pos);
             boolean table=state.target!=null && state.pos!=null && state.target.supportSurface(player.level().getBlockState(state.pos))!=null;
             if(table)state.tableTarget=state.target;
-            if(table && state.gesture==null)outwards=.5f;
+            if((table || state.target instanceof Bellows) && state.gesture==null)outwards=.5f;
             spot = inWorld(space, spot);
 
             IKFrame frame = context.frame();
@@ -335,7 +336,7 @@ public final class BlockUse implements InteractionProvider {
             boolean supported = state.support;
             state.support = support != null;
             if (support != null) {
-                Vec3 otherPoint = support.point().add(support.out().scale((held != null ? 0f : table ? .5f : HOVER_OUT) / 16.0));
+                Vec3 otherPoint = support.point().add(support.out().scale((held != null ? 0f : table || state.target instanceof Bellows ? .5f : HOVER_OUT) / 16.0));
                 IKResult other = OneBoneIK.solveXY(frame, right ? LEFT_SHOULDER : RIGHT_SHOULDER, otherPoint, ARM, 0f, 0f);
                 if (other == null || other.reach() > MAX_REACH) {
                     context.decide("support-out-of-reach");
@@ -463,7 +464,7 @@ public final class BlockUse implements InteractionProvider {
     public static void apply(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
         if (state == null) return;
-        state.table.snapshot.clear();
+        state.table.snapshot.clear();state.bellows.snapshot.clear();
         if(!INSTANCE.isEnabled())return;
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         float w = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
@@ -491,6 +492,16 @@ public final class BlockUse implements InteractionProvider {
             float tableWeight=Math.min(InteractionRuntime.weight(uuid,Effector.RIGHT_ARM,INSTANCE.id()),InteractionRuntime.weight(uuid,Effector.LEFT_ARM,INSTANCE.id()));
             TableSupport.apply(state.table,parts,net.minecraft.client.Minecraft.getInstance().level.getPlayerByUUID(uuid) instanceof AbstractClientPlayer p?p:null,
                     state.shown && !state.tableUnloading,state.right,state.grip,state.supportGrip,tableWeight);
+        }
+        if(state.target instanceof Bellows) {
+            var player=net.minecraft.client.Minecraft.getInstance().level.getPlayerByUUID(uuid);
+            if(player instanceof AbstractClientPlayer p) {
+                float weight=Math.min(InteractionRuntime.weight(uuid,Effector.RIGHT_ARM,INSTANCE.id()),InteractionRuntime.weight(uuid,Effector.LEFT_ARM,INSTANCE.id()));
+                float press=state.pos==null?0:BellowsGeometry.compression(Bellows.height(p.level(),state.pos));
+                TableSupport.apply(state.bellows,parts,p,state.shown && state.pos!=null && Bellows.pressing(p,state.pos),
+                        state.right,state.grip,state.supportGrip,weight,press);
+                if(!state.bellows.snapshot.isEmpty())state.bellows.snapshot.put("compression",press);
+            }
         }
         boolean lowFree = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) <= 0.01f;
         float mainOwned = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
@@ -561,6 +572,7 @@ public final class BlockUse implements InteractionProvider {
             }
         }
         TableSupport.capture(state.table,parts,state.right,state.grip,state.supportGrip);
+        TableSupport.capture(state.bellows,parts,state.right,state.grip,state.supportGrip);
         long now = System.nanoTime();
         if (strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature.isTrace()
                 && now - state.tracedAt > 100_000_000L) {
@@ -577,6 +589,19 @@ public final class BlockUse implements InteractionProvider {
                     InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, INSTANCE.id()),
                     state.lean[2], state.stance.load);
         }
+    }
+
+    /** Moving bellows plate is sampled in the same frame as its native renderer. */
+    public static void frame(AbstractClientPlayer player,IKFrame frame) {
+        State s=STATES.fresh(player.getUUID());if(s==null || !s.shown || !(s.target instanceof Bellows) || s.pos==null)return;
+        var block=player.level().getBlockState(s.pos);if(!s.target.matches(block))return;
+        var space=SubLevels.at(player.level(),s.pos);
+        var main=Bellows.contact(player,s.pos,block,true);var other=Bellows.contact(player,s.pos,block,false);
+        s.grip.set(frame.relativeToJoint(space.toWorld(main.point().add(main.out().scale(.5/16))),new Vector3f()));
+        s.supportGrip.set(frame.relativeToJoint(space.toWorld(other.point().add(other.out().scale(.5/16))),new Vector3f()));
+    }
+    public static Map<String,Object> bellowsSnapshot(UUID uuid) {
+        State s=STATES.fresh(uuid);return s==null?Map.of():new java.util.LinkedHashMap<>(s.bellows.snapshot);
     }
 
     /** Same-render table measurements for native regression checks. */

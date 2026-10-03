@@ -24,12 +24,16 @@ final class TableSupport {
     }
     static void apply(State s,Function<String,ModelPart> parts,AbstractClientPlayer player,
                       boolean engaged,boolean right,Vector3f main,Vector3f support,float owned) {
+        apply(s,parts,player,engaged,right,main,support,owned,0);
+    }
+    static void apply(State s,Function<String,ModelPart> parts,AbstractClientPlayer player,
+                      boolean engaged,boolean right,Vector3f main,Vector3f support,float owned,float press) {
         var r=parts.apply("right_arm");var l=parts.apply("left_arm");
         var rl=parts.apply("right_leg");var ll=parts.apply("left_leg");
         if(r==null || l==null || rl==null || ll==null)return;
         boolean safe=player!=null && player.onGround() && !player.isPassenger()
                 && player.getDeltaMovement().horizontalDistanceSqr()<.0004
-                && support.y>(right?l:r).y+1;
+                && (press>0 || support.y>(right?l:r).y+1);
         float frame=EMFState.getFrameCounter();
         if(s.frame!=frame) {
             long now=System.nanoTime();float dt=s.at==0?0:(float)Math.min(.1,(now-s.at)*1e-9);
@@ -40,7 +44,7 @@ final class TableSupport {
         if(owned<.001f){s.turn.identity();s.snapshot.clear();return;}
         // Tiny grounded transfer; the existing leg solver preserves both already grounded soles.
         Vector3f rBefore=sole(rl),lBefore=sole(ll);
-        PelvisFollow.shift(parts,0,.9f*s.motion.load*owned);
+        PelvisFollow.shift(parts,0,(.9f-.65f*press)*s.motion.load*owned);
         float soleDrift=Math.max(rBefore.distance(sole(rl)),lBefore.distance(sole(ll)));
         Vector3f waist=new Vector3f((rl.x+ll.x)*.5f,(rl.y+ll.y)*.5f,(rl.z+ll.z)*.5f);
         Vector3f rt=right?main:support,lt=right?support:main;

@@ -50,6 +50,7 @@ public class AnimationAdditionsRenderMixin {
         strm.emfcompat.animationadditions.blockuse.CockpitControls.frame(player,frame);
         MotionRuntime.modelPose(player);
         InteractionRuntime.modelPose(player, frame);
+        strm.emfcompat.animationadditions.blockuse.BlockUse.frame(player,frame);
         EjectorLaunch.modelPose(player);
         WallSqueeze.modelPose(player, frame);
         TorsoLean.modelPose(player);

@@ -401,6 +401,15 @@ public final class Driver {
                     result.addProperty("screenshot",
                             mc.gameDirectory.toPath().resolve("screenshots").resolve(name).toAbsolutePath().toString());
                 }
+                case "bellowsState" -> {
+                    JsonArray a=v.getAsJsonArray();
+                    var be=mc.level.getBlockEntity(new net.minecraft.core.BlockPos(a.get(0).getAsInt(),a.get(1).getAsInt(),a.get(2).getAsInt()));
+                    JsonObject t=new JsonObject();
+                    for(String key:new String[]{"height","prevHeight","manualPress"}) {
+                        var f=be.getClass().getDeclaredField(key);f.setAccessible(true);t.add(key,GSON.toJsonTree(f.get(be)));
+                    }
+                    result.add("bellows",t);
+                }
                 case "tableState" -> {
                     JsonArray a=v.getAsJsonArray();
                     var be=mc.level.getBlockEntity(new net.minecraft.core.BlockPos(a.get(0).getAsInt(),a.get(1).getAsInt(),a.get(2).getAsInt()));
@@ -695,6 +704,7 @@ public final class Driver {
         } catch(ClassNotFoundException ignored) { }
         if(entity==mc.player)try {
             var cls=Class.forName("strm.emfcompat.animationadditions.blockuse.BlockUse");
+            out.add("bellows",new com.google.gson.Gson().toJsonTree(cls.getMethod("bellowsSnapshot",java.util.UUID.class).invoke(null,entity.getUUID())));
             out.add("tableSupport",new com.google.gson.Gson().toJsonTree(cls.getMethod("tableSnapshot",java.util.UUID.class).invoke(null,entity.getUUID())));
         } catch(ClassNotFoundException ignored) { }
         return out;
