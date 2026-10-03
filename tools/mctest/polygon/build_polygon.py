@@ -366,7 +366,7 @@ for a in range(x+8,x+40,10): block(a,151,z+17,'stone_slab')
 for a in [x+5,x+40]: block(a,151,z+8,'chest')
 chest(x+5,z+34,['diamond_helmet','diamond_chestplate','diamond_leggings','diamond_boots','carved_pumpkin','shield','bow','arrow 64','cooked_beef 64','potion','spyglass','writable_book','torch 64'],'Броня / руки / NEA')
 text(x+23,154,z+7,'WALK → CROUCH → USE → ATTACK → IDLE','light_purple',.8)
-sign(x+27,151,z+34,['Quark: эмоции','WATUT: меню','Второй игрок','проверяет позы'])
+sign(x+27,151,z+34,['Переходы поз','WATUT: меню','Второй игрок','проверяет позы'])
 sign(x+35,151,z+34,['Проверить','правую / левую','руку, броню','F5 и F1'])
 # Entrance hub: compass, fountain, teleports and settings.
 fill(2118,150,2226,2170,150,2243,'polished_deepslate')
@@ -391,7 +391,7 @@ pages=['EMF ATLAS\\n\\nПолигон анимаций. 9 зон, телепор
 '01 Foot IK: подъём/спуск, снег, край. Бегите, остановитесь и развернитесь.\\n02 ParCool: прыжки, перекат, скольжение, wall run и вис. Биндинги — в настройках ParCool.',
 '03 Руки: кнопки трёх высот, пол/потолок, рычаги, двери и блоки. Набор предметов в бочке.\\n04 Create: Crank стоя/из приседа, Valve, руль, throttle и цепь. Руль: ПКМ по ободу, затем мышь.',
 '05 Верхом, лодка, вагонетка, сидение, ныряние, парапланы и элитры. На верхней площадке кнопка башни.\\n06 H&S, лук, щит, TACZ, Iron Spells. Оружие и заклинания выбираются в интерфейсах модов.',
-'07 Инструменты Immersive Melodies, Exposure, Supplementaries, Carry On.\\n08 Стены, растения, Mining IK, Look At. Кнопка восстанавливает добываемые блоки.\\n09 Броня, NEA, Quark, WATUT и сочетания.',
+'07 Инструменты Immersive Melodies, Exposure, Supplementaries, Carry On.\\n08 Стены, растения, Mining IK, Look At. Кнопка восстанавливает добываемые блоки.\\n09 Броня, NEA, WATUT и сочетания.',
 'Сравнивайте: стоя/присяд; основная/левая рука; броня/без брони; ходьба/использование; вход/выход из позы.\\nBetter Combat выключен в Test: проверять отдельным запуском. WATUT требует второго наблюдателя.',
 'Карта содержит стационарные стенды Aeronautics. Движущийся аппарат нужно собрать отдельно на свободной площадке. Логика анимаций находится в установленных модах, а не в мире.']
 book='{id:"minecraft:written_book",count:1,components:{"minecraft:written_book_content":{title:"EMF ATLAS / GUIDE",author:"EMF Compat",pages:['+','.join(json.dumps(json.dumps({'text':p.replace('\\n','\n')},ensure_ascii=False),ensure_ascii=False) for p in pages)+']}}}'
