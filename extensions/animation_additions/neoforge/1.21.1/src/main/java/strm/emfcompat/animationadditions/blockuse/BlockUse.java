@@ -596,6 +596,12 @@ public final class BlockUse implements InteractionProvider {
         State s=STATES.fresh(player.getUUID());if(s==null || !s.shown || !(s.target instanceof Bellows) || s.pos==null)return;
         var block=player.level().getBlockState(s.pos);if(!s.target.matches(block))return;
         var space=SubLevels.at(player.level(),s.pos);
+        s.bellows.obstacleMin=new Vector3f(Float.POSITIVE_INFINITY);
+        s.bellows.obstacleMax=new Vector3f(Float.NEGATIVE_INFINITY);
+        for(int x=0;x<=1;x++)for(int y=0;y<=1;y++)for(int z=0;z<=1;z++) {
+            var corner=frame.relativeToJoint(space.toWorld(new Vec3(s.pos.getX()+x,s.pos.getY()+y,s.pos.getZ()+z)),new Vector3f());
+            s.bellows.obstacleMin.min(corner);s.bellows.obstacleMax.max(corner);
+        }
         var main=Bellows.contact(player,s.pos,block,true);var other=Bellows.contact(player,s.pos,block,false);
         s.grip.set(frame.relativeToJoint(space.toWorld(main.point().add(main.out().scale(.5/16))),new Vector3f()));
         s.supportGrip.set(frame.relativeToJoint(space.toWorld(other.point().add(other.out().scale(.5/16))),new Vector3f()));

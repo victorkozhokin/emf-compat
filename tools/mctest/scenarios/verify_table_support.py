@@ -1,5 +1,5 @@
 """Verify same-render palms/soles and native item changes; publish an honest 1x gallery."""
-import json,shutil,subprocess
+import json,shutil,subprocess,math,sys
 from pathlib import Path
 ROOT=Path('build/table-support-review')
 def verify():
@@ -31,14 +31,27 @@ def verify():
             check(ms[-1].get('load')==1,name+': load did not settle')
             check(all(m['leftGap'if m['mainRight']else'rightGap']<.13 for m in stable),name+': loaded supporting palm detached')
             if name not in ['put-compass','take-compass']:check(all(max(m['rightGap'],m['leftGap'])<.13 for m in stable),name+': idle palm detached')
+        bodySteps=[]
+        def quaternion(a):
+            x,y,z=a;cx,sx=math.cos(x/2),math.sin(x/2);cy,sy=math.cos(y/2),math.sin(y/2);cz,sz=math.cos(z/2),math.sin(z/2)
+            return (sx*cy*cz-cx*sy*sz,cx*sy*cz+sx*cy*sz,cx*cy*sz-sx*sy*cz,cx*cy*cz+sx*sy*sz)
+        for a,b in zip(g['model'][15:],g['model'][16:]):
+            if any(m.get('tableSupport',{}).get('load',0)<.99 for m in [a,b]):continue
+            qa,qb=quaternion(a['parts']['body']['rot']),quaternion(b['parts']['body']['rot'])
+            bodySteps.append(math.degrees(2*math.acos(min(1,abs(sum(x*y for x,y in zip(qa,qb)))))))
+        if name in ['standing-contact','diagonal','crouching','left-hand']:
+            check(max(bodySteps,default=0)<1,name+': abrupt sustained body correction')
         if name=='left-hand':check(all(not m.get('mainRight',True)for m in ms),'left-hand ownership incorrect')
         if name=='put-compass':check(all(t['item']=='minecraft:compass'and t['count']==1 for t in g['table']),'native compass was not placed')
         if name=='take-compass':check(all(t['count']==0 for t in g['table']),'native compass was not removed')
         summary[name]={'frames':len(ms),'settledFrames':len(stable),'lastLoad':ms[-1].get('load'),
             'maxSupportingPalmGap':max((m['leftGap'if m['mainRight']else'rightGap']for m in stable),default=0),
+            'maxSettledBodyStepDegrees':max(bodySteps,default=0),
             'maxSoleDriftPixels':max((m.get('maxSoleDriftPixels',0)for m in ms),default=0)}
     summary['errors']=errors;summary['healthySamples']=sum(len(g['state'])for g in groups.values())
     (ROOT/'verified.json').write_text(json.dumps(summary,indent=2));shutil.copyfile('run/mctest/Test/logs/latest.log',ROOT/'game.log')
+    if '--metrics-only' in sys.argv:
+        print(json.dumps(summary,indent=2));assert not errors,errors;return
     shots=ROOT/'shots';shots.mkdir(exist_ok=True)
     labels={'standing-contact':'Стоя: контакт → перенос веса','put-compass':'Установка компаса','take-compass':'Снятие компаса','release':'Разгрузка → отпускание','diagonal':'Подход к углу','crouching':'В присяде','left-hand':'Левша','too-far':'За пределом досягаемости','vertical-table':'Вертикальный стол: опора отключена'}
     html='<!doctype html><meta charset="utf-8"><title>Опора на стол</title><style>body{background:#151b22;color:#eef2f7;font:17px system-ui;max-width:1100px;margin:24px auto}video{width:100%;border-radius:12px}a{color:#8ccef7}</style><h1>Navigation Table · опора на стол</h1><p>Настоящая сборка Test, FA+Player, здоровое выживание, GUI скрыт. Снято в тестовой копии. Видео 1×, 20 кадров/с; паузы между сценариями вырезаны.</p>'

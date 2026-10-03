@@ -45,8 +45,15 @@ final class Bellows implements BlockTarget {
         var normal=turn.transform(new Vector3f(0,1,0));
         return new Spot(Vec3.atCenterOf(pos).add(at.x,at.y,at.z),new Vec3(normal.x,normal.y,normal.z));
     }
+    private static boolean plateAccessible(AbstractClientPlayer player,BlockPos pos,BlockState block) {
+        if(block.getValue(BlockStateProperties.FACING).getAxis()!=Direction.Axis.Y)return true;
+        var normal=turn(block).transform(new Vector3f(0,1,0));
+        Vec3 local=SubLevels.at(player.level(),pos).tickToLocal(player.position()).subtract(Vec3.atCenterOf(pos));
+        // A vertical lid can only be pressed from its exposed face, not through the casing.
+        return local.x*normal.x+local.z*normal.z>.65;
+    }
     @Override public Spot hover(AbstractClientPlayer player,BlockPos pos,BlockState block,BlockHitResult hit) {
-        if(!usable(player,block))return null;
+        if(!usable(player,block) || !plateAccessible(player,pos,block))return null;
         var p=PRESSES.seen(player.getUUID(),System.nanoTime()).value;
         if(!pos.equals(p.pos)){p.pos=pos.immutable();p.until=0;p.swinging=false;p.swing=0;}
         Object count=MANUAL.read(player.level().getBlockEntity(pos));
@@ -55,9 +62,9 @@ final class Bellows implements BlockTarget {
         p.swinging=player.swinging;p.swing=player.swingTime;
         return contact(player,pos,block,true);
     }
-    @Override public Spot supportHand(AbstractClientPlayer player,BlockPos pos,BlockState block){return usable(player,block)?contact(player,pos,block,false):null;}
+    @Override public Spot supportHand(AbstractClientPlayer player,BlockPos pos,BlockState block){return usable(player,block) && plateAccessible(player,pos,block)?contact(player,pos,block,false):null;}
     @Override public boolean holds(AbstractClientPlayer player,Level level,BlockPos pos,BlockState block) {
-        var p=PRESSES.fresh(player.getUUID());return usable(player,block) && p!=null && pos.equals(p.pos) && level.getGameTime()<p.until;
+        var p=PRESSES.fresh(player.getUUID());return usable(player,block) && plateAccessible(player,pos,block) && p!=null && pos.equals(p.pos) && level.getGameTime()<p.until;
     }
     static boolean pressing(AbstractClientPlayer player,BlockPos pos) {
         var p=PRESSES.fresh(player.getUUID());return p!=null && pos.equals(p.pos) && player.level().getGameTime()<p.until;

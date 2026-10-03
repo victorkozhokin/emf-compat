@@ -4,7 +4,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import strm.emfcompat.animationadditions.interaction.Smoothing;
 import strm.emfcompat.animationadditions.torso.PelvisFollow;
 import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.Map;
@@ -20,6 +19,7 @@ final class TableSupport {
         long at,fitAt;
         float fitFrame=Float.NaN;
         float supportGap=Float.POSITIVE_INFINITY;
+        Vector3f obstacleMin,obstacleMax;
         final Map<String,Object> snapshot=new LinkedHashMap<>();
     }
     static void apply(State s,Function<String,ModelPart> parts,AbstractClientPlayer player,
@@ -48,14 +48,14 @@ final class TableSupport {
         float soleDrift=Math.max(rBefore.distance(sole(rl)),lBefore.distance(sole(ll)));
         Vector3f waist=new Vector3f((rl.x+ll.x)*.5f,(rl.y+ll.y)*.5f,(rl.z+ll.z)*.5f);
         Vector3f rt=right?main:support,lt=right?support:main;
-        var desired=CockpitContact.fit(new Vector3f(r.x,r.y,r.z).sub(waist),new Vector3f(l.x,l.y,l.z).sub(waist),
+        var desired=SupportedContact.fit(s.turn,new Vector3f(r.x,r.y,r.z).sub(waist),new Vector3f(l.x,l.y,l.z).sub(waist),
                 new Vector3f(rt).sub(waist),new Vector3f(lt).sub(waist));
         // Keep the correction synchronized across the main model and its clothing passes.
         if(s.fitFrame!=frame) {
             double dt=s.fitAt==0?0:Math.min(.1,(System.nanoTime()-s.fitAt)*1e-9);
-            s.turn.set(CockpitContact.follow(s.turn,desired,Smoothing.follow(dt,.12),
-                new Vector3f(r.x,r.y,r.z).sub(waist),new Vector3f(l.x,l.y,l.z).sub(waist),
-                new Vector3f(rt).sub(waist),new Vector3f(lt).sub(waist)));
+            var previous=new Quaternionf(s.turn);
+            s.turn.set(SupportedContact.follow(s.turn,desired,dt));
+            s.snapshot.put("correctionStepDegrees",Math.toDegrees(2*Math.acos(Math.min(1,Math.abs(previous.dot(s.turn))))));
             s.fitFrame=frame;s.fitAt=System.nanoTime();
         }
         var q=new Quaternionf().slerp(s.turn,owned);
@@ -67,10 +67,27 @@ final class TableSupport {
                 p.setRotation(angles.x,angles.y,angles.z);
             }
         }
+        if(s.obstacleMin!=null && s.obstacleMax!=null)clearHead(s,parts,owned);
         s.snapshot.put("maxSoleDriftPixels",soleDrift);s.snapshot.put("mainRight",right);
         s.snapshot.put("engaged",engaged);s.snapshot.put("load",s.motion.load);s.snapshot.put("owned",owned);
         s.snapshot.put("leanDegrees",Math.toDegrees(s.turn.angle()));
         s.snapshot.put("rightTarget",new float[]{rt.x,rt.y,rt.z});s.snapshot.put("leftTarget",new float[]{lt.x,lt.y,lt.z});
+    }
+    private static void clearHead(State s,Function<String,ModelPart> parts,float owned) {
+        var head=parts.apply("head");if(head==null)return;
+        var rotation=new Quaternionf().rotationZYX(head.zRot,head.yRot,head.xRot);
+        Vector3f min=new Vector3f(Float.POSITIVE_INFINITY),max=new Vector3f(Float.NEGATIVE_INFINITY);
+        for(int x:new int[]{-4,4})for(int y:new int[]{-8,0})for(int z:new int[]{-4,4}) {
+            var corner=rotation.transform(new Vector3f(x*head.xScale,y*head.yScale,z*head.zScale)).add(head.x,head.y,head.z);
+            min.min(corner);max.max(corner);
+        }
+        float shift=HeadClearance.shift(min,max,s.obstacleMin,s.obstacleMax)*owned;
+        for(String name:new String[]{"body","head","hat","right_arm","left_arm"}) {
+            var part=parts.apply(name);if(part!=null)part.z+=shift;
+        }
+        min.z+=shift;max.z+=shift;
+        s.snapshot.put("headClearanceShiftPixels",shift);
+        s.snapshot.put("headOverlapPixels",HeadClearance.overlap(min,max,s.obstacleMin,s.obstacleMax));
     }
     private static Vector3f sole(ModelPart p) {
         return new Quaternionf().rotationZYX(p.zRot,p.yRot,p.xRot).transform(new Vector3f(0,12*p.yScale,0)).add(p.x,p.y,p.z);

@@ -18,8 +18,9 @@ def take(name,n=40,clicks=False,by=150):
         batch +=[{'wait':1},{'state':True},{'bellowsState':[351,by,7]},{'model':'player'},{'screenshot':f'bellows-{name}-{i:03}'}]
     run(batch+[{'log':'bellowscase:end'}])
 
-def fixture(facing='north',crouch=False,by=150,side=False):
-    x,z,yaw=(351.5,6.69,0)if side else(350.69,7.5,-90)
+def fixture(facing='north',crouch=False,by=150,side=False,sideways=False):
+    x,z,yaw=(351.5,6.69,0)if side or facing=='down' else((351.5,8.31,180)if facing=='up' else(350.69,7.5,-90))
+    if sideways:x,z,yaw=350.69,7.5,-90
     top=by+(1 if facing not in ['up','down']else .5)
     pitch=-math.degrees(math.atan2(top-(150+(1.27 if crouch else 1.62)),.81))
     run([{'releaseAll':True},{'cmd':'tp @s 345 150 7.5'},{'wait':3},{'cmd':'fill 349 150 5 353 154 9 air'},
@@ -39,5 +40,6 @@ if __name__=='__main__':
     fixture('down',by=151);take('down-press',45,True,by=151)
     fixture();run([{'cmd':'setblock 351 150 8 redstone_block'},{'wait':25}]);take('redstone',35)
     fixture();run([{'cmd':'item replace entity @s weapon.offhand with minecraft:shield'},{'wait':20}]);take('occupied',25)
+    fixture('down',by=151,sideways=True);take('vertical-side',25,True,by=151)
     fixture();run([{'cmd':'setblock 351 150 7 air'},{'wait':20}]);run([{'model':'player'},{'state':True}])
     print('completed',len(rows))
