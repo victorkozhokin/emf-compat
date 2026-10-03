@@ -678,6 +678,10 @@ public final class Driver {
             }
         }
         out.add("parts", parts);
+        if(entity==mc.player)try {
+            var cls=Class.forName("strm.emfcompat.animationadditions.blockuse.CockpitControls");
+            out.add("cockpit",new com.google.gson.Gson().toJsonTree(cls.getMethod("snapshot",java.util.UUID.class).invoke(null,entity.getUUID())));
+        } catch(ClassNotFoundException ignored) { }
         return out;
     }
 

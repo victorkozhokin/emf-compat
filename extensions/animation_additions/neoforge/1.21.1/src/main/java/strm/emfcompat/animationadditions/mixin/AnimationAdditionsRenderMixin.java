@@ -47,6 +47,7 @@ public class AnimationAdditionsRenderMixin {
         FootGrounding.modelPose(player, stack);
         IKFrame frame = IKFrame.capture(stack.last().pose(),
                 Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
+        strm.emfcompat.animationadditions.blockuse.CockpitControls.frame(player,frame);
         MotionRuntime.modelPose(player);
         InteractionRuntime.modelPose(player, frame);
         EjectorLaunch.modelPose(player);

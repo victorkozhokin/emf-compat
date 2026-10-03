@@ -12,6 +12,18 @@ class CockpitContactTest {
         double after=Math.pow(q.transform(new Vector3f(r)).distance(rt)-11,2)+Math.pow(q.transform(new Vector3f(l)).distance(lt)-11,2);
         assertTrue(after<before*.5);assertTrue(q.angle()<Math.toRadians(26));
     }
+    @Test void sourcePoseDiscontinuityDoesNotDetachTheHandsDuringSmoothing() {
+        var r=new Vector3f(-7,-11,0);var l=new Vector3f(3,-11,0);
+        var rt=new Vector3f(-9,-11,0);var lt=new Vector3f(8,-11,-10);
+        var wanted=CockpitContact.fit(r,l,rt,lt);
+        var old=new Quaternionf().rotationY((float)Math.toRadians(-25));
+        var plain=new Quaternionf(old).slerp(wanted,.1f);
+        assertTrue(CockpitContact.gap(plain,r,l,rt,lt)>2.08f);
+        var fixed=CockpitContact.follow(old,wanted,.1f,r,l,rt,lt);
+        assertEquals(CockpitContact.gap(wanted,r,l,rt,lt),CockpitContact.gap(fixed,r,l,rt,lt),1e-5);
+        var gradual=CockpitContact.follow(wanted,wanted,.1f,r,l,rt,lt);
+        assertEquals(0,new Quaternionf(gradual).difference(wanted).angle(),1e-5);
+    }
     @Test void exactContactsRequireNoBodyCorrection() {
         var r=new Vector3f(-5,-10,0);var l=new Vector3f(5,-10,0);
         var q=CockpitContact.fit(r,l,new Vector3f(r).add(0,0,-11),new Vector3f(l).add(0,0,-11));

@@ -15,6 +15,8 @@ import java.util.concurrent.TimeUnit;
 /** Real Sable fixture in the throwaway integrated test server, never an animation override. */
 final class CraftProbe {
     private static Object craft;
+    private static boolean physical;
+    private static double altitude,desiredPitch,desiredRoll;
     private static BlockPos origin;
     private static int ticks;
     private static Vector3d drift=new Vector3d(),acceleration=new Vector3d();
@@ -59,8 +61,37 @@ final class CraftProbe {
         } catch(Exception e) {ropeBehavior=null;throw new IllegalStateException("Controlled native rope fixture failed",e);}
     }
     static void tick() {
-        if(!Driver.enabled() || craft==null || ticks<=0)return;
+        if(!Driver.enabled() || craft==null)return;
         try {
+            refreshCraft();
+            if(physical) {
+                // Keep this QA craft aloft with a real vertical impulse. Horizontal/rotational
+                // movement comes from the native propellers and Sable's live physics solver.
+                var sub=Class.forName("dev.ryanhcode.sable.sublevel.ServerSubLevel");
+                var h=Class.forName("dev.ryanhcode.sable.api.physics.handle.RigidBodyHandle");
+                Object handle=h.getMethod("of",sub).invoke(null,craft);
+                if((boolean)h.getMethod("isValid").invoke(handle)) {
+                    Object mass=sub.getMethod("getMassTracker").invoke(craft);
+                    double m=(double)Class.forName("dev.ryanhcode.sable.api.physics.mass.MassData").getMethod("getMass").invoke(mass);
+                    var pose=Class.forName("dev.ryanhcode.sable.companion.math.Pose3d");
+                    Object transform=sub.getMethod("logicalPose").invoke(craft);
+                    var at=(Vector3d)pose.getMethod("position").invoke(transform);
+                    var velocity=(org.joml.Vector3dc)h.getMethod("getLinearVelocity").invoke(handle);
+                    var level=(Level)sub.getMethod("getLevel").invoke(craft);
+                    var gravity=(Vector3d)Class.forName("dev.ryanhcode.sable.physics.config.dimension_physics.DimensionPhysicsData").getMethod("getGravity",Level.class).invoke(null,level);
+                    double support=-gravity.y+Math.max(-10,Math.min(10,(altitude-at.y)*4-velocity.y()*3));
+                    h.getMethod("applyLinearImpulse",org.joml.Vector3dc.class).invoke(handle,new Vector3d(0,m*support*.05,0));
+                    // Test flight stabilizer: native torque prevents an off-centre propeller
+                    // flipping the small deck. Yaw remains driven by differential propellers.
+                    var q=(Quaterniond)pose.getMethod("orientation").invoke(transform);
+                    var angles=q.getEulerAnglesYXZ(new Vector3d());
+                    var spin=(org.joml.Vector3dc)h.getMethod("getAngularVelocity").invoke(handle);
+                    h.getMethod("applyAngularImpulse",org.joml.Vector3dc.class).invoke(handle,
+                            new Vector3d((desiredPitch-angles.x)*60-spin.x()*30,0,(desiredRoll-angles.z)*60-spin.z()*30).mul(m*.05));
+                }
+                return;
+            }
+            if(ticks<=0)return;
             Class<?> sub=Class.forName("dev.ryanhcode.sable.sublevel.SubLevel");
             Class<?> poseClass=Class.forName("dev.ryanhcode.sable.companion.math.Pose3d");
             sub.getMethod("updateLastPose").invoke(craft);
@@ -86,7 +117,7 @@ final class CraftProbe {
         Class<?> poseInterface=Class.forName("dev.ryanhcode.sable.companion.math.Pose3dc");
         Class<?> subClass=Class.forName("dev.ryanhcode.sable.sublevel.SubLevel");
         if(action.equals("create")) {
-            ticks=0;centre=null;ropeBehavior=null;ropeControlled=false;
+            ticks=0;physical=false;desiredPitch=desiredRoll=0;centre=null;ropeBehavior=null;ropeControlled=false;
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"sable paused true");
             Class<?> containerClass=Class.forName("dev.ryanhcode.sable.api.sublevel.SubLevelContainer");
             Object container=containerClass.getMethod("getContainer",Level.class).invoke(null,level);
@@ -109,6 +140,7 @@ final class CraftProbe {
             subClass.getMethod("forceUpdateGlobalBounds").invoke(craft);
         }
         if(craft==null)throw new IllegalStateException("Create a fixture first");
+        refreshCraft();
         Object pose=subClass.getMethod("logicalPose").invoke(craft);
         if(action.equals("aeroRope") || action.equals("aeroRopeMount")) {
             Class<?> behavior=Class.forName("dev.simulated_team.simulated.content.blocks.rope.RopeStrandHolderBehavior");
@@ -160,14 +192,58 @@ final class CraftProbe {
         if(action.equals("block")) {
             Vector3d off=vector(args.getAsJsonArray("local"));
             BlockPos pos=origin.offset((int)off.x,(int)off.y,(int)off.z);
-            var state=net.minecraft.core.registries.BuiltInRegistries.BLOCK.get(net.minecraft.resources.ResourceLocation.parse(args.get("block").getAsString())).defaultBlockState();
+            var state=net.minecraft.commands.arguments.blocks.BlockStateParser.parseForBlock(level.holderLookup(net.minecraft.core.registries.Registries.BLOCK),args.get("block").getAsString(),false).blockState();
             level.setBlock(pos,state,3);subClass.getMethod("getPlot").invoke(craft).getClass().getMethod("updateBoundingBox").invoke(subClass.getMethod("getPlot").invoke(craft));
             subClass.getMethod("forceUpdateGlobalBounds").invoke(craft);
         }
-        JsonObject out=new JsonObject();out.addProperty("id",subClass.getMethod("getUniqueId").invoke(craft).toString());
+        if(action.equals("engine")) {
+            int x=args.get("side").getAsString().equals("right")?2:-2;
+            Object motor=level.getBlockEntity(origin.offset(x,1,3));
+            Object scroll=motor.getClass().getField("generatedSpeed").get(motor);
+            scroll.getClass().getMethod("setValue",int.class).invoke(scroll,args.get("rpm").getAsInt());
+        }
+        if(action.equals("physical")) {
+            ticks=0;physical=true;altitude=((Vector3d)poseClass.getMethod("position").invoke(pose)).y;
+            server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),"sable paused false");
+        }
+        if(action.equals("incline") && physical) {
+            desiredPitch=Math.toRadians(args.get("pitch").getAsDouble());desiredRoll=Math.toRadians(args.get("roll").getAsDouble());
+        }
+        if(action.equals("incline") && !physical) {
+            ((Quaterniond)poseClass.getMethod("orientation").invoke(pose)).rotationXYZ(Math.toRadians(args.get("pitch").getAsDouble()),0,Math.toRadians(args.get("roll").getAsDouble()));
+            subClass.getMethod("forceUpdateGlobalBounds").invoke(craft);
+            var h=Class.forName("dev.ryanhcode.sable.api.physics.handle.RigidBodyHandle");
+            Object handle=h.getMethod("of",Class.forName("dev.ryanhcode.sable.sublevel.ServerSubLevel")).invoke(null,craft);
+            h.getMethod("teleport",org.joml.Vector3dc.class,org.joml.Quaterniondc.class).invoke(handle,poseClass.getMethod("position").invoke(pose),poseClass.getMethod("orientation").invoke(pose));
+        }
+        JsonObject out=new JsonObject();
+        var position=(Vector3d)poseClass.getMethod("position").invoke(pose);
+        JsonArray xyz=new JsonArray();xyz.add(position.x);xyz.add(position.y);xyz.add(position.z);out.add("position",xyz);
+        var orientation=(Quaterniond)poseClass.getMethod("orientation").invoke(pose);
+        JsonArray rotation=new JsonArray();rotation.add(orientation.x);rotation.add(orientation.y);rotation.add(orientation.z);rotation.add(orientation.w);out.add("orientation",rotation);
+        out.addProperty("physical",physical);
+        var h=Class.forName("dev.ryanhcode.sable.api.physics.handle.RigidBodyHandle");
+        Object handle=h.getMethod("of",Class.forName("dev.ryanhcode.sable.sublevel.ServerSubLevel")).invoke(null,craft);
+        out.addProperty("handleValid",(boolean)h.getMethod("isValid").invoke(handle));
+        if((boolean)h.getMethod("isValid").invoke(handle)) {
+            var v=(org.joml.Vector3dc)h.getMethod("getLinearVelocity").invoke(handle);JsonArray velocity=new JsonArray();velocity.add(v.x());velocity.add(v.y());velocity.add(v.z());out.add("velocity",velocity);
+        }
+        for(int x:new int[]{-2,2}) {
+            Object prop=level.getBlockEntity(origin.offset(x,1,2));
+            if(prop!=null && prop.getClass().getName().contains("Propeller"))out.addProperty(x>0?"rightThrust":"leftThrust",(double)prop.getClass().getMethod("getThrust").invoke(prop));
+        }
+out.addProperty("id",subClass.getMethod("getUniqueId").invoke(craft).toString());
         out.addProperty("plot",origin.toShortString());out.addProperty("pose",pose.toString());
-        if(action.equals("remove"))subClass.getMethod("markRemoved").invoke(craft);
+        if(action.equals("remove")){physical=false;subClass.getMethod("markRemoved").invoke(craft);craft=null;}
         return out;
+    }
+    private static void refreshCraft() throws Exception {
+        if(craft==null || origin==null)return;
+        Object helper=Class.forName("dev.ryanhcode.sable.Sable").getField("HELPER").get(null);
+        var sub=Class.forName("dev.ryanhcode.sable.sublevel.SubLevel");
+        Object current=helper.getClass().getMethod("getContaining",Level.class,net.minecraft.core.Vec3i.class)
+                .invoke(helper,sub.getMethod("getLevel").invoke(craft),origin);
+        if(current!=null)craft=current;
     }
     private static Vector3d vector(JsonArray a) {return new Vector3d(a.get(0).getAsDouble(),a.get(1).getAsDouble(),a.get(2).getAsDouble());}
 }

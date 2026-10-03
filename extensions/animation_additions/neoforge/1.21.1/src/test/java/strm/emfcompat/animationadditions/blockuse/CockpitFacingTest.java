@@ -19,4 +19,13 @@ class CockpitFacingTest {
         assertEquals(-85,CockpitFacing.head(-150,0));
         assertEquals(20,CockpitFacing.head(-170,(float)Math.toRadians(170)),1e-4);
     }
+    @Test void deckFrameKeepsForwardAndUpThroughPitchRollAndCameraYaw() {
+        for(int yaw=-180;yaw<=180;yaw+=15)for(int pitch:new int[]{-35,0,35})for(int roll:new int[]{-20,0,20}) {
+            var expected=new Quaternionf().rotationYXZ((float)Math.toRadians(yaw),(float)Math.toRadians(pitch),(float)Math.toRadians(roll));
+            var forward=expected.transform(new Vector3f(0,0,-1));var up=expected.transform(new Vector3f(0,-1,0));
+            var actual=CockpitFacing.orientation(new Vector3f(forward).add(new Vector3f(up).mul(2)),up);
+            assertTrue(actual.transform(new Vector3f(0,0,-1)).distance(forward)<1e-5);
+            assertTrue(actual.transform(new Vector3f(0,-1,0)).distance(up)<1e-5);
+        }
+    }
 }

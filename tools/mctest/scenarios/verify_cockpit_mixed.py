@@ -47,7 +47,14 @@ def verify():
             code=int(name.rsplit('-',1)[-1])if '-typing-key-'in name else 65;index={81:0,65:6,32:13}[code]
             check(all(index in n['pressed']for n in g['native']),'native key not pressed');check(t[-1]['key']==index,'key pose lost')
         if name.endswith('return'):check(t[-1]['rightMix']==t[-1]['leftMix']==0,'hands did not return')
-        last=t[-1];model=g['models'][-1]['parts'];gaps={h:math.dist(palm(model[h+'_arm']),last[h+'Target'])/16 for h in ['right','left']}
+        last=t[-1];model=g['models'][-1]['parts']
+        snapshots=[m.get('cockpit',{})for m in g['models']]
+        if any('cockpit'in m for m in g['models']):
+            check(all(c.get('shown')for c in snapshots),'missing current render-frame cockpit pose')
+            gaps={h:max(c.get(h+'Gap',float('inf'))for c in snapshots)for h in ['right','left']}
+            check(all(abs(c['facingErrorDegrees'])<.1 and c['seatGap']<.03 for c in snapshots),'seating/facing regression')
+        else:
+            gaps={h:math.dist(palm(model[h+'_arm']),last[h+'Target'])/16 for h in ['right','left']}
         check(max(gaps.values())<.13,'stable palm-target gap exceeds 0.13 blocks')
         summary[name]={'frames':len(g['models']),'palmGapBlocks':gaps,'key':last['key'],'request':last['request'],'signals':sorted({n['signal']for n in g['throttle']if 'signal'in n})}
     summary['healthySamples']=healthy;summary['wheelDragEvents']=sum('steeringDrag'in s for s in steps);summary['errors']=errors

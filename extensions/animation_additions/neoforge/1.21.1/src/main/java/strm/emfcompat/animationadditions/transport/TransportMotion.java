@@ -4,13 +4,13 @@ import org.joml.Vector3d;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
 
 /** Tick samples of one fixed point on a craft, independent of walking or camera yaw. */
-final class TransportMotion {
+public final class TransportMotion {
     private Vector3d point,velocity=new Vector3d();
-    final Vector3d acceleration=new Vector3d();
+    public final Vector3d acceleration=new Vector3d();
     int tick=Integer.MIN_VALUE;
-    double speed;
-    boolean warped;
-    void sample(int tick,Vector3d point) {
+    public double speed;
+    public boolean warped;
+    public void sample(int tick,Vector3d point) {
         if(this.tick==tick)return;
         int elapsed=tick-this.tick;
         warped=this.point!=null && this.point.distance(point)>2;
