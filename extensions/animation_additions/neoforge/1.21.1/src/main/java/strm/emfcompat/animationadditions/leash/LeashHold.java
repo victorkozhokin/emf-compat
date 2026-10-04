@@ -136,7 +136,7 @@ public final class LeashHold implements InteractionProvider {
         if(!s.hasPalm) {s.palm.set(wantedPalm);s.hasPalm=true;}
         else s.palm.lerp(wantedPalm,Smoothing.follow(context.dt(),.1));
         Vector3f aim=LeashPose.angles(LeashPose.swing(s.palm));
-        out.add(Candidate.single(id(),Category.PASSIVE,30,1,TIMING,s.hand,new float[]{aim.x,aim.y}));
+        out.add(Candidate.single(id(),Category.PASSIVE,30,1,TIMING,s.hand,new float[]{aim.x,aim.y}).withTarget(s.animal));
         // This grip follows the actual animated shoulder in capture(), not a fixed
         // world contact. Generic world-target correction would undo that distinction.
         s.grounded=player.onGround() && !player.isPassenger();s.active=true;

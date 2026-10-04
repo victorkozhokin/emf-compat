@@ -285,7 +285,10 @@ public final class BlockUse implements InteractionProvider {
             IKResult ik = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
             float reachLimit = state.target instanceof HandCrank && player.onGround() && !seated
                     ? GROUNDED_CRANK_REACH : MAX_REACH;
-            if (ik == null || ik.reach() > reachLimit) {
+            Object contactIdentity = state.pos==null ? null : new strm.emfcompat.animationadditions.interaction.ContactTarget(
+                    space,state.pos,player.level().getBlockState(state.pos).getBlock());
+            boolean retained=InteractionRuntime.holds(player.getUUID(),id(),right ? Effector.RIGHT_ARM : Effector.LEFT_ARM,contactIdentity);
+            if (ik == null || !strm.emfcompat.animationadditions.interaction.ContactReach.accepts(ik.reach(),reachLimit,retained)) {
                 context.decide("out-of-reach");
                 return;
             }
@@ -338,7 +341,7 @@ public final class BlockUse implements InteractionProvider {
             if (support != null) {
                 Vec3 otherPoint = support.point().add(support.out().scale((held != null ? 0f : table || state.target instanceof Bellows ? .5f : HOVER_OUT) / 16.0));
                 IKResult other = OneBoneIK.solveXY(frame, right ? LEFT_SHOULDER : RIGHT_SHOULDER, otherPoint, ARM, 0f, 0f);
-                if (other == null || other.reach() > MAX_REACH) {
+                if (other == null || !strm.emfcompat.animationadditions.interaction.ContactReach.accepts(other.reach(),MAX_REACH,retained)) {
                     context.decide("support-out-of-reach");
                     return;
                 }
@@ -357,6 +360,11 @@ public final class BlockUse implements InteractionProvider {
                 out.add(Candidate.of(id(), Category.USE, priority(state), 1f, TIMING, hands));
             } else {
                 out.add(Candidate.single(id(), Category.USE, priority(state), 1f, TIMING, effector, aim));
+            }
+            for(int i=out.size()-1;i>=0;i--) {
+                Candidate c=out.get(i);
+                if(!c.source().equals(id()))break;
+                out.set(i,c.withTarget(contactIdentity).withQuietSwing(state.target!=null && state.target.quietsSwing()));
             }
             shown = true;
             // The click swings the arm; the gesture is the swing.
@@ -478,9 +486,7 @@ public final class BlockUse implements InteractionProvider {
      * it ({@link BlockTarget#quietsSwing}), most of the way.
      */
     public static boolean quietsSwing(UUID uuid) {
-        State state = STATES.fresh(uuid);
-        if (state == null || !state.shown || state.target == null || !state.target.quietsSwing()) return false;
-        return InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id()) > 0.5f;
+        return InteractionRuntime.quietsSwing(uuid);
     }
 
     /** Close the overhead grip gap after all torso layers, before the final arm aim. */

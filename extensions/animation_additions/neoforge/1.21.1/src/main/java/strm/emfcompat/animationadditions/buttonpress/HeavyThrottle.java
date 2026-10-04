@@ -103,8 +103,11 @@ public final class HeavyThrottle implements InteractionProvider {
         Vec3 target=context.frame().jointWorld(point);
         var aim=OneBoneIK.solveXY(context.frame(),shoulder,target,11,0,0);
         if(aim==null)return;
-        out.add(Candidate.single(id(),Category.USE,12,confidence,TIMING,hand,new float[]{aim.x(),aim.y()}));
-        HandContacts.remember(context,id(),hand,target);
+        State state=STATES.fresh(context.player().getUUID());
+        var space=SubLevels.at(context.player().level(),state.pos);
+        out.add(Candidate.single(id(),Category.USE,12,confidence,TIMING,hand,new float[]{aim.x(),aim.y()}).withTarget(
+                new strm.emfcompat.animationadditions.interaction.ContactTarget(space,state.pos,context.player().level().getBlockState(state.pos).getBlock())));
+        HandContacts.remember(context,id(),hand,target,space);
     }
     public static float[] torsoHint(UUID uuid) {
         State s=STATES.fresh(uuid);

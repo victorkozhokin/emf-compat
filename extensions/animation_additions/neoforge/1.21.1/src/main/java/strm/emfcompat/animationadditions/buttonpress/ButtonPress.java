@@ -269,7 +269,8 @@ public final class ButtonPress implements InteractionProvider {
                 if (!state.groundReach) ReachPose.lean(hand.button, stretchTarget, state.lean);
             }
             out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING,
-                    hand.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, aim));
+                    hand.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, aim).withTarget(
+                    new strm.emfcompat.animationadditions.interaction.ContactTarget(SubLevels.at(player.level(),target),target,block.getBlock())));
             // The press swings the arm; the push is the swing.
             context.claimArms();
             context.decide((pressing ? "press-" : "hover-") + (hand.right ? "R" : "L"));

@@ -184,6 +184,8 @@ public final class Driver {
                     met &= p.onGround() == c.getValue().getAsBoolean();
                     continue;
                 }
+                if(k.equals("swingTime")) {met &= p.swingTime==c.getValue().getAsInt();continue;}
+                if(k.equals("swinging")) {met &= p.swinging==c.getValue().getAsBoolean();continue;}
                 if (k.startsWith("swing")) {
                     // ParCool's bar swing, rad/tick (HangDown angular speed); 0 when not on a bar
                     double w = barSwing(p);
@@ -258,6 +260,8 @@ public final class Driver {
                 JsonObject step = steps.get(index++).getAsJsonObject();
                 JsonObject result = new JsonObject();
                 result.addProperty("step", index - 1);
+                result.addProperty("captureNanos", System.nanoTime());
+                if(mc.level!=null) result.addProperty("gameTick",mc.level.getGameTime());
                 if (step.has("until")) {
                     until = step.getAsJsonObject("until");
                     untilResult = result;
@@ -349,6 +353,30 @@ public final class Driver {
                     p.yBodyRot = yaw;
                     p.yBodyRotO = yaw;
                 }
+                case "pauseMs" -> {
+                    int duration=v.getAsInt();
+                    if(duration<200 || duration>5000)throw new IllegalArgumentException("pauseMs 200..5000");
+                    JsonArray samples=new JsonArray();result.add("pauseProbe",samples);
+                    mc.setScreen(new net.minecraft.client.gui.screens.PauseScreen(false));
+                    for(int i=1;i<=8;i++) {
+                        final int index=i;
+                        java.util.concurrent.CompletableFuture.delayedExecutor((long)duration*i/8,java.util.concurrent.TimeUnit.MILLISECONDS)
+                            .execute(()->mc.execute(()->{
+                                JsonObject sample=new JsonObject();sample.addProperty("captureNanos",System.nanoTime());
+                                sample.addProperty("paused",mc.isPaused());sample.addProperty("gameTick",mc.level.getGameTime());
+                                try{sample.add("model",model(mc,new com.google.gson.JsonPrimitive("player")));}
+                                catch(ReflectiveOperationException ex){sample.addProperty("error",ex.toString());}
+                                String name="release-pause-"+index+".png";
+                                Screenshot.grab(mc.gameDirectory,name,mc.getMainRenderTarget(),msg->{});
+                                sample.addProperty("screenshot",mc.gameDirectory.toPath().resolve("screenshots").resolve(name).toString());
+                                samples.add(sample);
+                            }));
+                    }
+                    java.util.concurrent.CompletableFuture.delayedExecutor(duration+200,java.util.concurrent.TimeUnit.MILLISECONDS)
+                        .execute(()->mc.execute(()->mc.setScreen(null)));
+                    return duration/50+6;
+                }
+                case "pause" -> mc.setScreen(v.getAsBoolean() ? new net.minecraft.client.gui.screens.PauseScreen(false) : null);
                 case "hideScreen" -> hideScreen = v.getAsBoolean();
                 case "steeringDrag" -> {
                     Object handler = Class.forName("dev.simulated_team.simulated.index.SimClickInteractions")
@@ -699,6 +727,26 @@ public final class Driver {
         }
         out.add("parts", parts);
         if(entity==mc.player)try {
+            var cls=Class.forName("strm.emfcompat.animationadditions.interaction.InteractionRuntime");
+            var statesField=cls.getDeclaredField("STATES");statesField.setAccessible(true);
+            var states=statesField.get(null);
+            var state=states.getClass().getMethod("fresh",java.util.UUID.class).invoke(states,entity.getUUID());
+            if(state!=null){
+                var slotsField=state.getClass().getDeclaredField("slots");slotsField.setAccessible(true);
+                var slots=(Map<?,?>)slotsField.get(state);JsonObject trace=new JsonObject();
+                for(var entry:slots.entrySet()){
+                    JsonObject slot=new JsonObject();
+                    for(String name: new String[]{"owner","weight","handoff","releaseReason","releasing","release","poseHandoff","finalRotation"})try{
+                        var f=entry.getValue().getClass().getDeclaredField(name);f.setAccessible(true);
+                        Object value=f.get(entry.getValue());slot.add(name,new com.google.gson.Gson().toJsonTree(value));
+                        if(name.equals("release") && value!=null)slot.addProperty("releaseRemaining",((Number)value.getClass().getMethod("remaining").invoke(value)).floatValue());
+                    }catch(NoSuchFieldException ignored){}
+                    trace.add(entry.getKey().toString(),slot);
+                }out.add("interaction",trace);
+            }
+        }catch(ClassNotFoundException ignored){}
+
+        if(entity==mc.player)try {
             var cls=Class.forName("strm.emfcompat.animationadditions.blockuse.CockpitControls");
             out.add("cockpit",new com.google.gson.Gson().toJsonTree(cls.getMethod("snapshot",java.util.UUID.class).invoke(null,entity.getUUID())));
         } catch(ClassNotFoundException ignored) { }
@@ -917,6 +965,8 @@ public final class Driver {
                 parts.addProperty(String.valueOf(e.getKey()), text);
             }
             out.add("parts", parts);
+
+
         }
         return out;
     }

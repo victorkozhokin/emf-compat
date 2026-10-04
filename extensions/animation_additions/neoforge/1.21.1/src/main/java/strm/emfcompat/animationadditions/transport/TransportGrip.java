@@ -131,7 +131,8 @@ public final class TransportGrip implements InteractionProvider {
     private static void offer(InteractionContext context,List<Candidate> out,Effector hand,SupportSearch.Contact c) {
         Vector3f point=context.frame().relativeToJoint(c.world(),new Vector3f(hand==Effector.RIGHT_ARM?-5:5,2,0)).normalize();
         var a=new Quaternionf().rotationTo(new Vector3f(0,1,0),point).getEulerAnglesZYX(new Vector3f());
-        out.add(Candidate.single(INSTANCE.id(),Category.PASSIVE,25,1,TIMING,hand,new float[]{a.x,a.y}));
+        out.add(Candidate.single(INSTANCE.id(),Category.PASSIVE,25,1,TIMING,hand,new float[]{a.x,a.y}).withTarget(c.rope()!=null ? c.rope().id :
+                new strm.emfcompat.animationadditions.interaction.ContactTarget(c.space(),c.block(),context.player().level().getBlockState(c.block()).getBlock())));
     }
     private static float ownership(UUID uuid,State s) {
         return s.active && INSTANCE.isEnabled()?InteractionRuntime.weight(uuid,s.hand,INSTANCE.id()):0;

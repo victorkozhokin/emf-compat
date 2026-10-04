@@ -93,6 +93,8 @@ public final class DoorHold implements InteractionProvider {
         IKResult right = null, left = null;
         Vec3 rightPoint = null, leftPoint = null;
         float rightReach = Float.MAX_VALUE, leftReach = Float.MAX_VALUE;
+        SubLevels.Space rightSpace=SubLevels.WORLD,leftSpace=SubLevels.WORLD;
+        Object rightTarget=null,leftTarget=null;
         // The world, and a craft's plot seen from where the player stands on it (see SubLevels).
         for (SubLevels.Space space : SubLevels.around(player.level(), player.getBoundingBox().inflate(1.5))) {
             Vec3 at = space.toLocal(player.position());
@@ -112,20 +114,24 @@ public final class DoorHold implements InteractionProvider {
                 if (isRight && aim.reach() < rightReach) {
                     right = aim;
                     rightPoint = grip;
+                    rightSpace=space;
+                    rightTarget=new strm.emfcompat.animationadditions.interaction.ContactTarget(space,pos,block.getBlock());
                     rightReach = aim.reach();
                 } else if (!isRight && aim.reach() < leftReach) {
                     left = aim;
                     leftPoint = grip;
+                    leftSpace=space;
+                    leftTarget=new strm.emfcompat.animationadditions.interaction.ContactTarget(space,pos,block.getBlock());
                     leftReach = aim.reach();
                 }
             }
         }
-        if (rightPoint != null) strm.emfcompat.animationadditions.interaction.HandContacts.remember(context, id(), Effector.RIGHT_ARM, rightPoint);
-        if (leftPoint != null) strm.emfcompat.animationadditions.interaction.HandContacts.remember(context, id(), Effector.LEFT_ARM, leftPoint);
+        if (rightPoint != null) strm.emfcompat.animationadditions.interaction.HandContacts.remember(context, id(), Effector.RIGHT_ARM, rightPoint,rightSpace);
+        if (leftPoint != null) strm.emfcompat.animationadditions.interaction.HandContacts.remember(context, id(), Effector.LEFT_ARM, leftPoint,leftSpace);
         if (right != null) out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, Effector.RIGHT_ARM,
-                new float[]{right.x(), right.y()}));
+                new float[]{right.x(), right.y()}).withTarget(rightTarget));
         if (left != null) out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, Effector.LEFT_ARM,
-                new float[]{left.x(), left.y()}));
+                new float[]{left.x(), left.y()}).withTarget(leftTarget));
         context.decide(right != null && left != null ? "both" : right != null ? "right" : left != null ? "left" : "none");
     }
 
