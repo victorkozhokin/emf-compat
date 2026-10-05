@@ -190,6 +190,7 @@ public final class ButtonPress implements InteractionProvider {
         long now = context.now();
         State state = STATES.seen(player.getUUID(), now).value;
         double dt = context.dt();
+        GRIPS.clear();
         state.lean[0] = state.lean[1] = state.lean[2] = 0f;
         float[] legTarget = null;
         float stretchTarget = 0f;
@@ -409,8 +410,13 @@ public final class ButtonPress implements InteractionProvider {
      */
     private static Vec3 grip(AbstractClientPlayer player, BlockPos pos, BlockState block) {
         // Worked out in the block's own space; on a craft carried out to where it is drawn.
-        return SubLevels.toWorld(player.level(), pos, localGrip(player, pos, block));
+        // Asked for the same block three or four times in one solve - choosing it, checking its
+        // reach, aiming the hand: worked out once.
+        return GRIPS.computeIfAbsent(pos.asLong(), k -> SubLevels.toWorld(player.level(), pos, localGrip(player, pos, block)));
     }
+
+    /** The grips worked out in the solve going on now; emptied as each one starts. */
+    private static final java.util.Map<Long, Vec3> GRIPS = new java.util.HashMap<>();
 
     private static Vec3 localGrip(AbstractClientPlayer player, BlockPos pos, BlockState block) {
         Level level = player.level();
