@@ -2,6 +2,7 @@ package strm.emfcompat.animationadditions;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import strm.emfcompat.animationadditions.footgrounding.compat.FootGrounding;
@@ -69,7 +70,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
             if (uuid == null) return;
             Map<String, EMFModelPartVanilla> parts = context.animatingModelRoot().getAllVanillaPartsByNameEMF();
             if (context.animatingModelRoot().isMainModel) FootGrounding.recordAnimated(uuid, parts::get);
-            applyAll(uuid, parts::get);
+            applyAll(uuid, parts::get, state.emfEntity() instanceof Player);
             for (String[] layer : LAYERS) {
                 ModelPart outer = parts.get(layer[0]);
                 ModelPart limb = parts.get(layer[1]);
@@ -94,6 +95,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
             if (state == null) return;
             UUID uuid = state.uuid();
             if (uuid == null || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
+            boolean player = state.emfEntity() instanceof Player;
             applyAll(uuid, name -> switch (name) {
                 case "head" -> model.head;
                 case "hat" -> model.hat;
@@ -103,16 +105,17 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
                 case "right_leg" -> model.rightLeg;
                 case "left_leg" -> model.leftLeg;
                 default -> null;
-            });
+            }, player);
             model.hat.copyFrom(model.head);
         } catch (Throwable t) {
             // Same as above: never throw out of an EMF hook.
         }
     }
 
-    private static void applyAll(UUID uuid, Function<String, ModelPart> parts) {
-        // First, on the pack's own pose: its cuts settle before anything corrects it.
-        PoseInertia.apply(uuid, parts, EMFState.getFrameCounter());
+    private static void applyAll(UUID uuid, Function<String, ModelPart> parts, boolean player) {
+        // First, on the pack's own pose: its cuts settle before anything corrects it. A player's only:
+        // the hook runs for every creature EMF animates.
+        if (player) PoseInertia.apply(uuid, parts, EMFState.getFrameCounter());
         FootGrounding.apply(uuid, parts);
         EjectorLaunch.apply(uuid, parts);
         WallSqueeze.apply(uuid, parts);
