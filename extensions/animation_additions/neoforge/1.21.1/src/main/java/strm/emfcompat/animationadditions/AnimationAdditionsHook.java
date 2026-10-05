@@ -73,6 +73,11 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
             boolean player = state.emfEntity() instanceof Player;
             if (!player && !HorseFootGrounding.handles(state.emfEntity())) return;
             Map<String, EMFModelPartVanilla> parts = context.animatingModelRoot().getAllVanillaPartsByNameEMF();
+            if (!player) {
+                // A horse: its hooves, and nothing of what a player gets.
+                HorseFootGrounding.apply(uuid, parts::get);
+                return;
+            }
             if (context.animatingModelRoot().isMainModel) FootGrounding.recordAnimated(uuid, parts::get);
             applyAll(uuid, parts::get, player, context.animatingModelRoot().isMainModel);
             for (String[] layer : LAYERS) {
@@ -131,7 +136,6 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         var supportBase=InteractionRuntime.beginSupport(uuid, parts);
         ButtonPress.apply(uuid, parts);
         BlockUse.apply(uuid, parts);
-        HorseFootGrounding.apply(uuid, parts);
         strm.emfcompat.animationadditions.leash.LeashHold.support(uuid, parts);
         // The torso before the arm aims: a hand on a wall aims from where the shoulder has gone.
         WallSqueeze.support(uuid, parts);
