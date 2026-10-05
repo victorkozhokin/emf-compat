@@ -1,5 +1,7 @@
 package strm.emfcompat.animationadditions.blockuse;
 
+import net.minecraft.world.level.block.Block;
+import java.util.IdentityHashMap;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.animationadditions.DebugLog;
 import strm.emfcompat.animationadditions.interaction.ArmAim;
@@ -390,8 +392,7 @@ public final class BlockUse implements InteractionProvider {
         // of them is still watched - a use may change the block where the hand was not waiting.
         BlockTarget target = null;
         BlockTarget.Spot spot = null;
-        for (BlockTarget each : TARGETS) {
-            if (!each.matches(block)) continue;
+        for (BlockTarget each : targetsOf(block)) {
             BlockTarget.Spot at = each.hover(player, pos, block, blockHit);
             if (at != null) {
                 target = each;
@@ -412,6 +413,13 @@ public final class BlockUse implements InteractionProvider {
         state.target = target;
         return spot;
     }
+
+    /** The targets a block is one of, in {@link #TARGETS}' order; found once for each block. */
+    private static BlockTarget[] targetsOf(BlockState block) {
+        return MATCHING.computeIfAbsent(block.getBlock(), b -> TARGETS.stream().filter(t -> t.matches(block)).toArray(BlockTarget[]::new));
+    }
+
+    private static final Map<Block, BlockTarget[]> MATCHING = new IdentityHashMap<>();
 
     /** The limbs balancing the reaching pose. Called after the pack has animated, before the torso. */
     public static void apply(UUID uuid, Function<String, ModelPart> parts) {

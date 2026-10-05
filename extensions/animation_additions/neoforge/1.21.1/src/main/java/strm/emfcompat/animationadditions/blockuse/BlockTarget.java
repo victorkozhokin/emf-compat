@@ -30,6 +30,7 @@ public interface BlockTarget {
         }
     }
 
+    /** By what block it is, never by the state it is in: the answer is kept for the block. */
     boolean matches(BlockState block);
 
     /**
