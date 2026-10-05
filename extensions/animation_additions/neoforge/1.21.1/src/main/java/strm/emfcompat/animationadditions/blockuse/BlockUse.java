@@ -224,16 +224,7 @@ public final class BlockUse implements InteractionProvider {
                 outwards = 0f;
             } else if (state.gesture != null) {
                 spot = state.gesture.spot();
-                float s = (float) Math.sin(Math.PI * t);
-                switch (state.gesture.motion()) {
-                    case PUT -> outwards = HOVER_OUT - PUT_IN * s;
-                    case TAKE -> {
-                        float e = (float) (1 - (1 - t) * (1 - t));
-                        outwards = TAKE_FROM + (TAKE_TO - TAKE_FROM) * e;
-                    }
-                    case HOLD -> outwards = 0f;
-                    default -> outwards = HOVER_OUT - TAP_IN * s;
-                }
+                outwards = outwards(state.gesture.motion(), t);
             } else {
                 boolean still = Math.hypot(player.getX() - player.xo, player.getZ() - player.zo) <= SLOW_BELOW;
                 spot = still ? look(player, state) : null;
@@ -285,14 +276,7 @@ public final class BlockUse implements InteractionProvider {
                 state.grip.lerp(model, Smoothing.follow(context.dt(), held != null ? HELD_GRIP_SECONDS : GRIP_SECONDS));
             }
             state.right = right;
-            if (centre != null) {
-                // Off the middle: further (-z) leans forwards (+xRot), lower (+y) a little too; to
-                // the right (-x) turns right (+yRot).
-                Vector3f off = new Vector3f(model).sub(frame.relativeToJoint(centre, new Vector3f()));
-                float k = 1f / SWAY_RADIUS;
-                state.lean[0] = Mth.clamp((-off.z + 0.5f * off.y) * k, -1f, 1f) * SWAY_PITCH;
-                state.lean[1] = Mth.clamp(-off.x * k, -1f, 1f) * SWAY_YAW;
-            }
+            if (centre != null) sway(state, new Vector3f(model).sub(frame.relativeToJoint(centre, new Vector3f())));
             if (state.target != null && state.target.balancesReach() && !seated && EMFCompatConfig.getBoolean(ButtonPress.KEY_STRETCH, true)) {
                 // Past the arm's length the whole body reaches, as for a lever.
                 Vector3f reachTarget = centre == null ? model : frame.relativeToJoint(centre, new Vector3f());
@@ -343,6 +327,33 @@ public final class BlockUse implements InteractionProvider {
                     * (stretchTarget > state.stretch ? Smoothing.fadeIn(dt, ReachPose.SECONDS) : Smoothing.fadeOut(dt, ReachPose.SECONDS));
             if (state.stretch < 1e-3f) state.stretch = 0f;
         }
+    }
+
+    /** How far out of the block the hand is, pixels, {@code t} 0..1 of the way through a gesture. */
+    private static float outwards(BlockTarget.Motion motion, double t) {
+        float s = (float) Math.sin(Math.PI * t);
+        switch (motion) {
+            case PUT:
+                return HOVER_OUT - PUT_IN * s;
+            case TAKE:
+                float e = (float) (1 - (1 - t) * (1 - t));
+                return TAKE_FROM + (TAKE_TO - TAKE_FROM) * e;
+            case HOLD:
+                return 0f;
+            default:
+                return HOVER_OUT - TAP_IN * s;
+        }
+    }
+
+    /**
+     * The torso going with a hand that goes round, {@code off} the middle of its round by this,
+     * model pixels: further (-z) leans forwards (+xRot), lower (+y) a little too; to the right
+     * (-x) turns right (+yRot).
+     */
+    private static void sway(State state, Vector3f off) {
+        float k = 1f / SWAY_RADIUS;
+        state.lean[0] = Mth.clamp((-off.z + 0.5f * off.y) * k, -1f, 1f) * SWAY_PITCH;
+        state.lean[1] = Mth.clamp(-off.x * k, -1f, 1f) * SWAY_YAW;
     }
 
     private static int priority(State state) {
