@@ -59,9 +59,16 @@ public final class ModAccess {
 
     /** Whether {@code type} is, extends or implements the class named. */
     public static boolean is(Class<?> type, String className) {
+        return IS.computeIfAbsent(className, k -> new HashMap<>()).computeIfAbsent(type, t -> walk(t, className));
+    }
+
+    /** Asked for every block a foot's ray lands on: the walk up the class is done once for each. */
+    private static final Map<String, Map<Class<?>, Boolean>> IS = new HashMap<>();
+
+    private static boolean walk(Class<?> type, String className) {
         for (Class<?> c = type; c != null; c = c.getSuperclass()) {
             if (c.getName().equals(className)) return true;
-            for (Class<?> i : c.getInterfaces()) if (is(i, className)) return true;
+            for (Class<?> i : c.getInterfaces()) if (walk(i, className)) return true;
         }
         return false;
     }
