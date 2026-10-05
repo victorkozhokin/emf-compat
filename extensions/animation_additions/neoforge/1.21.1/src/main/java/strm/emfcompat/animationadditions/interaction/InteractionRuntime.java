@@ -170,7 +170,7 @@ public final class InteractionRuntime {
                     slot.release.start(fadeOut);
                 }
                 if(slot.releasing)slot.release.advance(dt);
-                slot.weight -= slot.weight * Smoothing.fadeOut(dt, fadeOut);
+                slot.weight -= slot.weight * Smoothing.fadeOut(dt, fadeOut / ContactRelease.SPEED);
                 // An item-use pose or another addon must own an occupied arm immediately.
                 boolean clearance=effector.isArm() && strm.emfcompat.animationadditions.wallhand.WallSqueeze.isActive(uuid);
                 if(reserved.contains(effector) || off || clearance) {

@@ -3,13 +3,15 @@ package strm.emfcompat.animationadditions.interaction;
 /** The final drawn contact outlives the provider's solver state. Time advances once per solve,
  * never on an armour copy. The brief unloading interval lets body support settle first. */
 public final class ContactRelease {
-    public static final double UNLOAD_SECONDS = .08;
+    /** User-selected speed-up of the complete loss transition, including support unload. */
+    public static final double SPEED = 1.5;
+    public static final double UNLOAD_SECONDS = .08 / SPEED;
     private double elapsed;
     private double tau;
     private boolean active;
     public void start(double fadeSeconds) {
         elapsed = 0;
-        tau = Math.max(.001, fadeSeconds);
+        tau = Math.max(.001, fadeSeconds) / SPEED;
         active = true;
     }
     public void cancel() { active = false; }
