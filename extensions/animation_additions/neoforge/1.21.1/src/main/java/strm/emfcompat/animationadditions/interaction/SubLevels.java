@@ -1,5 +1,7 @@
 package strm.emfcompat.animationadditions.interaction;
 
+import java.util.Map;
+import java.util.IdentityHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -92,8 +94,21 @@ public final class SubLevels {
         return spaces;
     }
 
+    /** Each craft's space this frame: every provider asks for the same few, the pose is worked out once. */
+    private static final Map<Object, Space> SPACES = new IdentityHashMap<>();
+    private static long spacesTick = Long.MIN_VALUE;
+    private static float spacesPartial = Float.NaN;
+
     private static Space space(Object sub) {
-        return new Space(call(renderPose, sub, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false)));
+        Minecraft mc = Minecraft.getInstance();
+        float partial = mc.getTimer().getGameTimeDeltaPartialTick(false);
+        long tick = mc.level == null ? Long.MIN_VALUE : mc.level.getGameTime();
+        if (tick != spacesTick || partial != spacesPartial) {
+            SPACES.clear();
+            spacesTick = tick;
+            spacesPartial = partial;
+        }
+        return SPACES.computeIfAbsent(sub, s -> new Space(call(renderPose, s, partial)));
     }
 
     private static boolean ready() {
