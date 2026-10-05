@@ -340,6 +340,12 @@ public final class Driver {
                     }
                 }
                 case "parcool" -> result.add("parcool", parcool(mc));
+                case "cameraLook" -> {
+                    JsonArray a=v.getAsJsonArray();
+                    LocalPlayer p=requirePlayer(player);
+                    // Camera input only: let native tick interpolation update body/head yaw.
+                    p.setYRot(a.get(0).getAsFloat());p.setXRot(a.get(1).getAsFloat());
+                }
                 case "look" -> {
                     JsonArray a = v.getAsJsonArray();
                     float yaw = a.get(0).getAsFloat();

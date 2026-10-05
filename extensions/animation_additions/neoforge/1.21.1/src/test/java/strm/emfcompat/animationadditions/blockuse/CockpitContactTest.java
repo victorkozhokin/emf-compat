@@ -23,7 +23,7 @@ class CockpitContactTest {
         assertEquals(0,new Quaternionf(fixed).difference(plain).angle(),1e-5);
         assertTrue(new Quaternionf(old).difference(fixed).angle()<new Quaternionf(old).difference(wanted).angle());
         var gradual=CockpitContact.follow(wanted,wanted,.1f,r,l,rt,lt);
-        assertEquals(0,new Quaternionf(gradual).difference(wanted).angle(),1e-5);
+        assertTrue(gradual.equals(wanted,1e-6f)); // Component comparison avoids acos precision loss near zero.
     }
     @Test void exactContactsRequireNoBodyCorrection() {
         var r=new Vector3f(-5,-10,0);var l=new Vector3f(5,-10,0);
@@ -60,5 +60,20 @@ class CockpitContactTest {
             lt.y-=.015f*(float)Math.sin(i*.1);
         }
         assertTrue(CockpitContact.gap(q,r,l,rt,lt)<CockpitContact.gap(new Quaternionf(),r,l,rt,lt));
+    }
+    @Test void symmetricWheelContactDoesNotSwitchBetweenEquivalentLeanBranches() {
+        var r=new Vector3f(-5,-10,0);var l=new Vector3f(5,-10,0);
+        var previous=new Quaternionf();
+        float maximumStep=0;
+        for(int i=0;i<720;i++) {
+            float phase=(float)Math.toRadians(45*Math.sin(i*Math.PI/180));
+            var rt=new Vector3f(-8*(float)Math.cos(phase),-10+8*(float)Math.sin(phase),-10);
+            var lt=new Vector3f(8*(float)Math.cos(phase),-10-8*(float)Math.sin(phase),-10);
+            var next=CockpitContact.fit(previous,r,l,rt,lt);
+            if(i>0)maximumStep=Math.max(maximumStep,new Quaternionf(previous).difference(next).angle());
+            assertTrue(next.angle()<Math.toRadians(31));
+            previous=next;
+        }
+        assertTrue(maximumStep<Math.toRadians(2),"Adjacent wheel contacts must keep a continuous torso solution");
     }
 }

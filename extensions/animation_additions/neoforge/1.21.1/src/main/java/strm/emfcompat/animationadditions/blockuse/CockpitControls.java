@@ -272,6 +272,9 @@ public final class CockpitControls implements InteractionProvider {
         ModelPart r=parts.apply("right_leg"),l=parts.apply("left_leg");
         if (r==null || l==null) return;
         Vector3f waist=new Vector3f((r.x+l.x)*.5f,(r.y+l.y)*.5f,(r.z+l.z)*.5f);
+        Vector3f sourceWaist=new Vector3f(waist),seatDelta=new Vector3f();
+        ModelPart sourceBody=parts.apply("body");
+        Vector3f sourceRotation=sourceBody==null?new Vector3f():new Vector3f(sourceBody.xRot,sourceBody.yRot,sourceBody.zRot);
         if(state.frame!=null && state.craft!=null) {
             // Preserve the pack's mounting offset relative to the actual seat entity, not a fixed world point.
             // Native chairs supply their own passenger heights; the same anchor follows a moving sub-level.
@@ -304,6 +307,7 @@ public final class CockpitControls implements InteractionProvider {
             float lateral=(float)Math.hypot(delta.x,delta.z);
             if(lateral>1.5f){delta.x*=1.5f/lateral;delta.z*=1.5f/lateral;}
             delta.y=Math.max(-8,Math.min(8,delta.y));
+            seatDelta.set(delta);
             state.seatGap=new Vector3f(anchor).sub(new Vector3f(waist).add(new Vector3f(delta).mul(weight))).length()/16;
             for(String name:new String[]{"body","head","hat","right_arm","left_arm","right_leg","left_leg"}) {
                 var part=parts.apply(name);if(part!=null)part.setPos(part.x+delta.x*weight,part.y+delta.y*weight,part.z+delta.z*weight);
@@ -315,6 +319,20 @@ public final class CockpitControls implements InteractionProvider {
                 leg.xRot+=IKMath.wrap(-(float)Math.PI/2-leg.xRot)*weight;
                 leg.zRot*=1-weight;
             }
+        }
+        // The render stack already faces the seat's wheel. FA's source torso yaw still follows
+        // native camera/body lag; undo that local yaw before fitting mechanical contacts.
+        // Otherwise the reach solver chases the camera's twist even on a stationary cushion.
+        ModelPart body=parts.apply("body");
+        if(body!=null) {
+            float unwind=-body.yRot*weight;
+            Quaternionf neutral=new Quaternionf().rotationY(unwind);
+            for(String name:new String[]{"body","head","hat","right_arm","left_arm"}) {
+                ModelPart part=parts.apply(name);if(part==null)continue;
+                Vector3f pos=neutral.transform(new Vector3f(part.x,part.y,part.z).sub(waist)).add(waist);
+                part.setPos(pos.x,pos.y,pos.z);
+            }
+            body.yRot+=unwind;
         }
         Quaternionf turn=new Quaternionf().rotationZYX(state.lean.z*weight,state.lean.y*weight,state.lean.x*weight);
         for (String name:new String[]{"body","head","hat","right_arm","left_arm"}) {
@@ -333,8 +351,8 @@ public final class CockpitControls implements InteractionProvider {
             // A low throttle needs the same seated lean as the keyboard.
             if(ra!=null && la!=null)
                 wanted=CockpitContact.fit(state.contact,new Vector3f(ra.x,ra.y,ra.z).sub(waist),new Vector3f(la.x,la.y,la.z).sub(waist),
-                        new Vector3f(state.reachGrips[0]).sub(waist),new Vector3f(state.reachGrips[1]).sub(waist));
-            if(ra!=null && la!=null)state.contact.set(CockpitContact.follow(state.contact,wanted,Smoothing.follow(dt,state.motion.working()>=0?.08:.2),
+                        new Vector3f(state.reachGrips[0]).sub(waist),new Vector3f(state.reachGrips[1]).sub(waist),state.motion.working()>=0);
+            if(ra!=null && la!=null)state.contact.set(CockpitContact.follow(state.contact,wanted,Smoothing.follow(dt,state.motion.working()>=0?.06:.2),
                     new Vector3f(ra.x,ra.y,ra.z).sub(waist),new Vector3f(la.x,la.y,la.z).sub(waist),
                     new Vector3f(state.reachGrips[0]).sub(waist),new Vector3f(state.reachGrips[1]).sub(waist)));
         }
@@ -366,6 +384,12 @@ public final class CockpitControls implements InteractionProvider {
         }
         state.snapshot.clear();
         if(!strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature.isTrace())return;
+        state.snapshot.put("sourceBodyRotation",java.util.List.of(sourceRotation.x,sourceRotation.y,sourceRotation.z));
+        state.snapshot.put("sourceWaist",java.util.List.of(sourceWaist.x,sourceWaist.y,sourceWaist.z));
+        state.snapshot.put("seatDelta",java.util.List.of(seatDelta.x,seatDelta.y,seatDelta.z));
+        Vector3f contactAngles=new Quaternionf(state.contact).getEulerAnglesZYX(new Vector3f());
+        state.snapshot.put("contactRotation",java.util.List.of(contactAngles.x,contactAngles.y,contactAngles.z));
+        state.snapshot.put("leanRotation",java.util.List.of(state.lean.x,state.lean.y,state.lean.z));
         state.snapshot.put("shown",state.shown);state.snapshot.put("rightGap",state.rightGap);state.snapshot.put("leftGap",state.leftGap);
         state.snapshot.put("rightMix",state.motion.mix(0));state.snapshot.put("leftMix",state.motion.mix(1));state.snapshot.put("seatGap",state.seatGap);
         state.snapshot.put("inertiaPitch",state.inertia.x);state.snapshot.put("inertiaRoll",state.inertia.z);state.snapshot.put("speed",state.transport.speed);
