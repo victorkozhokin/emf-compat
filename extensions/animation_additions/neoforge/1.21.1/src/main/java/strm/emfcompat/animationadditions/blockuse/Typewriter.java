@@ -106,11 +106,21 @@ final class Typewriter implements BlockTarget {
         return result;
     }
     private static Field activeField;
+    private static Class<?> activeHandler;
+    private static java.lang.reflect.Method activeMode;
+    private static boolean activeAbsent;
+
     static BlockPos activePosition(AbstractClientPlayer player) {
         if(player!=Minecraft.getInstance().player)return null;
         try {
-            Class<?> handler=Class.forName(HANDLER);
-            if(!"ACTIVE".equals(String.valueOf(handler.getMethod("getMode").invoke(null))))return null;
+            // Asked every frame of our own player: the class and the method are found once.
+            if(activeAbsent)return null;
+            if(activeMode==null) {
+                try {activeHandler=Class.forName(HANDLER);activeMode=activeHandler.getMethod("getMode");}
+                catch(ReflectiveOperationException | LinkageError missing) {activeAbsent=true;return null;}
+            }
+            Class<?> handler=activeHandler;
+            if(!"ACTIVE".equals(String.valueOf(activeMode.invoke(null))))return null;
             if(activeField==null){activeField=handler.getDeclaredField("TYPEWRITER");activeField.setAccessible(true);}
             Object reference=activeField.get(null);
             Object value=reference instanceof java.lang.ref.Reference<?> ref?ref.get():null;

@@ -75,13 +75,31 @@ public final class ThrottleLever {
 
     /** Actual held lever; looking away during a drag must not release the visual grip. */
     public static BlockPos heldPosition() {
+        if (heldAbsent) return null;
         try {
-            Object handler=Class.forName("dev.simulated_team.simulated.index.SimClickInteractions")
-                    .getField("THROTTLE_LEVER_MANAGER").get(null);
-            if (!(boolean)handler.getClass().getMethod("isActive").invoke(handler)) return null;
-            return (BlockPos)handler.getClass().getMethod("getInteractionPos").invoke(handler);
-        } catch (ReflectiveOperationException | ClassCastException e) { return null; }
+            // Asked every frame of our own player: the class, the field and the methods are found once.
+            if (heldManager == null) {
+                try {
+                    heldManager = Class.forName("dev.simulated_team.simulated.index.SimClickInteractions")
+                            .getField("THROTTLE_LEVER_MANAGER");
+                } catch (ReflectiveOperationException | LinkageError missing) {
+                    heldAbsent = true;
+                    return null;
+                }
+            }
+            Object handler = heldManager.get(null);
+            if (heldActive == null || heldActive.getDeclaringClass() != handler.getClass() && !heldActive.getDeclaringClass().isInstance(handler)) {
+                heldActive = handler.getClass().getMethod("isActive");
+                heldPos = handler.getClass().getMethod("getInteractionPos");
+            }
+            if (!(boolean) heldActive.invoke(handler)) return null;
+            return (BlockPos) heldPos.invoke(handler);
+        } catch (ReflectiveOperationException | RuntimeException e) { return null; }
     }
+
+    private static java.lang.reflect.Field heldManager;
+    private static Method heldActive, heldPos;
+    private static boolean heldAbsent;
 
     private static Method method() {
         if (looked) return failed ? null : transform;
