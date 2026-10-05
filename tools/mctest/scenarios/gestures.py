@@ -21,10 +21,10 @@ CASES = {
     "shear": (["summon sheep 452.3 150 7.5 " + ANIMAL], "shears", 18, "use", 40),
     "stand": (['summon armor_stand 452.0 150 7.5 {Tags:["gesture_test"],Rotation:[90f]}'], "iron_chestplate", 8, "use", 30),
     "seed": (["setblock 451 149 7 farmland"], "wheat_seeds", 62, "use", 28),
-    "armour": ([], None, 0, "armour", 120),
-    "boots": ([], None, 0, "boots", 36),
+    "armour": ([], None, 0, "armour", 150),
+    "boots": ([], None, 0, "boots", 50),
     "chest": (["setblock 452 150 7 chest[facing=west]"], None, 30, "chest", 110),
-    "shake": (["fill 446 150 6 447 151 8 water"], None, 0, "shake", 34),
+    "shake": (["fill 446 150 6 447 151 8 water"], None, 0, "shake", 40),
 }
 
 

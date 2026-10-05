@@ -67,6 +67,9 @@ public abstract class Gesture implements InteractionProvider {
         }
         /** {pitch, yaw} added to where the head looks. */
         public float[] head;
+        /** A point the eyes go to, and how much of the way from where they look, 0..1. */
+        public Vector3f look;
+        public float looking;
         public float pitch, yaw, roll;
         /** Where the soles stand from where the pack has them, while {@link #apart}. */
         public Vector3f rightFoot, leftFoot;
@@ -76,7 +79,8 @@ public abstract class Gesture implements InteractionProvider {
 
         void reset() {
             right = left = head = null;
-            rightAt = leftAt = rightFoot = leftFoot = null;
+            rightAt = leftAt = rightFoot = leftFoot = look = null;
+            looking = 0;
             pitch = yaw = roll = 0;
             apart = onBody = false;
             rightReach = leftReach = 0;
@@ -111,6 +115,9 @@ public abstract class Gesture implements InteractionProvider {
         public boolean poised, acted, back;
         public float level, work;
         float speed;
+        /** Where the hands are drawn to this frame: the pose's points, followed with a little give. */
+        final Vector3f[] hand = {new Vector3f(), new Vector3f()}, handSpeed = {new Vector3f(), new Vector3f()};
+        final boolean[] handSet = new boolean[2];
     }
 
     private final EntityStates<Play> states = new EntityStates<>(Play::new);
@@ -318,6 +325,20 @@ public abstract class Gesture implements InteractionProvider {
         Pose pose = play.pose;
         pose.reset();
         pose(play, poises() ? play.work : play.phase, pose);
+        float dt = (float) Math.min(.1, context.dt());
+        pose.rightAt = follow(play, 0, pose.rightAt, pose.rightReach, dt);
+        pose.leftAt = follow(play, 1, pose.leftAt, pose.leftReach, dt);
+        if (pose.look != null) {
+            // The eyes go to it from where they look, and lead the hands there.
+            float length = pose.look.length(), amount = Math.max(0, Math.min(1, pose.looking));
+            if (length > 1e-3f) {
+                float pitch = (float) Math.asin(Math.max(-1f, Math.min(1f, pose.look.y / length)));
+                float yaw = (float) Math.atan2(-pose.look.x, -pose.look.z);
+                float nowPitch = (float) Math.toRadians(player.getXRot()), nowYaw = (float) Math.toRadians(Mth.wrapDegrees(player.yHeadRot - player.yBodyRot));
+                float[] add = pose.head == null ? new float[2] : pose.head;
+                pose.head = new float[]{add[0] + (pitch - nowPitch) * amount, add[1] + Mth.wrapDegrees((float) Math.toDegrees(yaw - nowYaw)) * (float) (Math.PI / 180) * amount};
+            }
+        }
         if (!poises() && play.phase >= pose.letGo) {
             context.decide("let go");
             return;
@@ -371,18 +392,46 @@ public abstract class Gesture implements InteractionProvider {
             play.back = true;
             target = 0;
         }
-        float stiff = play.back ? 10f : 17f;
+        // Out a touch short of critical - it arrives, carries a hair past and settles; back, exactly critical.
+        float stiff = play.back ? 10f : 17f, damp = play.back ? 1f : .78f;
         int steps = Math.max(1, (int) Math.ceil(dt / .008f));
         float h = dt / steps;
         for (int i = 0; i < steps; i++) {
-            play.speed += (stiff * stiff * (target - play.level) - 2 * stiff * play.speed) * h;
+            play.speed += (stiff * stiff * (target - play.level) - 2 * damp * stiff * play.speed) * h;
             play.level += play.speed * h;
         }
-        play.level = Math.max(0, Math.min(1, play.level));
+        play.level = Math.max(0, Math.min(1.1f, play.level));
         if (play.back && play.level < .015f && Math.abs(play.speed) < .25f) {
             play.playing = play.acted = play.back = false;
             play.level = play.speed = play.work = 0;
         }
+    }
+
+    /**
+     * The point a hand is drawn to: the pose's, followed by a spring a touch short of critical, so
+     * a hand at work swings through its turns instead of tracking them, overshoots a hair and
+     * settles; and lifted in passing, so the way out and back is an arc and not a line.
+     */
+    private static Vector3f follow(Play play, int which, Vector3f at, float reach, float dt) {
+        if (at == null) {
+            play.handSet[which] = false;
+            return null;
+        }
+        Vector3f now = play.hand[which], speed = play.handSpeed[which];
+        if (!play.handSet[which]) {
+            now.set(at);
+            speed.zero();
+            play.handSet[which] = true;
+        } else {
+            int steps = Math.max(1, (int) Math.ceil(dt / .008f));
+            float h = dt / steps, stiff = 24f, damp = .8f;
+            for (int i = 0; i < steps; i++) {
+                speed.add(new Vector3f(at).sub(now).mul(stiff * stiff).sub(new Vector3f(speed).mul(2 * damp * stiff)).mul(h));
+                now.add(new Vector3f(speed).mul(h));
+            }
+        }
+        float way = Math.max(0, Math.min(1, reach));
+        return new Vector3f(now).sub(0, 1.8f * 4 * way * (1 - way), 0);
     }
 
     private static float[] arm(float[] angles, Vector3f at, float reach, Vector3f pivot) {
@@ -390,7 +439,8 @@ public abstract class Gesture implements InteractionProvider {
         if (at == null) return null;
         float[] aim = towards(at.x - pivot.x, at.y - pivot.y, at.z - pivot.z);
         if (aim == null) return null;
-        reach = Math.max(0, Math.min(1, reach));
+        // A hair past is let through: the arm carries on a little and comes back.
+        reach = Math.max(0, Math.min(1.1f, reach));
         return new float[]{aim[0] * reach, aim[1] * reach};
     }
 

@@ -127,8 +127,12 @@ public final class ContainerSearch extends Gesture {
         Vec3 rim = middle.add(0, .46, 0).add(side.scale(.42)).add(along.scale(right ? .3 : -.3));
         out.hand(right, model(play, inside), in);
         out.hand(!right, model(play, rim), in);
-        out.pitch = in * ((float) Math.toRadians(8) + Reach.low(model(play, inside).y) * (float) Math.toRadians(22));
-        out.head = new float[]{.22f * in, (float) (.08 * Math.sin(turn * .5) * in)};
+        out.pitch = in * ((float) Math.toRadians(8) + Reach.low(model(play, inside).y) * (float) Math.toRadians(22)) + .03f * (float) dip * in;
+        // The eyes on the hand that looks, the shoulder of it down and in, the body giving with each dip.
+        out.look = model(play, inside);
+        out.looking = in * .8f;
+        out.yaw = (right ? -1 : 1) * (.09f + .03f * (float) Math.sin(turn)) * in;
+        out.roll = (right ? 1 : -1) * .04f * (float) dip * in;
         out.apart = phase > .04f && phase < HOLD + .2f;
         AnimalCare.foot(out, right, 1.1f, .7f, .5f);
         out.letGo = .92f;

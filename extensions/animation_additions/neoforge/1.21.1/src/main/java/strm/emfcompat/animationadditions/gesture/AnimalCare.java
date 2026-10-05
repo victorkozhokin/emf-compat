@@ -104,41 +104,59 @@ public final class AnimalCare extends Gesture {
         float level = play.level;
         // The work swells in and out of itself, so its first and last moments are still.
         float busy = play.acted ? (float) Math.sin(Math.PI * Math.min(1, work)) : 0;
+        float hand = right ? 1 : -1;
         Vector3f tool, other;
         float toolReach = level, otherReach = level, bend;
+        Vec3 watched;
         if (play.kind == FEED) {
-            // The food is held out and given; the giving hand comes away as the other strokes the head.
-            float stroke = play.acted ? smooth((work - .12f) / .2f) * (1 - smooth((work - .8f) / .2f)) : 0;
-            float rub = (float) Math.sin(Math.PI * 2 * 2 * work) * stroke;
-            tool = model(play, mouth.add(side.scale(.1)).add(0, -.04 + .03 * Math.sin(Math.PI * 6 * work) * busy, 0));
-            other = model(play, mouth.add(0, .24, 0).add(along.scale(.11 * rub)).add(side.scale(-.05 * rub)));
-            toolReach = level * (1 - smooth((work - .5f) / .3f));
+            // The food is held out; the animal takes it in little tugs; the giving hand comes away
+            // as the other strokes its head - back along it pressing, forward again lifted.
+            float stroke = play.acted ? smooth((work - .1f) / .2f) * (1 - smooth((work - .84f) / .16f)) : 0;
+            double pass = Math.PI * 2 * 3 * Math.max(0, work - .2f) / .64;
+            double back = .13 * Math.cos(pass) * stroke, lift = .06 * Math.max(0, Math.sin(pass)) * stroke;
+            double tug = Math.sin(Math.PI * 2 * 5 * work) * Math.exp(-4 * work) * busy;
+            tool = model(play, mouth.add(side.scale(.1 + .03 * tug)).add(0, -.04 - .03 * tug, 0));
+            other = model(play, mouth.add(0, .22 + lift, 0).add(side.scale(-.1 + back)).add(along.scale(.04 * hand)));
+            toolReach = level * (1 - smooth((work - .42f) / .3f));
             otherReach = stroke * Math.min(1, level * 1.4f);
             bend = Math.max(toolReach, otherReach) * ((float) Math.toRadians(9) + Reach.low(tool.y) * (float) Math.toRadians(16));
-            out.head = new float[]{.12f * level, 0};
+            // The shoulder of the hand at work comes forward: the giving one first, then the stroking one.
+            out.yaw = hand * (.13f * otherReach - .09f * toolReach);
+            out.roll = -hand * .03f * (float) Math.cos(pass) * stroke;
+            watched = mouth.add(0, .1 * stroke, 0);
             foot(out, right, 1.2f, .8f, .2f);
         } else if (play.kind == MILK) {
-            float pull = (float) Math.sin(Math.PI * 2 * 4 * work) * busy;
+            // The bucket held still under it; the other hand draws down and lets go, and the body gives with each draw.
+            double draw = Math.PI * 2 * 5 * work;
+            float pull = (float) Math.max(0, Math.sin(draw)) * busy, ease = (float) Math.sin(draw) * busy;
             Vec3 under = at.add(side.scale(width * .3)).add(0, height * .36, 0);
-            tool = model(play, under.add(along.scale(right ? -.13 : .13)).add(0, -.04, 0));
-            other = model(play, under.add(along.scale(right ? .13 : -.13)).add(0, .12 + .07 * pull, 0));
-            bend = level * (float) Math.toRadians(30) + .02f * pull;
-            out.head = new float[]{.2f * level, 0};
+            tool = model(play, under.add(along.scale(-.13 * hand)).add(0, -.06, 0));
+            other = model(play, under.add(along.scale(.13 * hand + .02 * ease)).add(0, .14 - .08 * pull, 0).add(side.scale(-.03 * pull)));
+            bend = level * (float) Math.toRadians(30) + .025f * pull;
+            out.yaw = hand * (.08f * level + .02f * ease);
+            out.roll = hand * .03f * pull;
+            watched = under.add(0, .1, 0);
             foot(out, right, 1.3f, 1.1f, .9f);
         } else {
-            float sweep = (float) Math.sin(Math.PI * 2 * 1.5 * work) * busy;
-            Vec3 wool = at.add(side.scale(width * .32)).add(0, height * .72, 0).add(along.scale(.3 * sweep));
-            tool = model(play, wool);
-            other = model(play, at.add(side.scale(width * .1)).add(0, height * .98, 0));
-            otherReach = level * (play.acted ? 1 : .5f);
-            bend = level * ((float) Math.toRadians(6) + Reach.low(tool.y) * (float) Math.toRadians(16));
-            out.head = new float[]{.1f * level, .05f * sweep};
-            out.yaw = .04f * sweep;
+            // One long pass from the shoulder to the rump, the blades working as they go; the other
+            // hand goes ahead of them holding the wool up, and the body turns after the pass.
+            float along01 = play.acted ? smooth(work) : .15f;
+            double snip = Math.sin(Math.PI * 2 * 7 * work) * busy;
+            double where = -.3 + .6 * along01;
+            Vec3 flank = at.add(side.scale(width * .32)).add(0, height * .72, 0);
+            tool = model(play, flank.add(along.scale(where * hand + .03 * snip)).add(0, .03 * snip, 0));
+            other = model(play, flank.add(along.scale((where + .2) * hand)).add(0, .1, 0).add(side.scale(-.08)));
+            otherReach = level * (play.acted ? 1 : .6f);
+            bend = level * ((float) Math.toRadians(7) + Reach.low(tool.y) * (float) Math.toRadians(16));
+            out.yaw = hand * (.06f * level + .14f * (along01 - .5f) * busy);
+            watched = flank.add(along.scale(where * hand));
             foot(out, right, 1.2f, .8f, .4f);
         }
         out.hand(right, tool, toolReach);
         out.hand(!right, other, otherReach);
         out.pitch = bend;
+        out.look = model(play, watched);
+        out.looking = Math.min(1, level * 1.6f) * .85f;
         out.apart = !play.back;
     }
 

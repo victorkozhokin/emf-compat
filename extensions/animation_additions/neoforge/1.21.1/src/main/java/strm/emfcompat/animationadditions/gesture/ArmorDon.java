@@ -138,56 +138,82 @@ public final class ArmorDon extends Gesture {
     }
 
     protected double seconds(Play play) {
-        // Up to the head and down to the feet are long ways for an arm: more time, the same pace.
-        return play.kind == FEET || play.kind == HEAD || play.kind == BACK ? 1.65 : 1.3;
+        // Up to the head and down to the feet are long ways for an arm, and boots are two: more time, the same pace.
+        return play.kind == FEET ? 2.3 : play.kind == HEAD || play.kind == BACK || play.kind == CHEST ? 1.7 : 1.4;
     }
 
     protected void pose(Play play, float phase, Pose out) {
         // Out at once: the piece is on already, the hands must not come after it.
-        float in = swell(phase, .2f, .64f, .93f);
-        // Settled into place once the hands are there: a short push, a pull or a tug.
-        float set = phase > .36f && phase < .62f ? (float) Math.sin(Math.PI * (phase - .36f) / .26f) : 0;
-        Vector3f at;
+        float in = swell(phase, play.kind == HEAD || play.kind == BACK ? .3f : .2f, .7f, .95f);
+        // Settled into place once the hands are there, and how far through that it is.
+        float through = Math.max(0, Math.min(1, (phase - .3f) / .4f)), set = (float) Math.sin(Math.PI * through);
+        Vector3f right, left = null;
         switch (play.kind) {
             case HEAD -> {
-                at = new Vector3f(-4.6f, -5.5f + set, -1.5f);
-                out.head = new float[]{.12f * in, 0};
+                // Lowered on, pressed down, and the head tries it: a nod and a turn each way.
+                right = new Vector3f(-4.6f, -6.5f + 1.6f * smooth(through * 2), -1.5f);
+                float tries = (float) Math.sin(Math.PI * 2 * 1.5 * through) * set;
+                out.head = new float[]{.1f * in + .08f * set, .12f * tries};
+                out.pitch = -.03f * set;
             }
-            case CHEST -> at = new Vector3f(-3f - set, 5.5f, -3.2f);
+            case CHEST -> {
+                // From the breast out over the ribs and down the sides, the chest lifting into it; then a shrug to seat it.
+                float slide = smooth(through * 1.4f);
+                right = new Vector3f(-2.6f - 2.2f * slide, 4.5f + 4.5f * slide, -3.3f + 1.3f * slide);
+                out.pitch = -.07f * set;
+                out.roll = .035f * (float) Math.sin(Math.PI * 2 * 2 * through) * set;
+                out.head = new float[]{.22f * in * (1 - slide * .5f), 0};
+            }
             case LEGS -> {
-                at = new Vector3f(-4.6f, 12.5f - 1.5f * set, -1.5f);
-                out.pitch = (float) Math.toRadians(17) * in;
-                out.head = new float[]{.2f * in, 0};
+                // Bent to the hips, then drawn up and the body straightening with the pull.
+                float pull = smooth(through * 1.3f);
+                right = new Vector3f(-4.6f, 14f - 2.6f * pull, -1.5f);
+                out.pitch = (float) Math.toRadians(20) * in * (1 - .55f * pull);
+                out.roll = .03f * (float) Math.sin(Math.PI * 2 * through) * set;
+                out.head = new float[]{.22f * in, 0};
             }
             case FEET -> {
-                at = new Vector3f(-2.4f, 21f - set, -4f);
-                out.pitch = (float) Math.toRadians(36) * in;
-                out.head = new float[]{.3f * in, 0};
-                out.apart = phase > .05f && phase < .72f;
-                out.rightFoot = new Vector3f(-.6f, 0, .5f);
-                out.leftFoot = new Vector3f(.6f, 0, -1f);
+                // One boot, then the other: both hands down to a foot, the weight on the other leg.
+                float over = smooth((phase - .44f) / .14f), foot = 1 - 2 * over;
+                float tug = (float) Math.sin(Math.PI * 2 * Math.max(0, Math.min(1, (phase - .22f) / .5f)));
+                right = new Vector3f(-2.4f * foot - 1f, 21f - Math.abs(tug), -4f);
+                left = new Vector3f(-2.4f * foot + 1f, 21f - Math.abs(tug), -4f);
+                out.pitch = (float) Math.toRadians(38) * in;
+                out.roll = .07f * foot * in;
+                out.yaw = .08f * foot * in;
+                out.head = new float[]{.3f * in, -.1f * foot * in};
+                out.apart = phase > .04f && phase < .78f;
+                out.rightFoot = new Vector3f(-.7f, 0, .4f);
+                out.leftFoot = new Vector3f(.7f, 0, -.9f);
             }
             case NECK -> {
-                at = new Vector3f(-1.7f, 1.3f + .5f * set, -3.4f);
-                out.head = new float[]{.14f * in, 0};
+                // Round the neck from behind to the front, then let hang.
+                right = new Vector3f(-2.6f + 1.2f * smooth(through), .6f + 1.2f * smooth(through), 1f - 4.6f * smooth(through * 1.5f));
+                out.head = new float[]{.16f * in + .06f * set, 0};
             }
             case WAIST -> {
-                at = new Vector3f(-2.3f - .6f * set, 11.5f, -3.2f);
-                out.head = new float[]{.22f * in, 0};
-                out.pitch = (float) Math.toRadians(6) * in;
+                // Drawn round the waist to the front and pulled tight.
+                float round = smooth(through * 1.4f);
+                right = new Vector3f(-4.4f + 2.6f * round - .5f * set, 11.5f, -.5f - 2.9f * round);
+                out.head = new float[]{.24f * in, 0};
+                out.pitch = (float) Math.toRadians(7) * in - .04f * set;
             }
-            case BACK -> at = new Vector3f(-4.4f, 1f + set, 1.5f);
+            case BACK -> {
+                right = new Vector3f(-4.4f, .5f + 1.5f * set, 1.8f);
+                out.roll = .03f * (float) Math.sin(Math.PI * 2 * 2 * through) * set;
+            }
             default -> {
-                // A ring or a bracelet: the right hand held out, the left hand to it.
+                // A ring or a bracelet: the right hand held out and turned to the eyes, the left hand to it, a twist on.
                 out.onBody = true;
-                out.hand(true, new Vector3f(-1.2f, 9f, -6.5f), in);
-                out.hand(false, new Vector3f(-2.2f + .5f * set, 8.4f, -6.9f), in);
-                out.head = new float[]{.25f * in, .1f * in};
+                out.hand(true, new Vector3f(-1.2f, 9f - .6f * set, -6.5f), in);
+                out.hand(false, new Vector3f(-2.2f + .7f * (float) Math.sin(Math.PI * 2 * through) * set, 8.2f, -6.9f), in * Math.min(1, phase / .16f));
+                out.head = new float[]{.3f * in, .1f * in};
+                out.pitch = .04f * in;
                 return;
             }
         }
         out.onBody = true;
-        out.hand(true, at, in);
-        out.hand(false, Reach.mirror(at), in);
+        out.hand(true, right, in);
+        out.hand(false, left != null ? left : Reach.mirror(right), in);
     }
 }

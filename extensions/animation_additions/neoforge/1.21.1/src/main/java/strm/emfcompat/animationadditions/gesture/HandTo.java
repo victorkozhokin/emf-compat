@@ -113,19 +113,24 @@ public final class HandTo extends Gesture {
 
     protected void pose(Play play, float work, Pose out) {
         if (play.point == null) return;
-        float level = play.level;
+        float level = play.level, hand = play.right ? 1 : -1;
         float press = play.acted ? (float) Math.sin(Math.PI * Math.min(1, work)) : 0;
         Vector3f point = model(play, play.point);
+        out.look = new Vector3f(point);
+        out.looking = Math.min(1, level * 1.6f) * .8f;
         if (play.kind == SEED) {
+            // Pressed in with the heel of the hand and a small twist; the weight goes down with it.
             point.y += .9f * press;
-            out.pitch = level * (float) Math.toRadians(30) + .03f * press;
-            out.head = new float[]{.25f * level, 0};
+            point.x += .5f * hand * (float) Math.sin(Math.PI * 2 * work) * press;
+            out.pitch = level * (float) Math.toRadians(31) + .04f * press;
+            out.yaw = -hand * .1f * level;
+            out.roll = hand * .04f * level;
             AnimalCare.foot(out, play.right, 1.3f, .9f, .5f);
         } else {
-            // Set in place: a short push towards the stand.
-            point.z -= .8f * press;
-            out.pitch = level * ((float) Math.toRadians(5) + Reach.low(point.y) * (float) Math.toRadians(22));
-            out.head = new float[]{.08f * level, 0};
+            // Set in place with a short push, the shoulder going in behind the hand.
+            point.z -= .9f * press;
+            out.pitch = level * ((float) Math.toRadians(5) + Reach.low(point.y) * (float) Math.toRadians(22)) + .02f * press;
+            out.yaw = -hand * (.09f * level + .05f * press);
             AnimalCare.foot(out, play.right, .9f, .6f, .3f);
         }
         out.apart = !play.back;

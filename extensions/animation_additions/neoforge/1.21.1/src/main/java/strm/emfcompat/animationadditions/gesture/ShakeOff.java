@@ -65,18 +65,22 @@ public final class ShakeOff extends Gesture {
     }
 
     protected double seconds(Play play) {
-        return 1.5;
+        return 1.7;
     }
 
     protected void pose(Play play, float phase, Pose out) {
-        float in = bell(phase, .2f, .72f, .92f);
-        float shake = (float) Math.sin(Math.PI * 2 * 3.5 * phase) * in;
-        // Both arms a little forward and out, flicked against each other; the body and the head with them.
-        out.right = new float[]{(-.3f + .22f * shake) * in, 0, .42f * in, 0};
-        out.left = new float[]{(-.3f - .22f * shake) * in, 0, -.42f * in, 0};
-        out.yaw = .13f * shake;
-        out.roll = .04f * shake;
-        out.head = new float[]{.06f * in, .16f * shake};
-        out.letGo = .92f;
+        // A shake starts hard and runs down: quick at first and slowing, each one less than the last;
+        // it goes through the body from the hands in - the arms, then the torso, then the head a beat behind.
+        float in = swell(phase, .14f, .5f, .95f);
+        double turn = Math.PI * 2 * (5.2 * phase - 1.6 * phase * phase);
+        float arms = (float) Math.sin(turn) * in, body = (float) Math.sin(turn - .7) * in, head = (float) Math.sin(turn - 1.5) * in;
+        float flick = (float) Math.sin(turn * 2) * in;
+        out.right = new float[]{(-.3f + .24f * arms) * in, 0, (.4f + .1f * flick) * in, -.5f * Math.abs(arms)};
+        out.left = new float[]{(-.3f - .24f * arms) * in, 0, -(.4f - .1f * flick) * in, -.5f * Math.abs(arms)};
+        out.yaw = .15f * body;
+        out.roll = .05f * (float) Math.cos(turn - .7) * in;
+        out.pitch = .05f * in;
+        out.head = new float[]{.07f * in, .2f * head};
+        out.letGo = .93f;
     }
 }
