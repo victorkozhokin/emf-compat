@@ -1,0 +1,1520 @@
+[
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "gamemode survival"
+  },
+  {
+    "cmd": "time set noon"
+  },
+  {
+    "cmd": "weather clear"
+  },
+  {
+    "cmd": "effect give @s saturation 5 10 true"
+  },
+  {
+    "cmd": "effect give @s instant_health 1 10 true"
+  },
+  {
+    "config": {
+      "mining.enabled": true,
+      "lookat.enabled": false,
+      "pocket.enabled": false
+    }
+  },
+  {
+    "hideGui": true
+  },
+  {
+    "camera": "back"
+  },
+  {
+    "cmd": "tp @s 450.5 150 7.5 -90 0"
+  },
+  {
+    "wait": 30
+  },
+  {
+    "wait": 5
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "fill 451 150 6 453 153 8 air"
+  },
+  {
+    "cmd": "fill 449 149 5 454 149 9 smooth_stone"
+  },
+  {
+    "cmd": "setblock 452 150 7 obsidian"
+  },
+  {
+    "cmd": "tp @s 450.5 150 7.5 -90 29"
+  },
+  {
+    "cmd": "item replace entity @s weapon.mainhand with iron_shovel"
+  },
+  {
+    "config": {
+      "footgrounding.trace": true
+    }
+  },
+  {
+    "orbit": [
+      0,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 12
+  },
+  {
+    "cameraLook": [
+      -90,
+      29
+    ]
+  },
+  {
+    "wait": 4
+  },
+  {
+    "log": "mining shovel/feet"
+  },
+  {
+    "screenshot": "mining-shovel-feet-rest"
+  },
+  {
+    "hold": "attack"
+  },
+  {
+    "wait": 14
+  },
+  {
+    "orbit": [
+      0,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 2
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-back-0"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-back-1"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-back-2"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-back-3"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-back-4"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-back-5"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-back-6"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-back-7"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-back-8"
+  },
+  {
+    "orbit": [
+      90,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 2
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-left-0"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-left-1"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-left-2"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-left-3"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-left-4"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-left-5"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-left-6"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-left-7"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-left-8"
+  },
+  {
+    "orbit": [
+      180,
+      8,
+      1.2
+    ]
+  },
+  {
+    "wait": 2
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-front-0"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-front-1"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-front-2"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-front-3"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-front-4"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-front-5"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-front-6"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-front-7"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-front-8"
+  },
+  {
+    "orbit": [
+      270,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 2
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-right-0"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-right-1"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-right-2"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-right-3"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-right-4"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-right-5"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-right-6"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-right-7"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-feet-right-8"
+  },
+  {
+    "release": "attack"
+  },
+  {
+    "log": "mining shovel/feet released"
+  },
+  {
+    "wait": 20
+  },
+  {
+    "orbit": [
+      0,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 3
+  },
+  {
+    "screenshot": "mining-shovel-feet-back-held"
+  },
+  {
+    "orbit": [
+      90,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 3
+  },
+  {
+    "screenshot": "mining-shovel-feet-left-held"
+  },
+  {
+    "orbit": [
+      180,
+      8,
+      1.2
+    ]
+  },
+  {
+    "wait": 3
+  },
+  {
+    "screenshot": "mining-shovel-feet-front-held"
+  },
+  {
+    "orbit": [
+      270,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 3
+  },
+  {
+    "screenshot": "mining-shovel-feet-right-held"
+  },
+  {
+    "wait": 60
+  },
+  {
+    "model": "player"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "fill 451 150 6 453 153 8 air"
+  },
+  {
+    "cmd": "fill 449 149 5 454 149 9 smooth_stone"
+  },
+  {
+    "cmd": "setblock 452 151 7 obsidian"
+  },
+  {
+    "cmd": "tp @s 450.5 150 7.5 -90 3"
+  },
+  {
+    "cmd": "item replace entity @s weapon.mainhand with iron_shovel"
+  },
+  {
+    "config": {
+      "footgrounding.trace": false
+    }
+  },
+  {
+    "orbit": [
+      0,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 12
+  },
+  {
+    "cameraLook": [
+      -90,
+      3
+    ]
+  },
+  {
+    "wait": 4
+  },
+  {
+    "log": "mining shovel/chest"
+  },
+  {
+    "screenshot": "mining-shovel-chest-rest"
+  },
+  {
+    "hold": "attack"
+  },
+  {
+    "wait": 14
+  },
+  {
+    "orbit": [
+      0,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 2
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-back-0"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-back-1"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-back-2"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-back-3"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-back-4"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-back-5"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-back-6"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-back-7"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-back-8"
+  },
+  {
+    "orbit": [
+      90,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 2
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-left-0"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-left-1"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-left-2"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-left-3"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-left-4"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-left-5"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-left-6"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-left-7"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-left-8"
+  },
+  {
+    "orbit": [
+      180,
+      8,
+      1.2
+    ]
+  },
+  {
+    "wait": 2
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-front-0"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-front-1"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-front-2"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-front-3"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-front-4"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-front-5"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-front-6"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-front-7"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-front-8"
+  },
+  {
+    "orbit": [
+      270,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 2
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-right-0"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-right-1"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-right-2"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-right-3"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-right-4"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-right-5"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-right-6"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-right-7"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-chest-right-8"
+  },
+  {
+    "release": "attack"
+  },
+  {
+    "log": "mining shovel/chest released"
+  },
+  {
+    "wait": 20
+  },
+  {
+    "orbit": [
+      0,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 3
+  },
+  {
+    "screenshot": "mining-shovel-chest-back-held"
+  },
+  {
+    "orbit": [
+      90,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 3
+  },
+  {
+    "screenshot": "mining-shovel-chest-left-held"
+  },
+  {
+    "orbit": [
+      180,
+      8,
+      1.2
+    ]
+  },
+  {
+    "wait": 3
+  },
+  {
+    "screenshot": "mining-shovel-chest-front-held"
+  },
+  {
+    "orbit": [
+      270,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 3
+  },
+  {
+    "screenshot": "mining-shovel-chest-right-held"
+  },
+  {
+    "wait": 60
+  },
+  {
+    "model": "player"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "fill 451 150 6 453 153 8 air"
+  },
+  {
+    "cmd": "fill 449 149 5 454 149 9 smooth_stone"
+  },
+  {
+    "cmd": "setblock 451 149 7 obsidian"
+  },
+  {
+    "cmd": "tp @s 450.5 150 7.5 -90 58"
+  },
+  {
+    "cmd": "item replace entity @s weapon.mainhand with iron_shovel"
+  },
+  {
+    "config": {
+      "footgrounding.trace": false
+    }
+  },
+  {
+    "orbit": [
+      0,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 12
+  },
+  {
+    "cameraLook": [
+      -90,
+      58
+    ]
+  },
+  {
+    "wait": 4
+  },
+  {
+    "log": "mining shovel/floor"
+  },
+  {
+    "screenshot": "mining-shovel-floor-rest"
+  },
+  {
+    "hold": "attack"
+  },
+  {
+    "wait": 14
+  },
+  {
+    "orbit": [
+      0,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 2
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-back-0"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-back-1"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-back-2"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-back-3"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-back-4"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-back-5"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-back-6"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-back-7"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-back-8"
+  },
+  {
+    "orbit": [
+      90,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 2
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-left-0"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-left-1"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-left-2"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-left-3"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-left-4"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-left-5"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-left-6"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-left-7"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-left-8"
+  },
+  {
+    "orbit": [
+      180,
+      8,
+      1.2
+    ]
+  },
+  {
+    "wait": 2
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-front-0"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-front-1"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-front-2"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-front-3"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-front-4"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-front-5"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-front-6"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-front-7"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-front-8"
+  },
+  {
+    "orbit": [
+      270,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 2
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-right-0"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-right-1"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-right-2"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-right-3"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-right-4"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-right-5"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-right-6"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-right-7"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "mining-shovel-floor-right-8"
+  },
+  {
+    "release": "attack"
+  },
+  {
+    "log": "mining shovel/floor released"
+  },
+  {
+    "wait": 20
+  },
+  {
+    "orbit": [
+      0,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 3
+  },
+  {
+    "screenshot": "mining-shovel-floor-back-held"
+  },
+  {
+    "orbit": [
+      90,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 3
+  },
+  {
+    "screenshot": "mining-shovel-floor-left-held"
+  },
+  {
+    "orbit": [
+      180,
+      8,
+      1.2
+    ]
+  },
+  {
+    "wait": 3
+  },
+  {
+    "screenshot": "mining-shovel-floor-front-held"
+  },
+  {
+    "orbit": [
+      270,
+      8,
+      3.5
+    ]
+  },
+  {
+    "wait": 3
+  },
+  {
+    "screenshot": "mining-shovel-floor-right-held"
+  },
+  {
+    "wait": 60
+  },
+  {
+    "model": "player"
+  },
+  {
+    "config": {
+      "footgrounding.trace": false
+    }
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "fill 451 150 6 453 153 8 air"
+  },
+  {
+    "cmd": "fill 449 149 5 454 149 9 smooth_stone"
+  },
+  {
+    "orbit": false
+  },
+  {
+    "hideGui": false
+  }
+]

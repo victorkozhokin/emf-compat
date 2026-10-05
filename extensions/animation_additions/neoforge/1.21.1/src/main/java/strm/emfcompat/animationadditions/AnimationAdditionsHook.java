@@ -138,12 +138,14 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         BlockUse.apply(uuid, parts);
         strm.emfcompat.animationadditions.leash.LeashHold.support(uuid, parts);
         strm.emfcompat.animationadditions.pocket.PocketStash.support(uuid, parts);
+        Mining.support(uuid, parts);
         // The torso before the arm aims: a hand on a wall aims from where the shoulder has gone.
         WallSqueeze.support(uuid, parts);
         strm.emfcompat.animationadditions.transport.TransportGrip.support(uuid,parts);
         TorsoLean.apply(uuid, parts);
         strm.emfcompat.animationadditions.transport.TransportGrip.reach(uuid,parts);
         BlockUse.reachContact(uuid, parts);
+        Mining.reach(uuid, parts);
         ButtonPress.reachContact(uuid, parts);
         strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.reachContact(uuid, parts);
         InteractionRuntime.finishSupport(uuid, parts, supportBase, EMFState.getFrameCounter(), mainModel);
@@ -154,7 +156,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         // Last: a hand on a button or a swing on a block aims from where its shoulder has finally been drawn.
         ButtonPress.aimArm(uuid, parts);
         BlockUse.aimArm(uuid, parts);
-        Mining.aimArm(uuid, parts);
+        Mining.aimArm(uuid, parts, contactBase);
         strm.emfcompat.animationadditions.pocket.PocketStash.aimArm(uuid, parts);
         strm.emfcompat.animationadditions.blockuse.CockpitControls.apply(uuid, parts);
         HandContacts.apply(uuid, parts);
