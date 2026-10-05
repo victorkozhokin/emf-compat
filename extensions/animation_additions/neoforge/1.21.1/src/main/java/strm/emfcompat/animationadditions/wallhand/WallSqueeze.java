@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.wallhand;
 
+import net.minecraft.world.phys.AABB;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.animationadditions.interaction.Skeleton;
 import strm.emfcompat.animationadditions.DebugLog;
@@ -126,7 +127,9 @@ public final class WallSqueeze {
             // Minecraft yaw: 0 faces +z; forward (-sin, cos), the right of it (-cos, -sin).
             Vec3 forward = new Vec3(-Math.sin(yaw), 0, Math.cos(yaw));
             Vec3 right = new Vec3(-Math.cos(yaw), 0, -Math.sin(yaw));
-            double roomRight = room(player, at, forward, right), roomLeft = room(player, at, forward, right.scale(-1));
+            boolean walls = anythingNear(player, at);
+            double roomRight = walls ? room(player, at, forward, right) : LOOK;
+            double roomLeft = walls ? room(player, at, forward, right.scale(-1)) : LOOK;
             // How far each arm is in its wall, and how far the body can go the other way, pixels.
             float inRight = (float) (Math.max(0, NEED - roomRight) / PIXEL), inLeft = (float) (Math.max(0, NEED - roomLeft) / PIXEL);
             float spareRight = (float) (Math.max(0, roomRight - NEED) / PIXEL), spareLeft = (float) (Math.max(0, roomLeft - NEED) / PIXEL);
@@ -160,6 +163,17 @@ public final class WallSqueeze {
             s.logged = decided;
             if (DebugLog.decisions()) LOGGER.info("[WallSqueeze] {} {}", player.getName().getString(), decided);
         }
+    }
+
+    /**
+     * Whether any block's collision is within the rays' reach at all - in the open there is none,
+     * and the rays, which could only miss, are not sent.
+     */
+    private static boolean anythingNear(AbstractClientPlayer player, Vec3 at) {
+        double out = LOOK + ALONG[ALONG.length - 1] + 0.01, height = player.getBbHeight();
+        AABB reach = new AABB(at.x - out, at.y + height * HEIGHTS[1] - 0.01, at.z - out,
+                at.x + out, at.y + height * HEIGHTS[0] + 0.01, at.z + out);
+        return player.level().getBlockCollisions(player, reach).iterator().hasNext();
     }
 
     /** The least room from the middle of the body to a wall on one side, blocks; {@link #LOOK} with none. */
