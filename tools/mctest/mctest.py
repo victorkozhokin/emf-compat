@@ -241,6 +241,13 @@ def prepare_sandbox(profile: Profile, world: str | None, use_project_jars: bool 
             data["logModelCreationData"] = True
             data["logASM"] = True
             emf_config.write_text(json.dumps(data, indent=2))
+    # The features' decision lines ("stride", "hover-R") are off for players; the baselines read
+    # them, so the sandbox's copy of the config has them on. The profile's own is not touched.
+    compat_config = dst / "config" / "emf_compat.json"
+    data = json.loads(compat_config.read_text()) if compat_config.exists() else {"configVersion": 1}
+    data.setdefault("booleans", {})["debug.decisions"] = True
+    compat_config.parent.mkdir(parents=True, exist_ok=True)
+    compat_config.write_text(json.dumps(data, indent=2))
     for name in ["options.txt", "servers.dat"]:
         if (src / name).exists():
             shutil.copy2(src / name, dst / name)

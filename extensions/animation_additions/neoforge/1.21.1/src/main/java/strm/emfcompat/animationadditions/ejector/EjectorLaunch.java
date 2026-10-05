@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.ejector;
 
+import strm.emfcompat.animationadditions.DecisionLog;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -119,7 +120,7 @@ public final class EjectorLaunch {
         String phase = s.thrown ? "thrown" : braced ? "brace" : "off";
         if (!phase.equals(s.logged)) {
             s.logged = phase;
-            LOGGER.info("[Ejector] {} {}", player.getName().getString(), phase);
+            if (DecisionLog.isOn()) LOGGER.info("[Ejector] {} {}", player.getName().getString(), phase);
         }
     }
 

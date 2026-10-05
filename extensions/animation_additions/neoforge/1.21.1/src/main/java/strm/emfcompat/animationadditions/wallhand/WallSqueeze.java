@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.wallhand;
 
+import strm.emfcompat.animationadditions.DecisionLog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -155,7 +156,7 @@ public final class WallSqueeze {
         s.upLeft += (upLeft - s.upLeft) * Smoothing.follow(dt, SECONDS);
         if (!decided.equals(s.logged)) {
             s.logged = decided;
-            LOGGER.info("[WallSqueeze] {} {}", player.getName().getString(), decided);
+            if (DecisionLog.isOn()) LOGGER.info("[WallSqueeze] {} {}", player.getName().getString(), decided);
         }
     }
 

@@ -65,6 +65,7 @@ public class EMFCompatAnimationAdditionsMod {
             Furniture.register(config);
             Mining.register(config);
             EjectorLaunch.register(config);
+            DecisionLog.register(config);
             // Order is only the log's order; who wins is the arbiter's call.
             InteractionRuntime.register(WallHand.INSTANCE);
             InteractionRuntime.register(PlantReach.INSTANCE);

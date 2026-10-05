@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.footgrounding.compat;
 
+import strm.emfcompat.animationadditions.DecisionLog;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
@@ -180,12 +181,14 @@ public final class HorseFootGrounding {
         for (int i = 0; i < 4; i++) state.lift[i] += (targetLift[i] - state.lift[i]) * kLift;
 
         if (!decided.equals(state.logged)) {
-            LOGGER.info("[HorseFootGrounding] {} {} (RH={} LH={} RF={} LF={} lower={} tilt={}) y={} body={}",
-                    horse.getName().getString(), decided,
-                    String.format("%.2f", drops[0]), String.format("%.2f", drops[1]),
-                    String.format("%.2f", drops[2]), String.format("%.2f", drops[3]),
-                    String.format("%.2f", targetLower), String.format("%.1f", Math.toDegrees(targetTilt)),
-                    String.format("%.3f", horse.getY()), String.format("%.1f", horse.yBodyRot));
+            if (DecisionLog.isOn()) {
+                LOGGER.info("[HorseFootGrounding] {} {} (RH={} LH={} RF={} LF={} lower={} tilt={}) y={} body={}",
+                        horse.getName().getString(), decided,
+                        String.format("%.2f", drops[0]), String.format("%.2f", drops[1]),
+                        String.format("%.2f", drops[2]), String.format("%.2f", drops[3]),
+                        String.format("%.2f", targetLower), String.format("%.1f", Math.toDegrees(targetTilt)),
+                        String.format("%.3f", horse.getY()), String.format("%.1f", horse.yBodyRot));
+            }
             state.logged = decided;
         }
     }

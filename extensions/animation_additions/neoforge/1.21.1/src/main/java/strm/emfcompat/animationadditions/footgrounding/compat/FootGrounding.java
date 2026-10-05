@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.footgrounding.compat;
 
+import strm.emfcompat.animationadditions.DecisionLog;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
@@ -323,8 +324,10 @@ public final class FootGrounding {
 
         // One line per change of what was decided, not per frame.
         if (!decided.equals(state.logged)) {
-            LOGGER.info("[FootGrounding] {} {} (R={} L={})", player.getName().getString(), decided,
-                    String.format("%.2f", right), String.format("%.2f", left));
+            if (DecisionLog.isOn()) {
+                LOGGER.info("[FootGrounding] {} {} (R={} L={})", player.getName().getString(), decided,
+                        String.format("%.2f", right), String.format("%.2f", left));
+            }
             state.logged = decided;
         }
     }
