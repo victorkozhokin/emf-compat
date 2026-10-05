@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.buttonpress;
 
+import strm.emfcompat.animationadditions.blockuse.ModFailures;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -8,8 +9,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 
@@ -24,7 +23,6 @@ import java.lang.reflect.Method;
  */
 final class ThrottleLever {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatButtonPress");
     private static final String BLOCK = "dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverBlock";
     private static final String RENDERER = "dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverRenderer";
     private static final String ENTITY = "dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverBlockEntity";
@@ -33,6 +31,7 @@ final class ThrottleLever {
 
     private static Method transform;
     private static boolean looked, failed;
+    private static final ModFailures FAILURES = new ModFailures("place the throttle lever's knob");
 
     private ThrottleLever() {
     }
@@ -43,7 +42,7 @@ final class ThrottleLever {
 
     /** Where the knob is drawn now, world; {@code null} when it cannot be told. */
     static Vec3 knob(Level level, BlockPos pos) {
-        Method m = method();
+        Method m = FAILURES.off() ? null : method();
         if (m == null) return null;
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity == null) return null;
@@ -54,8 +53,7 @@ final class ThrottleLever {
             // The block's own corner added in double: a pose stack is float, off by whole blocks in a sub-level's plot.
             return new Vec3(pos.getX() + (double) at.x, pos.getY() + (double) at.y, pos.getZ() + (double) at.z);
         } catch (Throwable t) {
-            if (!failed) LOGGER.warn("[ButtonPress] could not place the throttle lever's knob", t);
-            failed = true;
+            FAILURES.failed(t);
             return null;
         }
     }

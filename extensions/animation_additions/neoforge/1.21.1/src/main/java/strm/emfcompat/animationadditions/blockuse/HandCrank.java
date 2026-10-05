@@ -12,8 +12,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 
@@ -31,14 +29,13 @@ import java.lang.reflect.Method;
  */
 final class HandCrank implements BlockTarget {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatBlockUse");
     private static final String BLOCK = "com.simibubi.create.content.kinetics.crank.HandCrankBlock";
     /** The middle of the grip in the handle's model, pixels; and the point on the axis level with it. */
     private static final Vector3f GRIP = new Vector3f(1f, 8f, 6f);
     private static final Vector3f AXIS = new Vector3f(8f, 8f, 6f);
 
     private static Method method;
-    private static boolean failed;
+    private static final ModFailures FAILURES = new ModFailures("read the hand crank's angle");
 
     @Override
     public boolean matches(BlockState block) {
@@ -90,15 +87,14 @@ final class HandCrank implements BlockTarget {
 
     /** The handle's angle as drawn this frame, degrees; {@code null} when it cannot be told. */
     private static Float angle(Level level, BlockPos pos) {
-        if (failed) return null;
+        if (FAILURES.off()) return null;
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity == null) return null;
         try {
             if (method == null) method = entity.getClass().getMethod("getIndependentAngle", float.class);
             return (Float) method.invoke(entity, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
         } catch (Throwable t) {
-            LOGGER.warn("[BlockUse] could not read the hand crank's angle", t);
-            failed = true;
+            FAILURES.failed(t);
             return null;
         }
     }

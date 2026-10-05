@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.buttonpress;
 
+import strm.emfcompat.animationadditions.blockuse.ModFailures;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,8 +12,6 @@ import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 
@@ -28,7 +27,6 @@ import java.lang.reflect.Method;
  */
 final class PhysicsAssembler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatButtonPress");
     private static final String BLOCK = "dev.simulated_team.simulated.content.blocks.physics_assembler.PhysicsAssemblerBlock";
     private static final String RENDERER = "dev.simulated_team.simulated.content.blocks.physics_assembler.PhysicsAssemblerRenderer";
     private static final String ENTITY = "dev.simulated_team.simulated.content.blocks.physics_assembler.PhysicsAssemblerBlockEntity";
@@ -38,6 +36,7 @@ final class PhysicsAssembler {
 
     private static Method angle;
     private static boolean looked, failed;
+    private static final ModFailures FAILURES = new ModFailures("place the physics assembler's knob");
 
     private PhysicsAssembler() {
     }
@@ -48,7 +47,7 @@ final class PhysicsAssembler {
 
     /** Where the knob is drawn now, world; {@code null} when it cannot be told. */
     static Vec3 knob(Level level, BlockPos pos, BlockState block) {
-        Method m = method();
+        Method m = FAILURES.off() ? null : method();
         if (m == null) return null;
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity == null) return null;
@@ -59,8 +58,7 @@ final class PhysicsAssembler {
             // In double: on a sub-level the block is in a plot millions of blocks out, past a float's precision.
             return new Vec3(pos.getX() + (double) at.x, pos.getY() + (double) at.y, pos.getZ() + (double) at.z);
         } catch (Throwable t) {
-            if (!failed) LOGGER.warn("[ButtonPress] could not place the physics assembler's knob", t);
-            failed = true;
+            FAILURES.failed(t);
             return null;
         }
     }

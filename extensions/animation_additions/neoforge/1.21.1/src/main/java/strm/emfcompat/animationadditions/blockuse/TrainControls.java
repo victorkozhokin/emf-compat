@@ -15,7 +15,6 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
@@ -64,14 +63,15 @@ final class TrainControls implements BlockTarget {
     private static Method controlling, toGlobal, getContraption, getBlocks, getActors, controlsPos, handlerContraption;
     private static Field temporaryData, localPos, speed, steering, equip;
     private static Method lerped;
-    private static boolean looked, absent;
+    private static boolean looked;
+    private static final ModFailures FAILURES = new ModFailures("read the train controls");
 
     private TrainControls() {
     }
 
     /** The levers of the controls {@code player} drives with now; {@code null} when they drive nothing. */
     static Grips held(AbstractClientPlayer player) {
-        if (absent) return null;
+        if (FAILURES.off()) return null;
         try {
             if (!looked) {
                 looked = true;
@@ -104,10 +104,7 @@ final class TrainControls implements BlockTarget {
             boolean mainIsFirst = (player.getMainArm() == HumanoidArm.RIGHT) == firstIsRight;
             return new Grips(new Spot(mainIsFirst ? first : second, Spots.UP), new Spot(mainIsFirst ? second : first, Spots.UP));
         } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
-            if (!(e instanceof ClassNotFoundException)) {
-                LoggerFactory.getLogger("EMFCompatBlockUse").warn("[BlockUse] cannot read the train controls", e);
-            }
-            absent = true;
+            FAILURES.failed(e);
             return null;
         }
     }

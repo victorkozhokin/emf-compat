@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.ejector;
 
+import strm.emfcompat.animationadditions.blockuse.ModFailures;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -31,7 +32,7 @@ public final class EjectorLid {
     private static final double OPEN = Math.toRadians(70);
 
     private static Method progress;
-    private static boolean failed;
+    private static final ModFailures FAILURES = new ModFailures("read the ejector's lid");
 
     private EjectorLid() {
     }
@@ -57,7 +58,7 @@ public final class EjectorLid {
     /** The world y of the lid's top over a spot of the ejector at {@code pos}; NaN when it is no ejector, its lid is shut or not over the spot. */
     private static double topAt(Level level, BlockPos pos, double x, double z) {
         BlockState block = level.getBlockState(pos);
-        if (failed || !ModAccess.is(block.getBlock().getClass(), BLOCK) || !block.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) return Double.NaN;
+        if (FAILURES.off() || !ModAccess.is(block.getBlock().getClass(), BLOCK) || !block.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) return Double.NaN;
         double angle = progress(level, pos) * OPEN;
         if (angle < 1e-3) return Double.NaN;
         Direction facing = block.getValue(BlockStateProperties.HORIZONTAL_FACING);
@@ -78,7 +79,7 @@ public final class EjectorLid {
             if (progress == null) progress = entity.getClass().getMethod("getLidProgress", float.class);
             return (float) progress.invoke(entity, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
         } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
-            failed = true;
+            FAILURES.failed(e);
             return 0;
         }
     }
