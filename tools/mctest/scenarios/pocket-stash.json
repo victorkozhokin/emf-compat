@@ -1,0 +1,307 @@
+[
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "gamemode survival"
+  },
+  {
+    "cmd": "kill @e[type=item,distance=..12]"
+  },
+  {
+    "cmd": "time set noon"
+  },
+  {
+    "cmd": "weather clear"
+  },
+  {
+    "cmd": "tp @s 450.5 150 7.5 -90 10"
+  },
+  {
+    "config": {
+      "pocket.enabled": true,
+      "lookat.enabled": false
+    }
+  },
+  {
+    "hideGui": true
+  },
+  {
+    "camera": "back"
+  },
+  {
+    "wait": 30
+  },
+  {
+    "orbit": [
+      150,
+      10,
+      3
+    ]
+  },
+  {
+    "wait": 5
+  },
+  {
+    "log": "pocket:before"
+  },
+  {
+    "screenshot": "pocket-00-before"
+  },
+  {
+    "cmd": "summon item ~ ~ ~ {Item:{id:\"minecraft:cobblestone\",count:1}}"
+  },
+  {
+    "wait": 6
+  },
+  {
+    "cmd": "summon item ~ ~ ~ {Item:{id:\"minecraft:oak_planks\",count:1}}"
+  },
+  {
+    "wait": 6
+  },
+  {
+    "cmd": "summon item ~ ~ ~ {Item:{id:\"minecraft:stick\",count:1}}"
+  },
+  {
+    "wait": 6
+  },
+  {
+    "log": "pocket:picked"
+  },
+  {
+    "wait": 34
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-01"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-02"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-03"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-04"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-05"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-06"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-07"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-08"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-09"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-10"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-11"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-12"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-13"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-14"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-15"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-16"
+  },
+  {
+    "log": "pocket:done"
+  },
+  {
+    "orbit": [
+      30,
+      10,
+      3
+    ]
+  },
+  {
+    "wait": 5
+  },
+  {
+    "cmd": "summon item ~ ~ ~ {Item:{id:\"minecraft:cobblestone\",count:1}}"
+  },
+  {
+    "wait": 6
+  },
+  {
+    "cmd": "summon item ~ ~ ~ {Item:{id:\"minecraft:stick\",count:1}}"
+  },
+  {
+    "wait": 6
+  },
+  {
+    "log": "pocket:picked"
+  },
+  {
+    "wait": 34
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-17"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-18"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-19"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-20"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-21"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-22"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-23"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-24"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-25"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-26"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-27"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-28"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-29"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-30"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-31"
+  },
+  {
+    "wait": 4
+  },
+  {
+    "screenshot": "pocket-32"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "hideGui": false
+  }
+]
