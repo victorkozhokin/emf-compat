@@ -1,6 +1,7 @@
 package strm.emfcompat.animationadditions.interaction;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -73,7 +74,17 @@ public final class EntityStates<T> {
     private void sweep(long now) {
         Iterator<Entry<T>> it = entries.values().iterator();
         while (it.hasNext()) if (now - it.next().seenAt > FORGET_NANOS) it.remove();
-        if (entries.size() > MAX_ENTITIES) entries.clear();
+        // Still too many, all of them drawn lately: the ones seen longest ago go, never the lot -
+        // the one being drawn now would lose its state with them every frame.
+        int over = entries.size() - MAX_ENTITIES;
+        if (over <= 0) return;
+        long[] seen = new long[entries.size()];
+        int i = 0;
+        for (Entry<T> entry : entries.values()) seen[i++] = entry.seenAt;
+        Arrays.sort(seen);
+        long cutoff = seen[over - 1];
+        it = entries.values().iterator();
+        while (it.hasNext() && entries.size() > MAX_ENTITIES) if (it.next().seenAt <= cutoff) it.remove();
     }
 
     public int size() {

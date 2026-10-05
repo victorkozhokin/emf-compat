@@ -69,9 +69,12 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
             if (state == null || state.isFirstPersonHand()) return;
             UUID uuid = state.uuid();
             if (uuid == null) return;
+            // EMF runs this for every creature it animates; ours are the players and the horses.
+            boolean player = state.emfEntity() instanceof Player;
+            if (!player && !HorseFootGrounding.handles(state.emfEntity())) return;
             Map<String, EMFModelPartVanilla> parts = context.animatingModelRoot().getAllVanillaPartsByNameEMF();
             if (context.animatingModelRoot().isMainModel) FootGrounding.recordAnimated(uuid, parts::get);
-            applyAll(uuid, parts::get, state.emfEntity() instanceof Player);
+            applyAll(uuid, parts::get, player);
             for (String[] layer : LAYERS) {
                 ModelPart outer = parts.get(layer[0]);
                 ModelPart limb = parts.get(layer[1]);
@@ -96,7 +99,8 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
             if (state == null) return;
             UUID uuid = state.uuid();
             if (uuid == null || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
-            boolean player = state.emfEntity() instanceof Player;
+            // Armour is only a player's concern here: nothing of ours is on any other biped.
+            if (!(state.emfEntity() instanceof Player)) return;
             applyAll(uuid, name -> switch (name) {
                 case "head" -> model.head;
                 case "hat" -> model.hat;
@@ -106,7 +110,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
                 case "right_leg" -> model.rightLeg;
                 case "left_leg" -> model.leftLeg;
                 default -> null;
-            }, player);
+            }, true);
             model.hat.copyFrom(model.head);
         } catch (Throwable t) {
             // Same as above: never throw out of an EMF hook, and say so once.

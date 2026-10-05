@@ -48,4 +48,18 @@ class EntityStatesTest {
         assertNull(states.fresh(id));
         assertEquals(0, states.size());
     }
+
+    @Test
+    void tooManyAtOnceDropTheOnesSeenLongestAgoAndKeepTheOneDrawnNow() {
+        EntityStates<Counter> states = new EntityStates<>(Counter::new);
+        long t = System.nanoTime();
+        UUID first = UUID.randomUUID();
+        Counter mine = states.seen(first, t).value;
+        for (int i = 1; i <= 400; i++) {
+            states.seen(UUID.randomUUID(), t + i);
+            // The player is drawn every frame, among however many others.
+            assertSame(mine, states.seen(first, t + i).value, "after " + i + " others");
+        }
+        assertEquals(256, states.size(), 1);
+    }
 }

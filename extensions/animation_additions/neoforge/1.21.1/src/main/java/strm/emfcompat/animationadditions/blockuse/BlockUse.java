@@ -300,6 +300,7 @@ public final class BlockUse implements InteractionProvider {
                 if (state.crouching) state.lean[0] = Math.min(state.lean[0], (float) Math.toRadians(20));
             }
             BlockTarget.Spot support = held != null ? held.support()
+                    : state.target == null || state.pos == null ? null
                     : state.target.supportHand(player, state.pos, player.level().getBlockState(state.pos));
             if (support != null && held == null) support = inWorld(space, support);
             boolean supported = state.support;
