@@ -175,13 +175,25 @@ public final class FootGrounding {
         }
     }
 
-    private static void solve(AbstractClientPlayer player, PoseStack stack, State state, double dt) {
-        float targetLower = 0f, right = 0f, left = 0f;
-        float plantRight = 0f, plantLeft = 0f;
+    /** What one solve wants, before any smoothing: model pixels, and what was decided in a word. */
+    private static final class Targets {
+        /** How far the body goes down (up, negative, onto an ejector's lid). */
+        float lower;
+        /** The floor under each hip, below the straight leg; never above it. */
+        float hipRight, hipLeft;
+        /** How far each foot rises against the lowered body. */
+        float plantRight, plantLeft;
+        /** Walking: each foot's floor below the ground level; NaN standing. */
         float footRight = Float.NaN, footLeft = Float.NaN;
-        float[] reachRight = new float[2], reachLeft = new float[2];
+        /** A leg reaching for a step standing still: {pitch, roll} of each. */
+        final float[] reachRight = new float[2], reachLeft = new float[2];
         String decided;
+        /** Whether the weight shifts with the stride this solve. */
+        boolean striding;
+    }
 
+    private static void solve(AbstractClientPlayer player, PoseStack stack, State state, double dt) {
+        Targets t = new Targets();
         if (state.lastPosition != null && state.lastPosition.distanceToSqr(player.position()) > 4) {
             resetContacts(state);
             state.lower = state.rightBend = state.leftBend = 0f;
@@ -192,128 +204,145 @@ public final class FootGrounding {
                 Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
         if (why != null) {
             resetContacts(state);
-            decided = "off:" + why;
+            t.decided = "off:" + why;
         } else {
-            // The body goes by the floor under the hips: steady whatever the stride does. A foot
-            // swung far back in the stride is in the air anyway and must not pull the body down.
-            // Measured from where the model stands before this frame's lowering.
-            // A floor above the straight leg is only the model shifted down by something else
-            // (the crouch's render offset, an animation library moving the whole pose): never
-            // lift the legs for it.
-            float rawRight = drop(player, frame, RIGHT_HIP, null);
-            float rawLeft = drop(player, frame, LEFT_HIP, null);
-            right = Math.max(0f, rawRight);
-            left = Math.max(0f, rawLeft);
-            // Down onto the lowest floor under a foot; a foot over a drop-off does not count.
-            float low = Math.max(right, left) <= MAX_STEP ? Math.max(right, left) : Math.min(right, left);
-            if (low >= MIN_STEP && low <= MAX_STEP) targetLower = Math.min(low, MAX_LOWER);
-            decided = targetLower > 0f ? "lowered" : "flat";
+            measure(player, frame, state, dt, t);
+            lid(player, frame, t);
+        }
+        settle(state, t, dt);
+        log(player, state, t, why == null);
+    }
 
-            Stride stride = stride(player, frame, state, rawRight, rawLeft, dt);
-            state.walking = stride != null;
-            if (stride != null) {
-                // Walking: the body stands on the foot that carries the weight. The weight goes
-                // over with the stride, so the body rises onto the step with the foot on it and
-                // sinks with the foot below; the swinging foot is in the air and is not held to
-                // its floor. The body never goes above the hitbox: a step ahead the hitbox has
-                // not climbed yet is the foot's to go up onto, as before.
-                float onFeet = state.support * stride.right + (1f - state.support) * stride.left;
-                // Stepping down - off a slab, down a stair - the body goes down with the foot
-                // reaching for the lower floor, the other leg bending on the step: legs only get
-                // shorter, so held up by the foot behind, the front one hung in the air.
-                if (state.right.descending()) onFeet = Math.max(onFeet, stride.right);
-                if (state.left.descending()) onFeet = Math.max(onFeet, stride.left);
-                targetLower = Math.max(0f, Math.min(MAX_LOWER, onFeet));
-                // The feet are placed below, against the body as it is drawn this frame.
-                decided = "stride";
-                footRight = stride.right;
-                footLeft = stride.left;
-            } else {
-                plantRight = plant(player, frame, RIGHT_HIP, state.rightPose, targetLower, rawRight);
-                plantLeft = plant(player, frame, LEFT_HIP, state.leftPose, targetLower, rawLeft);
-                // Both feet on one level with a step next to them - the hitbox resting on it (none
-                // of the feet over it) or the player standing in front of it: one foot goes up.
-                boolean level = Math.abs(right - left) < MIN_STEP && right <= MAX_STEP;
-                if (level) {
-                    long now = System.nanoTime();
-                    boolean same = now - state.reachAt < REACH_EVERY_NANOS && player.getX() == state.reachX
-                            && player.getY() == state.reachY && player.getZ() == state.reachZ
-                            && player.yBodyRot == state.reachYaw;
-                    if (!same) {
-                        state.reachFound = keep(state, reach(player, frame, rawRight, rawLeft, true),
-                                reach(player, frame, rawRight, rawLeft, false), now);
-                        state.reachAt = now;
-                        state.reachX = player.getX();
-                        state.reachY = player.getY();
-                        state.reachZ = player.getZ();
-                        state.reachYaw = player.yBodyRot;
-                    }
-                    Reach reach = state.reachFound;
-                    if (reach != null) {
-                        float[] angles = reach.right ? reachRight : reachLeft;
-                        angles[0] = reach.pitch;
-                        angles[1] = reach.roll;
-                        float lift = Math.max(0f, Math.min(MAX_STEP, targetLower - reach.floor));
-                        if (reach.right) plantRight = lift;
-                        else plantLeft = lift;
-                        decided = reach.right ? "reach-R" : "reach-L";
-                    }
+    /** Looks under the feet: the body's and each foot's target, standing or in the stride. */
+    private static void measure(AbstractClientPlayer player, IKFrame frame, State state, double dt, Targets t) {
+        // The body goes by the floor under the hips: steady whatever the stride does. A foot
+        // swung far back in the stride is in the air anyway and must not pull the body down.
+        // Measured from where the model stands before this frame's lowering.
+        // A floor above the straight leg is only the model shifted down by something else
+        // (the crouch's render offset, an animation library moving the whole pose): never
+        // lift the legs for it.
+        float rawRight = drop(player, frame, RIGHT_HIP, null);
+        float rawLeft = drop(player, frame, LEFT_HIP, null);
+        t.hipRight = Math.max(0f, rawRight);
+        t.hipLeft = Math.max(0f, rawLeft);
+        // Down onto the lowest floor under a foot; a foot over a drop-off does not count.
+        float low = Math.max(t.hipRight, t.hipLeft) <= MAX_STEP ? Math.max(t.hipRight, t.hipLeft) : Math.min(t.hipRight, t.hipLeft);
+        if (low >= MIN_STEP && low <= MAX_STEP) t.lower = Math.min(low, MAX_LOWER);
+        t.decided = t.lower > 0f ? "lowered" : "flat";
+
+        Stride stride = stride(player, frame, state, rawRight, rawLeft, dt);
+        state.walking = stride != null;
+        if (stride != null) {
+            // Walking: the body stands on the foot that carries the weight. The weight goes
+            // over with the stride, so the body rises onto the step with the foot on it and
+            // sinks with the foot below; the swinging foot is in the air and is not held to
+            // its floor. The body never goes above the hitbox: a step ahead the hitbox has
+            // not climbed yet is the foot's to go up onto, as before.
+            float onFeet = state.support * stride.right + (1f - state.support) * stride.left;
+            // Stepping down - off a slab, down a stair - the body goes down with the foot
+            // reaching for the lower floor, the other leg bending on the step: legs only get
+            // shorter, so held up by the foot behind, the front one hung in the air.
+            if (state.right.descending()) onFeet = Math.max(onFeet, stride.right);
+            if (state.left.descending()) onFeet = Math.max(onFeet, stride.left);
+            t.lower = Math.max(0f, Math.min(MAX_LOWER, onFeet));
+            // The feet are placed below, against the body as it is drawn this frame.
+            t.decided = "stride";
+            t.striding = true;
+            t.footRight = stride.right;
+            t.footLeft = stride.left;
+        } else {
+            t.plantRight = plant(player, frame, RIGHT_HIP, state.rightPose, t.lower, rawRight);
+            t.plantLeft = plant(player, frame, LEFT_HIP, state.leftPose, t.lower, rawLeft);
+            // Both feet on one level with a step next to them - the hitbox resting on it (none
+            // of the feet over it) or the player standing in front of it: one foot goes up.
+            boolean level = Math.abs(t.hipRight - t.hipLeft) < MIN_STEP && t.hipRight <= MAX_STEP;
+            if (level) {
+                long now = System.nanoTime();
+                boolean same = now - state.reachAt < REACH_EVERY_NANOS && player.getX() == state.reachX
+                        && player.getY() == state.reachY && player.getZ() == state.reachZ
+                        && player.yBodyRot == state.reachYaw;
+                if (!same) {
+                    state.reachFound = keep(state, reach(player, frame, rawRight, rawLeft, true),
+                            reach(player, frame, rawRight, rawLeft, false), now);
+                    state.reachAt = now;
+                    state.reachX = player.getX();
+                    state.reachY = player.getY();
+                    state.reachZ = player.getZ();
+                    state.reachYaw = player.yBodyRot;
+                }
+                Reach reach = state.reachFound;
+                if (reach != null) {
+                    float[] angles = reach.right ? t.reachRight : t.reachLeft;
+                    angles[0] = reach.pitch;
+                    angles[1] = reach.roll;
+                    float lift = Math.max(0f, Math.min(MAX_STEP, t.lower - reach.floor));
+                    if (reach.right) t.plantRight = lift;
+                    else t.plantLeft = lift;
+                    t.decided = reach.right ? "reach-R" : "reach-L";
                 }
             }
         }
+    }
 
-        // On an ejector whose lid is up the floor is the lid as drawn, over the box the player
-        // stands on: the whole body goes up onto it, by the lower foot's share, and the other
-        // foot the rest - and both come down with the lid as the spring winds.
-        if (why == null) {
-            float lidRight = lid(player, frame, RIGHT_HIP), lidLeft = lid(player, frame, LEFT_HIP);
-            if (lidRight > 0f || lidLeft > 0f) {
-                float body = Math.min(lidRight, lidLeft);
-                targetLower = -body;
-                plantRight = Math.min(MAX_STEP, lidRight - body);
-                plantLeft = Math.min(MAX_STEP, lidLeft - body);
-                reachRight[0] = reachRight[1] = reachLeft[0] = reachLeft[1] = 0f;
-                decided = "lid";
-            }
+    /**
+     * On an ejector whose lid is up the floor is the lid as drawn, over the box the player
+     * stands on: the whole body goes up onto it, by the lower foot's share, and the other
+     * foot the rest - and both come down with the lid as the spring winds.
+     */
+    private static void lid(AbstractClientPlayer player, IKFrame frame, Targets t) {
+        float lidRight = lid(player, frame, RIGHT_HIP), lidLeft = lid(player, frame, LEFT_HIP);
+        if (lidRight > 0f || lidLeft > 0f) {
+            float body = Math.min(lidRight, lidLeft);
+            t.lower = -body;
+            t.plantRight = Math.min(MAX_STEP, lidRight - body);
+            t.plantLeft = Math.min(MAX_STEP, lidLeft - body);
+            t.reachRight[0] = t.reachRight[1] = t.reachLeft[0] = t.reachLeft[1] = 0f;
+            t.decided = "lid";
+            t.striding = false;
         }
+    }
 
+    /** Moves what is shown towards the targets. */
+    private static void settle(State state, Targets t, double dt) {
         // Body and legs both from their targets, not the legs from the smoothed body: the legs
         // neither lag the body nor keep turning after it has settled. A foot goes up onto a step
         // quickly, so it does not sink into it, and comes back down gently.
-        boolean striding = decided.equals("stride");
-        boolean level = striding && Math.abs(footRight - footLeft) < MIN_STEP;
+        boolean striding = t.striding;
+        boolean level = striding && Math.abs(t.footRight - t.footLeft) < MIN_STEP;
         float k = Smoothing.snapFirst(dt, level ? LEVEL_LOWER_SECONDS : striding ? STRIDE_LOWER_SECONDS : LOWER_SECONDS);
-        state.lower += (targetLower - state.lower) * k;
+        state.lower += (t.lower - state.lower) * k;
         if (striding) {
-            plantRight = Math.max(0f, Math.min(MAX_STEP, state.lower - footRight));
-            plantLeft = Math.max(0f, Math.min(MAX_STEP, state.lower - footLeft));
+            t.plantRight = Math.max(0f, Math.min(MAX_STEP, state.lower - t.footRight));
+            t.plantLeft = Math.max(0f, Math.min(MAX_STEP, state.lower - t.footLeft));
             float kLeg = Smoothing.snapFirst(dt, STRIDE_LEG_SECONDS);
-            state.rightBend += (plantRight - state.rightBend) * kLeg;
-            state.leftBend += (plantLeft - state.leftBend) * kLeg;
-            if (state.lower < 0.05f && plantRight < 0.05f && plantLeft < 0.05f) decided = "flat";
+            state.rightBend += (t.plantRight - state.rightBend) * kLeg;
+            state.leftBend += (t.plantLeft - state.leftBend) * kLeg;
+            if (state.lower < 0.05f && t.plantRight < 0.05f && t.plantLeft < 0.05f) t.decided = "flat";
         } else {
-            state.rightBend += (plantRight - state.rightBend)
-                    * Smoothing.snapFirst(dt, plantRight > state.rightBend ? RAISE_SECONDS : SETTLE_SECONDS);
-            state.leftBend += (plantLeft - state.leftBend)
-                    * Smoothing.snapFirst(dt, plantLeft > state.leftBend ? RAISE_SECONDS : SETTLE_SECONDS);
+            state.rightBend += (t.plantRight - state.rightBend)
+                    * Smoothing.snapFirst(dt, t.plantRight > state.rightBend ? RAISE_SECONDS : SETTLE_SECONDS);
+            state.leftBend += (t.plantLeft - state.leftBend)
+                    * Smoothing.snapFirst(dt, t.plantLeft > state.leftBend ? RAISE_SECONDS : SETTLE_SECONDS);
         }
         for (int i = 0; i < 2; i++) {
-            state.rightReach[i] += (reachRight[i] - state.rightReach[i])
-                    * Smoothing.snapFirst(dt, reachRight[i] != 0f ? RAISE_SECONDS : SETTLE_SECONDS);
-            state.leftReach[i] += (reachLeft[i] - state.leftReach[i])
-                    * Smoothing.snapFirst(dt, reachLeft[i] != 0f ? RAISE_SECONDS : SETTLE_SECONDS);
+            state.rightReach[i] += (t.reachRight[i] - state.rightReach[i])
+                    * Smoothing.snapFirst(dt, t.reachRight[i] != 0f ? RAISE_SECONDS : SETTLE_SECONDS);
+            state.leftReach[i] += (t.reachLeft[i] - state.leftReach[i])
+                    * Smoothing.snapFirst(dt, t.reachLeft[i] != 0f ? RAISE_SECONDS : SETTLE_SECONDS);
         }
+    }
 
+    private static void log(AbstractClientPlayer player, State state, Targets t, boolean grounded) {
         // Per-frame trace while the feet do anything; debug only.
-        if (DebugLog.trace() && why == null) {
+        if (DebugLog.trace() && grounded) {
             LOGGER.info("[FootTrace] x={} y={} z={} R={} L={} fR={} fL={} w={} low={} tl={} pr={} pl={} rb={} lb={} rp={} lp={} rs={} ls={} rt={} lt={} ry={} ly={}",
                     String.format("%.3f", player.getX()), String.format("%.3f", player.getY()),
                     String.format("%.3f", player.getZ()),
-                    String.format("%.2f", right), String.format("%.2f", left),
-                    String.format("%.2f", footRight), String.format("%.2f", footLeft),
+                    String.format("%.2f", t.hipRight), String.format("%.2f", t.hipLeft),
+                    String.format("%.2f", t.footRight), String.format("%.2f", t.footLeft),
                     String.format("%.2f", state.support),
-                    String.format("%.2f", state.lower), String.format("%.2f", targetLower),
-                    String.format("%.2f", plantRight), String.format("%.2f", plantLeft),
+                    String.format("%.2f", state.lower), String.format("%.2f", t.lower),
+                    String.format("%.2f", t.plantRight), String.format("%.2f", t.plantLeft),
                     String.format("%.2f", state.rightBend), String.format("%.2f", state.leftBend),
                     state.rightPose == null ? "-" : String.format("%.2f", state.rightPose[0]),
                     state.leftPose == null ? "-" : String.format("%.2f", state.leftPose[0]),
@@ -321,13 +350,13 @@ public final class FootGrounding {
                     state.right.landingY, state.left.landingY);
         }
 
-        // One line per change of what was decided, not per frame.
-        if (!decided.equals(state.logged)) {
+        // One line per change of what was t.decided, not per frame.
+        if (!t.decided.equals(state.logged)) {
             if (DebugLog.decisions()) {
-                LOGGER.info("[FootGrounding] {} {} (R={} L={})", player.getName().getString(), decided,
-                        String.format("%.2f", right), String.format("%.2f", left));
+                LOGGER.info("[FootGrounding] {} {} (R={} L={})", player.getName().getString(), t.decided,
+                        String.format("%.2f", t.hipRight), String.format("%.2f", t.hipLeft));
             }
-            state.logged = decided;
+            state.logged = t.decided;
         }
     }
 
