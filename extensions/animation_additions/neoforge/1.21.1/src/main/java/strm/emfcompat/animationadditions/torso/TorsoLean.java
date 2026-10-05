@@ -65,6 +65,17 @@ public final class TorsoLean {
     private TorsoLean() {
     }
 
+    /**
+     * What a feature asks of the torso: a turn round the waist, radians; a shift to the side,
+     * pixels; and how much of the yaw the head stays out of, radians - turned to fit a gap, the
+     * head keeps looking where it looked.
+     */
+    public record Hint(float pitch, float yaw, float roll, float shift, float headStaysOut) {
+        public static Hint turn(float pitch, float yaw, float roll) {
+            return new Hint(pitch, yaw, roll, 0f, 0f);
+        }
+    }
+
     private static final class State {
         /** {pitch, yaw, roll, shift x, the part of the yaw the head stays out of} as shown, smoothed. */
         final float[] lean = new float[5];
@@ -99,14 +110,13 @@ public final class TorsoLean {
                 target[0] += head[0] * FOLLOW_PITCH * head[2];
                 target[1] += Math.max(-MAX_YAW, Math.min(MAX_YAW, head[1] * FOLLOW_YAW)) * head[2];
             }
-            for (float[] press : new float[][]{ButtonPress.torsoHint(uuid), BlockUse.torsoHint(uuid), EjectorLaunch.torsoHint(uuid), WallSqueeze.torsoHint(uuid)}) {
-                if (press == null) continue;
-                target[0] += press[0];
-                target[1] += press[1];
-                target[2] += press[2];
-                // A hint may also shift the torso, and say how much of its yaw the head stays out of.
-                if (press.length > 3) target[3] += press[3];
-                if (press.length > 4) target[4] += press[4];
+            for (Hint hint : new Hint[]{ButtonPress.torsoHint(uuid), BlockUse.torsoHint(uuid), EjectorLaunch.torsoHint(uuid), WallSqueeze.torsoHint(uuid)}) {
+                if (hint == null) continue;
+                target[0] += hint.pitch;
+                target[1] += hint.yaw;
+                target[2] += hint.roll;
+                target[3] += hint.shift;
+                target[4] += hint.headStaysOut;
             }
             if (EMFCompatConfig.getBoolean(KEY_MOTION, true)) {
                 MotionRuntime.Motion m = MotionRuntime.get(uuid);
@@ -114,12 +124,12 @@ public final class TorsoLean {
                 target[0] += clamp(m.accelForward() * ACCEL_PITCH);
                 target[2] += clamp(m.turnRate() * m.speed() * TURN_ROLL);
             }
-            float[] feet = FootGrounding.torsoHint(uuid);
+            FootGrounding.Weight feet = FootGrounding.torsoHint(uuid);
             if (feet != null) {
                 // Leaning forward is +xRot (as the vanilla crouch); over the left foot (+x) the torso rolls left (-zRot).
-                target[0] += feet[1] * CLIMB_PITCH + feet[2] * REACH_PITCH;
-                target[2] -= feet[0] * ROLL;
-                target[3] += feet[0] * SHIFT;
+                target[0] += feet.climb() * CLIMB_PITCH + feet.reach() * REACH_PITCH;
+                target[2] -= feet.side() * ROLL;
+                target[3] += feet.side() * SHIFT;
             }
         }
         float k = Smoothing.snapFirst(dt, SECONDS);

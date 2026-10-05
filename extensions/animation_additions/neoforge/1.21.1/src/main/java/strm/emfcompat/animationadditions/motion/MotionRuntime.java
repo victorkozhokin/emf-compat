@@ -1,10 +1,10 @@
 package strm.emfcompat.animationadditions.motion;
 
+import strm.emfcompat.animationadditions.DebugLog;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 
 import java.util.UUID;
@@ -103,7 +103,7 @@ public final class MotionRuntime {
                 s.accelForward.value, s.accelRight.value, s.turn.value,
                 s.groundTime, s.airTime, s.onGround, s.sprinting);
 
-        if (FootGroundingFeature.isTrace() && now - s.loggedAt > 100_000_000L) {
+        if (DebugLog.trace() && now - s.loggedAt > 100_000_000L) {
             s.loggedAt = now;
             Motion m = s.motion;
             LOGGER.info("[Motion] {} fwd {} right {} up {} accF {} accR {} turn {} {} {}s",

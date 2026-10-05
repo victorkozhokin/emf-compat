@@ -1,11 +1,12 @@
 package strm.emfcompat.animationadditions.blockuse;
 
+import strm.emfcompat.animationadditions.torso.TorsoLean;
+import strm.emfcompat.animationadditions.DebugLog;
 import strm.emfcompat.animationadditions.interaction.ArmAim;
 import static strm.emfcompat.animationadditions.interaction.Skeleton.LEFT_SHOULDER;
 import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_SHOULDER;
 import strm.emfcompat.animationadditions.interaction.Skeleton;
 import org.slf4j.LoggerFactory;
-import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
 import net.minecraft.core.Direction;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.Minecraft;
@@ -448,13 +449,13 @@ public final class BlockUse implements InteractionProvider {
         ReachPose.contact(parts, state.right, state.grip, w, state.contactTurn, dt);
     }
 
-    /** The torso turn this asks for, {pitch, yaw, roll}; {@code null} when none. */
-    public static float[] torsoHint(UUID uuid) {
+    /** The torso turn this asks for; {@code null} when none. */
+    public static TorsoLean.Hint torsoHint(UUID uuid) {
         State state = STATES.fresh(uuid);
         if (state == null || state.lean[0] == 0f && state.lean[1] == 0f && state.lean[2] == 0f) return null;
         if (!INSTANCE.isEnabled()) return null;
         float w = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
-        return new float[]{state.lean[0] * w, state.lean[1] * w, state.lean[2] * w};
+        return TorsoLean.Hint.turn(state.lean[0] * w, state.lean[1] * w, state.lean[2] * w);
     }
 
     /**
@@ -478,7 +479,7 @@ public final class BlockUse implements InteractionProvider {
             if (otherArm != null && otherWeight > 1e-3f) ArmAim.towards(otherArm, state.supportGrip, otherWeight, true);
         }
         long now = System.nanoTime();
-        if (FootGroundingFeature.isTrace()
+        if (DebugLog.trace()
                 && now - state.tracedAt > 100_000_000L) {
             state.tracedAt = now;
             LoggerFactory.getLogger("EMFCompatBlockUse").info(

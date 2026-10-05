@@ -1,6 +1,6 @@
 package strm.emfcompat.animationadditions.interaction;
 
-import strm.emfcompat.animationadditions.DecisionLog;
+import strm.emfcompat.animationadditions.DebugLog;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import org.slf4j.Logger;
@@ -137,7 +137,7 @@ public final class InteractionRuntime {
 
         for (Map.Entry<String, String> e : state.decided.entrySet()) {
             if (!e.getValue().equals(state.logged.get(e.getKey()))) {
-                if (DecisionLog.isOn()) {
+                if (DebugLog.decisions()) {
                     LoggerFactory.getLogger("EMFCompat" + e.getKey())
                             .info("[{}] {} {}", e.getKey(), player.getName().getString(), e.getValue());
                 }
@@ -202,7 +202,7 @@ public final class InteractionRuntime {
     }
 
     private static void log(AbstractClientPlayer player, String what) {
-        if (DecisionLog.isOn()) LOGGER.info("[Interaction] {} {}", player.getName().getString(), what);
+        if (DebugLog.decisions()) LOGGER.info("[Interaction] {} {}", player.getName().getString(), what);
     }
 
     private static final Set<String> FAILED = new java.util.HashSet<>();

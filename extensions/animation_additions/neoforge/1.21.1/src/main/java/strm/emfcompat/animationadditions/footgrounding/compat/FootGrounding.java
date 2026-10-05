@@ -3,7 +3,7 @@ package strm.emfcompat.animationadditions.footgrounding.compat;
 import static strm.emfcompat.animationadditions.interaction.Skeleton.LEFT_HIP;
 import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_HIP;
 import strm.emfcompat.animationadditions.interaction.Skeleton;
-import strm.emfcompat.animationadditions.DecisionLog;
+import strm.emfcompat.animationadditions.DebugLog;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
@@ -305,7 +305,7 @@ public final class FootGrounding {
         }
 
         // Per-frame trace while the feet do anything; debug only.
-        if (FootGroundingFeature.isTrace() && why == null) {
+        if (DebugLog.trace() && why == null) {
             LOGGER.info("[FootTrace] x={} y={} z={} R={} L={} fR={} fL={} w={} low={} tl={} pr={} pl={} rb={} lb={} rp={} lp={} rs={} ls={} rt={} lt={} ry={} ly={}",
                     String.format("%.3f", player.getX()), String.format("%.3f", player.getY()),
                     String.format("%.3f", player.getZ()),
@@ -323,7 +323,7 @@ public final class FootGrounding {
 
         // One line per change of what was decided, not per frame.
         if (!decided.equals(state.logged)) {
-            if (DecisionLog.isOn()) {
+            if (DebugLog.decisions()) {
                 LOGGER.info("[FootGrounding] {} {} (R={} L={})", player.getName().getString(), decided,
                         String.format("%.2f", right), String.format("%.2f", left));
             }
@@ -663,12 +663,15 @@ public final class FootGrounding {
     }
 
     /**
-     * What the feet ask of the torso: {side, climb, reach}. {@code side} is where the weight is,
-     * -1 on the right foot to +1 on the left (model x); {@code climb} 0..1 how far a foot is up on
-     * a step; {@code reach} 0..1 how far a foot reaches forwards for one. {@code null} when the
-     * feet are left alone.
+     * What the feet ask of the torso. {@code side} is where the weight is, -1 on the right foot to
+     * +1 on the left (model x); {@code climb} 0..1 how far a foot is up on a step; {@code reach}
+     * 0..1 how far a foot reaches forwards for one.
      */
-    public static float[] torsoHint(UUID uuid) {
+    public record Weight(float side, float climb, float reach) {
+    }
+
+    /** What the feet ask of the torso; {@code null} when the feet are left alone. */
+    public static Weight torsoHint(UUID uuid) {
         State state = STATES.fresh(uuid);
         if (state == null) return null;
         float up = Math.max(state.rightBend, state.leftBend);
@@ -689,7 +692,7 @@ public final class FootGrounding {
         if (up < MIN_STEP && reach <= 0f && !state.walking) return null;
         // Walking on the flat, the stride sways nothing: only a step makes the weight count.
         if (state.walking && climb <= 0f) side = 0f;
-        return new float[]{side, climb, Math.max(0f, reach) * (state.walking ? state.direction : 1f)};
+        return new Weight(side, climb, Math.max(0f, reach) * (state.walking ? state.direction : 1f));
     }
 
     /** Adds the leg offsets on top of the animated legs. Called after the pack has animated. */

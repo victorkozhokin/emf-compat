@@ -1,9 +1,10 @@
 package strm.emfcompat.animationadditions.ejector;
 
+import strm.emfcompat.animationadditions.torso.TorsoLean;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.EntityModel;
-import strm.emfcompat.animationadditions.DecisionLog;
+import strm.emfcompat.animationadditions.DebugLog;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -123,7 +124,7 @@ public final class EjectorLaunch {
         String phase = s.thrown ? "thrown" : braced ? "brace" : "off";
         if (!phase.equals(s.logged)) {
             s.logged = phase;
-            if (DecisionLog.isOn()) LOGGER.info("[Ejector] {} {}", player.getName().getString(), phase);
+            if (DebugLog.decisions()) LOGGER.info("[Ejector] {} {}", player.getName().getString(), phase);
         }
     }
 
@@ -161,13 +162,13 @@ public final class EjectorLaunch {
         return state != null && "LAUNCHING".equals(state.toString());
     }
 
-    /** The torso's lean {pitch, yaw, roll} for {@code TorsoLean}; {@code null} for none. */
-    public static float[] torsoHint(UUID uuid) {
+    /** The torso's lean for {@code TorsoLean}; {@code null} for none. */
+    public static TorsoLean.Hint torsoHint(UUID uuid) {
         State s = STATES.fresh(uuid);
         if (s == null || s.brace < 1e-3f && s.flight < 1e-3f) return null;
         float up = s.rise * 0.5f + 0.5f;
         // Braced, the torso's lean is the crouch's own.
-        return new float[]{s.flight * Mth.lerp(up, DOWN_TORSO, UP_TORSO), 0f, 0f};
+        return TorsoLean.Hint.turn(s.flight * Mth.lerp(up, DOWN_TORSO, UP_TORSO), 0f, 0f);
     }
 
     /** The arms and the legs. Called after the pack has animated, before the torso and the hands' aims. */

@@ -1,11 +1,11 @@
 package strm.emfcompat.animationadditions.motion;
 
+import strm.emfcompat.animationadditions.DebugLog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
@@ -142,7 +142,7 @@ public final class PoseInertia {
                 float max = turn ? MAX_CARRY_TURN : MAX_CARRY_MOVE;
                 off[c].value -= change;
                 off[c].velocity = Math.max(-max, Math.min(max, off[c].velocity + speed[c]));
-                if (FootGroundingFeature.isTrace()) {
+                if (DebugLog.trace()) {
                     LOGGER.info("[Inertia] {} {}[{}] cut {}", uuid, PARTS[i], c, String.format("%.2f", change));
                 }
             } else {

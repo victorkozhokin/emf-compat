@@ -1,5 +1,7 @@
 package strm.emfcompat.animationadditions.buttonpress;
 
+import strm.emfcompat.animationadditions.torso.TorsoLean;
+import strm.emfcompat.animationadditions.DebugLog;
 import strm.emfcompat.animationadditions.interaction.ArmAim;
 import static strm.emfcompat.animationadditions.interaction.Skeleton.WAIST;
 import static strm.emfcompat.animationadditions.interaction.Skeleton.LEFT_HIP;
@@ -24,7 +26,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
 import strm.emfcompat.animationadditions.interaction.Candidate;
 import strm.emfcompat.animationadditions.interaction.Category;
 import strm.emfcompat.animationadditions.interaction.Effector;
@@ -328,7 +329,7 @@ public final class ButtonPress implements InteractionProvider {
             }
             dot += pos.equals(state.target) ? 0.03 : 0;
             // With the trace on, what was nearest and how far it was, when nothing is in reach.
-            if (dot > viewDot && FootGroundingFeature.isTrace()) {
+            if (dot > viewDot && DebugLog.trace()) {
                 viewDot = dot;
                 Vector3f rel = frame.relativeToJoint(grip, RIGHT_SHOULDER);
                 state.why = String.format("none (in view: %s at %.1f px from the shoulder, %.1f,%.1f,%.1f)",
@@ -518,14 +519,14 @@ public final class ButtonPress implements InteractionProvider {
         }
     }
 
-    /** The torso turn a foot on a button asks for, {pitch, yaw, roll}; {@code null} when none. */
-    public static float[] torsoHint(UUID uuid) {
+    /** The torso turn a hand or a foot on a button asks for; {@code null} when none. */
+    public static TorsoLean.Hint torsoHint(UUID uuid) {
         State state = STATES.fresh(uuid);
         if (state == null || state.lean[0] == 0f && state.lean[1] == 0f && state.lean[2] == 0f) return null;
         if (!INSTANCE.isEnabled()) return null;
         float w = state.legWeight > 1e-3f ? state.legWeight
                 : InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id());
-        return new float[]{state.lean[0] * w, state.lean[1] * w, state.lean[2] * w};
+        return TorsoLean.Hint.turn(state.lean[0] * w, state.lean[1] * w, state.lean[2] * w);
     }
 
     /**

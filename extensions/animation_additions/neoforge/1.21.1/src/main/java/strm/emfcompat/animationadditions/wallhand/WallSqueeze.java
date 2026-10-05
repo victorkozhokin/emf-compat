@@ -1,7 +1,8 @@
 package strm.emfcompat.animationadditions.wallhand;
 
+import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.animationadditions.interaction.Skeleton;
-import strm.emfcompat.animationadditions.DecisionLog;
+import strm.emfcompat.animationadditions.DebugLog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -157,7 +158,7 @@ public final class WallSqueeze {
         s.upLeft += (upLeft - s.upLeft) * Smoothing.follow(dt, SECONDS);
         if (!decided.equals(s.logged)) {
             s.logged = decided;
-            if (DecisionLog.isOn()) LOGGER.info("[WallSqueeze] {} {}", player.getName().getString(), decided);
+            if (DebugLog.decisions()) LOGGER.info("[WallSqueeze] {} {}", player.getName().getString(), decided);
         }
     }
 
@@ -201,11 +202,11 @@ public final class WallSqueeze {
         return (float) Math.asin(Mth.clamp(hand / ARM_LENGTH, 0f, Mth.sin(ARM_UP)));
     }
 
-    /** For {@code TorsoLean}: {pitch, yaw, roll, shift (pixels), the part of the yaw the head does not take}; {@code null} for none. */
-    public static float[] torsoHint(UUID uuid) {
+    /** For {@code TorsoLean}: the turn, the shift, and the head staying out of the turn; {@code null} for none. */
+    public static TorsoLean.Hint torsoHint(UUID uuid) {
         State s = STATES.fresh(uuid);
         if (s == null || s.turn == 0f && s.shift == 0f) return null;
-        return new float[]{0f, s.turn, 0f, s.shift, s.turn};
+        return new TorsoLean.Hint(0f, s.turn, 0f, s.shift, s.turn);
     }
 
     /** The arms close and still. Called after the pack has animated, before the torso and the hands' aims. */
