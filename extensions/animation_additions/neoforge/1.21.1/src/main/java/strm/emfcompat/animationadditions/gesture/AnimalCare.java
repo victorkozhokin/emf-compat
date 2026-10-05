@@ -81,6 +81,12 @@ public final class AnimalCare extends Gesture {
         return false;
     }
 
+    /** Gone further from the animal than a hand's reach and a step. */
+    protected boolean lost(Play play) {
+        Entity animal = play.player.level().getEntity(play.entity);
+        return animal == null || !animal.isAlive() || animal.distanceTo(play.player) > 4.2f;
+    }
+
     protected float approach(Play play) {
         return play.kind == FEED ? .72f : .8f;
     }
@@ -109,20 +115,18 @@ public final class AnimalCare extends Gesture {
         float toolReach = level, otherReach = level, bend;
         Vec3 watched;
         if (play.kind == FEED) {
-            // The food is held out; the animal takes it in little tugs; the giving hand comes away
-            // as the other strokes its head - back along it pressing, forward again lifted.
+            // The food is held out, still; the giving hand comes away as the other strokes the head -
+            // back along it pressing, forward again lifted, twice. Nothing in it shakes.
             float stroke = play.acted ? smooth((work - .1f) / .2f) * (1 - smooth((work - .84f) / .16f)) : 0;
-            double pass = Math.PI * 2 * 3 * Math.max(0, work - .2f) / .64;
+            double pass = Math.PI * 2 * 2 * Math.max(0, work - .2f) / .64;
             double back = .13 * Math.cos(pass) * stroke, lift = .06 * Math.max(0, Math.sin(pass)) * stroke;
-            double tug = Math.sin(Math.PI * 2 * 5 * work) * Math.exp(-4 * work) * busy;
-            tool = model(play, mouth.add(side.scale(.1 + .03 * tug)).add(0, -.04 - .03 * tug, 0));
+            tool = model(play, mouth.add(side.scale(.1)).add(0, -.04, 0));
             other = model(play, mouth.add(0, .22 + lift, 0).add(side.scale(-.1 + back)).add(along.scale(.04 * hand)));
             toolReach = level * (1 - smooth((work - .42f) / .3f));
             otherReach = stroke * Math.min(1, level * 1.4f);
             bend = Math.max(toolReach, otherReach) * ((float) Math.toRadians(9) + Reach.low(tool.y) * (float) Math.toRadians(16));
             // The shoulder of the hand at work comes forward: the giving one first, then the stroking one.
             out.yaw = hand * (.13f * otherReach - .09f * toolReach);
-            out.roll = -hand * .03f * (float) Math.cos(pass) * stroke;
             watched = mouth.add(0, .1 * stroke, 0);
             foot(out, right, 1.2f, .8f, .2f);
         } else if (play.kind == MILK) {

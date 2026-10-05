@@ -133,13 +133,18 @@ public final class ArmorDon extends Gesture {
         }
     }
 
+    /** A push: up from nothing and down to nothing over 0..1. */
+    private static float bump(float v) {
+        return v <= 0 || v >= 1 ? 0 : (float) Math.sin(Math.PI * v) * (float) Math.sin(Math.PI * v);
+    }
+
     protected boolean ready(AbstractClientPlayer player) {
         return super.ready(player) && !player.swinging && !player.isUsingItem();
     }
 
     protected double seconds(Play play) {
         // Up to the head and down to the feet are long ways for an arm, and boots are two: more time, the same pace.
-        return play.kind == FEET ? 2.3 : play.kind == HEAD || play.kind == BACK || play.kind == CHEST ? 1.7 : 1.4;
+        return play.kind == FEET ? 2.3 : play.kind == HEAD ? 1.9 : play.kind == BACK || play.kind == CHEST ? 1.7 : 1.4;
     }
 
     protected void pose(Play play, float phase, Pose out) {
@@ -150,11 +155,17 @@ public final class ArmorDon extends Gesture {
         Vector3f right, left = null;
         switch (play.kind) {
             case HEAD -> {
-                // Lowered on, pressed down, and the head tries it: a nod and a turn each way.
-                right = new Vector3f(-4.6f, -6.5f + 1.6f * smooth(through * 2), -1.5f);
-                float tries = (float) Math.sin(Math.PI * 2 * 1.5 * through) * set;
-                out.head = new float[]{.1f * in + .08f * set, .12f * tries};
-                out.pitch = -.03f * set;
+                // One hand flat on top of it, and it takes some doing: a push that seats it, a harder
+                // one that drives it home - the head and the shoulders going down under each - and the
+                // other arm out a little for it.
+                float first = bump((through - .1f) / .3f), second = bump((through - .5f) / .38f), push = .5f * first + second;
+                out.onBody = true;
+                out.hand(true, new Vector3f(-1.2f, -9.2f + 2.2f * push, -1f), in);
+                out.left = new float[]{.12f * in, 0, -.3f * in - .12f * push, 0};
+                out.head = new float[]{.08f * in + .2f * push, -.05f * in};
+                out.pitch = .07f * push;
+                out.roll = -.035f * in - .02f * push;
+                return;
             }
             case CHEST -> {
                 // From the breast out over the ribs and down the sides, the chest lifting into it; then a shrug to seat it.

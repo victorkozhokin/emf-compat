@@ -71,6 +71,8 @@ public abstract class Gesture implements InteractionProvider {
         public Vector3f look;
         public float looking;
         public float pitch, yaw, roll;
+        /** {xRot, yRot, zRot} added to a leg after the feet are set: a leg lifted, a foot shaken. */
+        public float[] rightLeg, leftLeg;
         /** Where the soles stand from where the pack has them, while {@link #apart}. */
         public Vector3f rightFoot, leftFoot;
         public boolean apart;
@@ -78,7 +80,7 @@ public abstract class Gesture implements InteractionProvider {
         public float letGo = .9f;
 
         void reset() {
-            right = left = head = null;
+            right = left = head = rightLeg = leftLeg = null;
             rightAt = leftAt = rightFoot = leftFoot = look = null;
             looking = 0;
             pitch = yaw = roll = 0;
@@ -113,6 +115,8 @@ public abstract class Gesture implements InteractionProvider {
          * spring so it answers at once and never jumps), and how far through the work it is (0..1).
          */
         public boolean poised, acted, back;
+        /** The act itself, held back until the hand has got there (see {@link Gesture#defer}). */
+        Runnable deferred;
         public float level, work;
         float speed;
         /** Where the hands are drawn to this frame: the pose's points, followed with a little give. */
@@ -144,6 +148,11 @@ public abstract class Gesture implements InteractionProvider {
 
     /** Whether this player is about to act; sets the play's kind, point and hand while it has not acted yet. */
     protected boolean poised(InteractionContext context, Play play) {
+        return false;
+    }
+
+    /** Once it has acted: whether the player has gone from what the gesture is done to, which calls it off. */
+    protected boolean lost(Play play) {
         return false;
     }
 
@@ -215,6 +224,26 @@ public abstract class Gesture implements InteractionProvider {
         play.kind = kind;
         play.point = point;
         return play;
+    }
+
+    /**
+     * The hand goes all the way first and {@code act} is done when it arrives - for the option that
+     * makes the game wait for the gesture instead of the gesture following the game. Returns whether
+     * it took the act on; while one waits, another is swallowed.
+     */
+    public final boolean defer(AbstractClientPlayer player, int kind, Vec3 point, Runnable act) {
+        long now = System.nanoTime();
+        Play play = states.seen(player.getUUID(), now).value;
+        busyAt = now;
+        if (play.deferred != null) return true;
+        if (!ready(player)) return false;
+        play.playing = play.acted = true;
+        play.back = play.pending = false;
+        play.work = 0;
+        play.kind = kind;
+        play.point = point;
+        play.deferred = act;
+        return true;
     }
 
     /** Set off again while it plays: {@code true} takes the new kind and point into the run under way. */
@@ -383,10 +412,24 @@ public abstract class Gesture implements InteractionProvider {
     private void spring(Play play, float dt) {
         float target;
         if (play.back) target = 0;
-        else if (play.acted) {
+        else if (play.acted && lost(play)) {
+            // Run off from it: nothing is finished, the hands just come back.
+            play.back = true;
+            play.deferred = null;
+            target = 0;
+        } else if (play.acted) {
             target = 1;
-            play.work = Math.min(1, play.work + dt / (float) Math.max(.05, work(play)));
-            if (play.work >= 1) play.back = true;
+            if (play.deferred != null) {
+                // The act waits for the hand: it is done the moment the hand is there, and the work starts with it.
+                if (play.level >= .93f) {
+                    Runnable act = play.deferred;
+                    play.deferred = null;
+                    act.run();
+                }
+            } else {
+                play.work = Math.min(1, play.work + dt / (float) Math.max(.05, work(play)));
+                if (play.work >= 1) play.back = true;
+            }
         } else if (play.poised) target = approach(play);
         else {
             play.back = true;
@@ -489,10 +532,20 @@ public abstract class Gesture implements InteractionProvider {
             boolean apart = play.playing && pose.apart && pose.rightFoot != null && pose.leftFoot != null;
             float shown = gesture.shown(uuid, play);
             float held = apart ? shown : play.playing && gesture.isEnabled() && !play.stance.resting() ? 1 : shown;
-            if (held < .05f && play.stance.resting()) continue;
-            BraceSteps.apply(play.stance, play.player, play.frame, parts, apart ? pose.rightFoot : HOME,
-                    apart ? pose.leftFoot : HOME, held, 0, LOGGER, gesture.id());
+            if (!(held < .05f && play.stance.resting()))
+                BraceSteps.apply(play.stance, play.player, play.frame, parts, apart ? pose.rightFoot : HOME,
+                        apart ? pose.leftFoot : HOME, held, 0, LOGGER, gesture.id());
+            if (!play.playing || shown < 1e-3f) continue;
+            leg(parts.apply("right_leg"), pose.rightLeg, shown);
+            leg(parts.apply("left_leg"), pose.leftLeg, shown);
         }
+    }
+
+    private static void leg(ModelPart leg, float[] turn, float weight) {
+        if (leg == null || turn == null) return;
+        leg.xRot += turn[0] * weight;
+        leg.yRot += turn[1] * weight;
+        leg.zRot += turn[2] * weight;
     }
 
     /** After the runtime: a hand that goes to a point goes there from the shoulder as it is drawn; the roll and the lift put back. */

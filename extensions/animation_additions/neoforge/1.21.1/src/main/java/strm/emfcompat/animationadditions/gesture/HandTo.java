@@ -96,6 +96,10 @@ public final class HandTo extends Gesture {
         return seed.getBlock() instanceof CropBlock || seed.getBlock() instanceof StemBlock || seed.getBlock() instanceof NetherWartBlock;
     }
 
+    protected boolean lost(Play play) {
+        return play.point == null || play.player.getEyePosition().distanceTo(play.point) > 5;
+    }
+
     protected float approach(Play play) {
         return play.kind == SEED ? .6f : .72f;
     }
