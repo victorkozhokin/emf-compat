@@ -1,5 +1,8 @@
 package strm.emfcompat.animationadditions.plantreach;
 
+import static strm.emfcompat.animationadditions.interaction.Skeleton.LEFT_SHOULDER;
+import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_SHOULDER;
+import strm.emfcompat.animationadditions.interaction.Skeleton;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Pose;
@@ -48,11 +51,8 @@ public final class PlantReach implements InteractionProvider {
 
     public static final String KEY_ENABLED = "plantreach.enabled";
 
-    /** Model space: pixels, y down, the model facing -z. Vanilla shoulder pivots. */
-    private static final Vector3f RIGHT_SHOULDER = new Vector3f(-5f, 2f, 0f);
-    private static final Vector3f LEFT_SHOULDER = new Vector3f(5f, 2f, 0f);
     /** From the shoulder pivot to the palm, in pixels. */
-    private static final float ARM = 10f;
+    private static final float ARM = Skeleton.ARM_TO_PALM;
     /** The hand goes this far into the plant's top, blocks, so it touches rather than hovers. */
     private static final double INTO_TOP = 0.05;
     /** The hand stays at least this far below the shoulder, blocks: no reaching up. */

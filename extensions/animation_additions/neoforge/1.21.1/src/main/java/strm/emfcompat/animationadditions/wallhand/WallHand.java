@@ -1,5 +1,8 @@
 package strm.emfcompat.animationadditions.wallhand;
 
+import static strm.emfcompat.animationadditions.interaction.Skeleton.LEFT_SHOULDER;
+import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_SHOULDER;
+import strm.emfcompat.animationadditions.interaction.Skeleton;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.ClipContext;
@@ -43,11 +46,8 @@ public final class WallHand implements InteractionProvider {
 
     public static final String KEY_ENABLED = "wallhand.enabled";
 
-    /** Model space: pixels, y down, the model facing -z. Vanilla shoulder pivots. */
-    private static final Vector3f RIGHT_SHOULDER = new Vector3f(-5f, 2f, 0f);
-    private static final Vector3f LEFT_SHOULDER = new Vector3f(5f, 2f, 0f);
     /** From the shoulder pivot to the palm, in pixels. */
-    private static final float ARM = 10f;
+    private static final float ARM = Skeleton.ARM_TO_PALM;
     /** How far sideways and ahead a wall is looked for, blocks; the arm's reach decides the rest. */
     private static final double LOOK_SIDEWAYS = 1.0;
     private static final double LOOK_AHEAD = 1.0;

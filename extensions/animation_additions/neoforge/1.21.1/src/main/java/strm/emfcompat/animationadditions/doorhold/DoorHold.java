@@ -1,5 +1,8 @@
 package strm.emfcompat.animationadditions.doorhold;
 
+import static strm.emfcompat.animationadditions.interaction.Skeleton.LEFT_SHOULDER;
+import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_SHOULDER;
+import strm.emfcompat.animationadditions.interaction.Skeleton;
 import strm.emfcompat.animationadditions.interaction.Visibility;
 import strm.emfcompat.animationadditions.interaction.HandContacts;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -44,11 +47,8 @@ public final class DoorHold implements InteractionProvider {
     private static final int PRIORITY = 5;
     private static final Candidate.Timing TIMING = new Candidate.Timing(0.15, 0.2, 0.15);
 
-    /** Model space: pixels, y down, facing -z. */
-    private static final Vector3f RIGHT_SHOULDER = new Vector3f(-5f, 2f, 0f);
-    private static final Vector3f LEFT_SHOULDER = new Vector3f(5f, 2f, 0f);
     /** Shoulder to fingertips, pixels; a held edge may be at the fingertips. */
-    private static final float ARM = 11f;
+    private static final float ARM = Skeleton.ARM_TO_FINGERTIPS;
     /**
      * As a share of the arm: past its length on purpose. A shut leaf stands at the far side of its
      * block, so from right up against it its handle is most of a block away; the hand goes to it

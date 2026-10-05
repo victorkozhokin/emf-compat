@@ -1,5 +1,8 @@
 package strm.emfcompat.animationadditions.footgrounding.compat;
 
+import static strm.emfcompat.animationadditions.interaction.Skeleton.LEFT_HIP;
+import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_HIP;
+import strm.emfcompat.animationadditions.interaction.Skeleton;
 import strm.emfcompat.animationadditions.DecisionLog;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -49,9 +52,7 @@ public final class FootGrounding {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatFootGrounding");
 
-    private static final Vector3f RIGHT_HIP = new Vector3f(-1.9f, 12f, 0f);
-    private static final Vector3f LEFT_HIP = new Vector3f(1.9f, 12f, 0f);
-    private static final float LEG = 12f;
+    private static final float LEG = Skeleton.LEG;
     /** Probe offsets around the foot centre, model pixels: the sole is 4x4, so just inside its corners. */
     private static final float[][] PROBES = {{0, 0}, {1.8f, 1.8f}, {-1.8f, 1.8f}, {1.8f, -1.8f}, {-1.8f, -1.8f}};
     /**
@@ -99,7 +100,7 @@ public final class FootGrounding {
     private static final long REACH_EVERY_NANOS = 100_000_000L;
 
     /** The player model's scale: model pixels are 1/16 of a block times this. */
-    private static final float SCALE = 0.9375f;
+    private static final float SCALE = Skeleton.SCALE;
 
     /** Faster than this, blocks per tick, the player walks and the weight shifts with the stride. */
     private static final double WALKING = 0.02;

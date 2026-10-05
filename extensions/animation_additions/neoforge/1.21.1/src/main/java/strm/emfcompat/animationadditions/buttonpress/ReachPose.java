@@ -1,7 +1,7 @@
 package strm.emfcompat.animationadditions.buttonpress;
 
+import static strm.emfcompat.animationadditions.interaction.Skeleton.WAIST;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.util.Mth;
 import org.joml.Vector3f;
 import org.joml.Quaternionf;
 
@@ -36,8 +36,6 @@ public final class ReachPose {
     private static final float LOW_FULL = 12f;
     /** How quickly the pose comes and goes, seconds. */
     public static final double SECONDS = 0.2;
-    /** The torso turns round the waist, as {@code TorsoLean} does; model pixels. */
-    private static final Vector3f WAIST = new Vector3f(0f, 12f, 0f);
     /**
      * For the right hand reaching, the left limbs, radians: the arm up out to its side and a little
      * back, the leg out and back. Mirrored for the left hand. Out, for a hanging left limb, is
@@ -67,7 +65,7 @@ public final class ReachPose {
         float flat = (float) Math.hypot(to.x, to.z);
         if (flat < 1e-3f || s <= 0f) return;
         // Model y is down: below the waist is +y.
-        float amount = LEAN + LOW_LEAN * Mth.clamp(to.y / LOW_FULL, 0f, 1f);
+        float amount = LEAN + LOW_LEAN * Math.max(0f, Math.min(1f, to.y / LOW_FULL));
         lean[0] += s * amount * (-to.z / flat);
         lean[2] += s * amount * (-to.x / flat);
     }

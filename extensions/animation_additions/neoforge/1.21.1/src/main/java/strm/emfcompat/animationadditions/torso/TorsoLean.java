@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.torso;
 
+import strm.emfcompat.animationadditions.interaction.Skeleton;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import org.joml.Quaternionf;
@@ -56,7 +57,7 @@ public final class TorsoLean {
     private static final float TURN_ROLL = (float) Math.toRadians(0.4);
     private static final float MOTION_MAX = (float) Math.toRadians(7);
     /** The waist, where the torso turns: the bottom of the 12 px torso below the neck pivot. */
-    private static final float WAIST = 12f;
+    private static final float WAIST = Skeleton.WAIST.y;
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
     private static final String[] CARRIED = {"head", "hat", "right_arm", "left_arm"};

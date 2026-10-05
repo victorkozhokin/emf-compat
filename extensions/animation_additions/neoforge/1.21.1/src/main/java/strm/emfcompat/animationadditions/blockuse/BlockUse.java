@@ -1,5 +1,9 @@
 package strm.emfcompat.animationadditions.blockuse;
 
+import strm.emfcompat.animationadditions.interaction.ArmAim;
+import static strm.emfcompat.animationadditions.interaction.Skeleton.LEFT_SHOULDER;
+import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_SHOULDER;
+import strm.emfcompat.animationadditions.interaction.Skeleton;
 import org.slf4j.LoggerFactory;
 import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
 import net.minecraft.core.Direction;
@@ -34,7 +38,6 @@ import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.ik.IKFrame;
-import strm.emfcompat.core.ik.IKMath;
 import strm.emfcompat.core.ik.IKResult;
 import strm.emfcompat.core.ik.OneBoneIK;
 
@@ -94,10 +97,7 @@ public final class BlockUse implements InteractionProvider {
     private static final int HELD_PRIORITY = 12;
     private static final Candidate.Timing TIMING = new Candidate.Timing(0.12, 0.18, 0.05);
 
-    /** Model space: pixels, y down, facing -z. */
-    private static final Vector3f RIGHT_SHOULDER = new Vector3f(-5f, 2f, 0f);
-    private static final Vector3f LEFT_SHOULDER = new Vector3f(5f, 2f, 0f);
-    private static final float ARM = 11f;
+    private static final float ARM = Skeleton.ARM_TO_FINGERTIPS;
     /** Looked for this far along the look, blocks. */
     private static final double RANGE = 3.0;
     /** Past the arm's length, as a share of it: further and the hand does not go. */
@@ -469,30 +469,13 @@ public final class BlockUse implements InteractionProvider {
         if (w < 1e-3f) return;
         ModelPart arm = parts.apply(effector.part);
         if (arm == null) return;
-        Vector3f to = new Vector3f(state.grip).sub(arm.x, arm.y, arm.z);
-        if (to.lengthSquared() < 1e-6f) return;
-        to.normalize();
-        // As OneBoneIK: the arm hangs along +y.
-        float x = -(float) Math.acos(Mth.clamp(to.y, -1f, 1f));
-        float y = (float) Math.atan2(-to.x, -to.z);
-        arm.xRot += IKMath.wrap(x - arm.xRot) * w;
-        arm.yRot += IKMath.wrap(y - arm.yRot) * w;
-        arm.zRot *= 1f - w;
+        if (new Vector3f(state.grip).sub(arm.x, arm.y, arm.z).lengthSquared() < 1e-6f) return;
+        ArmAim.towards(arm, state.grip, w, true);
         if (state.support) {
             Effector other = state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM;
             float otherWeight = InteractionRuntime.weight(uuid, other, INSTANCE.id());
             ModelPart otherArm = parts.apply(other.part);
-            if (otherArm != null && otherWeight > 1e-3f) {
-                Vector3f direction = new Vector3f(state.supportGrip).sub(otherArm.x, otherArm.y, otherArm.z);
-                if (direction.lengthSquared() > 1e-6f) {
-                    direction.normalize();
-                    float pitch = -(float) Math.acos(Mth.clamp(direction.y, -1f, 1f));
-                    float yaw = (float) Math.atan2(-direction.x, -direction.z);
-                    otherArm.xRot += IKMath.wrap(pitch - otherArm.xRot) * otherWeight;
-                    otherArm.yRot += IKMath.wrap(yaw - otherArm.yRot) * otherWeight;
-                    otherArm.zRot *= 1f - otherWeight;
-                }
-            }
+            if (otherArm != null && otherWeight > 1e-3f) ArmAim.towards(otherArm, state.supportGrip, otherWeight, true);
         }
         long now = System.nanoTime();
         if (FootGroundingFeature.isTrace()

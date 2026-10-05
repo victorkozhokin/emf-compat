@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.wallhand;
 
+import strm.emfcompat.animationadditions.interaction.Skeleton;
 import strm.emfcompat.animationadditions.DecisionLog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
@@ -48,7 +49,7 @@ public final class WallSqueeze {
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
 
     /** The player model's scale: a model pixel is this many blocks. */
-    private static final double PIXEL = 0.9375 / 16;
+    private static final double PIXEL = Skeleton.SCALE / 16;
     /** The arm's outer side from the middle of the body, pixels: the shoulder pivot 6 out, the arm 2 either way of it. */
     private static final float SHOULDER = 6f, ARM_HALF = 2f;
     /** Room an arm needs from the middle, blocks: its outer side and a little air. */

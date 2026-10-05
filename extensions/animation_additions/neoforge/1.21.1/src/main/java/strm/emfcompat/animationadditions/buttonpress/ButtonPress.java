@@ -1,5 +1,11 @@
 package strm.emfcompat.animationadditions.buttonpress;
 
+import strm.emfcompat.animationadditions.interaction.ArmAim;
+import static strm.emfcompat.animationadditions.interaction.Skeleton.WAIST;
+import static strm.emfcompat.animationadditions.interaction.Skeleton.LEFT_HIP;
+import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_HIP;
+import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_SHOULDER;
+import strm.emfcompat.animationadditions.interaction.Skeleton;
 import strm.emfcompat.animationadditions.interaction.Visibility;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -33,7 +39,6 @@ import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.ik.IKFrame;
-import strm.emfcompat.core.ik.IKMath;
 import strm.emfcompat.core.ik.IKResult;
 import strm.emfcompat.core.ik.OneBoneIK;
 
@@ -65,15 +70,9 @@ public final class ButtonPress implements InteractionProvider {
     private static final int PRIORITY = 10;
     private static final Candidate.Timing TIMING = new Candidate.Timing(0.12, 0.18, 0.05);
 
-    /** Model space: pixels, y down, facing -z. */
-    private static final Vector3f RIGHT_SHOULDER = new Vector3f(-5f, 2f, 0f);
-    private static final Vector3f RIGHT_HIP = new Vector3f(-1.9f, 12f, 0f);
-    private static final Vector3f LEFT_HIP = new Vector3f(1.9f, 12f, 0f);
-    /** The torso turns round the waist, as {@code TorsoLean} does. */
-    private static final Vector3f WAIST = new Vector3f(0f, 12f, 0f);
     /** Shoulder to fingertips, pixels. */
-    private static final float ARM = 11f;
-    private static final float LEG = 12f;
+    private static final float ARM = Skeleton.ARM_TO_FINGERTIPS;
+    private static final float LEG = Skeleton.LEG;
     private static final float MAX_LEAN_PITCH = (float) Math.toRadians(15);
     private static final float MAX_LEAN_YAW = (float) Math.toRadians(15);
     private static final int LEAN_STEPS = 6;
@@ -542,14 +541,7 @@ public final class ButtonPress implements InteractionProvider {
         if (w < 1e-3f) return;
         ModelPart arm = parts.apply(effector.part);
         if (arm == null) return;
-        Vector3f to = new Vector3f(state.button).sub(arm.x, arm.y, arm.z);
-        if (to.lengthSquared() < 1e-6f) return;
-        to.normalize();
-        // As OneBoneIK: the arm hangs along +y.
-        float x = -(float) Math.acos(Mth.clamp(to.y, -1f, 1f));
-        float y = (float) Math.atan2(-to.x, -to.z);
-        arm.xRot += IKMath.wrap(x - arm.xRot) * w;
-        arm.yRot += IKMath.wrap(y - arm.yRot) * w;
+        ArmAim.towards(arm, state.button, w, false);
     }
 
     /**
