@@ -1,5 +1,8 @@
 package strm.emfcompat.animationadditions.blockuse;
 
+import org.slf4j.LoggerFactory;
+import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
+import net.minecraft.core.Direction;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.Minecraft;
 import strm.emfcompat.animationadditions.buttonpress.ReachEnvelope;
@@ -359,7 +362,7 @@ public final class BlockUse implements InteractionProvider {
                         && centre.subtract(player.getEyePosition()).normalize().dot(player.getViewVector(1f)) > 0.9
                         && Visibility.visible(player, state.pos, centre)) {
                     return state.target.hover(player, state.pos, kept,
-                            new BlockHitResult(local, net.minecraft.core.Direction.UP, state.pos, false));
+                            new BlockHitResult(local, Direction.UP, state.pos, false));
                 }
             }
         }
@@ -368,7 +371,7 @@ public final class BlockUse implements InteractionProvider {
             BlockState kept = player.level().getBlockState(state.pos);
             if (state.target.matches(kept) && state.target.holds(player, player.level(), state.pos, kept)) {
                 return state.target.hover(player, state.pos, kept,
-                        new BlockHitResult(Vec3.atCenterOf(state.pos), net.minecraft.core.Direction.UP, state.pos, false));
+                        new BlockHitResult(Vec3.atCenterOf(state.pos), Direction.UP, state.pos, false));
             }
         }
         // Our own player: the game's crosshair target, the block a click uses. Sable's sub-levels
@@ -492,10 +495,10 @@ public final class BlockUse implements InteractionProvider {
             }
         }
         long now = System.nanoTime();
-        if (strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature.isTrace()
+        if (FootGroundingFeature.isTrace()
                 && now - state.tracedAt > 100_000_000L) {
             state.tracedAt = now;
-            org.slf4j.LoggerFactory.getLogger("EMFCompatBlockUse").info(
+            LoggerFactory.getLogger("EMFCompatBlockUse").info(
                     "[UseTrace] target={} crouch={} upright={} weight={} stretch={} distancePx={} supportDistancePx={}",
                     state.target == null ? "none" : state.target.getClass().getSimpleName(),
                     state.crouching, state.standUp, w, state.stretch,

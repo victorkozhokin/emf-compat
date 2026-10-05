@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.buttonpress;
 
+import strm.emfcompat.animationadditions.interaction.Visibility;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -148,7 +149,6 @@ public final class ButtonPress implements InteractionProvider {
         final float[] lean = new float[3];
         /** The button's middle in model pixels, and the arm on it. */
         final Vector3f button = new Vector3f();
-        boolean armRight;
         /** A foot on a button: which, {pitch, roll, lift} as shown, and how much of it shows. */
         boolean footRight;
         final float[] leg = new float[5];
@@ -240,23 +240,22 @@ public final class ButtonPress implements InteractionProvider {
             // A lever's handle flips over when it is thrown: the hand goes over with it.
             if (InteractionRuntime.weight(player.getUUID(), Effector.RIGHT_ARM, id()) < 1e-3f) state.button.set(hand.button);
             else state.button.lerp(hand.button, Smoothing.follow(dt, GRIP_SECONDS));
-            state.armRight = hand.right;
             if (pressing) {
                 state.lean[0] = hand.pitch;
                 state.lean[1] = hand.yaw;
             }
             // Past the arm's length the whole body reaches: the torso leans towards the target,
             // forwards and to its side, as far as the reach asks.
-            if (hand.right && !Seated.seated(player) && EMFCompatConfig.getBoolean(KEY_STRETCH, true)) {
+            if (!Seated.seated(player) && EMFCompatConfig.getBoolean(KEY_STRETCH, true)) {
                 float reach = new Vector3f(hand.button).sub(RIGHT_SHOULDER).length() / ARM;
                 stretchTarget = ReachPose.weight(reach);
                 ReachPose.lean(hand.button, stretchTarget, state.lean);
             }
             out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING,
-                    hand.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, aim));
+                    Effector.RIGHT_ARM, aim));
             // The press swings the arm; the push is the swing.
             context.claimArms();
-            context.decide((pressing ? "press-" : "hover-") + (hand.right ? "R" : "L"));
+            context.decide(pressing ? "press-R" : "hover-R");
         } finally {
             legs(state, legTarget, dt);
             state.stretch += (stretchTarget - state.stretch)
@@ -347,7 +346,7 @@ public final class ButtonPress implements InteractionProvider {
     private static boolean reachable(AbstractClientPlayer player, IKFrame frame, BlockPos pos) {
         BlockState block = player.level().getBlockState(pos);
         if (!isTarget(block)) return false;
-        if (!strm.emfcompat.animationadditions.interaction.Visibility.visible(player, pos, grip(player, pos, block))) return false;
+        if (!Visibility.visible(player, pos, grip(player, pos, block))) return false;
         return foot(player, frame, pos, block, null) != null || hand(player, frame, pos, block) != null;
     }
 
@@ -419,7 +418,7 @@ public final class ButtonPress implements InteractionProvider {
 
     // ---- the hand
 
-    private record Hand(boolean right, IKResult aim, float pitch, float yaw, Vector3f button) {
+    private record Hand(IKResult aim, float pitch, float yaw, Vector3f button) {
     }
 
     /**
@@ -430,7 +429,6 @@ public final class ButtonPress implements InteractionProvider {
     private static Hand hand(AbstractClientPlayer player, IKFrame frame, BlockPos pos, BlockState block) {
         Vec3 point = grip(player, pos, block);
         Vector3f model = frame.relativeToJoint(point, new Vector3f());
-        boolean right = true;
         Vector3f shoulder = RIGHT_SHOULDER;
         // A lever or a button on a wall is followed from further off (see LEVER_REACH); on a
         // floor or a ceiling, a button only in reach.
@@ -449,7 +447,7 @@ public final class ButtonPress implements InteractionProvider {
             float pitch = MAX_LEAN_PITCH * share;
             float yaw = Math.abs(model.x) < 1.5f ? 0f : yawSign * MAX_LEAN_YAW * share;
             IKResult aim = OneBoneIK.solveXY(frame, leant(shoulder, pitch, yaw), point, ARM, 0f, 0f);
-            if (aim != null && aim.reach() <= maxReach) return new Hand(right, aim, pitch, yaw, model);
+            if (aim != null && aim.reach() <= maxReach) return new Hand(aim, pitch, yaw, model);
         }
         return null;
     }
@@ -539,7 +537,7 @@ public final class ButtonPress implements InteractionProvider {
     public static void aimArm(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
         if (state == null) return;
-        Effector effector = state.armRight ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
+        Effector effector = Effector.RIGHT_ARM;
         float w = InteractionRuntime.weight(uuid, effector, INSTANCE.id());
         if (w < 1e-3f) return;
         ModelPart arm = parts.apply(effector.part);

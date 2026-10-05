@@ -187,12 +187,12 @@ public final class FootGrounding {
         }
         state.lastPosition = player.position();
         String why = ineligible(player);
+        IKFrame frame = why != null ? null : IKFrame.capture(stack.last().pose(),
+                Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
         if (why != null) {
             resetContacts(state);
             decided = "off:" + why;
         } else {
-            Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-            IKFrame frame = IKFrame.capture(stack.last().pose(), camera);
             // The body goes by the floor under the hips: steady whatever the stride does. A foot
             // swung far back in the stride is in the air anyway and must not pull the body down.
             // Measured from where the model stands before this frame's lowering.
@@ -265,8 +265,6 @@ public final class FootGrounding {
         // stands on: the whole body goes up onto it, by the lower foot's share, and the other
         // foot the rest - and both come down with the lid as the spring winds.
         if (why == null) {
-            Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-            IKFrame frame = IKFrame.capture(stack.last().pose(), camera);
             float lidRight = lid(player, frame, RIGHT_HIP), lidLeft = lid(player, frame, LEFT_HIP);
             if (lidRight > 0f || lidLeft > 0f) {
                 float body = Math.min(lidRight, lidLeft);
@@ -475,7 +473,7 @@ public final class FootGrounding {
 
     /**
      * Moves one foot's step on by this frame and returns its floor, model pixels below the ground
-     * level, as {@link #footFloor}.
+     * level.
      *
      * <p>Read off the pack's leg: going forwards it swings, going back it stands. At take-off the
      * landing is foreseen - the hip carried on by the player's speed for what is left of the swing,
@@ -560,20 +558,12 @@ public final class FootGrounding {
         return best.y;
     }
 
-    /** A floor at world y under the foot as {@link #footFloor} gives it: model pixels below the ground level. */
+    /** A floor at world y under the foot as {@link #step} returns it: model pixels below the ground level. */
     private static float floorBelow(IKFrame frame, Vector3f hip, float[] pose, double y, float hipDrop) {
         Vector3f sole = sole(pose);
         Vec3 centre = frame.jointWorld(probeBase(hip, pose, sole));
         float drop = frame.relativeToJoint(new Vec3(centre.x, y, centre.z), hip).y - LEG;
         float foot = drop - Math.min(0f, hipDrop);
-        if (foot > MAX_STEP || foot < -MAX_STEP) foot = standing(hipDrop);
-        return foot;
-    }
-
-    private static float footFloor(AbstractClientPlayer player, IKFrame frame, Vector3f hip, float[] pose,
-                                   float hipDrop) {
-        float shift = Math.min(0f, hipDrop);
-        float foot = drop(player, frame, hip, pose) - shift;
         if (foot > MAX_STEP || foot < -MAX_STEP) foot = standing(hipDrop);
         return foot;
     }

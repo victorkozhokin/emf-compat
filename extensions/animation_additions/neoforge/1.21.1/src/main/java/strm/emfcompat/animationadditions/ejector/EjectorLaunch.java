@@ -1,5 +1,8 @@
 package strm.emfcompat.animationadditions.ejector;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.EntityModel;
 import strm.emfcompat.animationadditions.DecisionLog;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -133,11 +136,11 @@ public final class EjectorLaunch {
      * Called before the model is animated and before anything measures from the pose stack; goes by
      * the last frame's brace.
      */
-    public static void crouch(AbstractClientPlayer player, net.minecraft.client.model.EntityModel<?> model,
-                              com.mojang.blaze3d.vertex.PoseStack stack) {
+    public static void crouch(AbstractClientPlayer player, EntityModel<?> model,
+                              PoseStack stack) {
         State s = STATES.fresh(player.getUUID());
         if (s == null || !s.braced || player.isCrouching()) return;
-        if (!(model instanceof net.minecraft.client.model.HumanoidModel<?> humanoid) || humanoid.crouching) return;
+        if (!(model instanceof HumanoidModel<?> humanoid) || humanoid.crouching) return;
         humanoid.crouching = true;
         stack.translate(0f, CROUCH_DROP, 0f);
     }

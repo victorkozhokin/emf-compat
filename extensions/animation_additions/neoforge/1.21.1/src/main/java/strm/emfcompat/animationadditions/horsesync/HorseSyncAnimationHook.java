@@ -14,8 +14,6 @@ import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
  * Records how far a resource pack has moved the horse's body, so the rider can be moved with it.
@@ -27,8 +25,6 @@ import java.util.stream.StreamSupport;
 public final class HorseSyncAnimationHook extends EMFAnimationApi.EMFAnimationHook {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("emf_compat");
-
-    private static int cleanupCounter = 0;
 
     private HorseSyncAnimationHook() {
     }
@@ -43,19 +39,6 @@ public final class HorseSyncAnimationHook extends EMFAnimationApi.EMFAnimationHo
 
     @Override
     public void onAnimationEnd(AnimationContext context, boolean wasCancelledByHook) {
-        // The hook runs once per rendered entity, so this counter now measures entity renders
-        // rather than model parts - roughly two hundred of them between sweeps.
-        if (++cleanupCounter % 200 == 0) {
-            var mc = Minecraft.getInstance();
-            if (mc.level != null) {
-                var activeHorses = StreamSupport.stream(mc.level.entitiesForRendering().spliterator(), false)
-                        .filter(e -> e instanceof AbstractHorse)
-                        .map(Entity::getUUID)
-                        .collect(Collectors.toSet());
-                EMFCompat.horseBodyOffsets.keySet().retainAll(activeHorses);
-            }
-        }
-
         EMFEntityRenderState state = context.activeState();
         if (state == null) return;
         if (!(state.emfEntity() instanceof Entity entity)) return;

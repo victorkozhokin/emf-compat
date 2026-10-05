@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.footgrounding.compat;
 
+import net.minecraft.world.entity.Entity;
 import strm.emfcompat.animationadditions.DecisionLog;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -237,7 +238,7 @@ public final class HorseFootGrounding {
      * Moves and turns the rider with the horse: the pose stack is at the rider, world-aligned,
      * right before the rider is drawn. Returns false when the horse is not moved.
      */
-    public static boolean moveRider(AbstractHorse horse, net.minecraft.world.entity.Entity rider,
+    public static boolean moveRider(AbstractHorse horse, Entity rider,
                                     PoseStack stack, float partialTick) {
         State state = STATES.fresh(horse.getUUID());
         if (state == null || !state.moved) return false;

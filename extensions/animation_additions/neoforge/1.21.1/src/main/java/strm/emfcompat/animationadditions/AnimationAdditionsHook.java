@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions;
 
+import strm.emfcompat.animationadditions.interaction.HandContacts;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.player.Player;
@@ -43,7 +44,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
 
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatAnimationAdditions");
 
-    private static boolean failureLogged;
+    private static boolean failureLogged, armourFailureLogged;
 
     /** Each outer-layer part and the limb it covers. */
     private static final String[][] LAYERS = {
@@ -108,7 +109,11 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
             }, player);
             model.hat.copyFrom(model.head);
         } catch (Throwable t) {
-            // Same as above: never throw out of an EMF hook.
+            // Same as above: never throw out of an EMF hook, and say so once.
+            if (!armourFailureLogged) {
+                armourFailureLogged = true;
+                LOGGER.warn("[AnimationAdditions] failed to apply additive pose to the armour", t);
+            }
         }
     }
 
@@ -132,6 +137,6 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         ButtonPress.aimArm(uuid, parts);
         BlockUse.aimArm(uuid, parts);
         Mining.aimArm(uuid, parts);
-        strm.emfcompat.animationadditions.interaction.HandContacts.apply(uuid, parts);
+        HandContacts.apply(uuid, parts);
     }
 }

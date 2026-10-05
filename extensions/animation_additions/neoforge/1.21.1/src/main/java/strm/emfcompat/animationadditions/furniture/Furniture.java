@@ -1,5 +1,7 @@
 package strm.emfcompat.animationadditions.furniture;
 
+import strm.emfcompat.animationadditions.interaction.Visibility;
+import strm.emfcompat.animationadditions.interaction.HandContacts;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -125,8 +127,8 @@ public final class Furniture implements InteractionProvider {
         IKFrame frame = context.frame();
         IKResult right = aim(frame, RIGHT_SHOULDER, grips.right, grips.reach);
         IKResult left = aim(frame, LEFT_SHOULDER, grips.left, grips.reach);
-        if (right != null) strm.emfcompat.animationadditions.interaction.HandContacts.remember(context, id(), Effector.RIGHT_ARM, grips.right);
-        if (left != null) strm.emfcompat.animationadditions.interaction.HandContacts.remember(context, id(), Effector.LEFT_ARM, grips.left);
+        if (right != null) HandContacts.remember(context, id(), Effector.RIGHT_ARM, grips.right);
+        if (left != null) HandContacts.remember(context, id(), Effector.LEFT_ARM, grips.left);
         if (right != null) out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, Effector.RIGHT_ARM,
                 new float[]{right.x(), right.y()}));
         if (left != null) out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, Effector.LEFT_ARM,
@@ -162,7 +164,7 @@ public final class Furniture implements InteractionProvider {
                 if (dot <= bestDot) continue;
                 Grips grips = chest ? chest(at, view, level, pos.immutable(), block) : lectern(at, view, pos.immutable(), block);
                 if (grips == null) continue;
-                if (!strm.emfcompat.animationadditions.interaction.Visibility.visible(player, pos, space.toWorld(middle))) continue;
+                if (!Visibility.visible(player, pos, space.toWorld(middle))) continue;
                 best = new Grips(grips.what, space.toWorld(grips.right), space.toWorld(grips.left), grips.reach);
                 bestDot = dot;
             }
