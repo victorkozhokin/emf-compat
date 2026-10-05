@@ -116,11 +116,11 @@ public final class WallSqueeze {
         String logged = "off";
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config, ConfigRegistry.Group debug) {
         config.addBoolean(KEY_ENABLED, "Keep out of walls", true,
                 "On", "Right against a wall, or in a gap narrower than the shoulders, the torso turns to fit.",
                 "Off", "The arms go through a wall the player stands against, as in vanilla.");
-        config.addBoolean(KEY_TRACE, "Trace wall contacts", false,
+        debug.addBoolean(KEY_TRACE, "Trace wall contacts", false,
                 "On", "Log contact weight, reach and palm clearance for passage tests.",
                 "Off", "No per-frame wall contact diagnostics.");
     }

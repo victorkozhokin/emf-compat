@@ -53,34 +53,46 @@ import strm.emfcompat.animationadditions.wallhand.WallSqueeze;
 public class EMFCompatAnimationAdditionsMod {
 
     public static final String MOD_ID = "emf_compat_animation_additions";
+    /** The addon's master option; the core's global switch covers it by its suffix. */
+    public static final String KEY_ENABLED = "animationadditions.enabled";
 
     public EMFCompatAnimationAdditionsMod(IEventBus modEventBus, ModContainer modContainer) {
         ConfigRegistry.Section config = ConfigRegistry.section(MOD_ID, "Animation Additions");
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            HorseSync.register(config, modEventBus);
-            FootGroundingFeature.register(config);
-            WallHand.register(config);
-            WallSqueeze.register(config);
-            PlantReach.register(config);
-            LookAt.register(config);
-            strm.emfcompat.animationadditions.leash.LeashHold.register(config);
-            strm.emfcompat.animationadditions.pocket.PocketStash.register(config);
-            strm.emfcompat.animationadditions.gesture.AnimalCare.register(config);
-            strm.emfcompat.animationadditions.gesture.ShakeOff.register(config);
-            strm.emfcompat.animationadditions.gesture.ArmorDon.register(config);
-            strm.emfcompat.animationadditions.gesture.HandTo.register(config);
-            strm.emfcompat.animationadditions.gesture.ContainerSearch.register(config);
-            strm.emfcompat.animationadditions.transport.TransportGrip.register(config);
-            TorsoLean.register(config);
-            PoseInertia.register(config);
-            ButtonPress.register(config);
-            strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.register(config);
-            BlockUse.register(config);
-            DoorHold.register(config);
-            Furniture.register(config);
-            Mining.register(config);
-            EjectorLaunch.register(config);
-            DebugLog.register(config);
+            // Read through EMFCompatConfig, every option below is off while this one is.
+            config.master(KEY_ENABLED, "Animation Additions", true,
+                    "On", "Every animation below works as it is set.",
+                    "Off", "Turn off every animation of this addon at once; the settings below are kept.");
+            // The groups are the screen's; the order inside one is the order of these calls.
+            ConfigRegistry.Group movement = config.group("movement", "Movement & body");
+            ConfigRegistry.Group surroundings = config.group("surroundings", "Hands & surroundings");
+            ConfigRegistry.Group blocks = config.group("blocks", "Blocks & controls");
+            ConfigRegistry.Group riding = config.group("riding", "Riding & transport");
+            ConfigRegistry.Group debug = config.group("debug", "Debug").collapsedByDefault();
+            FootGroundingFeature.register(movement);
+            TorsoLean.register(movement);
+            PoseInertia.register(movement);
+            WallHand.register(surroundings);
+            WallSqueeze.register(surroundings, debug);
+            PlantReach.register(surroundings);
+            LookAt.register(surroundings);
+            strm.emfcompat.animationadditions.leash.LeashHold.register(surroundings);
+            strm.emfcompat.animationadditions.pocket.PocketStash.register(surroundings);
+            strm.emfcompat.animationadditions.gesture.AnimalCare.register(surroundings);
+            strm.emfcompat.animationadditions.gesture.ShakeOff.register(surroundings);
+            strm.emfcompat.animationadditions.gesture.ArmorDon.register(surroundings);
+            ButtonPress.register(blocks);
+            strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.register(blocks);
+            BlockUse.register(blocks);
+            DoorHold.register(blocks);
+            Furniture.register(blocks);
+            Mining.register(blocks);
+            strm.emfcompat.animationadditions.gesture.HandTo.register(blocks);
+            strm.emfcompat.animationadditions.gesture.ContainerSearch.register(blocks);
+            EjectorLaunch.register(blocks);
+            HorseSync.register(riding, modEventBus);
+            strm.emfcompat.animationadditions.transport.TransportGrip.register(riding, debug);
+            DebugLog.register(debug);
             // Order is only the log's order; who wins is the arbiter's call.
             InteractionRuntime.register(WallHand.INSTANCE);
             InteractionRuntime.register(PlantReach.INSTANCE);

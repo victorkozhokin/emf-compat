@@ -22,11 +22,11 @@ public final class DebugLog {
     private DebugLog() {
     }
 
-    public static void register(ConfigRegistry.Section config) {
-        config.addBoolean(KEY_DECISIONS, "Log decisions (debug)", false,
+    public static void register(ConfigRegistry.Group config) {
+        config.addBoolean(KEY_DECISIONS, "Log decisions", false,
                         "On", "Log what each feature decides for each player whenever it changes - for debugging and the test baselines.",
                         "Off", "Keep the log quiet.")
-                .addBoolean(KEY_TRACE, "Trace (debug)", false,
+                .addBoolean(KEY_TRACE, "Trace feet, motion and hands", false,
                         "On", "Log what the feet, the motion and the hands measure and do, every frame they do anything - for debugging only, it floods the log.",
                         "Off", "No per-frame numbers in the log.");
     }

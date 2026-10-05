@@ -48,7 +48,7 @@ public final class ContainerSearch extends Gesture {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Look through open containers", true,
                 "On", "While a chest, a barrel or a shulker box is open, one hand holds its edge and the other looks through it.",
                 "Off", "Only opening it shows.");

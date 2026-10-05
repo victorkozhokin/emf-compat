@@ -59,7 +59,7 @@ public final class LookAt implements InteractionProvider {
         int targetId = -1;
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Look at nearby creatures", true,
                 "On", "Left idle for a while (walking is fine), the head turns to the nearest creature in view; do anything else and it looks where you look again.",
                 "Off", "The head always follows the camera.");

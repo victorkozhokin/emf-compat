@@ -69,7 +69,7 @@ public final class WallHand implements InteractionProvider {
     private WallHand() {
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Hand on the wall", true,
                 "On", "Standing at a wall, rest the hands on it: both facing it, the near one beside it.",
                 "Off", "Leave the arms to EMF.");

@@ -94,11 +94,11 @@ public final class TorsoLean {
         final ClearanceOffset contactBody = new ClearanceOffset(true);
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Torso lean", true,
                 "On", "The torso turns a little after the head and leans over the foot that carries the weight.",
                 "Off", "Leave the torso to EMF.");
-        config.addBoolean(KEY_MOTION, "Lean with the motion", true,
+        config.addChild(KEY_ENABLED, KEY_MOTION, "Lean with the motion", true,
                 "On", "The torso leans forwards speeding up, back braking, and into a turn.",
                 "Off", "No lean from how the player moves.");
     }

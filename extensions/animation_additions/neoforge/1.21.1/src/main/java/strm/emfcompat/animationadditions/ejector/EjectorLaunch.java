@@ -78,7 +78,7 @@ public final class EjectorLaunch {
         String logged = "off";
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Weighted ejector", true,
                 "On", "On a Create weighted ejector the body braces, and thrown by it flies arms up, then out.",
                 "Off", "Leave it to the pack's jump and fall.");

@@ -35,11 +35,11 @@ public final class TransportGrip implements InteractionProvider {
     }
     public String id(){return "TransportGrip";}
     public boolean isEnabled(){return EMFCompatConfig.getBoolean(KEY_ENABLED,true);}
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config, ConfigRegistry.Group debug) {
         config.addBoolean(KEY_ENABLED,"Brace on moving transport",true,
                 "On","Hold a nearby support with a free hand, plant the feet and counterbalance craft motion.",
                 "Off","Leave hands and stance unchanged on moving decks.");
-        config.addBoolean(KEY_TRACE,"Trace transport contacts",false,"On","Log transport contact and stance checks.","Off","No transport trace.");
+        debug.addBoolean(KEY_TRACE,"Trace transport contacts",false,"On","Log transport contact and stance checks.","Off","No transport trace.");
     }
     public void collect(InteractionContext context,List<Candidate> out) {
         var p=context.player();State s=STATES.seen(p.getUUID(),context.now()).value;

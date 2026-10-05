@@ -52,6 +52,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     mavenLocal()
+    mavenCentral()
     exclusiveContent {
         forRepository {
             maven { url = 'https://api.modrinth.com/maven' }
@@ -63,6 +64,14 @@ repositories {
 dependencies {
     compileOnly 'maven.modrinth:entity-model-features:3.3.2-neoforge-1.21'
     compileOnly 'maven.modrinth:entitytexturefeatures:7.2.1-neoforge-1.21'
+
+    // Unit tests of the game-free logic (the config screen's rows): no game needed.
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

@@ -30,7 +30,7 @@ public final class ShakeOff extends Gesture {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Shake off water, snow and mud", true,
                 "On", "Out of water, powder snow or mud, the player shakes it off once.",
                 "Off", "Nothing shows.");

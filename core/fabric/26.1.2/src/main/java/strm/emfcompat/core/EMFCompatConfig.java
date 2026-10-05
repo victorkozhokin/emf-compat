@@ -55,6 +55,9 @@ public final class EMFCompatConfig {
      * (first-person vanilla-model conditions, EMF un-pausing, animation spoofs) included. New
      * addons must follow the same naming to be covered. Use {@link #getBooleanRaw} to read the
      * stored value regardless (the config screen does, so it shows real settings).</p>
+     *
+     * <p>An option registered under a parent, or in a section with a master option, also reads as
+     * {@code false} while that one does ({@link ConfigRegistry#gateOf}).</p>
      */
     public static boolean getBoolean(String key, boolean defaultValue) {
         if (!EMFCompatCore.isCompatEnabled()
@@ -62,7 +65,11 @@ public final class EMFCompatConfig {
                 && !EMFCompatCore.KEY_COMPAT_ENABLED.equals(key)) {
             return false;
         }
-        return getBooleanRaw(key, defaultValue);
+        if (!getBooleanRaw(key, defaultValue)) {
+            return false;
+        }
+        String gate = ConfigRegistry.gateOf(key);
+        return gate == null || getBoolean(gate, ConfigRegistry.defaultOf(gate, true));
     }
 
     /** Reads the stored value of an option, ignoring the global switch. */

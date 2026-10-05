@@ -87,7 +87,7 @@ public final class Furniture implements InteractionProvider {
     private Furniture() {
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Lecterns and chests", true,
                 "On", "Looking at a lectern or a chest close by, both hands go to it; they lift a chest's lid as it opens.",
                 "Off", "Leave the arms to EMF.");

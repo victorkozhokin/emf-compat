@@ -172,9 +172,9 @@ public final class BlockUse implements InteractionProvider {
         final Quaternionf contactTurn = new Quaternionf();
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Use blocks by hand", true,
-                "On", "Looking at a block the hand can use - a chiseled bookshelf's slot - the hand goes to it, and puts in or takes out.",
+                "On", "Looking at a block the hand can use - shelves, workstations, Create and Supplementaries blocks, cockpit controls - the hand goes to it, and puts in, takes out, taps or holds on.",
                 "Off", "Leave the arms to EMF.");
     }
 

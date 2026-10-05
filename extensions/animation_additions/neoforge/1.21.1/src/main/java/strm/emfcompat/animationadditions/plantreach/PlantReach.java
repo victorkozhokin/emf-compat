@@ -67,7 +67,7 @@ public final class PlantReach implements InteractionProvider {
     private PlantReach() {
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Hands brush plants", true,
                 "On", "In grass, crops or flowers, the hands reach for the plants beside you.",
                 "Off", "Leave the arms to EMF.");

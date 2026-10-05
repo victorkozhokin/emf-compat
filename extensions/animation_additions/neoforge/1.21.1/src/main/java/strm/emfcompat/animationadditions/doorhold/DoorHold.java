@@ -67,7 +67,7 @@ public final class DoorHold implements InteractionProvider {
     private DoorHold() {
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Hold doors", true,
                 "On", "Near a door the hand on each leaf's side goes to its handle, and holds it going through.",
                 "Off", "Leave the arms to EMF.");

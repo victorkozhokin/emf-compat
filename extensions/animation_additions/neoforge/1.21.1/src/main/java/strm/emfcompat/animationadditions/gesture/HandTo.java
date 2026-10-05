@@ -41,7 +41,7 @@ public final class HandTo extends Gesture {
         return true;
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_STAND, "Dress an armour stand by hand", true,
                 "On", "Putting a piece on an armour stand or taking it off, the hand goes to that part of it.",
                 "Off", "Only the game's own arm swing.");

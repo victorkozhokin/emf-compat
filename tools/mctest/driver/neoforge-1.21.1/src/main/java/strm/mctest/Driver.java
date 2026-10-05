@@ -490,6 +490,31 @@ public final class Driver {
                             net.minecraft.world.inventory.ClickType.valueOf(c.has("type") ? c.get("type").getAsString() : "PICKUP"), p);
                     result.addProperty("menu", p.containerMenu.getClass().getSimpleName());
                 }
+                case "emfConfig" -> {
+                    // Opens the EMF Compat config screen on a tab: {"emfConfig": "<section id>"}.
+                    Class<?> type = Class.forName(CORE + "client.ConfigScreen");
+                    Object screen = type.getConstructor(net.minecraft.client.gui.screens.Screen.class).newInstance((Object) null);
+                    java.lang.reflect.Field tab = type.getDeclaredField("selectedSectionId");
+                    tab.setAccessible(true);
+                    tab.set(screen, v.getAsString());
+                    mc.setScreen((net.minecraft.client.gui.screens.Screen) screen);
+                }
+                case "guiScale" -> {
+                    mc.options.guiScale().set(v.getAsInt());
+                    mc.resizeDisplay();
+                }
+                case "screenClick" -> {
+                    // A left click on the open screen, in GUI pixels: {"screenClick": [x, y]}.
+                    double x = v.getAsJsonArray().get(0).getAsDouble(), y = v.getAsJsonArray().get(1).getAsDouble();
+                    result.addProperty("clicked", mc.screen != null && mc.screen.mouseClicked(x, y, 0));
+                    if (mc.screen != null) mc.screen.mouseReleased(x, y, 0);
+                }
+                case "screenScroll" -> {
+                    // The wheel over a point of the open screen: {"screenScroll": [x, y, amount]}.
+                    var a = v.getAsJsonArray();
+                    if (mc.screen != null) mc.screen.mouseScrolled(a.get(0).getAsDouble(), a.get(1).getAsDouble(), 0, a.get(2).getAsDouble());
+                    if (mc.screen != null) result.addProperty("size", mc.screen.width + "x" + mc.screen.height);
+                }
                 default -> throw new IllegalArgumentException("unknown step: " + kind);
             }
         }

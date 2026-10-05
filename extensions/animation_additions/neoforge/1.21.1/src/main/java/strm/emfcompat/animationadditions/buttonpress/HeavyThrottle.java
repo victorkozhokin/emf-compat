@@ -36,8 +36,8 @@ public final class HeavyThrottle implements InteractionProvider {
     }
     public String id() {return "HeavyThrottle";}
     public boolean isEnabled() {return ButtonPress.INSTANCE.isEnabled() && EMFCompatConfig.getBoolean(KEY,true);}
-    public static void register(ConfigRegistry.Section config) {
-        config.addBoolean(KEY,"Throttle effort",true,
+    public static void register(ConfigRegistry.Group config) {
+        config.addChild(ButtonPress.KEY_ENABLED,KEY,"Throttle effort",true,
             "On","Brace and transfer weight while dragging a Throttle; a free hand helps after a long stroke.",
             "Off","Use the ordinary single-hand Throttle pose.");
     }

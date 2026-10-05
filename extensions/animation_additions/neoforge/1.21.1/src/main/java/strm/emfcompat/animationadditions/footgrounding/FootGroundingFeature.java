@@ -32,14 +32,14 @@ public final class FootGroundingFeature {
     private FootGroundingFeature() {
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Foot IK (experimental)", true,
                 "On", "On uneven ground (steps, slabs) lower the body and raise the leg on the step, so both feet stand.",
                 "Off", "Leave the legs to EMF; one foot may hang in the air.")
-                .addBoolean(KEY_TERRAIN, "Balance on narrow supports and slopes", true,
+                .addChild(KEY_ENABLED, KEY_TERRAIN, "Balance on narrow supports and slopes", true,
                         "On", "Bring the feet onto narrow collision surfaces and balance with the torso and free arms.",
                         "Off", "Only correct the height of the feet.")
-                .addBoolean(KEY_HORSES, "Foot IK for horses", true,
+                .addChild(KEY_ENABLED, KEY_HORSES, "Foot IK for horses", true,
                         "On", "Horses, donkeys and mules also stand on uneven ground: the body is lowered and pitched, and the rider goes down with it.",
                         "Off", "Only players.");
         // Innermost: after everyone else has moved the rider (a cancelled draw never reaches the

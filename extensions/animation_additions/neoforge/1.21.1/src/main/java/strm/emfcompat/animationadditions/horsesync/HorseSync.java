@@ -18,7 +18,7 @@ public final class HorseSync {
     private HorseSync() {
     }
 
-    public static void register(ConfigRegistry.Section config, IEventBus modEventBus) {
+    public static void register(ConfigRegistry.Group config, IEventBus modEventBus) {
         // The riding seat is a low-priority base: action poses (guns, attacks) take the arms while
         // the seat keeps the legs/body.
         PoseManager.setSourcePriority(RIDING_SOURCE, -10);
@@ -26,7 +26,7 @@ public final class HorseSync {
         config.addBoolean(KEY_ENABLED, "Horse sync", true,
                         "On", "Sync the ridden-horse animation onto the EMF player model.",
                         "Off", "Disable horse-sync EMF compatibility.")
-                .addBoolean(KEY_RIDING_ANIMATION, "Riding animation", true,
+                .addChild(KEY_ENABLED, KEY_RIDING_ANIMATION, "Riding animation", true,
                         "On", "Play a proper riding pose (legs straddling, hands on the reins) while on a horse.",
                         "Off", "Leave the mounted pose to the vanilla / resource-pack animation.");
         modEventBus.addListener(HorseSync::onClientSetup);

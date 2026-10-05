@@ -48,7 +48,7 @@ public final class LeashHold implements InteractionProvider {
     }
     public String id() { return "LeashHold"; }
     public boolean isEnabled() { return EMFCompatConfig.getBoolean(KEY_ENABLED,true); }
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED,"Hold animal leads",true,
                 "On","Hold the real leash in one hand and brace against tension and outward jerks.",
                 "Off","Leave the lead and hand pose to Minecraft.");

@@ -55,7 +55,7 @@ public final class ArmorDon extends Gesture {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Put on armour and accessories", true,
                 "On", "A piece of armour or a Curios accessory put on takes both hands to where it is worn.",
                 "Off", "It just appears.");

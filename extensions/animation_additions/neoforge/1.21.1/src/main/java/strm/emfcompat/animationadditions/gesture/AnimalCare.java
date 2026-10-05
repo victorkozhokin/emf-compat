@@ -38,7 +38,7 @@ public final class AnimalCare extends Gesture {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Feed, milk and shear by hand", true,
                 "On", "Feeding an animal the hand goes to its mouth and the other strokes it; milking and shearing are done bent to the animal.",
                 "Off", "These show only the game's own arm swing.");

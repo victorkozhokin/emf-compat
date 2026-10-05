@@ -145,7 +145,7 @@ public final class Mining implements InteractionProvider {
         }
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Mining", true,
                 "On", "Breaking a block with a tool, the swing brings its head onto the point hit.",
                 "Off", "Leave the arms to EMF.");

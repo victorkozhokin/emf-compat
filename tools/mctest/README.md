@@ -98,6 +98,14 @@ For contact sheets and images outside MCP, import `server.py`:
 **Build first.** The sandbox takes our jars from `upload/`, which is filled by `./gradlew build`.
 A driver change needs `./gradlew -p tools/mctest/driver build`. Neither is run automatically.
 
+## The config screen
+
+NeoForge 1.21.1 driver only. `{"emfConfig": "<section id>"}` opens the EMF Compat config screen on that tab
+(`core`, `emf_compat_animation_additions`, ...); `{"screenClick": [x, y]}` is a left click and
+`{"screenScroll": [x, y, amount]}` the wheel, both in GUI pixels (the scroll step answers with the screen's
+`size`); `{"guiScale": 3}` changes the scale, 0 is auto. `closeScreen` leaves without saving, so a `Reset`
+clicked in a script stays in memory only - but it does turn `debug.decisions` off for the rest of the launch.
+
 ## Animation Additions baseline
 
 **Since 05.10.2026.** The decision lines (`[FootGrounding] ... stride`, `[ButtonPress] ... hover-R`) are behind

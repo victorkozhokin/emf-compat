@@ -75,7 +75,7 @@ public final class PoseInertia {
         }
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Pose inertia", true,
                 "On", "When the pack cuts from one pose to another, the limbs carry on and settle into it instead of jumping.",
                 "Off", "Leave the pack's animation as it is.");

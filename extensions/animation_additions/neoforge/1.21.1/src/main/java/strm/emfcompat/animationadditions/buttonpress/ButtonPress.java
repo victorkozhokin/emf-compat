@@ -165,12 +165,12 @@ public final class ButtonPress implements InteractionProvider {
         long tracedAt;
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Press buttons", true,
                 "On", "The right hand reaches for a button or a lever in reach before it is used; a foot stamps on a button on the floor.",
                 "Off", "Leave the arms and legs to EMF.");
         config.addBoolean(KEY_STRETCH, "Reaching pose", true,
-                "On", "Reaching past the arm's length, the torso leans after the hand, the left arm and leg go back to balance it.",
+                "On", "Reaching past the arm's length for a button, a lever or a block, the torso leans after the hand, the left arm and leg go back to balance it.",
                 "Off", "Only the hand reaches.");
     }
 

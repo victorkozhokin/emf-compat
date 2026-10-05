@@ -76,7 +76,7 @@ public final class PocketStash implements InteractionProvider {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }
 
-    public static void register(ConfigRegistry.Section config) {
+    public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Pocket what was picked up", true,
                 "On", "A moment after picking items up, the player glances down and tucks them away at the hip.",
                 "Off", "Picking items up shows nothing.");
