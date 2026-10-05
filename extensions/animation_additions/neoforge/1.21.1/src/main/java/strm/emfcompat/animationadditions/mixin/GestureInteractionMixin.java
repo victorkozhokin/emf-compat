@@ -1,6 +1,7 @@
 package strm.emfcompat.animationadditions.mixin;
 
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
+import net.minecraft.core.Direction;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -26,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import strm.emfcompat.animationadditions.gesture.AnimalCare;
+import strm.emfcompat.animationadditions.gesture.Gesture;
 import strm.emfcompat.animationadditions.gesture.HandTo;
 
 /**
@@ -37,6 +40,40 @@ import strm.emfcompat.animationadditions.gesture.HandTo;
 public class GestureInteractionMixin {
     @Unique
     private ItemStack emfcompat$used = ItemStack.EMPTY;
+
+    /**
+     * With the option on, a click that one of the gestures answers is held back: the hand goes to its
+     * place first and the click is let through when it gets there (it comes this way again, marked).
+     */
+    @Inject(method = "interact", at = @At("HEAD"), cancellable = true)
+    private void emfcompat$holdCare(Player player, Entity target, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+        if (Gesture.replaying() || !Gesture.actsAfter() || !(player instanceof AbstractClientPlayer client)) return;
+        int kind = AnimalCare.kindOf(player.getItemInHand(hand), target);
+        MultiPlayerGameMode game = (MultiPlayerGameMode) (Object) this;
+        if (kind >= 0 && AnimalCare.hold(client, target, kind, hand == InteractionHand.MAIN_HAND,
+                () -> Gesture.replay(() -> game.interact(player, target, hand)))) cir.setReturnValue(InteractionResult.CONSUME);
+    }
+
+    @Inject(method = "interactAt", at = @At("HEAD"), cancellable = true)
+    private void emfcompat$holdStand(Player player, Entity target, EntityHitResult ray, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+        if (Gesture.replaying() || !Gesture.actsAfter() || !(target instanceof ArmorStand) || !(player instanceof AbstractClientPlayer client)) return;
+        ItemStack held = player.getItemInHand(hand);
+        if (!(held.getItem() instanceof ArmorItem) && !(held.isEmpty() && hand == InteractionHand.MAIN_HAND)) return;
+        MultiPlayerGameMode game = (MultiPlayerGameMode) (Object) this;
+        if (HandTo.hold(client, HandTo.STAND, ray.getLocation(), hand == InteractionHand.MAIN_HAND,
+                () -> Gesture.replay(() -> game.interactAt(player, target, ray, hand)))) cir.setReturnValue(InteractionResult.CONSUME);
+    }
+
+    @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
+    private void emfcompat$holdSeed(LocalPlayer player, InteractionHand hand, BlockHitResult result, CallbackInfoReturnable<InteractionResult> cir) {
+        if (Gesture.replaying() || !Gesture.actsAfter() || result.getDirection() != Direction.UP) return;
+        if (!(player.getItemInHand(hand).getItem() instanceof BlockItem seed) || !HandTo.plants(seed)) return;
+        if (!seed.getBlock().defaultBlockState().canSurvive(player.level(), result.getBlockPos().above())
+                || !player.level().getBlockState(result.getBlockPos().above()).isAir()) return;
+        MultiPlayerGameMode game = (MultiPlayerGameMode) (Object) this;
+        if (HandTo.hold(player, HandTo.SEED, result.getLocation(), hand == InteractionHand.MAIN_HAND,
+                () -> Gesture.replay(() -> game.useItemOn(player, hand, result)))) cir.setReturnValue(InteractionResult.CONSUME);
+    }
 
     @Inject(method = "interact", at = @At("HEAD"))
     private void emfcompat$before(Player player, Entity target, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {

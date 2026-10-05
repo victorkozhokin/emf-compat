@@ -56,6 +56,13 @@ public final class HandTo extends Gesture {
         play.right = (player.getMainArm() == HumanoidArm.RIGHT) == mainHand;
     }
 
+    /** The click is held back until the hand is at the point; {@code false}: let it through now. */
+    public static boolean hold(AbstractClientPlayer player, int kind, Vec3 point, boolean mainHand, Runnable click) {
+        if (!EMFCompatConfig.getBoolean(kind == STAND ? KEY_STAND : KEY_SEEDS, true) || !INSTANCE.defer(player, kind, point, click)) return false;
+        INSTANCE.play(player).right = (player.getMainArm() == HumanoidArm.RIGHT) == mainHand;
+        return true;
+    }
+
     protected boolean poises() {
         return true;
     }

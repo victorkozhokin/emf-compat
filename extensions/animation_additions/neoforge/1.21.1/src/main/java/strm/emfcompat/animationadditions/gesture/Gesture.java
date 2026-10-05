@@ -43,6 +43,36 @@ public abstract class Gesture implements InteractionProvider {
     private static final float NECK = (float) Math.toRadians(70);
     private static final Vector3f HOME = new Vector3f();
 
+    /** Off by default: the game does what was clicked at once and the gesture goes with it. */
+    public static final String KEY_ACT_AFTER = "gesture.actAfter";
+
+    public static void register(strm.emfcompat.core.ConfigRegistry.Group config) {
+        config.addBoolean(KEY_ACT_AFTER, "Act when the hand gets there", false,
+                "On", "Feeding, milking, shearing, dressing a stand and planting happen when the hand reaches its place, a moment after the click - not before the hand has moved.",
+                "Off", "The game acts on the click at once, as it always does; the hand finishes its way after.");
+    }
+
+    public static boolean actsAfter() {
+        return strm.emfcompat.core.EMFCompatConfig.getBoolean(KEY_ACT_AFTER, false);
+    }
+
+    private static boolean replaying;
+
+    /** Whether the click now going through the game is one held back earlier, on its way at last. */
+    public static boolean replaying() {
+        return replaying;
+    }
+
+    /** Lets a held-back click through. */
+    public static void replay(Runnable click) {
+        replaying = true;
+        try {
+            click.run();
+        } finally {
+            replaying = false;
+        }
+    }
+
     /** What a gesture asks for at one moment. Angles in radians, points in model pixels. */
     public static final class Pose {
         /** {xRot, yRot, zRot, the whole arm moved along y}; {@code null} leaves the arm alone. */

@@ -78,6 +78,7 @@ public class EMFCompatAnimationAdditionsMod {
             LookAt.register(surroundings);
             strm.emfcompat.animationadditions.leash.LeashHold.register(surroundings);
             strm.emfcompat.animationadditions.pocket.PocketStash.register(surroundings);
+            strm.emfcompat.animationadditions.gesture.Gesture.register(surroundings);
             strm.emfcompat.animationadditions.gesture.AnimalCare.register(surroundings);
             strm.emfcompat.animationadditions.gesture.ShakeOff.register(surroundings);
             strm.emfcompat.animationadditions.gesture.ArmorDon.register(surroundings);

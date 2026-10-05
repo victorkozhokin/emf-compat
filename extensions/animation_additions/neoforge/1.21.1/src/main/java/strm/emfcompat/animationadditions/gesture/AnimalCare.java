@@ -63,12 +63,7 @@ public final class AnimalCare extends Gesture {
         Entity target = hit.getEntity();
         AbstractClientPlayer player = context.player();
         for (InteractionHand hand : InteractionHand.values()) {
-            ItemStack stack = player.getItemInHand(hand);
-            int kind = stack.is(Items.SHEARS) && target instanceof Shearable wool && wool.readyForShearing() ? SHEAR
-                    : stack.is(Items.BUCKET) && (target instanceof Cow || target instanceof Goat) && !((Animal) target).isBaby() ? MILK
-                    : target instanceof Animal animal && !stack.isEmpty() && animal.isFood(stack)
-                    // All the client knows of whether it will eat: not in love already. (Its age is the server's.)
-                    && (animal.isBaby() || animal.canFallInLove()) ? FEED : -1;
+            int kind = kindOf(player.getItemInHand(hand), target);
             if (kind < 0) continue;
             if (!play.acted) {
                 play.kind = kind;
@@ -85,6 +80,24 @@ public final class AnimalCare extends Gesture {
     protected boolean lost(Play play) {
         Entity animal = play.player.level().getEntity(play.entity);
         return animal == null || !animal.isAlive() || animal.distanceTo(play.player) > 4.2f;
+    }
+
+    /** What this in the hand would do to that animal: FEED, MILK, SHEAR, or -1 for nothing of ours. */
+    public static int kindOf(ItemStack stack, Entity target) {
+        if (stack.is(Items.SHEARS) && target instanceof Shearable wool && wool.readyForShearing()) return SHEAR;
+        if (stack.is(Items.BUCKET) && (target instanceof Cow || target instanceof Goat) && !((Animal) target).isBaby()) return MILK;
+        // All the client knows of whether it will eat: not in love already. (Its age is the server's.)
+        return target instanceof Animal animal && !stack.isEmpty() && animal.isFood(stack)
+                && (animal.isBaby() || animal.canFallInLove()) ? FEED : -1;
+    }
+
+    /** The click is held back until the hand is at the animal; {@code false}: let it through now. */
+    public static boolean hold(AbstractClientPlayer player, Entity animal, int kind, boolean mainHand, Runnable click) {
+        if (!INSTANCE.isEnabled() || !INSTANCE.defer(player, kind, animal.position(), click)) return false;
+        Play play = INSTANCE.play(player);
+        play.entity = animal.getId();
+        play.right = (player.getMainArm() == HumanoidArm.RIGHT) == mainHand;
+        return true;
     }
 
     protected float approach(Play play) {
