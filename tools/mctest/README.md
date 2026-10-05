@@ -100,6 +100,24 @@ A driver change needs `./gradlew -p tools/mctest/driver build`. Neither is run a
 
 ## Animation Additions baseline
 
+**Since 05.10.2026.** The decision lines (`[FootGrounding] ... stride`, `[ButtonPress] ... hover-R`) are behind
+`debug.decisions`, off for players. `mctest.py launch` sets it in the sandbox's copy of `config/emf_compat.json`;
+the MCP server keeps the `mctest.py` it started with, so until it is restarted a launch through MCP does not -
+turn it on with `{"config": {"debug.decisions": true}}`. Three trace switches exist: `footgrounding.trace`,
+`wallhand.trace`, `transport.trace`; `interaction_regression.scene()` turns some on, so a timing run sets all
+three to false. Do not run a `packs` step before the baseline: the profile's own selection is the right one, and
+`"FA+Player"` matches the folder `FA+Player-v1.1 CSA Compat` rather than `FA+Player-v1.1.zip`.
+
+Run to run on one build the decisions differ only in `horse/rider-tilt` (`off:state` or `off:airborne` at the
+mount), the horse's lines in `horse/ride-stairs`, `WallHand front` on the walk up to the wall button, and
+`chest` / `chest-open`. A difference anywhere else is real.
+
+Two cockpit verifiers are not a regression signal as they stand: `verify_cockpit.py` fails with "Camera hover
+freed a hand" whenever the first trace sample of `right` / `left` falls between the look and the hold, and
+`verify_cockpit_mixed.py` reports `left-typing-again` at 0.137-0.151 against its 0.13 on every build.
+`verify_cockpit_smooth.py` needs the reference gallery `build/cockpit-seat-clearance-mixed`.
+
+
 Retaken 25.09.2026 on `experimental/animations-additions` at `66f1ed7` (first taken at `893a5d0`),
 NeoForge 1.21.1, profile `Test` launched with `--name STRadaT --uuid
 e750dfddf54d418babd46776ce404f09 --disable icys-better-horses,watut,emf_compat_watut`, packs Fresh
