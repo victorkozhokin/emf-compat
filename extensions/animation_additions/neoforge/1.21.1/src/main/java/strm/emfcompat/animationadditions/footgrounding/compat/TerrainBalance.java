@@ -42,13 +42,18 @@ final class TerrainBalance {
     private boolean raisedCollision;
     private float contactDrop;
 
+    /** Standing still and not turning, the ground is scanned again this often: for a block put down or broken. */
+    private static final long STILL_EVERY_NANOS = 250_000_000L;
+
     void solve(AbstractClientPlayer player, IKFrame frame, float[] r, float[] l, double dt) {
         long now = System.nanoTime();
         Vec3 centre = frame.jointWorld(new Vector3f(0, 24, 0));
-        // Expensive terrain scan at 20 Hz, contact correction every solve. Motion and turns
-        // invalidate earlier, so stepping off an edge never waits for the next scan.
+        // The terrain scan is the expensive part - 81 floor probes and more - the contact correction
+        // runs every solve. Motion and turns bring a new scan at once, so stepping off an edge never
+        // waits; standing still only the world can change under the feet, and that is looked for
+        // four times a second.
         if (sampledPosition == null || sampledPosition.distanceToSqr(centre) > 0.0025
-                || Math.abs(player.yBodyRot - sampledYaw) > 4 || now - sampledAt > 50_000_000L) {
+                || Math.abs(player.yBodyRot - sampledYaw) > 4 || now - sampledAt > STILL_EVERY_NANOS) {
             sampledAt = now; sampledPosition = centre; sampledYaw = player.yBodyRot;
             List<SubLevels.Space> spaces = SubLevels.around(player.level(),
                     new AABB(centre, centre).inflate(1));

@@ -92,7 +92,7 @@ public final class FootGrounding {
     private static final long REACH_HOLD_NANOS = 1_500_000_000L;
     private static final float REACH_KEEP = 1.5f;
     /** Standing still the ground does not change: the step is looked for this often, not every frame. */
-    private static final long REACH_EVERY_NANOS = 100_000_000L;
+    private static final long REACH_EVERY_NANOS = 250_000_000L;
 
     /** The player model's scale: model pixels are 1/16 of a block times this. */
     private static final float SCALE = Skeleton.SCALE;
