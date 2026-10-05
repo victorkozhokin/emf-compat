@@ -34,6 +34,8 @@ final class WallStance {
             long now=System.nanoTime();double dt=at==0 ? 0 : Math.min(.1,(now-at)*1e-9);
             at=now;draw=counter;
             turn+=( (ground ? requestedTurn : 0)-turn)*Smoothing.follow(dt,.16);
+            // Faded out to nothing worth a step: exactly none, so standing clear of walls asks nothing of the feet.
+            if(requestedTurn==0 && Math.abs(turn)<1e-5f)turn=0;
             if(!ground) {stepping=-1;for(var f:feet)f.mul(1-Smoothing.follow(dt,.12));}
             else {
                 Vector3f[] targets=new Vector3f[2];
@@ -43,7 +45,8 @@ final class WallStance {
                     // alternating steps forever while the player stands still.
                     Vector3f relative=new Vector3f(i==0 ? -2 : 2,0,0);
                     targets[i]=WallStanceMath.offset(relative,turn);
-                    if(!safe(player,space,legs[i],feet[i],targets[i]))targets[i].zero();
+                    // A foot asked to go nowhere needs no ground looked for: 27 rays a foot, every frame, saved.
+                    if(targets[i].lengthSquared()>0 && !safe(player,space,legs[i],feet[i],targets[i]))targets[i].zero();
                 }
                 if(moving) {
                     stepping=-1;
