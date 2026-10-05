@@ -11,6 +11,7 @@
     "LeashPlayerMixin",
     "LeashInteractionMixin",
     "ItemPickupMixin",
+    "GestureInteractionMixin",
     "LevelRendererAccessor"
   ],
   "injectors": {

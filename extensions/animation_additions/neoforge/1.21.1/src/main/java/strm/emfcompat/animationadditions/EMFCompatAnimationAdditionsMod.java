@@ -44,6 +44,8 @@ import strm.emfcompat.animationadditions.wallhand.WallSqueeze;
  *   <li>{@code torso} - the torso leans with the motion, after the head and over the foot that carries the weight;</li>
  *   <li>{@code mining} - breaking a block, the swing brings the tool's head onto the point hit;</li>
  *   <li>{@code pocket} - a moment after a run of pick-ups the right hand tucks it all away at the hip;</li>
+ *   <li>{@code gesture} - short gestures after a real action: feeding, milking and shearing, an armour stand,
+ *       a seed planted, armour and accessories put on, a shake after water, looking through a container;</li>
  *   <li>{@code ejector} - on a Create weighted ejector the body braces, and flies when thrown.</li>
  * </ul>
  */
@@ -63,6 +65,11 @@ public class EMFCompatAnimationAdditionsMod {
             LookAt.register(config);
             strm.emfcompat.animationadditions.leash.LeashHold.register(config);
             strm.emfcompat.animationadditions.pocket.PocketStash.register(config);
+            strm.emfcompat.animationadditions.gesture.AnimalCare.register(config);
+            strm.emfcompat.animationadditions.gesture.ShakeOff.register(config);
+            strm.emfcompat.animationadditions.gesture.ArmorDon.register(config);
+            strm.emfcompat.animationadditions.gesture.HandTo.register(config);
+            strm.emfcompat.animationadditions.gesture.ContainerSearch.register(config);
             strm.emfcompat.animationadditions.transport.TransportGrip.register(config);
             TorsoLean.register(config);
             PoseInertia.register(config);
@@ -80,6 +87,11 @@ public class EMFCompatAnimationAdditionsMod {
             InteractionRuntime.register(LookAt.INSTANCE);
             InteractionRuntime.register(strm.emfcompat.animationadditions.leash.LeashHold.INSTANCE);
             InteractionRuntime.register(strm.emfcompat.animationadditions.pocket.PocketStash.INSTANCE);
+            InteractionRuntime.register(strm.emfcompat.animationadditions.gesture.AnimalCare.INSTANCE);
+            InteractionRuntime.register(strm.emfcompat.animationadditions.gesture.HandTo.INSTANCE);
+            InteractionRuntime.register(strm.emfcompat.animationadditions.gesture.ShakeOff.INSTANCE);
+            InteractionRuntime.register(strm.emfcompat.animationadditions.gesture.ArmorDon.INSTANCE);
+            InteractionRuntime.register(strm.emfcompat.animationadditions.gesture.ContainerSearch.INSTANCE);
             InteractionRuntime.register(strm.emfcompat.animationadditions.transport.TransportGrip.INSTANCE);
             InteractionRuntime.register(ButtonPress.INSTANCE);
             InteractionRuntime.register(strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.INSTANCE);

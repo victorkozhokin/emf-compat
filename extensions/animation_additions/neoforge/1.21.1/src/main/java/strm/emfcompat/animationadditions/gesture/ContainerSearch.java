@@ -1,0 +1,136 @@
+package strm.emfcompat.animationadditions.gesture;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BarrelBlock;
+import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.LidBlockEntity;
+import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import strm.emfcompat.animationadditions.interaction.InteractionContext;
+import strm.emfcompat.core.ConfigRegistry;
+import strm.emfcompat.core.EMFCompatConfig;
+
+/**
+ * Looking through a container: while a chest, a barrel or a shulker box the player faces stands
+ * open, one hand rests on its near edge and the other goes in and moves about, dipping now and
+ * then; the body leans over it. It lasts as long as the container is open, and ends with both
+ * hands drawn back. Whose container it is cannot be read from the game - it is the open one a
+ * player looks at from within reach; for this player, the one whose screen is up.
+ */
+public final class ContainerSearch extends Gesture {
+    public static final ContainerSearch INSTANCE = new ContainerSearch();
+    public static final String KEY_ENABLED = "containersearch.enabled";
+    private static final long LOOK_EVERY_NANOS = 250_000_000L;
+    private static final double REACH = 4.5;
+    private static final float HOLD = .5f;
+
+    private static final class Open {
+        BlockPos pos;
+        boolean open;
+        long lookedAt;
+    }
+
+    public String id() {
+        return "ContainerSearch";
+    }
+
+    public boolean isEnabled() {
+        return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
+    }
+
+    public static void register(ConfigRegistry.Section config) {
+        config.addBoolean(KEY_ENABLED, "Look through open containers", true,
+                "On", "While a chest, a barrel or a shulker box is open, one hand holds its edge and the other looks through it.",
+                "Off", "Only opening it shows.");
+    }
+
+    protected boolean watches() {
+        return true;
+    }
+
+    protected void watch(InteractionContext context, Play play) {
+        long now = context.now();
+        Open open = play.notes instanceof Open notes ? notes : new Open();
+        play.notes = open;
+        if (now - open.lookedAt < LOOK_EVERY_NANOS) return;
+        open.lookedAt = now;
+        AbstractClientPlayer player = context.player();
+        BlockPos pos = looked(player);
+        if (pos != null && !opened(player, pos)) pos = null;
+        // The one it started with is kept while it stays open, wherever the eyes wander inside it.
+        if (open.pos != null && play.playing && pos == null && opened(player, open.pos)
+                && player.getEyePosition().distanceTo(Vec3.atCenterOf(open.pos)) < REACH + 1) pos = open.pos;
+        open.open = pos != null;
+        if (pos == null) return;
+        open.pos = pos;
+        if (!play.playing && !play.pending && isEnabled()) {
+            Play started = trigger(player, 0, Vec3.atCenterOf(pos));
+            started.right = player.getMainArm() == HumanoidArm.RIGHT;
+        }
+    }
+
+    private static BlockPos looked(AbstractClientPlayer player) {
+        Minecraft mc = Minecraft.getInstance();
+        HitResult hit = player == mc.player ? mc.hitResult : player.pick(REACH, 1f, false);
+        return hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK ? block.getBlockPos() : null;
+    }
+
+    private static boolean opened(AbstractClientPlayer player, BlockPos pos) {
+        Level level = player.level();
+        BlockEntity entity = level.getBlockEntity(pos);
+        if (entity == null) return false;
+        Minecraft mc = Minecraft.getInstance();
+        // This player's own: the screen is the word on it, also for what has no lid to watch.
+        if (player == mc.player && mc.screen instanceof AbstractContainerScreen<?> && entity instanceof BaseContainerBlockEntity) return true;
+        if (entity instanceof ShulkerBoxBlockEntity shulker) return shulker.getProgress(1f) > .05f;
+        if (entity instanceof LidBlockEntity lid) return lid.getOpenNess(1f) > .05f;
+        BlockState state = level.getBlockState(pos);
+        return state.hasProperty(BarrelBlock.OPEN) && state.getValue(BarrelBlock.OPEN);
+    }
+
+    protected float holdAt() {
+        return HOLD;
+    }
+
+    protected boolean sustain(Play play) {
+        return play.notes instanceof Open open && open.open && isEnabled();
+    }
+
+    protected double seconds(Play play) {
+        return 1.5;
+    }
+
+    protected void pose(Play play, float phase, Pose out) {
+        if (!(play.notes instanceof Open open) || open.pos == null) return;
+        float in = phase <= HOLD ? smooth(phase / (HOLD - .04f)) : 1 - smooth((phase - HOLD) / .4f);
+        float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        Vec3 middle = Vec3.atCenterOf(open.pos);
+        Vec3 side = play.player.getPosition(partial).subtract(middle).multiply(1, 0, 1);
+        side = side.lengthSqr() < 1e-6 ? new Vec3(0, 0, 1) : side.normalize();
+        Vec3 along = new Vec3(-side.z, 0, side.x);
+        boolean right = play.right;
+        // In it: round and round, and a dip every second or so as something is taken hold of.
+        double turn = play.held * 2.3, beat = (play.held % 1.25f) / 1.25f;
+        double dip = beat < .28 ? Math.sin(Math.PI * beat / .28) : 0;
+        Vec3 inside = middle.add(0, .28 - .12 * dip, 0).add(side.scale(.1 + .1 * Math.sin(turn)))
+                .add(along.scale(.16 * Math.cos(turn * .7) * (right ? -1 : 1)));
+        Vec3 rim = middle.add(0, .46, 0).add(side.scale(.42)).add(along.scale(right ? .3 : -.3));
+        out.hand(right, model(play, inside), in);
+        out.hand(!right, model(play, rim), in);
+        out.pitch = in * ((float) Math.toRadians(8) + Reach.low(model(play, inside).y) * (float) Math.toRadians(22));
+        out.head = new float[]{.22f * in, (float) (.08 * Math.sin(turn * .5) * in)};
+        out.apart = phase > .04f && phase < HOLD + .2f;
+        AnimalCare.foot(out, right, 1.1f, .7f, .5f);
+        out.letGo = .92f;
+    }
+}
