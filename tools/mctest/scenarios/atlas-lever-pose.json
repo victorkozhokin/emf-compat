@@ -1,0 +1,1794 @@
+[
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 350 152 7.5"
+  },
+  {
+    "wait": 30
+  },
+  {
+    "cmd": "fill 345 150 4 360 155 12 air"
+  },
+  {
+    "cmd": "fill 345 149 4 360 149 12 smooth_stone"
+  },
+  {
+    "cmd": "time set noon"
+  },
+  {
+    "cmd": "gamemode survival"
+  },
+  {
+    "config": {
+      "parcool.enabled": false,
+      "footgrounding.trace": true,
+      "lookat.enabled": false,
+      "blockuse.enabled": true,
+      "buttonpress.enabled": true,
+      "doorhold.enabled": true,
+      "furniture.enabled": true
+    }
+  },
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 345 150 7.5"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "cmd": "fill 349 150 6 353 154 8 air"
+  },
+  {
+    "cmd": "setblock 352 151 7 stone"
+  },
+  {
+    "cmd": "setblock 351 151 7 lever[face=wall,facing=west]"
+  },
+  {
+    "cmd": "item replace entity @s weapon.mainhand with air"
+  },
+  {
+    "cmd": "tp @s 350.7 150 7.5 -90 8.53"
+  },
+  {
+    "look": [
+      -90,
+      8.530765609948332
+    ]
+  },
+  {
+    "camera": "back"
+  },
+  {
+    "orbit": [
+      60,
+      10,
+      3
+    ]
+  },
+  {
+    "hideGui": true
+  },
+  {
+    "hideScreen": true
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "wait": 25
+  },
+  {
+    "cmd": "tp @s 350.7 150 7.5 -90 8.53"
+  },
+  {
+    "wait": 5
+  },
+  {
+    "log": "interaction START wall"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "levercase:wall"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-hover"
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-on-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-on-01"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-on-02"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-on-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-on-04"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-on-05"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-on-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-on-07"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-on-08"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-on-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-on-10"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-on-11"
+  },
+  {
+    "wait": 15
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-off-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-off-01"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-off-02"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-off-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-off-04"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-off-05"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-off-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-off-07"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-off-08"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-off-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-off-10"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-off-11"
+  },
+  {
+    "wait": 15
+  },
+  {
+    "log": "leverend:wall"
+  },
+  {
+    "cmd": "setblock 351 151 7 air"
+  },
+  {
+    "wait": 45
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-wall-release"
+  },
+  {
+    "log": "leverreleased:wall"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 345 150 7.5"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "cmd": "fill 349 150 6 353 154 8 air"
+  },
+  {
+    "cmd": "setblock 352 151 7 stone"
+  },
+  {
+    "cmd": "setblock 351 150 7 lever[face=floor,facing=west]"
+  },
+  {
+    "cmd": "item replace entity @s weapon.mainhand with air"
+  },
+  {
+    "cmd": "tp @s 350.7 150 7.5 -90 60.60"
+  },
+  {
+    "look": [
+      -90,
+      60.60394714505667
+    ]
+  },
+  {
+    "camera": "back"
+  },
+  {
+    "orbit": [
+      60,
+      10,
+      3
+    ]
+  },
+  {
+    "hideGui": true
+  },
+  {
+    "hideScreen": true
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "wait": 25
+  },
+  {
+    "cmd": "tp @s 350.7 150 7.5 -90 60.60"
+  },
+  {
+    "wait": 5
+  },
+  {
+    "log": "interaction START floor"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "levercase:floor"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-hover"
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-on-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-on-01"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-on-02"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-on-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-on-04"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-on-05"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-on-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-on-07"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-on-08"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-on-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-on-10"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-on-11"
+  },
+  {
+    "wait": 15
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-off-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-off-01"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-off-02"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-off-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-off-04"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-off-05"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-off-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-off-07"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-off-08"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-off-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-off-10"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-off-11"
+  },
+  {
+    "wait": 15
+  },
+  {
+    "log": "leverend:floor"
+  },
+  {
+    "cmd": "setblock 351 150 7 air"
+  },
+  {
+    "wait": 45
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-release"
+  },
+  {
+    "log": "leverreleased:floor"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 345 150 7.5"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "cmd": "fill 349 150 6 353 154 8 air"
+  },
+  {
+    "cmd": "setblock 352 151 7 stone"
+  },
+  {
+    "cmd": "setblock 351 150 7 lever[face=floor,facing=west]"
+  },
+  {
+    "cmd": "item replace entity @s weapon.mainhand with air"
+  },
+  {
+    "cmd": "tp @s 350.7 150 7.5 -90 53.22"
+  },
+  {
+    "look": [
+      -90,
+      53.215874415103265
+    ]
+  },
+  {
+    "camera": "back"
+  },
+  {
+    "orbit": [
+      60,
+      10,
+      3
+    ]
+  },
+  {
+    "hideGui": true
+  },
+  {
+    "hideScreen": true
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "hold": "sneak"
+  },
+  {
+    "wait": 25
+  },
+  {
+    "cmd": "tp @s 350.7 150 7.5 -90 53.22"
+  },
+  {
+    "wait": 5
+  },
+  {
+    "log": "interaction START floor-crouch"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "levercase:floor-crouch"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-hover"
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-on-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-on-01"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-on-02"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-on-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-on-04"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-on-05"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-on-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-on-07"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-on-08"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-on-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-on-10"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-on-11"
+  },
+  {
+    "wait": 15
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-off-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-off-01"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-off-02"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-off-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-off-04"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-off-05"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-off-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-off-07"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-off-08"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-off-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-off-10"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-off-11"
+  },
+  {
+    "wait": 15
+  },
+  {
+    "log": "leverend:floor-crouch"
+  },
+  {
+    "cmd": "setblock 351 150 7 air"
+  },
+  {
+    "wait": 45
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-floor-crouch-release"
+  },
+  {
+    "log": "leverreleased:floor-crouch"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 345 150 7.5"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "cmd": "fill 349 150 6 353 154 8 air"
+  },
+  {
+    "cmd": "setblock 352 151 7 stone"
+  },
+  {
+    "cmd": "setblock 352 152 7 stone"
+  },
+  {
+    "cmd": "setblock 351 152 7 lever[face=wall,facing=west]"
+  },
+  {
+    "cmd": "item replace entity @s weapon.mainhand with air"
+  },
+  {
+    "cmd": "tp @s 350.7 150 7.5 -90 -47.73"
+  },
+  {
+    "look": [
+      -90,
+      -47.72631099390571
+    ]
+  },
+  {
+    "camera": "back"
+  },
+  {
+    "orbit": [
+      60,
+      10,
+      3
+    ]
+  },
+  {
+    "hideGui": true
+  },
+  {
+    "hideScreen": true
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "wait": 25
+  },
+  {
+    "cmd": "tp @s 350.7 150 7.5 -90 -47.73"
+  },
+  {
+    "wait": 5
+  },
+  {
+    "log": "interaction START high"
+  },
+  {
+    "state": true
+  },
+  {
+    "log": "levercase:high"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-hover"
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-on-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-on-01"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-on-02"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-on-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-on-04"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-on-05"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-on-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-on-07"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-on-08"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-on-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-on-10"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-on-11"
+  },
+  {
+    "wait": 15
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-off-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-off-01"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-off-02"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-off-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-off-04"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-off-05"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-off-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-off-07"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-off-08"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-off-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-off-10"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-off-11"
+  },
+  {
+    "wait": 15
+  },
+  {
+    "log": "leverend:high"
+  },
+  {
+    "cmd": "setblock 351 152 7 air"
+  },
+  {
+    "wait": 45
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-high-release"
+  },
+  {
+    "log": "leverreleased:high"
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 345 150 7.5"
+  },
+  {
+    "wait": 3
+  },
+  {
+    "cmd": "fill 349 150 6 353 154 8 air"
+  },
+  {
+    "cmd": "setblock 352 151 7 stone"
+  },
+  {
+    "cmd": "setblock 351 151 7 lever[face=wall,facing=west]"
+  },
+  {
+    "cmd": "item replace entity @s weapon.mainhand with air"
+  },
+  {
+    "cmd": "tp @s 350.7 150 7.5 -90 8.53"
+  },
+  {
+    "look": [
+      -90,
+      8.530765609948332
+    ]
+  },
+  {
+    "camera": "back"
+  },
+  {
+    "orbit": [
+      60,
+      10,
+      3
+    ]
+  },
+  {
+    "hideGui": true
+  },
+  {
+    "hideScreen": true
+  },
+  {
+    "hold": "forward"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "wait": 25
+  },
+  {
+    "cmd": "tp @s 350.7 150 7.5 -90 8.53"
+  },
+  {
+    "wait": 5
+  },
+  {
+    "log": "interaction START side"
+  },
+  {
+    "state": true
+  },
+  {
+    "cmd": "tp @s 350.7 150 7.88 -90 8.8"
+  },
+  {
+    "look": [
+      -90,
+      8.8
+    ]
+  },
+  {
+    "wait": 15
+  },
+  {
+    "log": "levercase:side"
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-hover"
+  },
+  {
+    "look": [
+      -115.4,
+      8.8
+    ]
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "look": [
+      -90,
+      8.8
+    ]
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-on-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-on-01"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-on-02"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-on-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-on-04"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-on-05"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-on-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-on-07"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-on-08"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-on-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-on-10"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-on-11"
+  },
+  {
+    "wait": 15
+  },
+  {
+    "look": [
+      -115.4,
+      8.8
+    ]
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "state": true
+  },
+  {
+    "look": [
+      -90,
+      8.8
+    ]
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-off-00"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-off-01"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-off-02"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-off-03"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-off-04"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-off-05"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-off-06"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-off-07"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-off-08"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-off-09"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-off-10"
+  },
+  {
+    "wait": 1
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-off-11"
+  },
+  {
+    "wait": 15
+  },
+  {
+    "log": "leverend:side"
+  },
+  {
+    "cmd": "setblock 351 151 7 air"
+  },
+  {
+    "wait": 45
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "lever-pose-side-release"
+  },
+  {
+    "log": "leverreleased:side"
+  },
+  {
+    "releaseAll": true
+  }
+]

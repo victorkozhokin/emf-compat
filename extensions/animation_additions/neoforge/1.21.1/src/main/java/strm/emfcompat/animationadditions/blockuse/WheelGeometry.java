@@ -8,6 +8,11 @@ import org.joml.Vector3f;
 public final class WheelGeometry {
     private WheelGeometry() {}
 
+    /** Assign rim halves from the mechanism approach, never from the freely moving camera. */
+    static boolean positiveSide(float sideX, float sideZ, float towardX, float towardZ) {
+        return sideX * -towardZ + sideZ * towardX >= 0;
+    }
+
     /** Model Y points down; negative roll carries the upper torso toward the right (-X). */
     public static float steeringRoll(float rightY, float leftY) {
         float difference = Math.max(-1f, Math.min(1f, (leftY - rightY) / 16f));

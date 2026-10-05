@@ -47,7 +47,7 @@ final class Panel implements BlockTarget {
             "dev.eriksonn.aeronautics.content.blocks.hot_air.hot_air_burner.HotAirBurnerBlock",
             // Supplementaries: lids, locks, and the rest.
             SUPPLEMENTARIES + "LunchBoxBlock", SUPPLEMENTARIES + "AbstractPresentBlock",
-            SUPPLEMENTARIES + "CageBlock", SUPPLEMENTARIES + "FaucetBlock", SUPPLEMENTARIES + "BellowsBlock",
+            SUPPLEMENTARIES + "CageBlock", SUPPLEMENTARIES + "FaucetBlock",
             SUPPLEMENTARIES + "SpeakerBlock", SUPPLEMENTARIES + "TurnTableBlock", SUPPLEMENTARIES + "SackBlock",
             SUPPLEMENTARIES + "CannonBlock", SUPPLEMENTARIES + "PulleyBlock", SUPPLEMENTARIES + "LockBlock",
             SUPPLEMENTARIES + "DoormatBlock");

@@ -39,6 +39,9 @@ public interface BlockTarget {
      */
     Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit);
 
+    /** Explicit horizontal tabletop; null for walls and unrelated interactive blocks. */
+    default TableSurface supportSurface(BlockState block) { return null; }
+
     /** Optional other-hand contact; both hands are arbitrated together. */
     default Spot supportHand(AbstractClientPlayer player, BlockPos pos, BlockState block) { return null; }
 
@@ -49,6 +52,9 @@ public interface BlockTarget {
     default Vec3 swayCentre(Level level, BlockPos pos, BlockState block) {
         return null;
     }
+
+    /** Rendered rotation in degrees for grounded setup steps; null for other interactions. */
+    default Float stanceAngle(Level level, BlockPos pos) { return null; }
 
     /**
      * Whether the player is at work on the block and the hands stay on it wherever the look goes -

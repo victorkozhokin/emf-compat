@@ -92,6 +92,7 @@ public final class Mining implements InteractionProvider {
         Vec3 point = Vec3.ZERO;
         /** Where it glides to. */
         Vec3 aimed = Vec3.ZERO;
+        SubLevels.Space space = SubLevels.WORLD;
         long swungAt;
         float phase;
         boolean right;
@@ -122,6 +123,12 @@ public final class Mining implements InteractionProvider {
         State state = STATES.seen(player.getUUID(), context.now()).value;
         float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
         long now = context.now();
+        if (state.active && state.pos != null && player.level().getBlockState(state.pos).isAir()) {
+            state.active = false;
+            state.minedAt = 0;
+            context.decide("target-removed");
+            return;
+        }
         if (player.swinging) state.swungAt = now;
         BlockPos pos = breaking(player, state, now);
         boolean breaking = pos != null;
@@ -133,22 +140,30 @@ public final class Mining implements InteractionProvider {
             pos = looked(player, partial, state.active ? HOVER_RANGE + HOVER_KEEP : HOVER_RANGE);
         }
         if (tool == null) pos = null;
+        // Crack progress can outlive the block; it must not keep a contact with air.
+        boolean disappeared = pos != null && player.level().getBlockState(pos).isAir();
+        if (disappeared) {
+            pos = null;
+            state.minedAt = 0; // Do not reacquire the floor through the removed block on the next frame.
+        }
         if (pos == null || player.isSleeping()
                 || (player.getPose() != Pose.STANDING && player.getPose() != Pose.CROUCHING)) {
             state.active = false;
-            context.decide(pos == null ? "none" : "off:pose");
+            context.decide(disappeared ? "target-removed" : pos == null ? "none" : "off:pose");
             return;
         }
         float phase = player.getAttackAnim(partial);
         IKFrame frame = context.frame();
         // The point, in the world, is taken again at the start of each swing and for a new block;
         // only looking and not swinging, it follows the look. It glides there, never jumps.
-        Vec3 point = point(player, pos, partial);
-        if (!state.active) state.point = state.aimed = point;
+        SubLevels.Space space=SubLevels.at(player.level(),pos);
+        Vec3 point = space.toLocal(point(player, pos, partial));
+        if (!state.active || !space.same(state.space)) state.point = state.aimed = point;
         else if (!pos.equals(state.pos) || phase < state.phase - NEW_SWING || !breaking && phase <= 0f) state.aimed = point;
+        state.space=space;
         state.point = state.point.lerp(state.aimed, Smoothing.follow(context.dt(), POINT_SECONDS));
         // Where it is on the model this frame: the player may walk or turn meanwhile.
-        state.hit.set(frame.relativeToJoint(state.point, new Vector3f()));
+        state.hit.set(frame.relativeToJoint(state.space.refresh().toWorld(state.point), new Vector3f()));
         state.active = true;
         state.pos = pos;
         state.phase = phase;
@@ -158,7 +173,8 @@ public final class Mining implements InteractionProvider {
         Vector3f to = new Vector3f(state.hit).sub(state.right ? RIGHT_SHOULDER : LEFT_SHOULDER);
         float[] aim = ToolSwing.solve(to, state.tool);
         out.add(Candidate.single(id(), Category.ACTIVE, PRIORITY, 1f, TIMING,
-                state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, new float[]{aim[0], aim[1]}));
+                state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, new float[]{aim[0], aim[1]}).withTarget(
+                new strm.emfcompat.animationadditions.interaction.ContactTarget(SubLevels.at(player.level(),pos),pos,player.level().getBlockState(pos).getBlock())));
         // The swing is the strike.
         context.claimArms();
         context.decide((breaking ? "mine:" : "hover:") + state.tool.name() + (aim[2] > 1.05f ? ":short" : ":contact"));
@@ -170,7 +186,12 @@ public final class Mining implements InteractionProvider {
      */
     private static BlockPos breaking(AbstractClientPlayer player, State state, long now) {
         Minecraft mc = Minecraft.getInstance();
-        if (player == mc.player && (mc.gameMode == null || !mc.gameMode.isDestroying())) return null;
+        // Local crack packets may be stale or absent before the first progress update.
+        // The native destruction controller and crosshair are authoritative for our own player.
+        if (player == mc.player) {
+            return mc.gameMode != null && mc.gameMode.isDestroying()
+                    && mc.hitResult instanceof BlockHitResult hit ? hit.getBlockPos() : null;
+        }
         if ((now - state.swungAt) / 1e9 > SWING_GAP) return null;
         var blocks = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).emfcompat$destroyingBlocks();
         BlockDestructionProgress progress = blocks.get(player.getId());

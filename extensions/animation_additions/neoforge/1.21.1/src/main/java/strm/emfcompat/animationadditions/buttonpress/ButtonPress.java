@@ -9,6 +9,8 @@ import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_HIP;
 import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_SHOULDER;
 import strm.emfcompat.animationadditions.interaction.Skeleton;
 import strm.emfcompat.animationadditions.interaction.Visibility;
+import net.minecraft.client.Minecraft;
+import strm.emfcompat.animationadditions.torso.LowReach;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -155,6 +157,12 @@ public final class ButtonPress implements InteractionProvider {
         float legWeight;
         /** How far into the reaching pose, 0..1, as shown. */
         float stretch;
+        boolean groundReach;
+        final LowReach.State lowReach = new LowReach.State();
+        final Vector3f leverLoad = new Vector3f();
+        final LeverStep leverStep = new LeverStep();
+        boolean vanillaLever;
+        long tracedAt;
     }
 
     public static void register(ConfigRegistry.Section config) {
@@ -185,6 +193,9 @@ public final class ButtonPress implements InteractionProvider {
         state.lean[0] = state.lean[1] = state.lean[2] = 0f;
         float[] legTarget = null;
         float stretchTarget = 0f;
+        Vector3f leverWanted = new Vector3f();
+        state.vanillaLever = false;
+        state.groundReach = false;
         try {
             String why = ineligible(player);
             if (why != null) {
@@ -199,7 +210,9 @@ public final class ButtonPress implements InteractionProvider {
             }
             BlockPos pressed = pressed(level, state);
             IKFrame frame = context.frame();
-            BlockPos target = pressed != null && reachable(player, frame, pressed) ? pressed : look(player, frame, state);
+            BlockPos target = look(player, frame, state);
+            if (pressed != null && level.getBlockState(pressed).getBlock() instanceof ButtonBlock
+                    && reachable(player, frame, pressed)) target = pressed;
             if (pressed != null && pressed.equals(target)) state.pressedAt = now;
             if (target == null) {
                 state.target = null;
@@ -231,6 +244,11 @@ public final class ButtonPress implements InteractionProvider {
             // A lever's handle flips over when it is thrown: the hand goes over with it.
             if (InteractionRuntime.weight(player.getUUID(), Effector.RIGHT_ARM, id()) < 1e-3f) state.button.set(hand.button);
             else state.button.lerp(hand.button, Smoothing.follow(dt, GRIP_SECONDS));
+            state.groundReach = player.onGround() && !Seated.seated(player)
+                    && (!player.isCrouching() || hand.button.y > RIGHT_SHOULDER.y + 4);
+            state.vanillaLever = block.getBlock() instanceof LeverBlock;
+            if (state.vanillaLever && state.groundReach)
+                leverWanted.set(LeverEffort.shift(hand.button, pressing));
             if (pressing) {
                 state.lean[0] = hand.pitch;
                 state.lean[1] = hand.yaw;
@@ -240,14 +258,18 @@ public final class ButtonPress implements InteractionProvider {
             if (!Seated.seated(player) && EMFCompatConfig.getBoolean(KEY_STRETCH, true)) {
                 float reach = new Vector3f(hand.button).sub(RIGHT_SHOULDER).length() / ARM;
                 stretchTarget = ReachPose.weight(reach);
-                ReachPose.lean(hand.button, stretchTarget, state.lean);
+                if (!state.groundReach) ReachPose.lean(hand.button, stretchTarget, state.lean);
             }
             out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING,
-                    Effector.RIGHT_ARM, aim));
+                    Effector.RIGHT_ARM, aim).withTarget(
+                    new strm.emfcompat.animationadditions.interaction.ContactTarget(SubLevels.at(player.level(),target),target,block.getBlock())));
             // The press swings the arm; the push is the swing.
             context.claimArms();
             context.decide(pressing ? "press-R" : "hover-R");
         } finally {
+            state.leverStep.observe(player, context.frame(), state.vanillaLever && state.groundReach, state.button, state.pressedAt);
+            state.leverLoad.lerp(leverWanted, Smoothing.follow(dt, leverWanted.lengthSquared()>state.leverLoad.lengthSquared() ? .09 : .14));
+            if (state.leverLoad.lengthSquared()<1e-8f) state.leverLoad.zero();
             legs(state, legTarget, dt);
             state.stretch += (stretchTarget - state.stretch)
                     * (stretchTarget > state.stretch ? Smoothing.fadeIn(dt, ReachPose.SECONDS) : Smoothing.fadeOut(dt, ReachPose.SECONDS));
@@ -301,14 +323,10 @@ public final class ButtonPress implements InteractionProvider {
         state.powered.addAll(powered);
     }
 
-    /**
-     * The button in reach nearest the look, within the cone round it; the one already kept wins
-     * ties. A lever or a button on a wall is found the way a door is, by the body rather than the
-     * eyes: across the ground, within {@link #LEVER_CONE} of where the body faces, from the chest -
-     * looking straight at one or past it no longer decides it.
-     */
+    /** Levers require a direct block hit; ordinary buttons retain their existing look cone. */
     private static BlockPos look(AbstractClientPlayer player, IKFrame frame, State state) {
         Vec3 eye = player.getEyePosition();
+        var hit = player == Minecraft.getInstance().player ? Minecraft.getInstance().hitResult : player.pick(3, 1, false);
         Vec3 view = player.getViewVector(1f);
         Vec3 chest = player.position().add(0, CHEST, 0);
         double yaw = Math.toRadians(player.yBodyRot);
@@ -320,6 +338,12 @@ public final class ButtonPress implements InteractionProvider {
         for (BlockPos pos : state.nearby) {
             BlockState block = player.level().getBlockState(pos);
             if (!isTarget(block)) continue;
+            // Proximity/body heading alone must never pull a hand toward a side lever.
+            if (block.getBlock() instanceof LeverBlock || ThrottleLever.is(block) || PhysicsAssembler.is(block)) {
+                if (hit instanceof net.minecraft.world.phys.BlockHitResult aimed && pos.equals(aimed.getBlockPos())
+                        && reachable(player, frame, pos)) return pos;
+                continue;
+            }
             Vec3 grip = grip(player, pos, block);
             double dot;
             if (fromAfar(block)) {
@@ -552,6 +576,28 @@ public final class ButtonPress implements InteractionProvider {
         ArmAim.towards(arm, state.button, w, false);
     }
 
+    /** Ground-supported reach before the final hand aim, shared with the low crank. */
+    public static void reachContact(UUID uuid, Function<String, ModelPart> parts) {
+        State state = STATES.fresh(uuid);
+        if (state == null || !EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
+        float weight = state.groundReach && INSTANCE.isEnabled() && EMFCompatConfig.getBoolean(KEY_STRETCH, true)
+                && InteractionRuntime.weight(uuid, Effector.LEFT_ARM) <= 0.01f
+                ? InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id()) : 0;
+        state.lowReach.weightShift = state.vanillaLever ? state.leverLoad.x : 0;
+        state.lowReach.weightForward = state.vanillaLever ? state.leverLoad.z : 0;
+        state.leverStep.apply(parts, weight);
+        LowReach.apply(parts, true, state.button, weight, state.lowReach);
+        long now=System.nanoTime();
+        if ((state.vanillaLever || state.leverStep.consumed>0) && strm.emfcompat.animationadditions.DebugLog.trace() && now-state.tracedAt>50_000_000L) {
+            state.tracedAt=now;
+            org.slf4j.LoggerFactory.getLogger("EMFCompatButtonPress").info(
+                    "[LeverPoseTrace] grounded={} weight={} loadX={} loadZ={} pressing={} step={} progress={} footX={} footZ={}",
+                    state.groundReach,weight,state.leverLoad.x,state.leverLoad.z,
+                    state.pressedAt!=NEVER && (now-state.pressedAt)*1e-9<PRESS_SECONDS,
+                    state.leverStep.foot,state.leverStep.progress,state.leverStep.offset.x,state.leverStep.offset.z);
+        }
+    }
+
     /**
      * Puts a foot on its button over whatever the feet were given. Called after the pack has animated.
      */
@@ -561,7 +607,7 @@ public final class ButtonPress implements InteractionProvider {
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         float owned = InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id());
         ReachPose.balance(parts, true, state.stretch * owned,
-                InteractionRuntime.weight(uuid, Effector.LEFT_ARM) < 0.01f);
+                InteractionRuntime.weight(uuid, Effector.LEFT_ARM) < 0.01f, !state.groundReach && !state.lowReach.active());
         if (state.legWeight < 1e-3f) return;
         ModelPart leg = parts.apply(state.footRight ? "right_leg" : "left_leg");
         if (leg == null) return;

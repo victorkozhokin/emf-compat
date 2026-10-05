@@ -1,0 +1,363 @@
+[
+  {
+    "steeringRelease": true
+  },
+  {
+    "cmd": "ride @s dismount"
+  },
+  {
+    "closeScreen": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "cmd": "tp @s 350 152 7.5"
+  },
+  {
+    "wait": 30
+  },
+  {
+    "cmd": "fill 345 150 4 360 155 12 air"
+  },
+  {
+    "cmd": "fill 345 149 4 360 149 12 smooth_stone"
+  },
+  {
+    "cmd": "time set noon"
+  },
+  {
+    "cmd": "gamemode survival"
+  },
+  {
+    "config": {
+      "parcool.enabled": false,
+      "footgrounding.trace": true,
+      "lookat.enabled": false,
+      "blockuse.enabled": true,
+      "buttonpress.enabled": true,
+      "doorhold.enabled": true,
+      "furniture.enabled": true
+    }
+  },
+  {
+    "cmd": "kill @e[type=create:seat,x=366,y=149,z=3,dx=8,dy=5,dz=8]"
+  },
+  {
+    "cmd": "fill 366 149 3 374 149 11 smooth_stone"
+  },
+  {
+    "cmd": "fill 366 150 3 374 154 11 air"
+  },
+  {
+    "cmd": "setblock 370 150 7 create:red_seat"
+  },
+  {
+    "cmd": "setblock 370 151 5 create:brass_casing"
+  },
+  {
+    "cmd": "setblock 370 151 6 simulated:steering_wheel[facing=south,on_floor=false]"
+  },
+  {
+    "cmd": "setblock 369 150 7 simulated:throttle_lever[facing=north,face=floor]"
+  },
+  {
+    "cmd": "setblock 371 150 7 simulated:throttle_lever[facing=north,face=floor]"
+  },
+  {
+    "cmd": "tp @s 370.5 150 8.2 180 60"
+  },
+  {
+    "look": [
+      180,
+      60
+    ]
+  },
+  {
+    "camera": "back"
+  },
+  {
+    "hideGui": true
+  },
+  {
+    "hideScreen": true
+  },
+  {
+    "wait": 15
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 20
+  },
+  {
+    "look": [
+      180,
+      22
+    ]
+  },
+  {
+    "orbit": [
+      45,
+      20,
+      3,
+      true
+    ]
+  },
+  {
+    "wait": 15
+  },
+  {
+    "state": true
+  },
+  {
+    "click": "use"
+  },
+  {
+    "wait": 5
+  },
+  {
+    "look": [
+      180,
+      10
+    ]
+  },
+  {
+    "wait": 8
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "cockpit-facing-yaw-00"
+  },
+  {
+    "state": true
+  },
+  {
+    "look": [
+      150,
+      10
+    ]
+  },
+  {
+    "wait": 8
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "cockpit-facing-yaw-01"
+  },
+  {
+    "state": true
+  },
+  {
+    "look": [
+      120,
+      10
+    ]
+  },
+  {
+    "wait": 8
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "cockpit-facing-yaw-02"
+  },
+  {
+    "state": true
+  },
+  {
+    "look": [
+      90,
+      10
+    ]
+  },
+  {
+    "wait": 8
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "cockpit-facing-yaw-03"
+  },
+  {
+    "state": true
+  },
+  {
+    "look": [
+      60,
+      10
+    ]
+  },
+  {
+    "wait": 8
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "cockpit-facing-yaw-04"
+  },
+  {
+    "state": true
+  },
+  {
+    "look": [
+      30,
+      10
+    ]
+  },
+  {
+    "wait": 8
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "cockpit-facing-yaw-05"
+  },
+  {
+    "state": true
+  },
+  {
+    "look": [
+      0,
+      10
+    ]
+  },
+  {
+    "wait": 8
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "cockpit-facing-yaw-06"
+  },
+  {
+    "state": true
+  },
+  {
+    "look": [
+      -30,
+      10
+    ]
+  },
+  {
+    "wait": 8
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "cockpit-facing-yaw-07"
+  },
+  {
+    "state": true
+  },
+  {
+    "look": [
+      -60,
+      10
+    ]
+  },
+  {
+    "wait": 8
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "cockpit-facing-yaw-08"
+  },
+  {
+    "state": true
+  },
+  {
+    "look": [
+      -90,
+      10
+    ]
+  },
+  {
+    "wait": 8
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "cockpit-facing-yaw-09"
+  },
+  {
+    "state": true
+  },
+  {
+    "look": [
+      -120,
+      10
+    ]
+  },
+  {
+    "wait": 8
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "cockpit-facing-yaw-10"
+  },
+  {
+    "state": true
+  },
+  {
+    "look": [
+      -150,
+      10
+    ]
+  },
+  {
+    "wait": 8
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "cockpit-facing-yaw-11"
+  },
+  {
+    "state": true
+  },
+  {
+    "look": [
+      180,
+      10
+    ]
+  },
+  {
+    "wait": 8
+  },
+  {
+    "model": "player"
+  },
+  {
+    "screenshot": "cockpit-facing-yaw-12"
+  },
+  {
+    "state": true
+  },
+  {
+    "steeringRelease": true
+  },
+  {
+    "cmd": "ride @s dismount"
+  },
+  {
+    "wait": 15
+  }
+]

@@ -13,7 +13,19 @@ import java.util.Map;
  * better ({@link Arbiter#HYSTERESIS}).</p>
  */
 public record Candidate(String source, Category category, int priority, Map<Effector, float[]> aims,
-                        float confidence, Timing timing) {
+                        float confidence, Timing timing, Object target, boolean quietSwing) {
+
+    public Candidate(String source, Category category, int priority, Map<Effector,float[]> aims,
+                     float confidence, Timing timing) {
+        this(source,category,priority,aims,confidence,timing,null,false);
+    }
+    public Candidate withTarget(Object identity) {
+        return new Candidate(source,category,priority,aims,confidence,timing,identity,quietSwing);
+    }
+
+    public Candidate withQuietSwing(boolean quiet) {
+        return new Candidate(source,category,priority,aims,confidence,timing,target,quiet);
+    }
 
     public Candidate {
         aims = Collections.unmodifiableMap(new EnumMap<>(aims));

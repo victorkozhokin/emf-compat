@@ -5,9 +5,9 @@ import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_SHOUL
 import strm.emfcompat.animationadditions.interaction.Skeleton;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.Candidate;
@@ -15,6 +15,7 @@ import strm.emfcompat.animationadditions.interaction.Category;
 import strm.emfcompat.animationadditions.interaction.Effector;
 import strm.emfcompat.animationadditions.interaction.InteractionContext;
 import strm.emfcompat.animationadditions.interaction.InteractionProvider;
+import strm.emfcompat.animationadditions.interaction.SubLevels;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.ik.IKFrame;
@@ -88,14 +89,19 @@ public final class WallHand implements InteractionProvider {
     public void collect(InteractionContext context, List<Candidate> out) {
         AbstractClientPlayer player = context.player();
         IKFrame frame = context.frame();
+        if (WallSqueeze.isActive(player.getUUID())) {
+            context.decide("squeeze-contact");
+            return;
+        }
         String why = ineligible(player);
         if (why != null) {
             context.decide(why);
             return;
         }
         // Facing a wall: both hands on it. Otherwise the nearer wall beside a shoulder.
-        IKResult frontRight = ahead(player, frame, RIGHT_SHOULDER);
-        IKResult frontLeft = ahead(player, frame, LEFT_SHOULDER);
+        boolean rightFree = free(player, true), leftFree = free(player, false);
+        IKResult frontRight = rightFree ? ahead(player, frame, RIGHT_SHOULDER) : null;
+        IKResult frontLeft = leftFree ? ahead(player, frame, LEFT_SHOULDER) : null;
         if (frontRight != null || frontLeft != null) {
             Map<Effector, float[]> aims = new EnumMap<>(Effector.class);
             if (frontRight != null) aims.put(Effector.RIGHT_ARM, angles(frontRight));
@@ -104,8 +110,8 @@ public final class WallHand implements InteractionProvider {
             context.decide(aims.size() == 2 ? "front" : "front-corner");
             return;
         }
-        IKResult right = beside(player, frame, RIGHT_SHOULDER, -1f);
-        IKResult left = beside(player, frame, LEFT_SHOULDER, 1f);
+        IKResult right = rightFree ? beside(player, frame, RIGHT_SHOULDER, -1f) : null;
+        IKResult left = leftFree ? beside(player, frame, LEFT_SHOULDER, 1f) : null;
         if (right != null && (left == null || right.reach() <= left.reach())) {
             out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.RIGHT_ARM, angles(right)));
             context.decide("right");
@@ -115,6 +121,11 @@ public final class WallHand implements InteractionProvider {
         } else {
             context.decide("none");
         }
+    }
+
+    private static boolean free(AbstractClientPlayer player, boolean right) {
+        boolean main = right == (player.getMainArm() == HumanoidArm.RIGHT);
+        return player.getItemInHand(main ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND).isEmpty();
     }
 
     private static String ineligible(AbstractClientPlayer player) {
@@ -152,7 +163,7 @@ public final class WallHand implements InteractionProvider {
         double along = Math.sqrt(arm * arm - across * across - below * below);
         Vec3 palm = from.add(side.scale(across)).add(wall.normal.scale(PALM_OFF))
                 .add(forward.scale(along)).add(0, -below, 0);
-        return aim(frame, shoulder, palm);
+        return contact(player, frame, shoulder, palm, wall.normal);
     }
 
     /**
@@ -170,7 +181,7 @@ public final class WallHand implements InteractionProvider {
         if (wall.distance > arm) return null;
         double below = Math.sqrt(arm * arm - wall.distance * wall.distance);
         Vec3 palm = from.add(forward.scale(wall.distance)).add(wall.normal.scale(PALM_OFF)).add(0, -below, 0);
-        return aim(frame, shoulder, palm);
+        return contact(player, frame, shoulder, palm, wall.normal);
     }
 
     private record Hit(double distance, Vec3 normal) {
@@ -178,13 +189,21 @@ public final class WallHand implements InteractionProvider {
 
     /** A wall face square to {@code direction} within {@code range} of {@code from}. */
     private static Hit wall(AbstractClientPlayer player, Vec3 from, Vec3 direction, double range) {
-        BlockHitResult hit = player.level().clip(new ClipContext(from, from.add(direction.scale(range)),
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
-        if (hit.getType() == HitResult.Type.MISS || hit.getDirection().getAxis().isVertical()) return null;
-        Vec3 normal = Vec3.atLowerCornerOf(hit.getDirection().getNormal());
+        Vec3 to = from.add(direction.scale(range));
+        var hit = WallSurface.clip(player, from, to, SubLevels.around(player.level(), new AABB(from, to).inflate(0.2)));
+        if (hit == null) return null;
+        Vec3 normal = hit.normal();
         // Square to the shoulder, not a corner glanced at an angle.
         if (normal.dot(direction) > -0.7) return null;
-        return new Hit(hit.getLocation().subtract(from).dot(direction), normal);
+        return new Hit(hit.position().subtract(from).dot(direction), normal);
+    }
+
+    private static IKResult contact(AbstractClientPlayer player, IKFrame frame, Vector3f shoulder,
+                                    Vec3 palm, Vec3 normal) {
+        Vec3 from = palm.add(normal.scale(0.12)), to = palm.subtract(normal.scale(0.12));
+        var face = WallSurface.clip(player, from, to, SubLevels.around(player.level(), new AABB(from, to).inflate(0.2)));
+        if (face == null || face.normal().dot(normal) < 0.7) return null;
+        return aim(frame, shoulder, face.position().add(face.normal().scale(PALM_OFF)));
     }
 
     /** A model direction carried into the world and laid flat, or {@code null} if it is vertical. */

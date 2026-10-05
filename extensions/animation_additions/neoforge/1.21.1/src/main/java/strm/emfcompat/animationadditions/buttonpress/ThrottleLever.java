@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
  * ({@code ThrottleLeverRenderer.transformHandleExternal}), so the hand is on it wherever the
  * handle is drawn, and goes along as it is dragged.</p>
  */
-final class ThrottleLever {
+public final class ThrottleLever {
 
     private static final String BLOCK = "dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverBlock";
     private static final String RENDERER = "dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverRenderer";
@@ -36,26 +36,51 @@ final class ThrottleLever {
     private ThrottleLever() {
     }
 
-    static boolean is(BlockState block) {
+    public static boolean is(BlockState block) {
         return block.getBlock().getClass().getName().equals(BLOCK);
     }
 
     /** Where the knob is drawn now, world; {@code null} when it cannot be told. */
-    static Vec3 knob(Level level, BlockPos pos) {
-        Method m = FAILURES.off() ? null : method();
-        if (m == null) return null;
-        BlockEntity entity = level.getBlockEntity(pos);
-        if (entity == null) return null;
+    public static Vec3 knob(Level level, BlockPos pos) {
+        Vec3[] grips=grips(level,pos);
+        return grips==null ? null : grips[0].add(grips[1]).scale(.5);
+    }
+
+    /** Two separated material points across the real handle, transformed by its renderer. */
+    public static Vec3[] grips(Level level,BlockPos pos) {
+        Method m=FAILURES.off() ? null : method();BlockEntity entity=level.getBlockEntity(pos);
+        if(m==null || entity==null || !is(level.getBlockState(pos))) return null;
         try {
-            PoseStack stack = new PoseStack();
-            m.invoke(null, entity, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false), stack);
-            Vector3f at = stack.last().pose().transformPosition(new Vector3f(KNOB));
-            // The block's own corner added in double: a pose stack is float, off by whole blocks in a sub-level's plot.
-            return new Vec3(pos.getX() + (double) at.x, pos.getY() + (double) at.y, pos.getZ() + (double) at.z);
-        } catch (Throwable t) {
+            PoseStack stack=new PoseStack();
+            m.invoke(null,entity,Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false),stack);
+            Vec3[] result=new Vec3[2];
+            for(int i=0;i<2;i++) {
+                Vector3f at=stack.last().pose().transformPosition(new Vector3f(KNOB).add(i==0 ? -.08f : .08f,0,0));
+                result[i]=new Vec3(pos.getX()+(double)at.x,pos.getY()+(double)at.y,pos.getZ()+(double)at.z);
+            }
+            return result;
+        } catch(Throwable t) {
             FAILURES.failed(t);
             return null;
         }
+    }
+
+    /** Read the actual 0..15 signal, without inventing resistance or changing control input. */
+    public static Integer signal(Level level,BlockPos pos) {
+        BlockEntity entity=level.getBlockEntity(pos);
+        if(entity==null || !is(level.getBlockState(pos)))return null;
+        try {return (Integer)entity.getClass().getMethod("getState").invoke(entity);}
+        catch(ReflectiveOperationException | ClassCastException e) {return null;}
+    }
+
+    /** Actual held lever; looking away during a drag must not release the visual grip. */
+    public static BlockPos heldPosition() {
+        try {
+            Object handler=Class.forName("dev.simulated_team.simulated.index.SimClickInteractions")
+                    .getField("THROTTLE_LEVER_MANAGER").get(null);
+            if (!(boolean)handler.getClass().getMethod("isActive").invoke(handler)) return null;
+            return (BlockPos)handler.getClass().getMethod("getInteractionPos").invoke(handler);
+        } catch (ReflectiveOperationException | ClassCastException e) { return null; }
     }
 
     private static Method method() {

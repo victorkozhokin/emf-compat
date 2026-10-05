@@ -104,7 +104,8 @@ public final class Furniture implements InteractionProvider {
     }
 
     /** Where the hands go and how far they may reach. */
-    private record Grips(String what, Vec3 right, Vec3 left, float reach) {
+    private record Grips(String what, Vec3 right, Vec3 left, float reach, SubLevels.Space space,Object target) {
+        Grips(String what,Vec3 right,Vec3 left,float reach){this(what,right,left,reach,SubLevels.WORLD,null);}
     }
 
     @Override
@@ -127,12 +128,12 @@ public final class Furniture implements InteractionProvider {
         IKFrame frame = context.frame();
         IKResult right = aim(frame, RIGHT_SHOULDER, grips.right, grips.reach);
         IKResult left = aim(frame, LEFT_SHOULDER, grips.left, grips.reach);
-        if (right != null) HandContacts.remember(context, id(), Effector.RIGHT_ARM, grips.right);
-        if (left != null) HandContacts.remember(context, id(), Effector.LEFT_ARM, grips.left);
+        if (right != null) HandContacts.remember(context, id(), Effector.RIGHT_ARM, grips.right, grips.space);
+        if (left != null) HandContacts.remember(context, id(), Effector.LEFT_ARM, grips.left, grips.space);
         if (right != null) out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, Effector.RIGHT_ARM,
-                new float[]{right.x(), right.y()}));
+                new float[]{right.x(), right.y()}).withTarget(grips.target));
         if (left != null) out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, Effector.LEFT_ARM,
-                new float[]{left.x(), left.y()}));
+                new float[]{left.x(), left.y()}).withTarget(grips.target));
         context.decide(right == null && left == null ? grips.what + ":out-of-reach" : grips.what);
     }
 
@@ -165,7 +166,7 @@ public final class Furniture implements InteractionProvider {
                 Grips grips = chest ? chest(at, view, level, pos.immutable(), block) : lectern(at, view, pos.immutable(), block);
                 if (grips == null) continue;
                 if (!Visibility.visible(player, pos, space.toWorld(middle))) continue;
-                best = new Grips(grips.what, space.toWorld(grips.right), space.toWorld(grips.left), grips.reach);
+                best = new Grips(grips.what, space.toWorld(grips.right), space.toWorld(grips.left), grips.reach,space,new strm.emfcompat.animationadditions.interaction.ContactTarget(space,pos,block.getBlock()));
                 bestDot = dot;
             }
         }

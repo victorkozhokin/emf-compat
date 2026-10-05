@@ -74,7 +74,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
             if (!player && !HorseFootGrounding.handles(state.emfEntity())) return;
             Map<String, EMFModelPartVanilla> parts = context.animatingModelRoot().getAllVanillaPartsByNameEMF();
             if (context.animatingModelRoot().isMainModel) FootGrounding.recordAnimated(uuid, parts::get);
-            applyAll(uuid, parts::get, player);
+            applyAll(uuid, parts::get, player, context.animatingModelRoot().isMainModel);
             for (String[] layer : LAYERS) {
                 ModelPart outer = parts.get(layer[0]);
                 ModelPart limb = parts.get(layer[1]);
@@ -110,7 +110,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
                 case "right_leg" -> model.rightLeg;
                 case "left_leg" -> model.leftLeg;
                 default -> null;
-            }, true);
+            }, true, false);
             model.hat.copyFrom(model.head);
         } catch (Throwable t) {
             // Same as above: never throw out of an EMF hook, and say so once.
@@ -121,19 +121,28 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         }
     }
 
-    private static void applyAll(UUID uuid, Function<String, ModelPart> parts, boolean player) {
+    private static void applyAll(UUID uuid, Function<String, ModelPart> parts, boolean player, boolean mainModel) {
         // First, on the pack's own pose: its cuts settle before anything corrects it. A player's only:
         // the hook runs for every creature EMF animates.
         if (player) PoseInertia.apply(uuid, parts, EMFState.getFrameCounter());
         FootGrounding.apply(uuid, parts);
         EjectorLaunch.apply(uuid, parts);
         WallSqueeze.apply(uuid, parts);
+        var supportBase=InteractionRuntime.beginSupport(uuid, parts);
         ButtonPress.apply(uuid, parts);
         BlockUse.apply(uuid, parts);
         HorseFootGrounding.apply(uuid, parts);
+        strm.emfcompat.animationadditions.leash.LeashHold.support(uuid, parts);
         // The torso before the arm aims: a hand on a wall aims from where the shoulder has gone.
+        WallSqueeze.support(uuid, parts);
+        strm.emfcompat.animationadditions.transport.TransportGrip.support(uuid,parts);
         TorsoLean.apply(uuid, parts);
+        strm.emfcompat.animationadditions.transport.TransportGrip.reach(uuid,parts);
         BlockUse.reachContact(uuid, parts);
+        ButtonPress.reachContact(uuid, parts);
+        strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.reachContact(uuid, parts);
+        InteractionRuntime.finishSupport(uuid, parts, supportBase, EMFState.getFrameCounter(), mainModel);
+        var contactBase = InteractionRuntime.beginHands(uuid, parts);
         InteractionRuntime.apply(uuid, parts);
         // The hands on the walls of a narrow gap, from where the turned torso has put the shoulders.
         WallSqueeze.aimArms(uuid, parts);
@@ -141,6 +150,11 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         ButtonPress.aimArm(uuid, parts);
         BlockUse.aimArm(uuid, parts);
         Mining.aimArm(uuid, parts);
+        strm.emfcompat.animationadditions.blockuse.CockpitControls.apply(uuid, parts);
         HandContacts.apply(uuid, parts);
+        strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.aimArms(uuid, parts);
+        strm.emfcompat.animationadditions.transport.TransportGrip.aim(uuid,parts);
+        strm.emfcompat.animationadditions.leash.LeashHold.capture(uuid, parts);
+        InteractionRuntime.finishHands(uuid, parts, contactBase, EMFState.getFrameCounter(), mainModel);
     }
 }

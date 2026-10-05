@@ -42,9 +42,10 @@ final class ItemRest implements BlockTarget {
     private final double lying;
     /** Whether the other hand is on the edge of the block's top while it faces up - a table. */
     private final boolean edge;
+    private final TableSurface surface;
 
     /** A hand on a table's edge: blocks to its side and towards the player off the middle, and pixels up. */
-    private static final double EDGE_SIDE = 7.5 / 16.0, EDGE_NEAR = 3 / 16.0, EDGE_TOP = 13;
+    private static final TableSurface DEFAULT_TABLE = new TableSurface(0,1,0,1,13/16.0,3/16.0);
 
     /** What the block holds, what the player held, and the arm's swing. */
     private record Seen(BlockState block, String item, int count, String hand, boolean swinging, int swingTime) {
@@ -56,6 +57,11 @@ final class ItemRest implements BlockTarget {
     }
 
     private ItemRest(String blockClass, String accessor, double top, double inset, double lying, boolean edge) {
+        this(blockClass,accessor,top,inset,lying,edge,DEFAULT_TABLE);
+    }
+
+    private ItemRest(String blockClass,String accessor,double top,double inset,double lying,boolean edge,TableSurface surface) {
+        this.surface=surface;
         this.blockClass = blockClass;
         this.held = accessor.isEmpty() ? null : new ModAccess(accessor);
         this.top = top;
@@ -72,6 +78,10 @@ final class ItemRest implements BlockTarget {
     /** {@link #front}, and with the block facing up the hands wait on the edges of its top - a table. */
     static ItemRest table(String blockClass, String accessor) {
         return new ItemRest(blockClass, accessor, -1, 0, -1, true);
+    }
+
+    static ItemRest table(String blockClass,String accessor,TableSurface surface) {
+        return new ItemRest(blockClass,accessor,-1,0,-1,true,surface);
     }
 
     /** Where the item goes is the top: {@code standing} pixels up with the block upright, {@code lying} on its side - an hourglass. */
@@ -91,7 +101,7 @@ final class ItemRest implements BlockTarget {
 
     @Override
     public Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit) {
-        if (player.getMainHandItem().isEmpty() && count(player.level(), pos) == 0) return null;
+        if (supportSurface(block)==null && player.getMainHandItem().isEmpty() && count(player.level(), pos) == 0) return null;
         // At a table both hands wait on its edges; the one that puts or takes goes to the item then.
         Spot onEdge = edge(player, pos, block, true);
         return onEdge != null ? onEdge : rest(pos, block);
@@ -105,15 +115,14 @@ final class ItemRest implements BlockTarget {
     /** A hand's place on the edge of a table that faces up - the main hand's side or the other; {@code null} for no table. */
     private Spot edge(AbstractClientPlayer player, BlockPos pos, BlockState block, boolean main) {
         if (!edge || facing(block) != Direction.UP) return null;
-        Vec3 to = SubLevels.at(player.level(), pos).toLocal(player.position()).subtract(Vec3.atCenterOf(pos));
-        Vec3 toPlayer = new Vec3(to.x, 0, to.z);
-        toPlayer = toPlayer.lengthSqr() < 1e-6 ? new Vec3(0, 0, 1) : toPlayer.normalize();
-        // The player's right, facing the table.
-        Vec3 right = new Vec3(toPlayer.z, 0, -toPlayer.x);
-        double side = (player.getMainArm() == HumanoidArm.RIGHT) == main ? EDGE_SIDE : -EDGE_SIDE;
-        return new Spot(new Vec3(pos.getX() + 0.5, pos.getY() + EDGE_TOP / 16, pos.getZ() + 0.5)
-                .add(right.scale(side)).add(toPlayer.scale(EDGE_NEAR)), Spots.UP);
+        Vec3 local=SubLevels.at(player.level(),pos).tickToLocal(player.position()).subtract(Vec3.atLowerCornerOf(pos));
+        boolean right=(player.getMainArm()==HumanoidArm.RIGHT)==main;
+        var p=surface.contact(local.x,local.z,right);
+        return new Spot(new Vec3(p.x(),p.y(),p.z()).add(Vec3.atLowerCornerOf(pos)),Spots.UP);
     }
+
+    @Override public TableSurface supportSurface(BlockState block) { return edge && facing(block)==Direction.UP?surface:null; }
+    @Override public boolean quietsSwing() { return edge; }
 
     @Override
     public Object snapshot(AbstractClientPlayer player, Level level, BlockPos pos, BlockState block) {

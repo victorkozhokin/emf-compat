@@ -85,8 +85,11 @@ final class HandCrank implements BlockTarget {
         return new Vec3(pos.getX() + 0.5 + v.x, pos.getY() + 0.5 + v.y, pos.getZ() + 0.5 + v.z);
     }
 
+    @Override
+    public Float stanceAngle(Level level, BlockPos pos) { return angle(level, pos); }
+
     /** The handle's angle as drawn this frame, degrees; {@code null} when it cannot be told. */
-    private static Float angle(Level level, BlockPos pos) {
+    static Float angle(Level level, BlockPos pos) {
         if (FAILURES.off()) return null;
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity == null) return null;

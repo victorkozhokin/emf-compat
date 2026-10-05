@@ -32,9 +32,22 @@ public final class SubLevels {
     /** Where blocks are: the world itself, or one sub-level's plot seen through its pose this frame. */
     public static final class Space {
         private final Object pose;
+        private final Object sub;
 
-        private Space(Object pose) {
-            this.pose = pose;
+        private Space(Object pose,Object sub) {
+            this.pose = pose; this.sub=sub;
+        }
+
+        /** Stable identity and a fresh render transform for a retained contact. */
+        public boolean same(Space other) { return other!=null && sub==other.sub; }
+        public boolean valid() { return sub==null || !(boolean)call(removed,sub); }
+        public Space refresh() { return sub==null ? this : space(sub); }
+        public Vec3 tickToWorld(Vec3 local) {
+            return sub==null ? local : (Vec3)call(toWorld,call(logicalPose,sub),local);
+        }
+
+        public Vec3 tickToLocal(Vec3 world) {
+            return sub==null ? world : (Vec3)call(toLocal,call(logicalPose,sub),world);
         }
 
         public boolean isWorld() {
@@ -62,11 +75,11 @@ public final class SubLevels {
         }
     }
 
-    public static final Space WORLD = new Space(null);
+    public static final Space WORLD = new Space(null,null);
 
     private static boolean looked, absent;
     private static Object helper;
-    private static Method containing, intersecting, renderPose, toWorld, toLocal, normalToWorld, normalToLocal;
+    private static Method containing, intersecting, renderPose, toWorld, toLocal, normalToWorld, normalToLocal, logicalPose, removed;
     private static Constructor<?> box;
 
     private SubLevels() {
@@ -108,7 +121,7 @@ public final class SubLevels {
             spacesTick = tick;
             spacesPartial = partial;
         }
-        return SPACES.computeIfAbsent(sub, s -> new Space(call(renderPose, s, partial)));
+        return SPACES.computeIfAbsent(sub, s -> new Space(call(renderPose, s, partial), s));
     }
 
     private static boolean ready() {
@@ -123,6 +136,8 @@ public final class SubLevels {
                 intersecting = helper.getClass().getMethod("getAllIntersecting", Level.class, boxInterface);
                 box = boxClass.getConstructor(AABB.class);
                 renderPose = Class.forName("dev.ryanhcode.sable.sublevel.ClientSubLevel").getMethod("renderPose", float.class);
+                Class<?> subClass=Class.forName("dev.ryanhcode.sable.sublevel.SubLevel");
+                logicalPose=subClass.getMethod("logicalPose"); removed=subClass.getMethod("isRemoved");
                 toWorld = pose.getMethod("transformPosition", Vec3.class);
                 toLocal = pose.getMethod("transformPositionInverse", Vec3.class);
                 normalToWorld = pose.getMethod("transformNormal", Vec3.class);

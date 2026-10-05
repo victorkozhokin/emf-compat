@@ -90,6 +90,36 @@ final class Typewriter implements BlockTarget {
                 : Spots.turned(pos, facing.getOpposite(), right ? 8 - REST_SIDE : 8 + REST_SIDE, REST_Y, REST_Z);
     }
 
+    /** A cockpit typist uses one hand for the whole keyboard; the other keeps the rim. */
+    static Spot cockpitSpot(BlockPos pos,BlockState block,int pressed,boolean right) {
+        Direction facing=block.getValue(BlockStateProperties.HORIZONTAL_FACING);
+        if(pressed<0)return Spots.turned(pos,facing.getOpposite(),8,REST_Y,REST_Z);
+        double[] at=key(Math.min(KEYS-1,pressed));
+        // Space spans ten pixels: press its outer portion rather than trapping the wrist at its centre.
+        if(pressed==13)at[0]=right?4:12;
+        return Spots.turned(pos,facing.getOpposite(),at[0],at[1]-PRESSED,at[2]);
+    }
+    static int pressedKey() {
+        Object held=ownHeld();int result=-1;
+        if(held instanceof List<?> keys)for(Object each:List.copyOf(keys))
+            if(each instanceof Integer k)result=Math.max(0,Math.min(KEYS-1,k));
+        return result;
+    }
+    private static Field activeField;
+    static BlockPos activePosition(AbstractClientPlayer player) {
+        if(player!=Minecraft.getInstance().player)return null;
+        try {
+            Class<?> handler=Class.forName(HANDLER);
+            if(!"ACTIVE".equals(String.valueOf(handler.getMethod("getMode").invoke(null))))return null;
+            if(activeField==null){activeField=handler.getDeclaredField("TYPEWRITER");activeField.setAccessible(true);}
+            Object reference=activeField.get(null);
+            Object value=reference instanceof java.lang.ref.Reference<?> ref?ref.get():null;
+            if(value instanceof net.minecraft.world.level.block.entity.BlockEntity be && !be.isRemoved() && be.getLevel()==player.level())
+                return be.getBlockPos();
+        } catch(ReflectiveOperationException | RuntimeException | LinkageError ignored) {}
+        return null;
+    }
+
     /** The top of key {@code i}, pixels in the model: the renderer's own places, about the block's middle and turned half round. */
     private static double[] key(int i) {
         double x, y, z;

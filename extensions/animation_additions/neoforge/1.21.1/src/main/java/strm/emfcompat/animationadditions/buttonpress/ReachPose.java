@@ -118,6 +118,10 @@ public final class ReachPose {
 
     /** Blends the balancing limbs in by {@code s}, 0..1, for the {@code right} (or left) hand reaching. */
     public static void balance(Function<String, ModelPart> parts, boolean right, float s, boolean otherArmFree) {
+        balance(parts, right, s, otherArmFree, true);
+    }
+
+    public static void balance(Function<String, ModelPart> parts, boolean right, float s, boolean otherArmFree, boolean liftLeg) {
         if (s < 1e-3f) return;
         float side = right ? 1f : -1f;
         ModelPart arm = parts.apply(right ? "left_arm" : "right_arm");
@@ -126,7 +130,7 @@ public final class ReachPose {
             arm.zRot += side * ARM_OUT * s;
         }
         ModelPart leg = parts.apply(right ? "left_leg" : "right_leg");
-        if (leg != null) {
+        if (leg != null && liftLeg) {
             leg.xRot += LEG_BACK * s;
             leg.zRot += side * LEG_OUT * s;
         }
