@@ -22,6 +22,7 @@ public final class EntityStates<T> {
     public static final long FORGET_NANOS = 5_000_000_000L;
     private static final int SWEEP_ABOVE = 32;
     private static final int MAX_ENTITIES = 256;
+    private static final long SWEEP_EVERY_NANOS = 1_000_000_000L;
 
     private static final List<EntityStates<?>> ALL = new ArrayList<>();
     private static final List<Map<UUID, ?>> OTHERS = new ArrayList<>();
@@ -37,6 +38,7 @@ public final class EntityStates<T> {
 
     private final Map<UUID, Entry<T>> entries = new HashMap<>();
     private final Supplier<T> make;
+    private long sweptAt;
 
     public EntityStates(Supplier<T> make) {
         this.make = make;
@@ -47,7 +49,12 @@ public final class EntityStates<T> {
 
     /** The entity is being drawn now: its entry, made on first sight. */
     public Entry<T> seen(UUID uuid, long now) {
-        if (entries.size() > SWEEP_ABOVE) sweep(now);
+        // With many players in view every one of them, in every feature, would walk the whole map
+        // on every frame: once a second is enough, and at once only when it has outgrown its bound.
+        if (entries.size() > MAX_ENTITIES || entries.size() > SWEEP_ABOVE && now - sweptAt > SWEEP_EVERY_NANOS) {
+            sweptAt = now;
+            sweep(now);
+        }
         Entry<T> entry = entries.computeIfAbsent(uuid, k -> new Entry<>(make.get()));
         entry.seenAt = now;
         return entry;
