@@ -6,7 +6,6 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import strm.emfcompat.animationadditions.EMFCompatAnimationAdditionsMod;
 import strm.emfcompat.animationadditions.horsesync.compat.EMFCompat;
@@ -18,11 +17,6 @@ import java.util.stream.StreamSupport;
 public class ClientEventHandler {
 
     private static int cleanupCounter = 0;
-
-    @SubscribeEvent
-    public static void onRegisterClientCommands(RegisterClientCommandsEvent event) {
-        RidingPoseCommand.register(event.getDispatcher());
-    }
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Pre event) {

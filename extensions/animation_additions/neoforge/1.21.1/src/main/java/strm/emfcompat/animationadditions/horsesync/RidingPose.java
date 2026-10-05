@@ -4,11 +4,6 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Our own horse-riding pose for the player: a forward-leaning "jockey" seat — the whole upper body
  * (head, torso, arms) tips forward over the horse's neck as one unit while the legs grip the sides,
@@ -19,8 +14,7 @@ import java.util.Set;
  * (rotating a single part about its own neck pivot would detach it from the hips). The legs are
  * left out of the crouch so they keep hugging the barrel.</p>
  *
- * <p>Every value lives in {@link #PARAMS} and can be tuned live with {@code /hsride}
- * ({@link RidingPoseCommand}); {@link #apply} reads them each frame. Axis notes: negative
+ * <p>Axis notes: negative
  * {@code xRot} = forward for arms; body/head pivot at the neck so positive {@code crouch}/
  * {@code bodyLean} lean forward; legs are spread by position, not rotation.</p>
  */
@@ -31,63 +25,32 @@ public final class RidingPose {
     private static final float ARM_BASE_X = 5.0f;
     private static final float ARM_BASE_Y = 2.0f;
 
-    private static final Map<String, Float> PARAMS = new LinkedHashMap<>();
-    private static final Map<String, Float> DEFAULTS;
-
-    static {
-        // Legs: grip the sides (spread by position + roll), hanging straight down.
-        PARAMS.put("legPitch", 0.0f);
-        PARAMS.put("legBaseX", 1.9f);
-        PARAMS.put("legSpreadPos", 1.0f);
-        PARAMS.put("legRoll", -0.50f);
-        // Arms: forward and inward on the reins.
-        PARAMS.put("armPitch", -0.85f);
-        PARAMS.put("armYaw", 0.12f);
-        PARAMS.put("armRoll", -0.10f);
-        // Torso-only micro-lean (on top of the crouch).
-        PARAMS.put("bodyLean", 0.10f);
-        // Whole-upper-body forward lean about the hip (the gallop seat).
-        PARAMS.put("crouch", 0.30f);
-        // Gait-driven bob.
-        PARAMS.put("gaitFreq", 0.70f);
-        PARAMS.put("moveGain", 2.0f);
-        PARAMS.put("legBob", 0.15f);
-        PARAMS.put("armBob", 0.08f);
-        PARAMS.put("bodyBob", 0.04f);
-
-        DEFAULTS = Map.copyOf(PARAMS);
-    }
+    // Legs: grip the sides (spread by position + roll), hanging straight down.
+    private static final float LEG_PITCH = 0.0f;
+    private static final float LEG_BASE_X = 1.9f;
+    private static final float LEG_SPREAD_POS = 1.0f;
+    private static final float LEG_ROLL = -0.50f;
+    // Arms: forward and inward on the reins.
+    private static final float ARM_PITCH = -0.85f;
+    private static final float ARM_YAW = 0.12f;
+    private static final float ARM_ROLL = -0.10f;
+    // Torso-only micro-lean (on top of the crouch).
+    private static final float BODY_LEAN = 0.10f;
+    // Whole-upper-body forward lean about the hip (the gallop seat).
+    private static final float CROUCH = 0.30f;
+    // Gait-driven bob.
+    private static final float GAIT_FREQ = 0.70f;
+    private static final float MOVE_GAIN = 2.0f;
+    private static final float LEG_BOB = 0.15f;
+    private static final float ARM_BOB = 0.08f;
+    private static final float BODY_BOB = 0.04f;
 
     private RidingPose() {
     }
 
-    private static float p(String key) {
-        Float v = PARAMS.get(key);
-        return v == null ? 0.0f : v;
-    }
-
-    public static boolean set(String key, float value) {
-        if (!PARAMS.containsKey(key)) return false;
-        PARAMS.put(key, value);
-        return true;
-    }
-
-    public static Set<String> keys() {
-        return Collections.unmodifiableSet(PARAMS.keySet());
-    }
-
-    public static Map<String, Float> snapshot() {
-        return new LinkedHashMap<>(PARAMS);
-    }
-
-    public static void reset() {
-        PARAMS.clear();
-        PARAMS.putAll(DEFAULTS);
-    }
-
     /** The head is only captured/posed (losing its idle look-sway) while the crouch is active. */
     public static boolean capturesHead() {
-        return p("crouch") != 0.0f;
+        return CROUCH != 0.0f;
     }
 
     /**
@@ -99,13 +62,13 @@ public final class RidingPose {
      *                        are left for an active action pose (gun aim, melee swing) to control
      */
     public static void apply(PlayerModel<?> model, float horseLimbSwing, float horseLimbSpeed, boolean upperBody) {
-        float move = Mth.clamp(horseLimbSpeed * p("moveGain"), 0.0f, 1.0f);
-        float bob = Mth.sin(horseLimbSwing * p("gaitFreq")) * move;
+        float move = Mth.clamp(horseLimbSpeed * MOVE_GAIN, 0.0f, 1.0f);
+        float bob = Mth.sin(horseLimbSwing * GAIT_FREQ) * move;
 
         // Legs grip the sides — always posed, even while an action controls the upper body.
-        float legX = p("legBaseX") + p("legSpreadPos");
-        float legPitch = p("legPitch") + bob * p("legBob");
-        float legRoll = p("legRoll");
+        float legX = LEG_BASE_X + LEG_SPREAD_POS;
+        float legPitch = LEG_PITCH + bob * LEG_BOB;
+        float legRoll = LEG_ROLL;
 
         ModelPart rightLeg = model.rightLeg;
         rightLeg.x = -legX;
@@ -125,9 +88,9 @@ public final class RidingPose {
         }
 
         // Arm base rotation (reins). Crouch adds to this below.
-        float armPitch = p("armPitch") + bob * p("armBob");
-        float armYaw = p("armYaw");
-        float armRoll = p("armRoll");
+        float armPitch = ARM_PITCH + bob * ARM_BOB;
+        float armYaw = ARM_YAW;
+        float armRoll = ARM_ROLL;
 
         ModelPart rightArm = model.rightArm;
         rightArm.xRot = armPitch;
@@ -140,18 +103,17 @@ public final class RidingPose {
         leftArm.zRot = -armRoll;
 
         // Torso base rotation (micro-lean). Crouch adds to this below.
-        model.body.xRot = p("bodyLean") + bob * p("bodyBob");
+        model.body.xRot = BODY_LEAN + bob * BODY_BOB;
         model.body.yRot = 0.0f;
         model.body.zRot = 0.0f;
 
         // Gallop crouch: tilt head + body + arms forward about the hip, as one rigid unit, so they
         // stay joined at the seat. The head keeps its look rotation (we only add to it).
-        float crouch = p("crouch");
-        if (crouch != 0.0f) {
-            leanAboutHip(model.body, 0.0f, 0.0f, crouch);
-            leanAboutHip(model.head, 0.0f, 0.0f, crouch);
-            leanAboutHip(rightArm, -ARM_BASE_X, ARM_BASE_Y, crouch);
-            leanAboutHip(leftArm, ARM_BASE_X, ARM_BASE_Y, crouch);
+        if (CROUCH != 0.0f) {
+            leanAboutHip(model.body, 0.0f, 0.0f, CROUCH);
+            leanAboutHip(model.head, 0.0f, 0.0f, CROUCH);
+            leanAboutHip(rightArm, -ARM_BASE_X, ARM_BASE_Y, CROUCH);
+            leanAboutHip(leftArm, ARM_BASE_X, ARM_BASE_Y, CROUCH);
         }
     }
 
