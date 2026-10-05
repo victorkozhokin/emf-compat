@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.blockuse;
 
+import strm.emfcompat.animationadditions.interaction.EntityStates;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -66,7 +67,7 @@ final class Panel implements BlockTarget {
         }
     }
 
-    private final Map<UUID, Spot> looked = new HashMap<>();
+    private final Map<UUID, Spot> looked = EntityStates.alsoClear(new HashMap<>());
 
     @Override
     public boolean matches(BlockState block) {

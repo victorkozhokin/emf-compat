@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.blockuse;
 
+import strm.emfcompat.animationadditions.interaction.EntityStates;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -81,7 +82,7 @@ final class ValuePanel implements BlockTarget {
     }
 
     /** The box each player looks at, for the snapshot: {@link #changed} is not told where the look is. */
-    private final Map<UUID, Box> looked = new HashMap<>();
+    private final Map<UUID, Box> looked = EntityStates.alsoClear(new HashMap<>());
 
     @Override
     public boolean matches(BlockState block) {

@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.horsesync;
 
+import net.neoforged.api.distmarker.Dist;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
@@ -13,7 +14,7 @@ import strm.emfcompat.animationadditions.horsesync.compat.EMFCompat;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@EventBusSubscriber(modid = EMFCompatAnimationAdditionsMod.MOD_ID)
+@EventBusSubscriber(modid = EMFCompatAnimationAdditionsMod.MOD_ID, value = Dist.CLIENT)
 public class ClientEventHandler {
 
     private static int cleanupCounter = 0;

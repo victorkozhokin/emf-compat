@@ -5,7 +5,6 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.PoseManager;
-import strm.emfcompat.animationadditions.horsesync.compat.EMFCompat;
 
 /** Horse Sync: keeps the rider on a horse animated by EMF and gives them a riding pose. */
 public final class HorseSync {
@@ -42,7 +41,6 @@ public final class HorseSync {
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {
-        EMFCompat.init();
         // EMF calls this back once per rendered entity, right after the pack animation.
         HorseSyncAnimationHook.register();
     }

@@ -1,5 +1,6 @@
 package strm.emfcompat.animationadditions.blockuse;
 
+import strm.emfcompat.animationadditions.interaction.EntityStates;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -58,7 +59,7 @@ final class TrainControls implements BlockTarget {
     private record Driven(WeakReference<Entity> contraption, BlockPos controls, int at) {
     }
 
-    private static final Map<UUID, Driven> DRIVEN = new HashMap<>();
+    private static final Map<UUID, Driven> DRIVEN = EntityStates.alsoClear(new HashMap<>());
     private static final Map<Class<?>, Boolean> CONTRAPTIONS = new HashMap<>();
     private static Method controlling, toGlobal, getContraption, getBlocks, getActors, controlsPos, handlerContraption;
     private static Field temporaryData, localPos, speed, steering, equip;

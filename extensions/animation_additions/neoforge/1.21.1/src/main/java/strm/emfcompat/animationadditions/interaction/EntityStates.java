@@ -23,6 +23,7 @@ public final class EntityStates<T> {
     private static final int MAX_ENTITIES = 256;
 
     private static final List<EntityStates<?>> ALL = new ArrayList<>();
+    private static final List<Map<UUID, ?>> OTHERS = new ArrayList<>();
 
     public static final class Entry<T> {
         public final T value;
@@ -79,10 +80,19 @@ public final class EntityStates<T> {
         return entries.size();
     }
 
+    /** A map by player or entity kept outside of here: emptied with everything else on leaving the world. */
+    public static <M extends Map<UUID, ?>> M alsoClear(M map) {
+        synchronized (ALL) {
+            OTHERS.add(map);
+        }
+        return map;
+    }
+
     /** Leaving the world: nothing of it is kept. */
     public static void clearAll() {
         synchronized (ALL) {
             for (EntityStates<?> states : ALL) states.entries.clear();
+            for (Map<UUID, ?> map : OTHERS) map.clear();
         }
     }
 }
