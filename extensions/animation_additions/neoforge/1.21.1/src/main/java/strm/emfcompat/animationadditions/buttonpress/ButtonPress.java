@@ -197,16 +197,7 @@ public final class ButtonPress implements InteractionProvider {
                 scan(player, state);
                 state.scannedAt = now;
             }
-            // A button going down, or a lever thrown either way, near the player is a press -
-            // whoever looks, it is theirs.
-            BlockPos pressed = null;
-            for (int i = 0; i < state.nearby.size(); i++) {
-                BlockState block = level.getBlockState(state.nearby.get(i));
-                boolean on = isTarget(block) && on(block);
-                boolean was = state.powered.get(i);
-                if (block.getBlock() instanceof ButtonBlock ? on && !was : on != was) pressed = state.nearby.get(i);
-                state.powered.set(i, on);
-            }
+            BlockPos pressed = pressed(level, state);
             IKFrame frame = context.frame();
             BlockPos target = pressed != null && reachable(player, frame, pressed) ? pressed : look(player, frame, state);
             if (pressed != null && pressed.equals(target)) state.pressedAt = now;
@@ -262,6 +253,22 @@ public final class ButtonPress implements InteractionProvider {
                     * (stretchTarget > state.stretch ? Smoothing.fadeIn(dt, ReachPose.SECONDS) : Smoothing.fadeOut(dt, ReachPose.SECONDS));
             if (state.stretch < 1e-3f) state.stretch = 0f;
         }
+    }
+
+    /**
+     * A button going down, or a lever thrown either way, near the player is a press - whoever
+     * looks, it is theirs. The last of them this frame, or {@code null}; what each is now is kept.
+     */
+    private static BlockPos pressed(Level level, State state) {
+        BlockPos pressed = null;
+        for (int i = 0; i < state.nearby.size(); i++) {
+            BlockState block = level.getBlockState(state.nearby.get(i));
+            boolean on = isTarget(block) && on(block);
+            boolean was = state.powered.get(i);
+            if (block.getBlock() instanceof ButtonBlock ? on && !was : on != was) pressed = state.nearby.get(i);
+            state.powered.set(i, on);
+        }
+        return pressed;
     }
 
     private static String ineligible(AbstractClientPlayer player) {

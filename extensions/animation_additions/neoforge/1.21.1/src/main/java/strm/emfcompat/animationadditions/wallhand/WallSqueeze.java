@@ -120,6 +120,7 @@ public final class WallSqueeze {
                 && !player.isPassenger() && !player.isSleeping() && !player.isFallFlying() && !player.isSwimming()
                 && (player.getPose() == Pose.STANDING || player.getPose() == Pose.CROUCHING);
         float squeezed = 0f, upRight = 0f, upLeft = 0f;
+        boolean turned = false;
         if (on) {
             float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
             Vec3 at = player.getPosition(partial);
@@ -150,13 +151,14 @@ public final class WallSqueeze {
                 upLeft = full * up(turn, (float) (roomLeft / PIXEL) - over);
                 squeezed = full;
                 decided = "turn";
+                turned = true;
             } else if (Math.abs(over) > 0.05f) {
                 squeezed = Math.min(1f, Math.abs(over) / MAX_SHIFT);
                 decided = over > 0 ? "shift-L" : "shift-R";
             }
         }
         s.arms += (squeezed - s.arms) * Smoothing.follow(dt, SECONDS);
-        s.hands += ((decided.equals("turn") ? squeezed : 0f) - s.hands) * Smoothing.follow(dt, SECONDS);
+        s.hands += ((turned ? squeezed : 0f) - s.hands) * Smoothing.follow(dt, SECONDS);
         s.upRight += (upRight - s.upRight) * Smoothing.follow(dt, SECONDS);
         s.upLeft += (upLeft - s.upLeft) * Smoothing.follow(dt, SECONDS);
         if (!decided.equals(s.logged)) {
