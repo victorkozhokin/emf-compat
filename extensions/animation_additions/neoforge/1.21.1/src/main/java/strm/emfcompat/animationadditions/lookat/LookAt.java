@@ -43,6 +43,8 @@ public final class LookAt implements InteractionProvider {
     /** A turn of the camera smaller than this, degrees, still counts as idle. */
     private static final float LOOK_JITTER = 0.5f;
     private static final double RANGE = 8.0;
+    /** Who to look at is chosen this often, not every frame: the creatures round the player and a line of sight to each. */
+    private static final long PICK_EVERY_NANOS = 150_000_000L;
     /** How far the head turns from the body at most. */
     private static final float NECK_YAW = (float) Math.toRadians(70);
     private static final float NECK_PITCH = (float) Math.toRadians(60);
@@ -53,7 +55,7 @@ public final class LookAt implements InteractionProvider {
         float lastYaw = Float.NaN, lastPitch;
         int lastSlot = -1;
         boolean lastCrouching;
-        long idleSince;
+        long idleSince, pickedAt;
         int targetId = -1;
     }
 
@@ -96,7 +98,16 @@ public final class LookAt implements InteractionProvider {
         if (acted || state.idleSince == 0) state.idleSince = now;
         boolean idle = (now - state.idleSince) / 1e9 >= IDLE_SECONDS;
 
-        LivingEntity target = idle && !player.isSleeping() ? pick(player, frame, state) : null;
+        LivingEntity target = null;
+        if (!idle || player.isSleeping()) {
+            state.pickedAt = 0;
+        } else if (now - state.pickedAt >= PICK_EVERY_NANOS) {
+            target = pick(player, frame, state);
+            state.pickedAt = now;
+        } else if (state.targetId != -1 && player.level().getEntity(state.targetId) instanceof LivingEntity kept && kept.isAlive()) {
+            // Between two looks round the head stays on the one it has.
+            target = kept;
+        }
         state.targetId = target == null ? -1 : target.getId();
         if (target == null) {
             context.decide("camera");
