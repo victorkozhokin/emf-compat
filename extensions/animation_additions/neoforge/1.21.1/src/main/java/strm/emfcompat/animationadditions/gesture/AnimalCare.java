@@ -5,13 +5,23 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Shearable;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.animal.goat.Goat;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.EntityHitResult;
 import org.joml.Vector3f;
+import strm.emfcompat.animationadditions.interaction.InteractionContext;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 
 /**
- * Feeding an animal, milking it, shearing it - set off by the interaction the game accepted, and
- * following the animal while it lasts. Feeding: the food to its mouth, then the other hand strokes
+ * Feeding an animal, milking it, shearing it. With the food, the bucket or the shears in hand and
+ * the animal under the crosshair the hand is already held out to it; the click the game accepts
+ * takes it the rest of the way and starts the work, which follows the animal while it lasts. Feeding: the food to its mouth, then the other hand strokes
  * its head. Milking: bent down, the bucket under it, the other hand working. Shearing: the shears
  * along the wool, the other hand on its back.
  */
@@ -42,14 +52,48 @@ public final class AnimalCare extends Gesture {
         play.right = (player.getMainArm() == HumanoidArm.RIGHT) == mainHand;
     }
 
-    protected double seconds(Play play) {
-        return play.kind == FEED ? 2.3 : play.kind == MILK ? 2.6 : 1.8;
+    protected boolean poises() {
+        return true;
     }
 
-    protected void pose(Play play, float phase, Pose out) {
+    /** The food, the bucket or the shears in a hand, and under the crosshair an animal that will take it. */
+    protected boolean poised(InteractionContext context, Play play) {
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.hitResult instanceof EntityHitResult hit)) return false;
+        Entity target = hit.getEntity();
+        AbstractClientPlayer player = context.player();
+        for (InteractionHand hand : InteractionHand.values()) {
+            ItemStack stack = player.getItemInHand(hand);
+            int kind = stack.is(Items.SHEARS) && target instanceof Shearable wool && wool.readyForShearing() ? SHEAR
+                    : stack.is(Items.BUCKET) && (target instanceof Cow || target instanceof Goat) && !((Animal) target).isBaby() ? MILK
+                    : target instanceof Animal animal && !stack.isEmpty() && animal.isFood(stack)
+                    // All the client knows of whether it will eat: not in love already. (Its age is the server's.)
+                    && (animal.isBaby() || animal.canFallInLove()) ? FEED : -1;
+            if (kind < 0) continue;
+            if (!play.acted) {
+                play.kind = kind;
+                play.entity = target.getId();
+                play.point = target.position();
+                play.right = (player.getMainArm() == HumanoidArm.RIGHT) == (hand == InteractionHand.MAIN_HAND);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    protected float approach(Play play) {
+        return play.kind == FEED ? .72f : .8f;
+    }
+
+    protected double work(Play play) {
+        return play.kind == FEED ? 1.5 : play.kind == MILK ? 1.7 : 1.05;
+    }
+
+    protected void pose(Play play, float work, Pose out) {
         float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
         Entity animal = play.player.level().getEntity(play.entity);
         Vec3 at = animal == null ? play.point : animal.getPosition(partial);
+        if (at == null) return;
         float height = animal == null ? 1f : animal.getBbHeight(), width = animal == null ? .9f : animal.getBbWidth();
         Vec3 mouth = animal == null ? at.add(0, height * .8, 0) : animal.getEyePosition(partial);
         // Towards the player, level: the side of the animal that is worked at.
@@ -57,45 +101,45 @@ public final class AnimalCare extends Gesture {
         side = side.lengthSqr() < 1e-6 ? new Vec3(0, 0, 1) : side.normalize();
         Vec3 along = new Vec3(-side.z, 0, side.x);
         boolean right = play.right;
+        float level = play.level;
+        // The work swells in and out of itself, so its first and last moments are still.
+        float busy = play.acted ? (float) Math.sin(Math.PI * Math.min(1, work)) : 0;
         Vector3f tool, other;
-        float bend, toolReach, otherReach;
+        float toolReach = level, otherReach = level, bend;
         if (play.kind == FEED) {
-            float give = bell(phase, .22f, .46f, .72f), stroke = bell(phase - .3f, .2f, .5f, .64f);
-            float rub = phase > .5f && phase < .8f ? (float) Math.sin(Math.PI * 4 * (phase - .5f) / .3f) : 0;
-            tool = model(play, mouth.add(side.scale(.12)));
-            other = model(play, mouth.add(0, .22, 0).add(along.scale(.1 * rub)));
-            toolReach = give;
-            otherReach = stroke;
-            bend = Math.max(give, stroke) * Reach.low(model(play, mouth).y) * (float) Math.toRadians(20);
-            out.head = new float[]{.12f * Math.max(give, stroke), 0};
-            out.apart = phase > .06f && phase < .8f;
+            // The food is held out and given; the giving hand comes away as the other strokes the head.
+            float stroke = play.acted ? smooth((work - .12f) / .2f) * (1 - smooth((work - .8f) / .2f)) : 0;
+            float rub = (float) Math.sin(Math.PI * 2 * 2 * work) * stroke;
+            tool = model(play, mouth.add(side.scale(.1)).add(0, -.04 + .03 * Math.sin(Math.PI * 6 * work) * busy, 0));
+            other = model(play, mouth.add(0, .24, 0).add(along.scale(.11 * rub)).add(side.scale(-.05 * rub)));
+            toolReach = level * (1 - smooth((work - .5f) / .3f));
+            otherReach = stroke * Math.min(1, level * 1.4f);
+            bend = Math.max(toolReach, otherReach) * ((float) Math.toRadians(9) + Reach.low(tool.y) * (float) Math.toRadians(16));
+            out.head = new float[]{.12f * level, 0};
             foot(out, right, 1.2f, .8f, .2f);
         } else if (play.kind == MILK) {
-            float in = bell(phase, .25f, .78f, .95f);
-            float pull = phase > .34f && phase < .76f ? (float) Math.sin(Math.PI * 6 * (phase - .34f) / .42f) : 0;
+            float pull = (float) Math.sin(Math.PI * 2 * 4 * work) * busy;
             Vec3 under = at.add(side.scale(width * .3)).add(0, height * .36, 0);
-            tool = model(play, under.add(along.scale(right ? -.12 : .12)));
-            other = model(play, under.add(along.scale(right ? .12 : -.12)).add(0, .1 + .07 * pull, 0));
-            toolReach = otherReach = in;
-            bend = in * (float) Math.toRadians(30);
-            out.head = new float[]{.2f * in, 0};
-            out.apart = phase > .05f && phase < .82f;
+            tool = model(play, under.add(along.scale(right ? -.13 : .13)).add(0, -.04, 0));
+            other = model(play, under.add(along.scale(right ? .13 : -.13)).add(0, .12 + .07 * pull, 0));
+            bend = level * (float) Math.toRadians(30) + .02f * pull;
+            out.head = new float[]{.2f * level, 0};
             foot(out, right, 1.3f, 1.1f, .9f);
         } else {
-            float in = bell(phase, .25f, .72f, .93f);
-            float snip = phase > .3f && phase < .72f ? (float) Math.sin(Math.PI * 3 * (phase - .3f) / .42f) : 0;
-            Vec3 wool = at.add(side.scale(width * .32)).add(0, height * .72, 0).add(along.scale(.28 * snip));
+            float sweep = (float) Math.sin(Math.PI * 2 * 1.5 * work) * busy;
+            Vec3 wool = at.add(side.scale(width * .32)).add(0, height * .72, 0).add(along.scale(.3 * sweep));
             tool = model(play, wool);
             other = model(play, at.add(side.scale(width * .1)).add(0, height * .98, 0));
-            toolReach = otherReach = in;
-            bend = in * Reach.low(model(play, wool).y) * (float) Math.toRadians(18);
-            out.head = new float[]{.1f * in, 0};
-            out.apart = phase > .05f && phase < .78f;
+            otherReach = level * (play.acted ? 1 : .5f);
+            bend = level * ((float) Math.toRadians(6) + Reach.low(tool.y) * (float) Math.toRadians(16));
+            out.head = new float[]{.1f * level, .05f * sweep};
+            out.yaw = .04f * sweep;
             foot(out, right, 1.2f, .8f, .4f);
         }
         out.hand(right, tool, toolReach);
         out.hand(!right, other, otherReach);
         out.pitch = bend;
+        out.apart = !play.back;
     }
 
     /** The foot under the free hand forward, the other back, the pair this far apart. */

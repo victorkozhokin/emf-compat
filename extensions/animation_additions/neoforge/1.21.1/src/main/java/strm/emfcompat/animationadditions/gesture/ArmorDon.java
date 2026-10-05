@@ -143,7 +143,8 @@ public final class ArmorDon extends Gesture {
     }
 
     protected void pose(Play play, float phase, Pose out) {
-        float in = bell(phase, .3f, .64f, .93f);
+        // Out at once: the piece is on already, the hands must not come after it.
+        float in = swell(phase, .2f, .64f, .93f);
         // Settled into place once the hands are there: a short push, a pull or a tug.
         float set = phase > .36f && phase < .62f ? (float) Math.sin(Math.PI * (phase - .36f) / .26f) : 0;
         Vector3f at;

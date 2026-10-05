@@ -38,7 +38,7 @@ public abstract class Gesture implements InteractionProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatGesture");
     private static final List<Gesture> ALL = new ArrayList<>();
     /** A short release: the runtime eases off the last pose over some six times this (see PocketStash). */
-    private static final Candidate.Timing TIMING = new Candidate.Timing(.22, .05, .08);
+    private static final Candidate.Timing TIMING = new Candidate.Timing(.07, .05, .05);
     private static final long BUSY_NANOS = 14_000_000_000L;
     private static final float NECK = (float) Math.toRadians(70);
     private static final Vector3f HOME = new Vector3f();
@@ -103,6 +103,14 @@ public abstract class Gesture implements InteractionProvider {
         final BraceSteps.State stance = new BraceSteps.State();
         Effector primary = Effector.RIGHT_ARM;
         boolean shows;
+        /**
+         * For a gesture that is poised before the act ({@link Gesture#poises}): whether the player
+         * is about to act, whether the act has come, how far out the hands are (0..1, eased by a
+         * spring so it answers at once and never jumps), and how far through the work it is (0..1).
+         */
+        public boolean poised, acted, back;
+        public float level, work;
+        float speed;
     }
 
     private final EntityStates<Play> states = new EntityStates<>(Play::new);
@@ -113,7 +121,33 @@ public abstract class Gesture implements InteractionProvider {
     }
 
     /** How long the gesture takes, seconds. */
-    protected abstract double seconds(Play play);
+    protected double seconds(Play play) {
+        return 1;
+    }
+
+    /**
+     * A gesture that begins before the act: while this player is {@link #poised} to do it - the
+     * right thing in the hand, the right thing under the crosshair - the hands are already part of
+     * the way there, so when the click comes the work starts at once instead of after it. Its
+     * {@link #pose} gets the work's progress as its phase and reads {@link Play#level}.
+     */
+    protected boolean poises() {
+        return false;
+    }
+
+    /** Whether this player is about to act; sets the play's kind, point and hand while it has not acted yet. */
+    protected boolean poised(InteractionContext context, Play play) {
+        return false;
+    }
+
+    /** How far out the hands wait, 0..1, and how long the work takes once the act has come, seconds. */
+    protected float approach(Play play) {
+        return .7f;
+    }
+
+    protected double work(Play play) {
+        return 1;
+    }
 
     /** What it asks for at {@code phase}; {@code out} comes empty. */
     protected abstract void pose(Play play, float phase, Pose out);
@@ -157,6 +191,15 @@ public abstract class Gesture implements InteractionProvider {
         long now = System.nanoTime();
         Play play = states.seen(player.getUUID(), now).value;
         busyAt = now;
+        if (poises()) {
+            // The act itself: the hands go the rest of the way and the work begins, whatever came before.
+            if (!(play.playing && play.acted && !play.back && again(play, kind, point))) play.work = 0;
+            play.playing = play.acted = true;
+            play.back = play.pending = false;
+            play.kind = kind;
+            play.point = point;
+            return play;
+        }
         if (play.playing && !again(play, kind, point)) return play;
         if (!play.playing) {
             play.pending = true;
@@ -186,6 +229,12 @@ public abstract class Gesture implements InteractionProvider {
         return v * v * (3 - 2 * v);
     }
 
+    /** The same, but out at once: fast off the mark and easing into place, for what must not lag behind its cause. */
+    protected static float swell(float phase, float in, float out, float end) {
+        float t = Math.max(0, Math.min(1, phase / in)), k = 1 - t;
+        return (1 - k * k * k) * (1 - smooth((phase - out) / (end - out)));
+    }
+
     /** 0 → 1 over {@code in}, held, 1 → 0 from {@code out} to {@code end}. */
     protected static float bell(float phase, float in, float out, float end) {
         return smooth(phase / in) * (1 - smooth((phase - out) / (end - out)));
@@ -202,12 +251,31 @@ public abstract class Gesture implements InteractionProvider {
             play.frame = context.frame();
             watch(context, play);
         }
+        if (poises() && player == net.minecraft.client.Minecraft.getInstance().player) {
+            if (play == null) play = states.seen(player.getUUID(), now).value;
+            play.player = player;
+            play.frame = context.frame();
+            play.poised = isEnabled() && ready(player) && poised(context, play);
+            if (play.poised) {
+                busyAt = now;
+                if (!play.playing) {
+                    play.playing = true;
+                    play.acted = play.back = false;
+                    play.work = 0;
+                }
+            }
+        }
         if (quiet(now)) return;
         if (play == null) play = states.seen(player.getUUID(), now).value;
         play.player = player;
         play.frame = context.frame();
         play.shows = false;
-        if (play.playing) {
+        if (poises()) {
+            if (play.playing) {
+                busyAt = now;
+                spring(play, (float) Math.min(.1, context.dt()));
+            }
+        } else if (play.playing) {
             busyAt = now;
             float step = (float) (Math.min(.1, context.dt()) / Math.max(.2, seconds(play)));
             float hold = holdAt();
@@ -249,8 +317,8 @@ public abstract class Gesture implements InteractionProvider {
         }
         Pose pose = play.pose;
         pose.reset();
-        pose(play, play.phase, pose);
-        if (play.phase >= pose.letGo) {
+        pose(play, poises() ? play.work : play.phase, pose);
+        if (!poises() && play.phase >= pose.letGo) {
             context.decide("let go");
             return;
         }
@@ -273,7 +341,8 @@ public abstract class Gesture implements InteractionProvider {
         }
         play.primary = r != null ? Effector.RIGHT_ARM : l != null ? Effector.LEFT_ARM : Effector.HEAD;
         play.shows = true;
-        out.add(Candidate.of(id(), Category.USE, 6, 1f, TIMING, aims));
+        // The click swings the arm; with the hands already on their way that swing is not shown over them.
+        out.add(Candidate.of(id(), Category.USE, 6, 1f, TIMING, aims).withQuietSwing(true));
         // What set it off was a click, and a click swings the arm: the gesture is what shows.
         context.claimArms();
         context.decide(play.phase < holdAt() ? "play" : "hold");
@@ -284,6 +353,38 @@ public abstract class Gesture implements InteractionProvider {
      * The way is taken in the arm's angles, not along a line for the hand: a hand brought down
      * from the head along a line passes the shoulder itself and the arm whips round it.
      */
+    /**
+     * One frame of a poised gesture: out to where it waits, all the way and through the work once
+     * the act has come, back when the work is done or the player turned away. The level follows
+     * its target as a critically damped spring - it starts moving the frame it is asked to, eases
+     * into place, and a change of mind half way is one curve, not two joined.
+     */
+    private void spring(Play play, float dt) {
+        float target;
+        if (play.back) target = 0;
+        else if (play.acted) {
+            target = 1;
+            play.work = Math.min(1, play.work + dt / (float) Math.max(.05, work(play)));
+            if (play.work >= 1) play.back = true;
+        } else if (play.poised) target = approach(play);
+        else {
+            play.back = true;
+            target = 0;
+        }
+        float stiff = play.back ? 10f : 17f;
+        int steps = Math.max(1, (int) Math.ceil(dt / .008f));
+        float h = dt / steps;
+        for (int i = 0; i < steps; i++) {
+            play.speed += (stiff * stiff * (target - play.level) - 2 * stiff * play.speed) * h;
+            play.level += play.speed * h;
+        }
+        play.level = Math.max(0, Math.min(1, play.level));
+        if (play.back && play.level < .015f && Math.abs(play.speed) < .25f) {
+            play.playing = play.acted = play.back = false;
+            play.level = play.speed = play.work = 0;
+        }
+    }
+
     private static float[] arm(float[] angles, Vector3f at, float reach, Vector3f pivot) {
         if (angles != null) return new float[]{angles[0], angles[1]};
         if (at == null) return null;

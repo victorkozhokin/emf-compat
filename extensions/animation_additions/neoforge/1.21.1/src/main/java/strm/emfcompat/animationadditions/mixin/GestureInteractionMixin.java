@@ -67,7 +67,7 @@ public class GestureInteractionMixin {
     @Inject(method = "useItemOn", at = @At("RETURN"))
     private void emfcompat$planted(LocalPlayer player, InteractionHand hand, BlockHitResult result, CallbackInfoReturnable<InteractionResult> cir) {
         if (!cir.getReturnValue().consumesAction() || !(emfcompat$used.getItem() instanceof BlockItem seed)) return;
-        if (seed.getBlock() instanceof CropBlock || seed.getBlock() instanceof StemBlock || seed.getBlock() instanceof NetherWartBlock)
+        if (HandTo.plants(seed))
             HandTo.done(player, HandTo.SEED, result.getLocation(), hand == InteractionHand.MAIN_HAND);
     }
 }

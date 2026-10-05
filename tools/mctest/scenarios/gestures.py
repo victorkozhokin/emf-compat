@@ -1,7 +1,7 @@
 """The short gestures that follow a real action, on the lit pad of the ATLAS world (450 150 7):
 feeding, milking and shearing, an armour stand, a seed, armour put on, a shake after water, a chest
 looked through. Each case is run four times, shot from behind, the left, the face and the right
-every other tick, and marked `gesture <case>/<view>` in the log; the first run also reads the model
+every other tick - the second before the click too, when the hand is already held out - and marked `gesture <case>/<view>` in the log; the first run also reads the model
 every tick. GESTURES=feed,milk runs only those. Writes gestures.json next to itself; edit this, not
 the JSON."""
 import json
@@ -37,9 +37,7 @@ def run(name, view, yaw, first):
         s += [{"cmd": "item replace entity @s weapon.mainhand with %s" % item}]
     s += [{"orbit": [yaw, 10, distance]}, {"wait": 25}, {"cameraLook": [-90, pitch]}, {"wait": 4},
           {"log": "gesture %s/%s" % (name, view)}]
-    if act == "use":
-        s += [{"click": "use"}]
-    elif act == "armour":
+    if act == "armour":
         s += [{"cmd": "item replace entity @s armor.%s with iron_%s" % p}
               for p in (("head", "helmet"), ("chest", "chestplate"), ("legs", "leggings"), ("feet", "boots"))]
     elif act == "boots":
@@ -48,11 +46,15 @@ def run(name, view, yaw, first):
         s += [{"cmd": "tp @s 447.0 150 7.5 -90 0"}, {"wait": 40}, {"cmd": "tp @s %s %s %s -90 0" % (X, Y, Z)}, {"wait": 8}]
     elif act == "chest":
         s += [{"hideScreen": True}, {"click": "use"}]
-    for i in range(ticks):
+    # With the thing in hand and the target under the crosshair the hand is poised first; the click comes a second in.
+    poise = 20 if act == "use" else 0
+    for i in range(ticks + poise):
         s += [{"wait": 1}]
+        if act == "use" and i == poise:
+            s += [{"log": "gesture %s/%s click" % (name, view)}, {"click": "use"}]
         if first:
             s += [{"model": "player"}]
-        if i % 2 == 0 and i // 2 < 30:
+        if i % 2 == 0 and i // 2 < 40:
             s += [{"screenshot": "gesture-%s-%s-%02d" % (name, view, i // 2)}]
         if act == "chest" and i == 70:
             s += [{"closeScreen": True}]
