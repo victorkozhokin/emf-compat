@@ -5,8 +5,13 @@ import org.joml.Quaternionf;
 /** Small shared upper-body correction: both fixed-length arms retain their contacts. */
 final class CockpitContact {
     static Quaternionf fit(Vector3f right,Vector3f left,Vector3f rTarget,Vector3f lTarget) {
-        Vector3f angles=new Vector3f();float best=score(angles,right,left,rTarget,lTarget);
-        if(best<1)return new Quaternionf();
+        return fit(new Quaternionf(),right,left,rTarget,lTarget);
+    }
+    static Quaternionf fit(Quaternionf previous,Vector3f right,Vector3f left,Vector3f rTarget,Vector3f lTarget) {
+        // Seed from the last solution so adjacent wheel positions keep the same lean branch.
+        Vector3f angles=new Quaternionf(previous).getEulerAnglesZYX(new Vector3f());
+        float best=score(angles,right,left,rTarget,lTarget);
+        if(score(new Vector3f(),right,left,rTarget,lTarget)<1)return new Quaternionf();
         angles=refine(angles,right,left,rTarget,lTarget);
         // Try alternate lean directions only when the local solve still leaves a palm detached.
         // The shallow greedy search can otherwise settle on the wrong side of a low keyboard.
@@ -42,10 +47,9 @@ final class CockpitContact {
     static Quaternionf follow(Quaternionf current,Quaternionf wanted,float blend,
             Vector3f right,Vector3f left,Vector3f rt,Vector3f lt) {
         var smooth=new Quaternionf(current).slerp(wanted,blend);
-        // Cancel discontinuities in the source pack immediately; smoothing those would detach a palm.
-        // Normal gradual shifts still use the shared, damped upper-body correction.
-        return gap(smooth,right,left,rt,lt)>2.08f && gap(wanted,right,left,rt,lt)<gap(smooth,right,left,rt,lt)
-                ? new Quaternionf(wanted):smooth;
+        // Contact error is not evidence of a source-pose discontinuity: it also occurs during
+        // normal regrips. Never snap the torso across alternate reach solutions.
+        return smooth;
     }
     private static float score(Vector3f a,Vector3f right,Vector3f left,Vector3f rt,Vector3f lt) {
         var q=new Quaternionf().rotationZYX(a.z,a.y,a.x);

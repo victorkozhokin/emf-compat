@@ -12,7 +12,7 @@ class CockpitContactTest {
         double after=Math.pow(q.transform(new Vector3f(r)).distance(rt)-11,2)+Math.pow(q.transform(new Vector3f(l)).distance(lt)-11,2);
         assertTrue(after<before*.5);assertTrue(q.angle()<Math.toRadians(31));
     }
-    @Test void sourcePoseDiscontinuityDoesNotDetachTheHandsDuringSmoothing() {
+    @Test void contactErrorDoesNotSnapTheTorsoDuringSmoothing() {
         var r=new Vector3f(-7,-11,0);var l=new Vector3f(3,-11,0);
         var rt=new Vector3f(-9,-11,0);var lt=new Vector3f(8,-11,-10);
         var wanted=CockpitContact.fit(r,l,rt,lt);
@@ -20,7 +20,8 @@ class CockpitContactTest {
         var plain=new Quaternionf(old).slerp(wanted,.1f);
         assertTrue(CockpitContact.gap(plain,r,l,rt,lt)>2.08f);
         var fixed=CockpitContact.follow(old,wanted,.1f,r,l,rt,lt);
-        assertEquals(CockpitContact.gap(wanted,r,l,rt,lt),CockpitContact.gap(fixed,r,l,rt,lt),1e-5);
+        assertEquals(0,new Quaternionf(fixed).difference(plain).angle(),1e-5);
+        assertTrue(new Quaternionf(old).difference(fixed).angle()<new Quaternionf(old).difference(wanted).angle());
         var gradual=CockpitContact.follow(wanted,wanted,.1f,r,l,rt,lt);
         assertEquals(0,new Quaternionf(gradual).difference(wanted).angle(),1e-5);
     }
@@ -43,5 +44,21 @@ class CockpitContactTest {
                 assertTrue(Math.abs(q.transform(new Vector3f(c[hand])).distance(c[hand+2])-11)<2.08f);
             assertTrue(q.angle()<Math.toRadians(31));
         }
+    }
+    @Test void alternatingReachSolutionsRemainDampedAcrossRepeatedTurns() {
+        var r=new Vector3f(-7,-11,0);var l=new Vector3f(3,-11,0);
+        var rt=new Vector3f(-9,-11,0);var lt=new Vector3f(8,-11,-10);
+        var q=new Quaternionf();
+        for(int i=0;i<180;i++) {
+            var wanted=CockpitContact.fit(q,r,l,rt,lt);
+            var next=CockpitContact.follow(q,wanted,.1f,r,l,rt,lt);
+            float full=new Quaternionf(q).difference(wanted).angle();
+            float step=new Quaternionf(q).difference(next).angle();
+            assertTrue(step<=full*.11f+.001f,"Contact error must not bypass the smooth transition");
+            q=next;
+            rt.y+=.015f*(float)Math.sin(i*.1);
+            lt.y-=.015f*(float)Math.sin(i*.1);
+        }
+        assertTrue(CockpitContact.gap(q,r,l,rt,lt)<CockpitContact.gap(new Quaternionf(),r,l,rt,lt));
     }
 }

@@ -1,5 +1,7 @@
 package strm.emfcompat.animationadditions.buttonpress;
 
+import net.minecraft.client.Minecraft;
+
 import strm.emfcompat.animationadditions.torso.LowReach;
 
 import net.minecraft.client.model.geom.ModelPart;
@@ -219,7 +221,9 @@ public final class ButtonPress implements InteractionProvider {
                 state.powered.set(i, on);
             }
             IKFrame frame = context.frame();
-            BlockPos target = pressed != null && reachable(player, frame, pressed) ? pressed : look(player, frame, state);
+            BlockPos target = look(player, frame, state);
+            if (pressed != null && level.getBlockState(pressed).getBlock() instanceof ButtonBlock
+                    && reachable(player, frame, pressed)) target = pressed;
             if (pressed != null && pressed.equals(target)) state.pressedAt = now;
             if (target == null) {
                 state.target = null;
@@ -315,14 +319,10 @@ public final class ButtonPress implements InteractionProvider {
         state.powered.addAll(powered);
     }
 
-    /**
-     * The button in reach nearest the look, within the cone round it; the one already kept wins
-     * ties. A lever or a button on a wall is found the way a door is, by the body rather than the
-     * eyes: across the ground, within {@link #LEVER_CONE} of where the body faces, from the chest -
-     * looking straight at one or past it no longer decides it.
-     */
+    /** Levers require a direct block hit; ordinary buttons retain their existing look cone. */
     private static BlockPos look(AbstractClientPlayer player, IKFrame frame, State state) {
         Vec3 eye = player.getEyePosition();
+        var hit = player == Minecraft.getInstance().player ? Minecraft.getInstance().hitResult : player.pick(3, 1, false);
         Vec3 view = player.getViewVector(1f);
         Vec3 chest = player.position().add(0, CHEST, 0);
         double yaw = Math.toRadians(player.yBodyRot);
@@ -334,6 +334,12 @@ public final class ButtonPress implements InteractionProvider {
         for (BlockPos pos : state.nearby) {
             BlockState block = player.level().getBlockState(pos);
             if (!isTarget(block)) continue;
+            // Proximity/body heading alone must never pull a hand toward a side lever.
+            if (block.getBlock() instanceof LeverBlock || ThrottleLever.is(block) || PhysicsAssembler.is(block)) {
+                if (hit instanceof net.minecraft.world.phys.BlockHitResult aimed && pos.equals(aimed.getBlockPos())
+                        && reachable(player, frame, pos)) return pos;
+                continue;
+            }
             Vec3 grip = grip(player, pos, block);
             double dot;
             if (fromAfar(block)) {

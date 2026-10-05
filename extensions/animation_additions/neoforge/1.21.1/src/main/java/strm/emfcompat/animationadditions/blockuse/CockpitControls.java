@@ -33,6 +33,7 @@ public final class CockpitControls implements InteractionProvider {
         final TypingMotion keys=new TypingMotion();
         final BlockTarget.Spot[] rim=new BlockTarget.Spot[2];
         final Vector3f[] grips={new Vector3f(),new Vector3f()};
+        final Vector3f[] reachGrips={new Vector3f(),new Vector3f()};
         final Vector3f[] shoulders={new Vector3f(-5,2,0),new Vector3f(5,2,0)};
         final CockpitMotion motion=new CockpitMotion();
         final Vector3f lean=new Vector3f();
@@ -43,6 +44,7 @@ public final class CockpitControls implements InteractionProvider {
         SubLevels.Space craft;
         Vec3 reference,pelvisLocal;
         final Vec3[] gripLocal=new Vec3[2];
+        final Vec3[] reachLocal=new Vec3[2];
         strm.emfcompat.core.ik.IKFrame frame;
         final Vec3[] controlLocal=new Vec3[2];
         final Vector3f inertia=new Vector3f();
@@ -109,6 +111,8 @@ public final class CockpitControls implements InteractionProvider {
                 typing=requested!=null && TYPEWRITER.matches(player.level().getBlockState(requested));
                 if(!typing)requested=null;
             }
+            if(requested==null && hit!=null && ThrottleLever.is(player.level().getBlockState(hit.getBlockPos())))
+                requested=hit.getBlockPos();
             state.keys.advance(typing?Typewriter.pressedKey():-1,context.dt());
             Vec3 knob=requested==null ? null : typing
                     ? Typewriter.cockpitSpot(requested,player.level().getBlockState(requested),-1,true).point()
@@ -132,13 +136,11 @@ public final class CockpitControls implements InteractionProvider {
             float pitch=(float)Math.atan2(view.y,Math.sqrt(view.x*view.x+view.z*view.z));
             state.headPitch+=IKMath.wrap(pitch-state.headPitch)*Smoothing.follow(context.dt(),.12);
             state.request=request;
-            // Freeze the remaining rim contact during a handover. The stored point is in the
-            // wheel's block space, so it still follows a moving craft rather than the world.
-            if ((state.motion.working()<0 && request<0) || state.rim[0]==null || state.rim[1]==null) {
-                boolean rightMain=player.getMainArm()==net.minecraft.world.entity.HumanoidArm.RIGHT;
-                state.rim[rightMain?0:1]=WHEEL.hover(player,state.wheel,mount,hit);
-                state.rim[rightMain?1:0]=WHEEL.supportHand(player,state.wheel,mount);
-            }
+            // Refresh the wheel every solve, including while the other hand operates a side control.
+            // A stored block-space point follows the craft, but not rotation of the wheel itself.
+            boolean rightMain=player.getMainArm()==net.minecraft.world.entity.HumanoidArm.RIGHT;
+            state.rim[rightMain?0:1]=WHEEL.hover(player,state.wheel,mount,hit);
+            state.rim[rightMain?1:0]=WHEEL.supportHand(player,state.wheel,mount);
             if (state.rim[0]==null || state.rim[1]==null) {context.decide("none:rim");return;}
             state.motion.advance(request,(float)context.dt());
             var space=SubLevels.at(player.level(),state.wheel);
@@ -176,6 +178,10 @@ public final class CockpitControls implements InteractionProvider {
                     wantedLean.z+=(hand==0 ? -1 : 1)*(float)Math.toRadians(state.typing[hand]?3+5*state.keys.effort:3)*mix;
                     if(state.typing[hand])wantedLean.x+=(float)Math.toRadians(5)*state.keys.effort*mix;
                 }
+                // Prepare the torso against the destination path before the hand finishes its arc.
+                // Fitting only the shortened transfer arc defers all reach until the final frame.
+                state.reachGrips[hand].set(target);
+                state.reachLocal[hand]=space.toLocal(context.frame().jointWorld(target));
                 target.y-=state.motion.lift(hand);
                 // A rigid FA arm transfers on an arc, rather than cutting through its shoulder.
                 if(mix>.001f && mix<.999f) {
@@ -190,7 +196,8 @@ public final class CockpitControls implements InteractionProvider {
                 aims.put(hand==0?Effector.RIGHT_ARM:Effector.LEFT_ARM,new float[]{aim.x(),aim.y()});
             }
             if (state.motion.working()<0) wantedLean.z+=WheelGeometry.steeringRoll(state.grips[0].y,state.grips[1].y);
-            out.add(Candidate.of(id(),Category.USE,14,1,TIMING,aims));
+            // Native steering repeats use clicks. The pack's attack swing must not twist this grip.
+            out.add(Candidate.of(id(),Category.USE,14,1,TIMING,aims).withQuietSwing(true));
             context.claimArms();state.shown=true;
             context.decide(request<0 ? "wheel" : request==0 ? typing?"typing-R":"throttle-R" : typing?"typing-L":"throttle-L");
         } finally {
@@ -249,8 +256,10 @@ public final class CockpitControls implements InteractionProvider {
         State s=STATES.fresh(player.getUUID());if(s==null)return;
         s.frame=frame;
         if(s.craft!=null)s.craft=s.craft.refresh();
-        if(s.craft!=null && s.shown)for(int hand=0;hand<2;hand++)
+        if(s.craft!=null && s.shown)for(int hand=0;hand<2;hand++) {
             if(s.gripLocal[hand]!=null)s.grips[hand].set(frame.relativeToJoint(s.craft.toWorld(s.gripLocal[hand]),new Vector3f()));
+            if(s.reachLocal[hand]!=null)s.reachGrips[hand].set(frame.relativeToJoint(s.craft.toWorld(s.reachLocal[hand]),new Vector3f()));
+        }
     }
 
     /** Bounded turn above the seat, then aim from the actual pack shoulders. */
@@ -323,11 +332,11 @@ public final class CockpitControls implements InteractionProvider {
             // Fit the actual pack shoulders to both contacts for either side control.
             // A low throttle needs the same seated lean as the keyboard.
             if(ra!=null && la!=null)
-                wanted=CockpitContact.fit(new Vector3f(ra.x,ra.y,ra.z).sub(waist),new Vector3f(la.x,la.y,la.z).sub(waist),
-                        new Vector3f(state.grips[0]).sub(waist),new Vector3f(state.grips[1]).sub(waist));
-            if(ra!=null && la!=null)state.contact.set(CockpitContact.follow(state.contact,wanted,Smoothing.follow(dt,.12),
+                wanted=CockpitContact.fit(state.contact,new Vector3f(ra.x,ra.y,ra.z).sub(waist),new Vector3f(la.x,la.y,la.z).sub(waist),
+                        new Vector3f(state.reachGrips[0]).sub(waist),new Vector3f(state.reachGrips[1]).sub(waist));
+            if(ra!=null && la!=null)state.contact.set(CockpitContact.follow(state.contact,wanted,Smoothing.follow(dt,state.motion.working()>=0?.08:.2),
                     new Vector3f(ra.x,ra.y,ra.z).sub(waist),new Vector3f(la.x,la.y,la.z).sub(waist),
-                    new Vector3f(state.grips[0]).sub(waist),new Vector3f(state.grips[1]).sub(waist)));
+                    new Vector3f(state.reachGrips[0]).sub(waist),new Vector3f(state.reachGrips[1]).sub(waist)));
         }
         for(String name:new String[]{"body","head","hat","right_arm","left_arm"}) {
             var p=parts.apply(name);if(p==null)continue;
