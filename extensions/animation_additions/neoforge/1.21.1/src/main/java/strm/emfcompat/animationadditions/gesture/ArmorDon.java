@@ -193,7 +193,7 @@ public final class ArmorDon extends Gesture {
                 out.left = new float[]{-.06f * l, -.035f * l, -.38f * spread, 0};
                 out.head = new float[]{.95f * look + .08f * l, -.30f * look};
                 out.pitch = .08f * look + .035f * l + .012f * inspect.settle();
-                out.yaw = -.09f * look;
+                out.yaw = -.04f * look;
                 out.roll = -.035f * inspect.support() + .012f * inspect.settle();
                 out.weightSide = -.65f * inspect.support();
                 out.weightForward = -.10f * l;
@@ -204,7 +204,7 @@ public final class ArmorDon extends Gesture {
                         && play.player.getDeltaMovement().horizontalDistanceSqr() < .0004;
                 // Crouch keeps both soles; no lift if the small forward sweep meets a block.
                 if (planted && !play.player.isCrouching() && legRoom(play.player, false))
-                    out.leftLeg = new float[]{-.43f * l, inspect.turnLeft(), .05f * l};
+                    out.leftLeg = new float[]{-.52f * l, inspect.turnLeft(), .05f * l};
                 out.letGo = .97f;
                 return;
             }
