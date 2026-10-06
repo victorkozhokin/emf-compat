@@ -146,5 +146,7 @@ public final class HandTo extends Gesture {
         }
         out.apart = !play.back;
         out.hand(play.right, point, level);
+        // The other arm goes out and back against the lean instead of hanging by the side.
+        out.free(!play.right, Math.min(1, level) * (play.kind == SEED ? 1 : .5f));
     }
 }

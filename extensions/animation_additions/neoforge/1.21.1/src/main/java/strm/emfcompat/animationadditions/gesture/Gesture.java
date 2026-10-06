@@ -104,6 +104,13 @@ public abstract class Gesture implements InteractionProvider {
                 leftReach = reach;
             }
         }
+        /** The arm with nothing to do, out from the side and back a little, as an arm goes when the body leans the other way. */
+        public void free(boolean right, float amount) {
+            float[] angles = {.42f * amount, 0, (right ? .2f : -.2f) * amount, 0};
+            if (right) this.right = angles;
+            else left = angles;
+        }
+
         /** {pitch, yaw} added to where the head looks. */
         public float[] head;
         /** A point the eyes go to, and how much of the way from where they look, 0..1. */

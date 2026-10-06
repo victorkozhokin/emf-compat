@@ -5965,6 +5965,108 @@
   "model": "player"
  },
  {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-milk-back-38"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-milk-back-39"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
   "closeScreen": true
  },
  {
@@ -6369,6 +6471,60 @@
  },
  {
   "screenshot": "gesture-milk-left-37"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-milk-left-38"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-milk-left-39"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
  },
  {
   "wait": 1
@@ -6783,6 +6939,60 @@
   "wait": 1
  },
  {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-milk-front-38"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-milk-front-39"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
   "closeScreen": true
  },
  {
@@ -7187,6 +7397,60 @@
  },
  {
   "screenshot": "gesture-milk-right-37"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-milk-right-38"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-milk-right-39"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
  },
  {
   "wait": 1
@@ -7709,6 +7973,168 @@
   "model": "player"
  },
  {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-shear-back-30"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-shear-back-31"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-shear-back-32"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-shear-back-33"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-shear-back-34"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-shear-back-35"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-shear-back-36"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-shear-back-37"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-shear-back-38"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-shear-back-39"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
   "closeScreen": true
  },
  {
@@ -8041,6 +8467,102 @@
  },
  {
   "screenshot": "gesture-shear-left-29"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-left-30"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-left-31"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-left-32"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-left-33"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-left-34"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-left-35"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-left-36"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-left-37"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-left-38"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-left-39"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
  },
  {
   "wait": 1
@@ -8383,6 +8905,102 @@
   "wait": 1
  },
  {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-front-30"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-front-31"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-front-32"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-front-33"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-front-34"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-front-35"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-front-36"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-front-37"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-front-38"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-front-39"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
   "closeScreen": true
  },
  {
@@ -8715,6 +9333,102 @@
  },
  {
   "screenshot": "gesture-shear-right-29"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-right-30"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-right-31"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-right-32"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-right-33"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-right-34"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-right-35"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-right-36"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-right-37"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-right-38"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-shear-right-39"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
  },
  {
   "wait": 1
