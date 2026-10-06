@@ -57,10 +57,13 @@ public final class ShakeOff extends Gesture {
         Exposure wet = play.notes instanceof Exposure notes ? notes : new Exposure();
         play.notes = wet;
         float dt = (float) Math.min(.1, context.dt());
-        boolean in = player.isInWater() || player.isInPowderSnow || player.getBlockStateOn().is(Blocks.MUD);
+        // The game marks "in powder snow" only for a player it moves itself - our own. Another
+        // player is placed where the server says, and the mark never comes: the block they stand in says it.
+        boolean snow = player.isInPowderSnow || player.getInBlockState().is(Blocks.POWDER_SNOW);
+        boolean in = player.isInWater() || snow || player.getBlockStateOn().is(Blocks.MUD);
         if (in) {
             wet.inside += dt;
-            wet.kind = player.getBlockStateOn().is(Blocks.MUD) ? MUD : player.isInPowderSnow ? SNOW : WATER;
+            wet.kind = player.getBlockStateOn().is(Blocks.MUD) ? MUD : snow ? SNOW : WATER;
             wet.outside = 0;
         } else if (wet.inside >= SOAKED) {
             wet.outside += dt;
