@@ -1,0 +1,1268 @@
+[
+ {
+  "cmd": "gamemode survival"
+ },
+ {
+  "cmd": "time set noon"
+ },
+ {
+  "cmd": "effect give @s saturation 5 10 true"
+ },
+ {
+  "cmd": "effect give @s instant_health 1 10 true"
+ },
+ {
+  "config": {
+   "lookat.enabled": false,
+   "pocket.enabled": false
+  }
+ },
+ {
+  "hideGui": true
+ },
+ {
+  "camera": "back"
+ },
+ {
+  "cmd": "kill @e[tag=gesture_test]"
+ },
+ {
+  "cmd": "kill @e[type=item,distance=..30]"
+ },
+ {
+  "cmd": "fill 442 150 0 458 154 18 air"
+ },
+ {
+  "cmd": "fill 442 149 0 458 149 18 smooth_stone"
+ },
+ {
+  "cmd": "fill 446 149 3 452 149 11 farmland[moisture=7]"
+ },
+ {
+  "cmd": "fill 446 150 3 452 150 11 wheat[age=7]"
+ },
+ {
+  "cmd": "fill 456 150 2 456 152 12 stone"
+ },
+ {
+  "cmd": "tp @s 449.5 150 1.5 0 0"
+ },
+ {
+  "look": [
+   0,
+   0
+  ]
+ },
+ {
+  "wait": 25
+ },
+ {
+  "log": "field inside"
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-inside-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-inside-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-inside-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-inside-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-inside-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-inside-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-inside-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-inside-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-inside-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-inside-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-inside-10"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-inside-11"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-inside-12"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-inside-13"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "release": "forward"
+ },
+ {
+  "wait": 15
+ },
+ {
+  "cmd": "tp @s 445.2 150 1.5 0 0"
+ },
+ {
+  "look": [
+   0,
+   0
+  ]
+ },
+ {
+  "wait": 25
+ },
+ {
+  "log": "field edge"
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-edge-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-edge-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-edge-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-edge-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-edge-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-edge-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-edge-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-edge-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-edge-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-edge-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-edge-10"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-edge-11"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-edge-12"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-edge-13"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "release": "forward"
+ },
+ {
+  "wait": 15
+ },
+ {
+  "cmd": "tp @s 455.2 150 1.5 0 0"
+ },
+ {
+  "look": [
+   0,
+   0
+  ]
+ },
+ {
+  "wait": 25
+ },
+ {
+  "log": "field wall"
+ },
+ {
+  "hold": "forward"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-wall-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-wall-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-wall-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-wall-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-wall-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-wall-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-wall-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-wall-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-wall-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-wall-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-wall-10"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-wall-11"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-wall-12"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "field-wall-13"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "release": "forward"
+ },
+ {
+  "wait": 15
+ },
+ {
+  "cmd": "fill 446 150 3 452 150 11 air"
+ },
+ {
+  "cmd": "fill 446 149 3 452 149 11 smooth_stone"
+ },
+ {
+  "cmd": "fill 456 150 2 456 152 12 air"
+ },
+ {
+  "hideGui": false
+ },
+ {
+  "cmd": "tp @s 450.5 150 7.5 -90 0"
+ }
+]
