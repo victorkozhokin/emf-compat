@@ -431,6 +431,758 @@
   "cmd": "fill 446 149 5 454 149 9 smooth_stone"
  },
  {
+  "cmd": "summon cow 452.3 150 7.5 {NoAI:1b,Tags:[\"gesture_test\"]}"
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "at": [
+    450.5,
+    150,
+    7.5
+   ],
+   "look": [
+    0,
+    0
+   ],
+   "item": "minecraft:air"
+  }
+ },
+ {
+  "wait": 30
+ },
+ {
+  "log": "remote milk"
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "at": [
+    450.5,
+    150,
+    7.5
+   ],
+   "lookAt": [
+    452.3,
+    151.0,
+    7.5
+   ],
+   "item": "minecraft:bucket"
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-10"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-11"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "log": "remote milk act"
+ },
+ {
+  "bot": {
+   "swing": true,
+   "name": "Bob"
+  }
+ },
+ {
+  "screenshot": "remote-milk-12"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-13"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-14"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-15"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-16"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-17"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-18"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-19"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-20"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-21"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-22"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-23"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-24"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-25"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-26"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-27"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-28"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-29"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-30"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-31"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-32"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-33"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-milk-34"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "cmd": "kill @e[tag=gesture_test]"
+ },
+ {
+  "cmd": "fill 446 150 5 454 153 9 air"
+ },
+ {
+  "cmd": "fill 446 149 5 454 149 9 smooth_stone"
+ },
+ {
+  "cmd": "summon cow 452.3 150 7.5 {NoAI:1b,Tags:[\"gesture_test\"]}"
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "at": [
+    450.5,
+    150,
+    7.5
+   ],
+   "look": [
+    0,
+    0
+   ],
+   "item": "minecraft:air"
+  }
+ },
+ {
+  "wait": 30
+ },
+ {
+  "log": "remote blow"
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "at": [
+    450.5,
+    150,
+    7.5
+   ],
+   "lookAt": [
+    452.3,
+    151.0,
+    7.5
+   ],
+   "item": "minecraft:wheat"
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-10"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-11"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "log": "remote blow act"
+ },
+ {
+  "bot": {
+   "swing": true,
+   "name": "Bob"
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "cmd": "damage @e[tag=gesture_test,limit=1] 1"
+ },
+ {
+  "screenshot": "remote-blow-12"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-13"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-14"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-15"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-16"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-17"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-18"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-19"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-20"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-21"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-22"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-23"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-24"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-25"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-26"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-27"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-28"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-29"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-30"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-31"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-32"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-33"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "remote-blow-34"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "cmd": "kill @e[tag=gesture_test]"
+ },
+ {
+  "cmd": "fill 446 150 5 454 153 9 air"
+ },
+ {
+  "cmd": "fill 446 149 5 454 149 9 smooth_stone"
+ },
+ {
   "cmd": "summon sheep 452.3 150 7.5 {NoAI:1b,Tags:[\"gesture_test\"]}"
  },
  {

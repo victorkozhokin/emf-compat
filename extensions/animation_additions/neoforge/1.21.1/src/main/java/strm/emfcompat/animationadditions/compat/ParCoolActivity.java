@@ -18,35 +18,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
 /**
  * Optional ParCool bridge. ParCool animates the whole body for its moves; in the moves listed in
- * {@link #WEAK} what this addon adds on top fights that animation, so there - and only there -
+ * {@link ParCoolMoves#WEAK} what this addon adds on top fights that animation, so there - and only there -
  * the addon stands down for that player. Everywhere else it goes on as usual: a fast run is still
  * a run over real ground.
  */
 public final class ParCoolActivity {
     public static final String KEY_YIELD = "parcool.yield", KEY_OVERLAP = "debug.parcoolOverlap";
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatAnimationAdditions");
-
-    /**
-     * ParCool 4's animations, by the path of their id, that this addon keeps out of. Found by
-     * running every move with the addon left on and measuring what it changed in the drawn pose
-     * (tools/mctest/scenarios/parcool_overlap.py); see docs/parcool-additions-gate-2026-10-06.md.
-     */
-    private static final Set<String> WEAK = Set.of(
-            // On the ground but not on the feet: the foot IK and the stance have nothing to stand on.
-            "slide", "crawl", "hide_in_block_crawl", "breakfall_forward",
-            "dodge_right", "dodge_front", "dodge_back",
-            // In the air head over heels, or thrown off a wall.
-            "trick_jump_back", "trick_jump_forward", "wall_jump", "castaway",
-            "dive", "dive_in_air", "dive_into_water", "skydive", "skydive_in_air",
-            // The hands are ParCool's: on a ledge, a wall, a bar, a rope.
-            "vault_forward", "vault_side", "hang_on", "climb_up", "climb_up_jump", "horizontal_wall_run",
-            "hang_down", "hang_down_jump_forward", "hang_down_jump_backward", "ride_zipline", "grapple");
 
     public static void register(ConfigRegistry.Group movement, ConfigRegistry.Group debug) {
         movement.addBoolean(KEY_YIELD, "Give way to ParCool moves", true,
@@ -82,8 +65,7 @@ public final class ParCoolActivity {
     public static boolean active(AbstractClientPlayer player) {
         if (player == null || FOUR == null && THREE == null || !EMFCompatConfig.getBoolean(KEY_YIELD, true)) return false;
         if (FOUR != null) {
-            for (String name : running(player)) if (WEAK.contains(name)) return true;
-            return false;
+            return ParCoolMoves.yields(running(player));
         }
         // ParCool 3 names nothing: any animation of its own is given way to.
         try {
@@ -100,7 +82,7 @@ public final class ParCoolActivity {
      * gap" there twists it by half a right angle a moment before ParCool takes it over.
      */
     public static boolean fastRun(AbstractClientPlayer player) {
-        return FOUR != null && EMFCompatConfig.getBoolean(KEY_YIELD, true) && running(player).contains("fast_run");
+        return FOUR != null && EMFCompatConfig.getBoolean(KEY_YIELD, true) && running(player).contains(ParCoolMoves.FAST_RUN);
     }
 
     /** ParCool 4's animations running on this player, read once a frame. */

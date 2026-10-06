@@ -13,16 +13,20 @@ steps = [{"cmd": "gamemode survival"}, {"cmd": "time set noon"}, {"cmd": "effect
          {"cmd": "fill 456 150 2 456 152 12 stone"}]
 
 
-def walk(name, x, yaw=0, ticks=56, z=1.5):
+def walk(name, x, yaw=0, ticks=56, z=1.5, sneak=False):
     s = [{"cmd": "tp @s %s 150 %s %s 0" % (x, z, yaw)}, {"look": [yaw, 0]}, {"wait": 25}, {"log": "field " + name}, {"hold": "forward"}]
+    if sneak:
+        s += [{"hold": "sneak"}]
     for i in range(ticks):
         s += [{"wait": 1}, {"model": "player"}]
         if i % 4 == 0:
             s += [{"screenshot": "field-%s-%02d" % (name, i // 4)}]
-    return s + [{"release": "forward"}, {"wait": 15}]
+    return s + [{"releaseAll": True}, {"wait": 15}]
 
 
+# In its middle; a quarter of a block clear of its edge (nearer, the rim is under the body and is left alone); along the same edge crouched; in the middle crouched.
 steps += walk("inside", 449.5) + walk("edge", 445.2) + walk("wall", 455.2)
+steps += walk("near", 445.45) + walk("near-crouch", 445.45, ticks=120, sneak=True) + walk("inside-crouch", 449.5, ticks=120, sneak=True)
 steps += [{"cmd": "fill 446 150 3 452 150 11 air"}, {"cmd": "fill 446 149 3 452 149 11 smooth_stone"}, {"cmd": "fill 456 150 2 456 152 12 air"},
           {"hideGui": False}, {"cmd": "tp @s 450.5 150 7.5 -90 0"}]
 json.dump(steps, open(os.path.join(os.path.dirname(__file__), "plant_field.json"), "w"), indent=1)
