@@ -24,7 +24,7 @@ CASES = {
     "armour": ([], None, 0, "armour", 150),
     "boots": ([], None, 0, "boots", 50),
     "chest": (["setblock 452 150 7 chest[facing=west]"], None, 30, "chest", 110),
-    "shake": (["fill 446 150 6 447 151 8 water"], None, 0, "shake", 72),
+    "shake": (["fill 446 150 6 447 151 8 water"], None, 0, "shake", 40),
 }
 
 
