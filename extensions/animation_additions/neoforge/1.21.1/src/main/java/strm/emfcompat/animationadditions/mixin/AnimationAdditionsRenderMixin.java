@@ -41,6 +41,10 @@ public class AnimationAdditionsRenderMixin {
             return;
         }
         if (!(entity instanceof AbstractClientPlayer player)) return;
+        if(strm.emfcompat.animationadditions.compat.ParCoolActivity.active(player)) {
+            InteractionRuntime.suspend(player.getUUID());
+            return;
+        }
         strm.emfcompat.animationadditions.blockuse.CockpitControls.orient(player, stack);
         emfcompat$quietSwing(player);
         EjectorLaunch.crouch(player, ((LivingEntityRenderer<?, ?>) (Object) this).getModel(), stack);

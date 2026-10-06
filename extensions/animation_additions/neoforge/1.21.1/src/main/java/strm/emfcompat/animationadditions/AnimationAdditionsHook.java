@@ -127,6 +127,9 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
     }
 
     private static void applyAll(UUID uuid, Function<String, ModelPart> parts, boolean player, boolean mainModel) {
+        var entity=EMFState.state();
+        if(player && entity!=null && entity.emfEntity() instanceof net.minecraft.client.player.AbstractClientPlayer client
+                && strm.emfcompat.animationadditions.compat.ParCoolActivity.active(client))return;
         // First, on the pack's own pose: its cuts settle before anything corrects it. A player's only:
         // the hook runs for every creature EMF animates.
         if (player) PoseInertia.apply(uuid, parts, EMFState.getFrameCounter());

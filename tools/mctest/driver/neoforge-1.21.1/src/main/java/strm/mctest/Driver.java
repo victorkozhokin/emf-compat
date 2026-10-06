@@ -1044,6 +1044,22 @@ public final class Driver {
     private static JsonObject parcool(Minecraft mc) throws ReflectiveOperationException {
         LocalPlayer p = requirePlayer(mc.player);
         JsonObject out = new JsonObject();
+        try {
+            Class<?> gate=Class.forName("strm.emfcompat.animationadditions.compat.ParCoolActivity");
+            out.addProperty("animationAdditionsSuppressed",(Boolean)gate.getMethod("active",net.minecraft.client.player.AbstractClientPlayer.class).invoke(null,p));
+        } catch(ClassNotFoundException absent) {out.addProperty("animationAdditionsSuppressed",false);}
+        Class<?> parkourType=Class.forName("com.alrex.parcool.common.Parkourability");
+        Object ability=parkourType.getMethod("get",net.minecraft.world.entity.player.Player.class).invoke(null,p);
+        out.addProperty("parkourEnabled",(Boolean)call(ability,"isActive"));
+        Object hangEntry=Class.forName("com.alrex.parcool.common.action.ParCoolActions").getField("HANG_ON").get(null);
+        Class<?> entryType=Class.forName("com.alrex.parcool.api.action.ActionEntry");
+        Object hang=parkourType.getMethod("get",entryType).invoke(ability,hangEntry);
+        out.addProperty("hangPermitted",(Boolean)parkourType.getMethod("permit",entryType).invoke(ability,hangEntry));
+        out.addProperty("hangDoing",(Boolean)call(hang,"isDoing"));
+        out.addProperty("hangCanStart",(Boolean)call(hang,"canStart"));
+        out.addProperty("hangGeometry",call(hang,"getHangState")!=null);
+        Object key=Class.forName("com.alrex.parcool.client.input.ParCoolKeyBinds").getField("HANG").get(null);
+        out.addProperty("hangKeyDown",(Boolean)call(call(key,"state"),"isDown"));
         Object animator = call(p, "getParCoolPlayerAnimator");
         Object processor = read(animator, "animationProcessor");
         JsonArray running = new JsonArray();

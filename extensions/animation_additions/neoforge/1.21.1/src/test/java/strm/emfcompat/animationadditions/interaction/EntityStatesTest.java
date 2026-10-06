@@ -16,6 +16,19 @@ class EntityStatesTest {
     }
 
     @Test
+    void exclusiveTakeoverDropsOnlyThisPlayersOldPose() {
+        EntityStates<Counter> states=new EntityStates<>(Counter::new);
+        UUID player=UUID.randomUUID(),other=UUID.randomUUID();
+        long now=System.nanoTime();
+        states.seen(player,now).value.n=9;
+        Counter unaffected=states.seen(other,now).value;
+        states.forget(player);
+        assertNull(states.fresh(player));
+        assertSame(unaffected,states.fresh(other));
+        assertEquals(0,states.seen(player,now).value.n);
+    }
+
+    @Test
     void solvesOnFirstSightThenNotBeforeTheInterval() {
         EntityStates<Counter> states = new EntityStates<>(Counter::new);
         UUID id = UUID.randomUUID();

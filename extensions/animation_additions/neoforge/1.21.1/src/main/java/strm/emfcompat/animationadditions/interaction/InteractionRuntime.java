@@ -89,6 +89,9 @@ public final class InteractionRuntime {
         }
     }
 
+    /** Parkour owns the whole pose immediately: no residual hand/body release over its animation. */
+    public static void suspend(UUID uuid) {STATES.forget(uuid);}
+
     /** Called with the model's space right before it is animated. */
     public static void modelPose(AbstractClientPlayer player, IKFrame frame) {
         UUID uuid = player.getUUID();
