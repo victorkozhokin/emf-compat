@@ -151,10 +151,13 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         strm.emfcompat.animationadditions.pocket.PocketStash.support(uuid, parts);
         Mining.support(uuid, parts);
         strm.emfcompat.animationadditions.gesture.Gesture.support(uuid, parts);
+        strm.emfcompat.animationadditions.compat.CombatBody.support(uuid, parts);
         // The torso before the arm aims: a hand on a wall aims from where the shoulder has gone.
         WallSqueeze.support(uuid, parts);
         strm.emfcompat.animationadditions.transport.TransportGrip.support(uuid, parts);
+        float[] attackArms = strm.emfcompat.animationadditions.compat.CombatBody.armsBefore(uuid, parts);
         TorsoLean.apply(uuid, parts);
+        strm.emfcompat.animationadditions.compat.CombatBody.armsAfter(parts, attackArms);
         strm.emfcompat.animationadditions.transport.TransportGrip.reach(uuid, parts);
         HandContacts.reach(uuid, parts);
         BlockUse.reachContact(uuid, parts);

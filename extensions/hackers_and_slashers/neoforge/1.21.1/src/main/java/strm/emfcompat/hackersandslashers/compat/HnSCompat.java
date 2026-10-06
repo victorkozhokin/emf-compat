@@ -21,7 +21,8 @@ import java.lang.reflect.Method;
  * that a fresh clone (or CI) does not have. Only the animation library, which is on a Maven, is
  * needed to compile.</p>
  *
- * <p>The ids are checked against 2.0-beta2.5. If a future version renames a layer the matching
+ * <p>The ids are checked against 2.0-beta2.5 and 2.0-beta3 (the layers, the preset's {@code stances.onIdle}
+ * and the pose controller's {@code currentPoseAnim} are the same in both). If a future version renames a layer the matching
  * capture simply stops firing — no crash, and the other layers keep working.</p>
  */
 public final class HnSCompat {

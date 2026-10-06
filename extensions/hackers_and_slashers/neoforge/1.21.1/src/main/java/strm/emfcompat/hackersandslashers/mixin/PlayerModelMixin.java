@@ -122,7 +122,12 @@ public class PlayerModelMixin {
         // keeps the legs pivoted at the hip rather than detaching them, and only while roughly
         // stationary, so a moving player keeps EMF's walk cycle.
         Map<String, PoseSnapshot> parts = null;
-        if (EMFCompatHnSMod.isActionLegs() && emfcompat$legsHeld(uuid, player)) {
+        boolean planted = emfcompat$legsHeld(uuid, player);
+        // The experiment: Animation Additions, if it is there, turns the torso with the attack and
+        // sets the feet itself - then the legs are its to place, not the animation's to hold.
+        boolean procedural = EMFCompatHnSMod.isProceduralBody()
+                && strm.emfcompat.hackersandslashers.compat.BodyBridge.offer(uuid, model.body.xRot, model.body.yRot, model.body.zRot, planted);
+        if (EMFCompatHnSMod.isActionLegs() && planted && !procedural) {
             parts = new HashMap<>();
             parts.put("left_leg", new PoseSnapshot(model.leftLeg, true));
             parts.put("right_leg", new PoseSnapshot(model.rightLeg, true));
