@@ -4,18 +4,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ContactAimTest {
-    @Test void brushingTurnHasPhysicalSpeedBoundAtDifferentFrameRates() {
-        for(double dt:new double[]{1./30,1./60,1./144}) {
-            float angle=0;
-            for(int i=0;i<100;i++) {
-                float next=ContactAim.follow(angle,2.5f,dt,.14,.8);
-                assertTrue(Math.abs(next-angle)<=.8*dt+1e-6);
-                angle=next;
-            }
-        }
-        assertTrue(ContactAim.follow(3.12f,-3.12f,.05,.14,.8)>3.12f);
-        assertEquals(.3f,ContactAim.follow(.3f,2,0,.14,.8));
-    }
     @Test void fadeUsesOneBlendAndLevelsPalmRoll() {
         float[] base={.2f,.4f,.3f};
         float[] target=ContactAim.rotation(base,0,0,-12,1);

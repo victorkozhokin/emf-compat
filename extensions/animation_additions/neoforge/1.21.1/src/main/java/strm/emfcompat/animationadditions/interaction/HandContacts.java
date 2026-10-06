@@ -18,15 +18,10 @@ public final class HandContacts {
     private record Anchor(SubLevels.Space space, Vec3 local, Vec3 normal) {
         Vec3 world() {return space.valid()?space.refresh().toWorld(local):null;}
     }
-    private static final class PlantAim {
-        float[] angles;
-        float frame=-1;
-        long at;
-    }
     private static final class State {
         final Map<Key, Anchor> targets = new HashMap<>();
         final Map<Key,float[]> drawnTargets = new HashMap<>();
-        final java.util.EnumMap<Effector,PlantAim> plantAims = new java.util.EnumMap<>(Effector.class);
+        final java.util.EnumMap<Effector,net.minecraft.world.phys.AABB> plantBounds = new java.util.EnumMap<>(Effector.class);
         final strm.emfcompat.animationadditions.torso.BraceSteps.State feet = new strm.emfcompat.animationadditions.torso.BraceSteps.State();
         net.minecraft.client.player.AbstractClientPlayer player;
         final strm.emfcompat.animationadditions.torso.LowReach.State reach = new strm.emfcompat.animationadditions.torso.LowReach.State();
@@ -48,12 +43,12 @@ public final class HandContacts {
         State state = STATES.seen(context.player().getUUID(), context.now()).value;
         state.player = context.player();
         Key key=new Key(source,hand);
-        Anchor previous=state.targets.get(key);
-        if(source.equals("PlantReach") && previous!=null && previous.world()!=null
-                && previous.world().distanceTo(world)<1.5
-                && InteractionRuntime.weight(context.player().getUUID(),hand,source)>.001f)
-            world=previous.world().lerp(world,Smoothing.follow(context.dt(),.12));
         state.targets.put(key,new Anchor(space,space.toLocal(world),normal==null?null:space.directionToLocal(normal)));
+    }
+
+    public static void rememberPlant(InteractionContext context,Effector hand,Vec3 world,net.minecraft.world.phys.AABB box) {
+        remember(context,"PlantReach",hand,world);
+        STATES.fresh(context.player().getUUID()).plantBounds.put(hand,box);
     }
 
     private record Support(ContactStance pose, float weight) {}
@@ -147,7 +142,7 @@ public final class HandContacts {
         return out;
     }
 
-    public static void apply(UUID uuid, Function<String, ModelPart> parts, Map<Effector,float[]> base) {
+    public static void apply(UUID uuid, Function<String, ModelPart> parts, Map<Effector,float[]> base, boolean mainModel) {
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         State state = STATES.fresh(uuid);
         if (state == null) return;
@@ -172,25 +167,23 @@ public final class HandContacts {
                     if(face!=null && face.normal().dot(normal)>.9 && face.position().distanceTo(fitWorld)<.04)point=fitted;
                 }
             }
-            state.drawnTargets.put(key,new float[]{point.x,point.y,point.z,
+            if(key.source.equals("PlantReach")) {
+                var box=state.plantBounds.get(key.hand);
+                Vec3 shoulder=frame.jointWorld(new Vector3f(arm.x,arm.y,arm.z));
+                double length=frame.jointWorld(new Vector3f(arm.x,arm.y+Skeleton.ARM_TO_PALM,arm.z)).distanceTo(shoulder);
+                if(box!=null) {
+                    var edge=strm.emfcompat.animationadditions.plantreach.CanopyContact.edge(
+                            shoulder.x,shoulder.y,shoulder.z,length,
+                            box.minX,box.maxX,box.minY,Math.min(shoulder.y-.25,box.maxY-.05),box.minZ,box.maxZ);
+                    if(edge!=null)point=frame.relativeToJoint(new Vec3(edge.x(),edge.y(),edge.z()),new Vector3f());
+                }
+            }
+            if(mainModel)state.drawnTargets.put(key,new float[]{point.x,point.y,point.z,
                     key.source.equals("PlantReach") || key.source.equals("WallHand")?Skeleton.ARM_TO_PALM:Skeleton.ARM_TO_FINGERTIPS});
             if(key.source.equals("HeavyThrottle")) {ArmAim.towards(arm,point,w,false);return;}
             float[] original=base.get(key.hand);
             if(original==null)return;
-            float[] angles;
-            if(key.source.equals("PlantReach")) {
-                float[] wanted=ArmAim.angles(point.x-arm.x,point.y-arm.y,point.z-arm.z);
-                if(wanted==null)return;
-                PlantAim aim=state.plantAims.computeIfAbsent(key.hand,k->new PlantAim());
-                float counter=traben.entity_model_features.models.animation.state.EMFState.getFrameCounter();
-                if(counter!=aim.frame) {
-                    long now=System.nanoTime();double dt=aim.at==0?0:Math.min(.1,(now-aim.at)*1e-9);
-                    aim.at=now;aim.frame=counter;
-                    if(aim.angles==null || w<.05f)aim.angles=wanted.clone();
-                    else for(int i=0;i<2;i++)aim.angles[i]=ContactAim.follow(aim.angles[i],wanted[i],dt,.14,.8);
-                }
-                angles=ContactAim.blend(original,aim.angles,w);
-            } else angles=ContactAim.rotation(original,point.x-arm.x,point.y-arm.y,point.z-arm.z,w);
+            float[] angles=ContactAim.rotation(original,point.x-arm.x,point.y-arm.y,point.z-arm.z,w);
             arm.setRotation(angles[0],angles[1],angles[2]);
         });
     }

@@ -99,11 +99,11 @@ public final class PlantReach implements InteractionProvider {
         selection.right=right==null?null:right.point;
         selection.left=left==null?null:left.point;
         if (right != null) {
-            strm.emfcompat.animationadditions.interaction.HandContacts.remember(context,id(),Effector.RIGHT_ARM,right.point);
+            strm.emfcompat.animationadditions.interaction.HandContacts.rememberPlant(context,Effector.RIGHT_ARM,right.point,right.box);
             out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 0.5f, TIMING, Effector.RIGHT_ARM, right.aim));
         }
         if (left != null) {
-            strm.emfcompat.animationadditions.interaction.HandContacts.remember(context,id(),Effector.LEFT_ARM,left.point);
+            strm.emfcompat.animationadditions.interaction.HandContacts.rememberPlant(context,Effector.LEFT_ARM,left.point,left.box);
             out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 0.5f, TIMING, Effector.LEFT_ARM, left.aim));
         }
         context.decide((right != null ? "R" : "-") + (left != null ? "L" : "-"));
@@ -120,7 +120,8 @@ public final class PlantReach implements InteractionProvider {
      * {@code out} is the model x of this side.
      */
     private static final class Selection { Vec3 right,left; }
-    private record Reach(float[] aim, Vec3 point) {}
+    private record Reach(float[] aim, Vec3 point, AABB box) {}
+    private record Surface(Vec3 point,AABB box) {}
 
     private static Reach reach(AbstractClientPlayer player, IKFrame frame, Vector3f shoulder, float out, Vec3 previous) {
         Vector3f sidewaysWorld = frame.modelToWorld().transformDirection(new Vector3f(out, 0, 0));
@@ -139,21 +140,23 @@ public final class PlantReach implements InteractionProvider {
         double highest = from.y - BELOW_SHOULDER;
 
         Level level = player.level();
-        Vec3 best = nearest(player, level, from, hanging, centre, side, ahead, lowest, highest, previous);
-        if (best == null || best.distanceTo(from) > arm + 1e-6) return null;
+        Surface surface = nearest(player, level, from, hanging, centre, side, ahead, lowest, highest, previous);
+        if(surface==null)return null;
+        Vec3 best=surface.point;
+        if (best.distanceTo(from) > arm + 1e-6) return null;
         IKResult result = OneBoneIK.solveXY(frame, shoulder, best, ARM, 0f, 0f);
-        return result == null ? null : new Reach(new float[]{result.x(), result.y()},best);
+        return result == null ? null : new Reach(new float[]{result.x(), result.y()},best,surface.box);
     }
 
     /**
      * The point on a plant's top nearest to where the hand hangs, on its side, ahead or beside but
      * not behind, and not under the body.
      */
-    private static Vec3 nearest(AbstractClientPlayer player, Level level, Vec3 from, Vec3 hanging, Vec3 centre,
+    private static Surface nearest(AbstractClientPlayer player, Level level, Vec3 from, Vec3 hanging, Vec3 centre,
                                 Vec3 side, Vec3 ahead, double lowest, double highest, Vec3 previous) {
         AABB footprint = player.getBoundingBox().inflate(BODY_MARGIN, 0, BODY_MARGIN);
         BlockPos feet = BlockPos.containing(hanging);
-        Vec3 best = null;
+        Surface best = null;
         double bestDistance = Double.MAX_VALUE;
         for (BlockPos pos : BlockPos.betweenClosed(feet.offset(-1, -1, -1), feet.offset(1, 1, 1))) {
             BlockState state = level.getBlockState(pos);
@@ -166,15 +169,24 @@ public final class PlantReach implements InteractionProvider {
             if (y < lowest || y < box.minY) continue;
             // A straight arm cannot stop halfway down its length. Pick a real point
             // on the canopy at arm length, rather than aiming through the nearby plant.
-            for(var candidate:CanopyContact.points(from.x,from.z,from.y-y,from.distanceTo(hanging),
+            // Brush the nearest outside edge, sliding parallel to the walking player.
+            // Fixing canopy height first instead made the hand orbit each plant and trail behind.
+            var edge=CanopyContact.edge(from.x,from.y,from.z,from.distanceTo(hanging),
+                    box.minX,box.maxX,box.minY,Math.min(highest,box.maxY-INTO_TOP),box.minZ,box.maxZ);
+            List<CanopyContact.Point> contacts;
+            if(edge!=null) {
+                y=edge.y();
+                contacts=List.of(new CanopyContact.Point(edge.x(),edge.z()));
+            } else contacts=CanopyContact.points(from.x,from.z,from.y-y,from.distanceTo(hanging),
                     box.minX+1e-5,box.maxX-1e-5,box.minZ+1e-5,box.maxZ-1e-5,
-                    previous==null?hanging.x+side.x*.3:previous.x,previous==null?hanging.z+side.z*.3:previous.z)) {
+                    hanging.x+side.x*.3,hanging.z+side.z*.3);
+            for(var candidate:contacts) {
                 Vec3 point=new Vec3(candidate.x(),y,candidate.z());
                 if(footprint.contains(point.x,(footprint.minY+footprint.maxY)*.5,point.z))continue;
                 if(point.subtract(centre).dot(side)<ACROSS || point.subtract(from).dot(ahead)<-BEHIND)continue;
                 double distance=point.distanceTo(hanging);
-                if(previous!=null)distance+=point.distanceTo(previous)*.6;
-                if(distance<bestDistance) {best=point;bestDistance=distance;}
+                if(previous!=null)distance+=point.distanceTo(previous)*.05;
+                if(distance<bestDistance) {best=new Surface(point,box);bestDistance=distance;}
             }
         }
         return best;
