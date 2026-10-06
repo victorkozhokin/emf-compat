@@ -37,7 +37,7 @@ import java.util.UUID;
  * draws them, by the angles its {@code LeverAngles} hold, and carried into the world by
  * {@code AbstractContraptionEntity.toGlobalVector}. All by name: nothing without Create.</p>
  */
-final class TrainControls implements BlockTarget {
+public final class TrainControls implements BlockTarget {
 
     static final TrainControls TARGET = new TrainControls();
 
@@ -73,18 +73,7 @@ final class TrainControls implements BlockTarget {
     static Grips held(AbstractClientPlayer player) {
         if (FAILURES.off()) return null;
         try {
-            if (!looked) {
-                looked = true;
-                Class<?> entity = Class.forName(ENTITY);
-                controlling = entity.getMethod("getControllingPlayer");
-                toGlobal = entity.getMethod("toGlobalVector", Vec3.class, float.class);
-                getContraption = entity.getMethod("getContraption");
-                getBlocks = getContraption.getReturnType().getMethod("getBlocks");
-                getActors = getContraption.getReturnType().getMethod("getActors");
-                Class<?> handler = Class.forName(HANDLER);
-                controlsPos = handler.getMethod("getControlsPos");
-                handlerContraption = handler.getMethod("getContraption");
-            }
+            look();
             Driven driven = driven(player);
             if (driven == null) return null;
             Entity entity = driven.contraption.get();
@@ -109,6 +98,43 @@ final class TrainControls implements BlockTarget {
         }
     }
 
+    /** Create's classes and methods, found once. */
+    private static void look() throws ReflectiveOperationException {
+        if (looked) return;
+        looked = true;
+        Class<?> entity = Class.forName(ENTITY);
+        controlling = entity.getMethod("getControllingPlayer");
+        toGlobal = entity.getMethod("toGlobalVector", Vec3.class, float.class);
+        getContraption = entity.getMethod("getContraption");
+        getBlocks = getContraption.getReturnType().getMethod("getBlocks");
+        getActors = getContraption.getReturnType().getMethod("getActors");
+        Class<?> handler = Class.forName(HANDLER);
+        controlsPos = handler.getMethod("getControlsPos");
+        handlerContraption = handler.getMethod("getContraption");
+    }
+
+    /** The contraption {@code player} drives, and which of its controls; {@code null} when they drive nothing. For telling other clients. */
+    public static Entity drivenContraption(AbstractClientPlayer player) {
+        Driven driven = drivenOrNull(player);
+        return driven == null ? null : driven.contraption.get();
+    }
+
+    public static BlockPos drivenControls(AbstractClientPlayer player) {
+        Driven driven = drivenOrNull(player);
+        return driven == null ? null : driven.controls;
+    }
+
+    private static Driven drivenOrNull(AbstractClientPlayer player) {
+        if (FAILURES.off()) return null;
+        try {
+            look();
+            return driven(player);
+        } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
+            FAILURES.failed(e);
+            return null;
+        }
+    }
+
     /** The contraption {@code player} drives and its controls; looked for now and then, kept between. */
     private static Driven driven(AbstractClientPlayer player) throws ReflectiveOperationException {
         Driven known = DRIVEN.get(player.getUUID());
@@ -124,6 +150,12 @@ final class TrainControls implements BlockTarget {
             Object entity = handlerContraption.invoke(null);
             Object pos = controlsPos.invoke(null);
             return entity instanceof Entity e && pos instanceof BlockPos p ? new Driven(new WeakReference<>(e), p, player.tickCount) : null;
+        }
+        // Another player's own game says which, when the server passes it on; else it is the nearest controls of what they drive.
+        if (strm.emfcompat.animationadditions.net.Inputs.told(player)) {
+            BlockPos told = strm.emfcompat.animationadditions.net.Inputs.drivePos(player);
+            Entity train = told == null ? null : player.level().getEntity(strm.emfcompat.animationadditions.net.Inputs.driveEntity(player));
+            return train == null ? null : new Driven(new WeakReference<>(train), told, player.tickCount);
         }
         for (Entity entity : player.level().getEntities(player, player.getBoundingBox().inflate(RANGE),
                 e -> CONTRAPTIONS.computeIfAbsent(e.getClass(), TrainControls::isContraption))) {

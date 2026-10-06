@@ -135,6 +135,8 @@ public final class BlockUse implements InteractionProvider {
     private static final float SWAY_RADIUS = 6f;
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
+    /** A train's driver: this much forward to the levers, and no further round to them than this, radians. */
+    private static final float DRIVER_PITCH = (float) Math.toRadians(8), DRIVER_YAW = (float) Math.toRadians(25);
 
 
     private BlockUse() {
@@ -346,6 +348,12 @@ public final class BlockUse implements InteractionProvider {
                     state.lean[2] = WheelGeometry.steeringRoll(
                             right ? state.grip.y : state.supportGrip.y,
                             right ? state.supportGrip.y : state.grip.y);
+                }
+                if (held != null) {
+                    // A driver leans to the levers a little, and turns to them when they are off to one side.
+                    Vector3f levers = new Vector3f(state.grip).add(state.supportGrip).mul(.5f);
+                    state.lean[0] = DRIVER_PITCH;
+                    state.lean[1] = Mth.clamp((float) Math.atan2(-levers.x, -levers.z) * .5f, -DRIVER_YAW, DRIVER_YAW);
                 }
                 Map<Effector, float[]> hands = new EnumMap<>(Effector.class);
                 hands.put(effector, aim);

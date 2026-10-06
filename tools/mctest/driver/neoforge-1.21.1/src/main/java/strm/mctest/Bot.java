@@ -280,7 +280,7 @@ public final class Bot {
             }
             Class<?> type = Class.forName(net + "HandsState");
             Object state = type.getDeclaredConstructors()[0].newInstance(bot.getId(), flags, block, face, x, y, z, entity, null, null, -1,
-                    h.has("menu") ? h.get("menu").getAsInt() : 0, h.has("actions") ? h.get("actions").getAsInt() : 0);
+                    h.has("menu") ? h.get("menu").getAsInt() : 0, h.has("actions") ? h.get("actions").getAsInt() : 0, -1, null);
             Class.forName(net + "HandsNet").getMethod("relay", ServerPlayer.class, net.minecraft.network.protocol.common.custom.CustomPacketPayload.class)
                     .invoke(null, bot, state);
             out.addProperty("hands", flags);

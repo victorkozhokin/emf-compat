@@ -77,6 +77,17 @@ public final class Inputs {
         return told == null ? -1 : told.key();
     }
 
+    /** The contraption another player drives, as their game says, and which of its controls; -1 and {@code null} for none. */
+    public static int driveEntity(AbstractClientPlayer player) {
+        HandsState told = ClientHands.of(player);
+        return told == null || !told.has(HandsState.DRIVE) ? -1 : told.drive();
+    }
+
+    public static BlockPos drivePos(AbstractClientPlayer player) {
+        HandsState told = ClientHands.of(player);
+        return told == null || !told.has(HandsState.DRIVE) ? null : told.drivePos();
+    }
+
     /** How many times another player has moved something in the container they have open; -1 when not known. */
     public static int menuActions(AbstractClientPlayer player) {
         HandsState told = ClientHands.of(player);

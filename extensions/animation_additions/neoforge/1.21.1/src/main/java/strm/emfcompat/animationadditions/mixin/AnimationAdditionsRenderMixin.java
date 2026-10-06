@@ -41,7 +41,8 @@ public class AnimationAdditionsRenderMixin {
             return;
         }
         if (!(entity instanceof AbstractClientPlayer player)) return;
-        if (strm.emfcompat.animationadditions.compat.ParCoolActivity.active(player)) {
+        if (strm.emfcompat.animationadditions.compat.ParCoolActivity.active(player)
+                || strm.emfcompat.animationadditions.compat.WholeBody.held(player)) {
             InteractionRuntime.suspend(player.getUUID());
             return;
         }

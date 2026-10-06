@@ -62,6 +62,9 @@ public final class Typewriter implements BlockTarget {
     /** Typing, the player looks round freely - the keys take the keyboard, not the look: the hands stay on them. */
     @Override
     public boolean holds(AbstractClientPlayer player, Level level, BlockPos pos, BlockState block) {
+        // Another typist's own game says where they type; the block's own word for it is the fallback.
+        if (player != Minecraft.getInstance().player && strm.emfcompat.animationadditions.net.Inputs.told(player))
+            return pos.equals(strm.emfcompat.animationadditions.net.Inputs.typing(player));
         return player.getUUID().equals(USER.read(level.getBlockEntity(pos)));
     }
 
@@ -76,6 +79,12 @@ public final class Typewriter implements BlockTarget {
         // Our own player's keys are known at once, as the drawn keys they are; another's come with the block entity, as key codes.
         boolean own = player == Minecraft.getInstance().player;
         Object held = own ? ownHeld() : PRESSED_KEYS.read(player.level().getBlockEntity(pos));
+        // Told by the typist's game: the key as an index of the drawn keys, as our own are.
+        if (!own && strm.emfcompat.animationadditions.net.Inputs.told(player)) {
+            int told = strm.emfcompat.animationadditions.net.Inputs.typedKey(player);
+            held = told < 0 ? List.of() : List.of(told);
+            own = true;
+        }
         if (held instanceof List<?> keys) {
             for (Object each : List.copyOf(keys)) {
                 if (!(each instanceof Integer k)) continue;

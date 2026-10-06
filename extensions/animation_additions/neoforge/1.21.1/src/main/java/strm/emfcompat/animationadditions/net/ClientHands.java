@@ -117,12 +117,22 @@ public final class ClientHands {
         } else {
             slotsHash = 0;
         }
-        return new HandsState(0, flags, block, face, x, y, z, entity, throttle, typing, key, menu, actions);
+        // A train driven: which contraption and which of its controls only the driver's own game knows.
+        int drive = -1;
+        BlockPos drivePos = strm.emfcompat.animationadditions.blockuse.TrainControls.drivenControls(player);
+        Entity train = drivePos == null ? null : strm.emfcompat.animationadditions.blockuse.TrainControls.drivenContraption(player);
+        if (train != null) {
+            flags |= HandsState.DRIVE;
+            drive = train.getId();
+        } else {
+            drivePos = null;
+        }
+        return new HandsState(0, flags, block, face, x, y, z, entity, throttle, typing, key, menu, actions, drive, drivePos);
     }
 
     /** {@code all}: everything; else everything but where on the same block the crosshair is. */
     private static boolean same(HandsState a, HandsState b, boolean all) {
-        if (a.flags() != b.flags() || a.entity() != b.entity() || a.key() != b.key() || a.menu() != b.menu() || a.actions() != b.actions()
+        if (a.flags() != b.flags() || a.entity() != b.entity() || a.key() != b.key() || a.drive() != b.drive() || a.menu() != b.menu() || a.actions() != b.actions()
                 || !java.util.Objects.equals(a.block(), b.block()) || !java.util.Objects.equals(a.throttle(), b.throttle())
                 || !java.util.Objects.equals(a.typing(), b.typing())) return false;
         // The spot looked at on one and the same block is the only thing that waits its turn.

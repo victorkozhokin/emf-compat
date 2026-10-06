@@ -9,16 +9,16 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * What one player's hands are at, as only that player's own game knows it: the buttons held, the
  * thing under the crosshair (a craft's blocks included, which another client's ray does not see),
- * the control held on to, the key typed, the container gone through. Sent to the server when it
+ * the control held on to, the key typed, the train driven, the container gone through. Sent to the server when it
  * changes and now and then while it lasts; the server passes it on to whoever sees that player.
  * Nothing here moves the world - it only poses the sender's model on other screens.
  */
 public record HandsState(int sender, int flags, BlockPos block, int face, double hitX, double hitY, double hitZ, int entity,
-                         BlockPos throttle, BlockPos typing, int key, int menu, int actions) implements CustomPacketPayload {
-    public static final int USE = 1, ATTACK = 2, BLOCK = 4, ENTITY = 8, HOLD = 16, THROTTLE = 32, TYPING = 64;
+                         BlockPos throttle, BlockPos typing, int key, int menu, int actions, int drive, BlockPos drivePos) implements CustomPacketPayload {
+    public static final int USE = 1, ATTACK = 2, BLOCK = 4, ENTITY = 8, HOLD = 16, THROTTLE = 32, TYPING = 64, DRIVE = 128;
     public static final Type<HandsState> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("emf_compat_animation_additions", "hands"));
     public static final StreamCodec<RegistryFriendlyByteBuf, HandsState> CODEC = StreamCodec.of(HandsState::write, HandsState::read);
-    public static final HandsState NOTHING = new HandsState(0, 0, null, 0, 0, 0, 0, -1, null, null, -1, 0, 0);
+    public static final HandsState NOTHING = new HandsState(0, 0, null, 0, 0, 0, 0, -1, null, null, -1, 0, 0, -1, null);
 
     private static void write(RegistryFriendlyByteBuf out, HandsState s) {
         out.writeVarInt(s.sender);
@@ -36,14 +36,18 @@ public record HandsState(int sender, int flags, BlockPos block, int face, double
             out.writeBlockPos(s.typing);
             out.writeByte(s.key);
         }
+        if (s.has(DRIVE)) {
+            out.writeVarInt(s.drive);
+            out.writeBlockPos(s.drivePos);
+        }
         out.writeByte(s.menu);
         out.writeShort(s.actions);
     }
 
     private static HandsState read(RegistryFriendlyByteBuf in) {
         int sender = in.readVarInt(), flags = in.readByte() & 0xFF;
-        BlockPos block = null, throttle = null, typing = null;
-        int face = 0, entity = -1, key = -1;
+        BlockPos block = null, throttle = null, typing = null, drivePos = null;
+        int face = 0, entity = -1, key = -1, drive = -1;
         double x = 0, y = 0, z = 0;
         if ((flags & BLOCK) != 0) {
             block = in.readBlockPos();
@@ -58,7 +62,11 @@ public record HandsState(int sender, int flags, BlockPos block, int face, double
             typing = in.readBlockPos();
             key = in.readByte();
         }
-        return new HandsState(sender, flags, block, face, x, y, z, entity, throttle, typing, key, in.readByte(), in.readShort());
+        if ((flags & DRIVE) != 0) {
+            drive = in.readVarInt();
+            drivePos = in.readBlockPos();
+        }
+        return new HandsState(sender, flags, block, face, x, y, z, entity, throttle, typing, key, in.readByte(), in.readShort(), drive, drivePos);
     }
 
     public boolean has(int flag) {
@@ -71,7 +79,7 @@ public record HandsState(int sender, int flags, BlockPos block, int face, double
     }
 
     public HandsState from(int entityId) {
-        return new HandsState(entityId, flags, block, face, hitX, hitY, hitZ, entity, throttle, typing, key, menu, actions);
+        return new HandsState(entityId, flags, block, face, hitX, hitY, hitZ, entity, throttle, typing, key, menu, actions, drive, drivePos);
     }
 
     @Override

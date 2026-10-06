@@ -130,7 +130,8 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         var entity = EMFState.state();
         net.minecraft.client.player.AbstractClientPlayer client = player && entity != null
                 && entity.emfEntity() instanceof net.minecraft.client.player.AbstractClientPlayer p ? p : null;
-        if (client != null && strm.emfcompat.animationadditions.compat.ParCoolActivity.active(client)) return;
+        if (client != null && (strm.emfcompat.animationadditions.compat.ParCoolActivity.active(client)
+                || strm.emfcompat.animationadditions.compat.WholeBody.held(client))) return;
         float[] before = client != null && mainModel ? strm.emfcompat.animationadditions.compat.ParCoolActivity.before(parts) : null;
         applyAllParts(uuid, parts, player, mainModel);
         if (before != null) strm.emfcompat.animationadditions.compat.ParCoolActivity.after(client, parts, before);

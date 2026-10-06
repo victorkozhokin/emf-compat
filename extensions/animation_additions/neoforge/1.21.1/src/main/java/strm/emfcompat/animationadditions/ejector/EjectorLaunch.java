@@ -44,6 +44,8 @@ public final class EjectorLaunch {
     private static final String BLOCK = "com.simibubi.create.content.logistics.depot.EjectorBlock";
     private static final ModAccess STATE = new ModAccess("getState");
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
+    /** A launch seen this long ago still throws the player now leaving the lid, seconds. */
+    private static final double LAUNCH_SEEN_SECONDS = 1.0;
 
     /** After leaving the lid, how long a throw can still be told, and the least speed up, blocks a second. */
     private static final double LEFT_SECONDS = 0.5;
@@ -66,6 +68,7 @@ public final class EjectorLaunch {
     }
 
     private static final class State {
+        long launchAt;
         /** The ejector last stood on, and when. */
         BlockPos lid;
         long lidAt;
@@ -102,8 +105,13 @@ public final class EjectorLaunch {
             s.lidAt = now;
         }
         MotionRuntime.Motion motion = MotionRuntime.get(uuid);
-        if (!s.thrown && on && free && s.lid != null && (now - s.lidAt) / 1e9 < LEFT_SECONDS
-                && !player.onGround() && motion.vertical() > THROWN_UP && launching(player, s.lid)) {
+        // The lid is "launching" for a few ticks only, and another player is drawn a few ticks
+        // behind where the server has them: by the time they are seen in the air the lid is on
+        // its way back. So the launch is remembered from when it was seen, not asked for at take-off.
+        boolean near = on && free && s.lid != null && (now - s.lidAt) / 1e9 < LEFT_SECONDS;
+        if (near && launching(player, s.lid)) s.launchAt = now;
+        if (!s.thrown && near && !player.onGround() && motion.vertical() > THROWN_UP
+                && s.launchAt != 0 && (now - s.launchAt) / 1e9 < LAUNCH_SEEN_SECONDS) {
             s.thrown = true;
             s.thrownAt = now;
         }
