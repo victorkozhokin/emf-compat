@@ -216,7 +216,7 @@ public class ConfigScreen extends Screen {
                 List<FormattedCharSequence> lines = this.font.split(Component.literal(text), this.width - optX - 16);
                 int y = list.getBottom() + 4;
                 for (int i = 0; i < Math.min(lines.size(), DESCRIPTION_LINES); i++) {
-                    graphics.drawString(this.font, lines.get(i), optX, y, 0xA0A0A0);
+                    graphics.drawString(this.font, lines.get(i), optX, y, 0xFFFFFF);
                     y += this.font.lineHeight + 1;
                 }
             }
