@@ -20,6 +20,7 @@ import strm.emfcompat.animationadditions.interaction.InteractionContext;
 public final class ShakeOff extends Gesture {
     public static final ShakeOff INSTANCE = new ShakeOff();
     public static final String KEY_ENABLED = "shakeoff.enabled";
+    public static final String KEY_WATER = "shakeoff.water", KEY_SNOW = "shakeoff.snow", KEY_MUD = "shakeoff.mud";
     /** In it for this long to be worth shaking off, and out of it for this long before doing so, seconds. */
     private static final float SOAKED = 1.5f, OUT = .6f;
     private static final int WATER=0,SNOW=1,MUD=2;
@@ -39,6 +40,12 @@ public final class ShakeOff extends Gesture {
         config.addBoolean(KEY_ENABLED, "Shake off water, snow and mud", true,
                 "On", "Out of water, powder snow or mud, the player shakes it off once.",
                 "Off", "Nothing shows.");
+        config.addChild(KEY_ENABLED, KEY_WATER, "After water", true,
+                "On", "Out of water after a swim or a wade.", "Off", "Water is not shaken off.");
+        config.addChild(KEY_ENABLED, KEY_SNOW, "After powder snow", true,
+                "On", "Out of powder snow, with the arms thrown higher.", "Off", "Snow is not shaken off.");
+        config.addChild(KEY_ENABLED, KEY_MUD, "After mud", true,
+                "On", "Off mud, with a smaller turn of the body.", "Off", "Mud is not shaken off.");
     }
 
     protected boolean watches() {
@@ -59,7 +66,7 @@ public final class ShakeOff extends Gesture {
             wet.outside += dt;
             if (wet.outside >= OUT && player.onGround()) {
                 wet.inside = wet.outside = 0;
-                if (isEnabled()) trigger(player, wet.kind, null);
+                if (isEnabled() && on(wet.kind == MUD ? KEY_MUD : wet.kind == SNOW ? KEY_SNOW : KEY_WATER)) trigger(player, wet.kind, null);
             } else if (wet.outside > 6) wet.inside = 0;
         } else {
             wet.inside = 0;

@@ -31,6 +31,7 @@ import strm.emfcompat.core.EMFCompatConfig;
 public final class AnimalCare extends Gesture {
     public static final AnimalCare INSTANCE = new AnimalCare();
     public static final String KEY_ENABLED = "animalcare.enabled";
+    public static final String KEY_FEED = "animalcare.feed", KEY_STROKE = "animalcare.stroke", KEY_MILK = "animalcare.milk", KEY_SHEAR = "animalcare.shear";
     public static final int FEED = 0, MILK = 1, SHEAR = 2;
 
     public String id() {
@@ -45,11 +46,34 @@ public final class AnimalCare extends Gesture {
         config.addBoolean(KEY_ENABLED, "Feed, milk and shear by hand", true,
                 "On", "Feeding an animal the hand goes to its mouth and the other strokes it; milking and shearing are done bent to the animal.",
                 "Off", "These show only the game's own arm swing.");
+        config.addChild(KEY_ENABLED, KEY_FEED, "Feeding", true,
+                "On", "The food is brought to the animal's mouth and held there while it is taken.",
+                "Off", "Feeding shows only the game's own arm swing.");
+        config.addChild(KEY_FEED, KEY_STROKE, "Stroke it after", true,
+                "On", "The feeding hand comes away and the other strokes the animal twice, from the brow back along the neck.",
+                "Off", "The food is given and the hand comes back.");
+        config.addChild(KEY_ENABLED, KEY_MILK, "Milking", true,
+                "On", "Bent to the animal, the bucket held under it and the other hand drawing down.",
+                "Off", "Milking shows only the game's own arm swing.");
+        config.addChild(KEY_ENABLED, KEY_SHEAR, "Shearing", true,
+                "On", "One hand on the animal's back, the shears twice along its flank.",
+                "Off", "Shearing shows only the game's own arm swing.");
+    }
+
+    private static boolean wanted(int kind) {
+        return kind >= 0 && on(kind == FEED ? KEY_FEED : kind == MILK ? KEY_MILK : KEY_SHEAR);
+    }
+
+    /** Another player's swing is the click, unless it turns out to have been a blow. */
+    protected void remote(InteractionContext context, Play play) {
+        super.remote(context, play);
+        if (play.acted && !play.back && play.work < .3f
+                && play.player.level().getEntity(play.entity) instanceof LivingEntity animal && animal.hurtTime > 0) play.back = true;
     }
 
     /** The game accepted this player's use of what was in that hand on that animal. */
     public static void done(AbstractClientPlayer player, Entity animal, int kind, boolean mainHand) {
-        if (gap(player, animal) > NEAR) return;
+        if (!wanted(kind) || gap(player, animal) > NEAR) return;
         Play play = INSTANCE.trigger(player, kind, animal.position());
         if (play.kind != kind) return;
         play.entity = animal.getId();
@@ -94,10 +118,10 @@ public final class AnimalCare extends Gesture {
 
     /** The food, the bucket or the shears in a hand, and under the crosshair an animal that will take it. */
     protected boolean poised(InteractionContext context, Play play) {
-        Minecraft mc = Minecraft.getInstance();
-        if (!(mc.hitResult instanceof EntityHitResult hit)) return false;
-        Entity target = hit.getEntity();
         AbstractClientPlayer player = context.player();
+        if (player.getMainHandItem().isEmpty() && player.getOffhandItem().isEmpty()) return false;
+        if (!(sight(context) instanceof EntityHitResult hit)) return false;
+        Entity target = hit.getEntity();
         for (InteractionHand hand : InteractionHand.values()) {
             int kind = kindOf(player.getItemInHand(hand), target);
             if (kind < 0 || gap(player, target) > NEAR) continue;
@@ -122,6 +146,11 @@ public final class AnimalCare extends Gesture {
 
     /** What this in the hand would do to that animal: FEED, MILK, SHEAR, or -1 for nothing of ours. */
     public static int kindOf(ItemStack stack, Entity target) {
+        int kind = kind(stack, target);
+        return wanted(kind) ? kind : -1;
+    }
+
+    private static int kind(ItemStack stack, Entity target) {
         if (stack.is(Items.SHEARS) && target instanceof Shearable wool && wool.readyForShearing()) return SHEAR;
         if (stack.is(Items.BUCKET) && (target instanceof Cow || target instanceof Goat) && !((Animal) target).isBaby()) return MILK;
         // All the client knows of whether it will eat: not in love already. (Its age is the server's.)
@@ -143,7 +172,7 @@ public final class AnimalCare extends Gesture {
     }
 
     protected double work(Play play) {
-        return play.kind == FEED ? 2.8 : play.kind == MILK ? 2.6 : 2.2;
+        return play.kind == FEED ? on(KEY_STROKE) ? 2.8 : 1.1 : play.kind == MILK ? 2.6 : 2.2;
     }
 
     protected void pose(Play play, float work, Pose out) {
@@ -171,8 +200,10 @@ public final class AnimalCare extends Gesture {
             // that hand is drawn away; then the other strokes it, twice and unhurried, from the brow
             // back along the neck pressing and forward again lifted. The body makes three moves of
             // it - in to the mouth, over to the brow, back - and none for the strokes themselves.
+            boolean strokes = on(KEY_STROKE);
+            float waits = on(KEY_FREE_ARM) ? WAITS : 0;
             float away = play.acted ? smooth((work - .24f) / .2f) : 0;
-            float stroke = play.acted ? smooth((work - .36f) / .16f) * (1 - smooth((work - .88f) / .12f)) : 0;
+            float stroke = !strokes ? 0 : play.acted ? smooth((work - .36f) / .16f) * (1 - smooth((work - .88f) / .12f)) : 0;
             double pass = Math.PI * 2 * 2 * Math.max(0, Math.min(1, (work - .52f) / .36f));
             float gone = (float) (.5 - .5 * Math.cos(pass)), up = (float) Math.max(0, -Math.sin(pass));
             Vec3 neck = head == null ? side.scale(-1) : head[2];
@@ -188,9 +219,10 @@ public final class AnimalCare extends Gesture {
             other = model(play, brow.add(0, .04 + .09 * up * up * stroke, 0).add(neck.scale(length * gone * stroke)));
             toolReach = level * (1 - away);
             // Until its turn the free hand is half up and ready, not hanging.
-            otherReach = Math.min(1, level * 1.4f) * (WAITS + (1 - WAITS) * stroke);
+            otherReach = Math.min(1, level * 1.4f) * (waits + (1 - waits) * stroke);
             // The body stays in for the whole of it and goes over from the one hand's place to the other's once.
-            float stay = level * (play.acted ? 1 - smooth((work - .88f) / .12f) : 1), over = play.acted ? smooth((work - .28f) / .22f) : 0;
+            float stay = level * (!play.acted ? 1 : strokes ? 1 - smooth((work - .88f) / .12f) : 1 - smooth((work - .45f) / .4f));
+            float over = play.acted && strokes ? smooth((work - .28f) / .22f) : 0;
             Vector3f mid = model(play, brow.add(0, .04, 0).add(neck.scale(length * .5)));
             out.fitAt = new Vector3f(tool).lerp(mid, over);
             out.fitRight = over < .5f == right;
@@ -212,7 +244,8 @@ public final class AnimalCare extends Gesture {
             Vec3 under = at.add(fore.scale(-width * .26)).add(side.scale(width * .24)).add(0, height * .44, 0);
             tool = model(play, under.add(0, -.12, 0));
             other = model(play, under.add(0, .14 - .2 * pull, 0).add(side.scale(-.04 + .05 * pull)));
-            otherReach = Math.min(1, level * 1.4f) * (WAITS + (1 - WAITS) * come);
+            float waits = on(KEY_FREE_ARM) ? WAITS : 0;
+            otherReach = Math.min(1, level * 1.4f) * (waits + (1 - waits) * come);
             float stay = level * (play.acted ? 1 - smooth((work - .88f) / .12f) : 1);
             out.fitAt = new Vector3f(tool);
             out.fitRight = right;

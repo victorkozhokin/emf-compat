@@ -28,6 +28,8 @@ import java.util.Map;
 public final class ArmorDon extends Gesture {
     public static final ArmorDon INSTANCE = new ArmorDon();
     public static final String KEY_ENABLED = "armordon.enabled";
+    public static final String KEY_HELMET = "armordon.helmet", KEY_CHEST = "armordon.chest", KEY_INSPECT = "armordon.inspect", KEY_CURIOS = "armordon.curios";
+    private static final String[] KEYS = {KEY_HELMET, KEY_CHEST, KEY_INSPECT, KEY_INSPECT};
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatGesture");
     static final int HEAD = 0, CHEST = 1, LEGS = 2, FEET = 3, NECK = 4, HAND = 5, WAIST = 6, BACK = 7;
     private static final EquipmentSlot[] SLOTS = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
@@ -59,6 +61,14 @@ public final class ArmorDon extends Gesture {
         config.addBoolean(KEY_ENABLED, "Put on armour and accessories", true,
                 "On", "A piece of armour or a Curios accessory put on takes both hands to where it is worn.",
                 "Off", "It just appears.");
+        config.addChild(KEY_ENABLED, KEY_HELMET, "Helmet", true,
+                "On", "Pushed down on to the head with one hand, twice, the second time harder.", "Off", "A helmet just appears.");
+        config.addChild(KEY_ENABLED, KEY_CHEST, "Chestplate", true,
+                "On", "Both hands from the breast out over the ribs and down the sides, and a shrug to seat it.", "Off", "A chestplate just appears.");
+        config.addChild(KEY_ENABLED, KEY_INSPECT, "Leggings and boots", true,
+                "On", "The player looks them over: a foot lifted and turned, the arms out for balance.", "Off", "Leggings and boots just appear.");
+        config.addChild(KEY_ENABLED, KEY_CURIOS, "Accessories", true,
+                "On", "A Curios ring, bracelet, necklace, belt or back piece is put on where it is worn.", "Off", "Accessories just appear.");
     }
 
     protected boolean watches() {
@@ -77,13 +87,13 @@ public final class ArmorDon extends Gesture {
         boolean settled = now - worn.since > SETTLE_NANOS && isEnabled();
         for (int i = 0; i < 4; i++) {
             Item item = player.getItemBySlot(SLOTS[i]).getItem();
-            if (item != worn.armour[i] && item != Items.AIR && settled) worn.queued |= 1 << i;
+            if (item != worn.armour[i] && item != Items.AIR && settled && on(KEYS[i])) worn.queued |= 1 << i;
             worn.armour[i] = item;
             if(item == Items.AIR)worn.queued &= ~(1 << i);
         }
         if (now - worn.curiosAt > CURIOS_EVERY_NANOS) {
             worn.curiosAt = now;
-            curios(player, worn, settled && worn.curiosKnown);
+            curios(player, worn, settled && worn.curiosKnown && on(KEY_CURIOS));
             worn.curiosKnown = true;
         }
         if (worn.queued != 0 && !play.playing && !play.pending) {

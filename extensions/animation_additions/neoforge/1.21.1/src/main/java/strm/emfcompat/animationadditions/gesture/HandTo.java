@@ -67,20 +67,38 @@ public final class HandTo extends Gesture {
         return true;
     }
 
+    /**
+     * Another player dressing a stand: their swing is the click. Planting: the swing could as well
+     * be a blow at the bed, so it is the seed appearing where they looked, while their arm swings.
+     */
+    protected void remote(InteractionContext context, Play play) {
+        if (play.kind != SEED) {
+            super.remote(context, play);
+            return;
+        }
+        if (!(play.notes instanceof net.minecraft.core.BlockPos bed) || !play.player.swinging || play.acted && !play.back) return;
+        net.minecraft.world.level.block.Block grown = play.player.level().getBlockState(bed).getBlock();
+        if (!(grown instanceof CropBlock || grown instanceof StemBlock || grown instanceof NetherWartBlock)) return;
+        play.notes = null;
+        acted(play);
+    }
+
     /** A piece of armour (or an empty hand) and a stand under the crosshair; a seed and a bed for it. */
     protected boolean poised(InteractionContext context, Play play) {
         Minecraft mc = Minecraft.getInstance();
         AbstractClientPlayer player = context.player();
+        HitResult sight = sight(context);
+        if (sight == null) return false;
         for (InteractionHand hand : InteractionHand.values()) {
             ItemStack stack = player.getItemInHand(hand);
             int kind = -1;
             Vec3 point = null;
-            if (mc.hitResult instanceof EntityHitResult hit && hit.getEntity() instanceof ArmorStand
+            if (sight instanceof EntityHitResult hit && hit.getEntity() instanceof ArmorStand
                     && EMFCompatConfig.getBoolean(KEY_STAND, true)
                     && (stack.getItem() instanceof ArmorItem || stack.isEmpty() && hand == InteractionHand.MAIN_HAND)) {
                 kind = STAND;
                 point = hit.getLocation();
-            } else if (mc.hitResult instanceof BlockHitResult hit && hit.getType() == HitResult.Type.BLOCK
+            } else if (sight instanceof BlockHitResult hit && hit.getType() == HitResult.Type.BLOCK
                     && hit.getDirection() == Direction.UP && EMFCompatConfig.getBoolean(KEY_SEEDS, true)
                     && stack.getItem() instanceof BlockItem seed && plants(seed)
                     && seed.getBlock().defaultBlockState().canSurvive(player.level(), hit.getBlockPos().above())
@@ -90,6 +108,8 @@ public final class HandTo extends Gesture {
             }
             if (kind < 0) continue;
             if (!play.acted) {
+                // Where another player's seed will show when it has gone in.
+                if (player != mc.player) play.notes = kind == SEED ? ((BlockHitResult) sight).getBlockPos().above() : null;
                 play.kind = kind;
                 play.point = point;
                 play.right = (player.getMainArm() == HumanoidArm.RIGHT) == (hand == InteractionHand.MAIN_HAND);

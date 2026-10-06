@@ -46,11 +46,38 @@ public abstract class Gesture implements InteractionProvider {
 
     /** Off by default: the game does what was clicked at once and the gesture goes with it. */
     public static final String KEY_ACT_AFTER = "gesture.actAfter";
+    public static final String KEY_POISE = "gesture.poise", KEY_OTHERS = "gesture.others", KEY_FIT = "gesture.fit",
+            KEY_STANCE = "gesture.stance", KEY_LOOK = "gesture.look", KEY_CALL_OFF = "gesture.callOff", KEY_FREE_ARM = "gesture.freeArm";
+
+    protected static boolean on(String key) {
+        return strm.emfcompat.core.EMFCompatConfig.getBoolean(key, true);
+    }
 
     public static void register(strm.emfcompat.core.ConfigRegistry.Group config) {
         config.addBoolean(KEY_ACT_AFTER, "Act when the hand gets there", false,
                 "On", "Feeding, milking, shearing, dressing a stand and planting happen when the hand reaches its place, a moment after the click - not before the hand has moved.",
                 "Off", "The game acts on the click at once, as it always does; the hand finishes its way after.");
+        config.addBoolean(KEY_POISE, "Hand out before the click", true,
+                "On", "With the right thing in hand and the right thing under the crosshair, the hand is already held out; the click only finishes the move.",
+                "Off", "A gesture starts at the click, from a hand hanging by the side.");
+        config.addBoolean(KEY_OTHERS, "Other players' gestures", true,
+                "On", "Feeding, milking, shearing, dressing a stand and planting also show on other players, told from where they look and what they do.",
+                "Off", "These gestures show on your own player only.");
+        config.addBoolean(KEY_FIT, "Lean in until the hand is there", true,
+                "On", "The torso turns and the hips shift, a little, so the hand lands on what it reaches for.",
+                "Off", "The arm only points at it; the body bends as the gesture says and no further.");
+        config.addBoolean(KEY_STANCE, "Step into a stance", true,
+                "On", "The feet step apart for a gesture, the weight goes over them, and they step back after.",
+                "Off", "The feet stay where the pack has them.");
+        config.addBoolean(KEY_LOOK, "Look at what the hands do", true,
+                "On", "The head turns to the animal, the stand, the bed or the chest for as long as the hands are at it.",
+                "Off", "The head stays with the camera.");
+        config.addBoolean(KEY_CALL_OFF, "Give a gesture up when leaving", true,
+                "On", "Turned away or walked off from what a gesture is done to, the hands come back to the body at once.",
+                "Off", "A gesture plays to its end wherever the player goes.");
+        config.addBoolean(KEY_FREE_ARM, "The other arm joins in", true,
+                "On", "The arm with nothing to do waits half raised for its turn, or goes out against the lean.",
+                "Off", "It hangs by the side until it is needed.");
     }
 
     public static boolean actsAfter() {
@@ -106,6 +133,7 @@ public abstract class Gesture implements InteractionProvider {
         }
         /** The arm with nothing to do, out from the side and back a little, as an arm goes when the body leans the other way. */
         public void free(boolean right, float amount) {
+            if (!on(KEY_FREE_ARM)) return;
             float[] angles = {.42f * amount, 0, (right ? .2f : -.2f) * amount, 0};
             if (right) this.right = angles;
             else left = angles;
@@ -165,6 +193,10 @@ public abstract class Gesture implements InteractionProvider {
          * spring so it answers at once and never jumps), and how far through the work it is (0..1).
          */
         public boolean poised, acted, back;
+        /** For another player: whether the arm is swinging, how far through, and whether a swing began this frame. */
+        boolean swinging;
+        int swingTime;
+        public boolean swingBegan;
         /** The act itself, held back until the hand has got there (see {@link Gesture#defer}). */
         Runnable deferred;
         public float level, work;
@@ -206,6 +238,29 @@ public abstract class Gesture implements InteractionProvider {
     /** Whether this player is about to act; sets the play's kind, point and hand while it has not acted yet. */
     protected boolean poised(InteractionContext context, Play play) {
         return false;
+    }
+
+    /**
+     * For another player, whose clicks are not known: looked at every frame to tell that the act
+     * has come. The arm beginning a swing while poised is the click, near enough; a gesture that
+     * can see the act's result in the world goes by that instead.
+     */
+    protected void remote(InteractionContext context, Play play) {
+        if (play.swingBegan && play.poised && !(play.acted && !play.back)) acted(play);
+    }
+
+    /** The act has come for a player who was poised to do it. */
+    protected final void acted(Play play) {
+        int entity = play.entity;
+        boolean right = play.right;
+        Play started = trigger(play.player, play.kind, play.point);
+        started.entity = entity;
+        started.right = right;
+    }
+
+    /** What this player has under the crosshair; for another player, as near as it can be told. */
+    protected static net.minecraft.world.phys.HitResult sight(InteractionContext context) {
+        return Sight.of(context.player(), context.now());
     }
 
     /** Once it has acted: whether the player has gone from what the gesture is done to, which calls it off. */
@@ -354,12 +409,19 @@ public abstract class Gesture implements InteractionProvider {
             play.frame = context.frame();
             watch(context, play);
         }
-        if (poises() && player == net.minecraft.client.Minecraft.getInstance().player) {
+        boolean mine = player == net.minecraft.client.Minecraft.getInstance().player;
+        if (poises() && (mine || on(KEY_OTHERS))) {
             if (play == null) play = states.seen(player.getUUID(), now).value;
             play.player = player;
             play.frame = context.frame();
             play.poised = isEnabled() && ready(player) && poised(context, play);
-            if (play.poised) {
+            if (!mine) {
+                play.swingBegan = player.swinging && (!play.swinging || player.swingTime < play.swingTime);
+                play.swinging = player.swinging;
+                play.swingTime = player.swingTime;
+                if (isEnabled()) remote(context, play);
+            }
+            if (play.poised && on(KEY_POISE)) {
                 busyAt = now;
                 if (!play.playing) {
                     play.playing = true;
@@ -438,6 +500,7 @@ public abstract class Gesture implements InteractionProvider {
         }
         pose.rightAt = follow(play, 0, pose.rightAt, pose.rightReach, dt);
         pose.leftAt = follow(play, 1, pose.leftAt, pose.leftReach, dt);
+        if (!on(KEY_LOOK)) pose.look = null;
         if (pose.look != null) {
             // The eyes go to it from where they look, and lead the hands there.
             float length = pose.look.length(), amount = Math.max(0, Math.min(1, pose.looking));
@@ -493,7 +556,7 @@ public abstract class Gesture implements InteractionProvider {
     private void spring(Play play, float dt) {
         float target;
         if (play.back) target = 0;
-        else if (play.acted && lost(play)) {
+        else if (play.acted && on(KEY_CALL_OFF) && lost(play)) {
             // Run off from it: nothing is finished, the hands just come back.
             play.back = true;
             play.deferred = null;
@@ -610,14 +673,15 @@ public abstract class Gesture implements InteractionProvider {
             Play play = gesture.states.fresh(uuid);
             if (play == null || play.player == null) continue;
             Pose pose = play.pose;
-            boolean apart = play.playing && pose.apart && pose.rightFoot != null && pose.leftFoot != null;
+            boolean stance = on(KEY_STANCE);
+            boolean apart = stance && play.playing && pose.apart && pose.rightFoot != null && pose.leftFoot != null;
             float shown = gesture.shown(uuid, play);
             float held = apart ? shown : play.playing && gesture.isEnabled() && !play.stance.resting() ? 1 : shown;
             if (!(held < .05f && play.stance.resting()))
                 BraceSteps.apply(play.stance, play.player, play.frame, parts, apart ? pose.rightFoot : HOME,
                         apart ? pose.leftFoot : HOME, held, 0, LOGGER, gesture.id());
             if (!play.playing || shown < 1e-3f) continue;
-            if (play.player.onGround() && !play.player.isPassenger()
+            if (stance && play.player.onGround() && !play.player.isPassenger()
                     && play.player.getDeltaMovement().horizontalDistanceSqr() < .0004)
                 strm.emfcompat.animationadditions.torso.PelvisFollow.shift(parts, pose.weightSide * shown, pose.weightForward * shown);
             leg(parts.apply("right_leg"), pose.rightLeg, shown);
@@ -647,7 +711,7 @@ public abstract class Gesture implements InteractionProvider {
             Pose pose = play.pose;
             float weight = 0;
             Vector3f other = null;
-            if (play.playing && play.shows && !pose.onBody && play.player.onGround() && !play.player.isPassenger()
+            if (play.playing && play.shows && !pose.onBody && on(KEY_FIT) && play.player.onGround() && !play.player.isPassenger()
                     && play.player.getDeltaMovement().horizontalDistanceSqr() < .0004) {
                 float r = pose.rightAt == null ? 0 : Math.min(1, pose.rightReach), l = pose.leftAt == null ? 0 : Math.min(1, pose.leftReach);
                 // The hand further out leads; it gives the lead up only to one clearly further.

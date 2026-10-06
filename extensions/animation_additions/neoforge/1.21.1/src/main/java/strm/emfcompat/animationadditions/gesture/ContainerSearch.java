@@ -29,7 +29,7 @@ import strm.emfcompat.core.EMFCompatConfig;
  */
 public final class ContainerSearch extends Gesture {
     public static final ContainerSearch INSTANCE = new ContainerSearch();
-    public static final String KEY_ENABLED = "containersearch.enabled";
+    public static final String KEY_ENABLED = "containersearch.enabled", KEY_SLOTS = "containersearch.slots";
     private static final long LOOK_EVERY_NANOS = 250_000_000L;
     private static final double REACH = 4.5;
     private static final float HOLD = .5f;
@@ -53,6 +53,9 @@ public final class ContainerSearch extends Gesture {
         config.addBoolean(KEY_ENABLED, "Look through open containers", true,
                 "On", "While a chest, a barrel or a shulker box is open, one hand holds its edge and the other looks through it.",
                 "Off", "Only opening it shows.");
+        config.addChild(KEY_ENABLED, KEY_SLOTS, "Hands answer what is moved", true,
+                "On", "In your own open container the hands rest until something is put in, taken or moved, and work then.",
+                "Off", "The hand goes round inside it for as long as it is open.");
     }
 
     protected boolean watches() {
@@ -139,7 +142,7 @@ public final class ContainerSearch extends Gesture {
         Vec3 along = new Vec3(-side.z, 0, side.x);
         boolean right = play.right;
         // In it: round and round, and a dip every second or so as something is taken hold of.
-        boolean local=play.player==Minecraft.getInstance().player;
+        boolean local=play.player==Minecraft.getInstance().player && on(KEY_SLOTS);
         float elapsed=open.actedAt==0?10f:(System.nanoTime()-open.actedAt)*1e-9f;
         float activity=local ? bell(elapsed,.12f,.65f,1.15f) : .35f;
         double turn = (local ? Math.min(elapsed,1.15f) : play.held) * 2.3, beat = (play.held % 1.25f) / 1.25f;
