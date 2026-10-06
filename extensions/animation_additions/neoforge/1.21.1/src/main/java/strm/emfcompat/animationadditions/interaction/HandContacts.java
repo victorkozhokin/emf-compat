@@ -12,11 +12,28 @@ import java.util.function.Function;
 
 /** Contact targets reapplied from the drawn shoulder after breathing and torso layers. */
 public final class HandContacts {
+    private static final java.util.Set<String> EARLY_SOURCES=java.util.Set.of("DoorHold","Furniture","WallHand","PlantReach");
+    private static final org.slf4j.Logger LOGGER=org.slf4j.LoggerFactory.getLogger("EMFCompatContact");
     private record Key(String source, Effector hand) {}
-    private record Anchor(SubLevels.Space space, Vec3 local) {
+    private record Anchor(SubLevels.Space space, Vec3 local, Vec3 normal) {
         Vec3 world() {return space.valid()?space.refresh().toWorld(local):null;}
     }
-    private static final EntityStates<Map<Key, Anchor>> STATES = new EntityStates<>(HashMap::new);
+    private static final class PlantAim {
+        float[] angles;
+        float frame=-1;
+        long at;
+    }
+    private static final class State {
+        final Map<Key, Anchor> targets = new HashMap<>();
+        final Map<Key,float[]> drawnTargets = new HashMap<>();
+        final java.util.EnumMap<Effector,PlantAim> plantAims = new java.util.EnumMap<>(Effector.class);
+        final strm.emfcompat.animationadditions.torso.BraceSteps.State feet = new strm.emfcompat.animationadditions.torso.BraceSteps.State();
+        net.minecraft.client.player.AbstractClientPlayer player;
+        final strm.emfcompat.animationadditions.torso.LowReach.State reach = new strm.emfcompat.animationadditions.torso.LowReach.State();
+        final Vector3f lastReach = new Vector3f();
+        boolean rightReach=true;
+    }
+    private static final EntityStates<State> STATES = new EntityStates<>(State::new);
     private HandContacts() {}
 
     public static void remember(InteractionContext context, String source, Effector hand, Vec3 world) {
@@ -24,23 +41,157 @@ public final class HandContacts {
     }
 
     public static void remember(InteractionContext context,String source,Effector hand,Vec3 world,SubLevels.Space space) {
-        STATES.seen(context.player().getUUID(), context.now()).value.put(new Key(source,hand),new Anchor(space,space.toLocal(world)));
+        remember(context,source,hand,world,space,null);
     }
 
-    public static void apply(UUID uuid, Function<String, ModelPart> parts) {
+    public static void remember(InteractionContext context,String source,Effector hand,Vec3 world,SubLevels.Space space,Vec3 normal) {
+        State state = STATES.seen(context.player().getUUID(), context.now()).value;
+        state.player = context.player();
+        Key key=new Key(source,hand);
+        Anchor previous=state.targets.get(key);
+        if(source.equals("PlantReach") && previous!=null && previous.world()!=null
+                && previous.world().distanceTo(world)<1.5
+                && InteractionRuntime.weight(context.player().getUUID(),hand,source)>.001f)
+            world=previous.world().lerp(world,Smoothing.follow(context.dt(),.12));
+        state.targets.put(key,new Anchor(space,space.toLocal(world),normal==null?null:space.directionToLocal(normal)));
+    }
+
+    private record Support(ContactStance pose, float weight) {}
+    private static Support stance(UUID uuid, State state) {
+        var frame=InteractionRuntime.frame(uuid);
+        if(frame==null || state.player==null)return null;
+        float weight=0; String source=null;
+        // Select one stance, even when two contacts are owned. Never add two body solvers.
+        for(var key:state.targets.keySet()) {
+            if(!EARLY_SOURCES.contains(key.source))continue;
+            float w=InteractionRuntime.weight(uuid,key.hand,key.source);
+            if(w>weight) {weight=w;source=key.source;}
+        }
+        if(source==null || weight<.001f)return null;
+        float side=0,total=0;
+        for(var entry:state.targets.entrySet()) {
+            if(!entry.getKey().source.equals(source))continue;
+            float w=InteractionRuntime.weight(uuid,entry.getKey().hand,source);
+            Vec3 world=entry.getValue().world();
+            if(world==null || w<.001f)continue;
+            side+=frame.relativeToJoint(world,new Vector3f()).x*w;total+=w;
+        }
+        if(total<.001f)return null;
+        return new Support(ContactStance.forContact(source,side/total,weight,state.player.isCrouching()),weight);
+    }
+
+    public static strm.emfcompat.animationadditions.torso.TorsoLean.Hint torsoHint(UUID uuid) {
+        State state=STATES.fresh(uuid);
+        Support support=state==null?null:stance(uuid,state);
+        if(support==null)return null;
+        var pose=support.pose;
+        return new strm.emfcompat.animationadditions.torso.TorsoLean.Hint(pose.pitch(),pose.yaw(),0,0,pose.yaw());
+    }
+
+    public static void support(UUID uuid,Function<String,ModelPart> parts) {
+        State state=STATES.fresh(uuid);
+        if(state==null || state.player==null || !EMFCompatCore.isCompatEnabled()
+                || EMFCompatCore.isLocalPlayerInFirstPerson(uuid))return;
+        Support support=stance(uuid,state);
+        ContactStance pose=support==null?new ContactStance(0,0,0,0,0):support.pose;
+        float weight=support==null?0:support.weight;
+        strm.emfcompat.animationadditions.torso.BraceSteps.apply(state.feet,state.player,InteractionRuntime.frame(uuid),parts,
+                new Vector3f(-pose.spread(),0,pose.forward()*.5f),new Vector3f(pose.spread(),0,-pose.forward()*.5f),
+                weight,0,LOGGER,"ContactStance");
+        if(state.player.onGround() && !state.player.isPassenger()
+                && state.player.getDeltaMovement().horizontalDistanceSqr()<.0004)
+            strm.emfcompat.animationadditions.torso.PelvisFollow.shift(parts,pose.side(),pose.forward());
+    }
+
+    /** A bounded grounded fit for the fixed handles/books, after the torso layer. */
+    public static void reach(UUID uuid,Function<String,ModelPart> parts) {
+        State state=STATES.fresh(uuid);var frame=InteractionRuntime.frame(uuid);
+        if(state==null || state.player==null || frame==null || !EMFCompatCore.isCompatEnabled()
+                || EMFCompatCore.isLocalPlayerInFirstPerson(uuid))return;
+        float weight=0;Key chosen=null;
+        boolean still=state.player.onGround() && !state.player.isPassenger()
+                && state.player.getDeltaMovement().horizontalDistanceSqr()<.0004;
+        if(still)for(var entry:state.targets.entrySet()) {
+            Key key=entry.getKey();
+            if(!key.source.equals("DoorHold") && !key.source.equals("Furniture"))continue;
+            float w=InteractionRuntime.weight(uuid,key.hand,key.source);
+            if(w>weight && entry.getValue().world()!=null) {weight=w;chosen=key;}
+        }
+        Vector3f other=null;
+        if(chosen!=null) {
+            state.lastReach.set(frame.relativeToJoint(state.targets.get(chosen).world(),new Vector3f()));
+            state.rightReach=chosen.hand==Effector.RIGHT_ARM;
+            Key opposite=new Key(chosen.source,state.rightReach?Effector.LEFT_ARM:Effector.RIGHT_ARM);
+            Anchor anchor=state.targets.get(opposite);
+            if(anchor!=null && anchor.world()!=null && InteractionRuntime.weight(uuid,opposite.hand,opposite.source)>.1f)
+                other=frame.relativeToJoint(anchor.world(),new Vector3f());
+        }
+        state.reach.angleLimit=(float)Math.toRadians(state.player.isCrouching()?5:10);
+        if(weight>.001f || state.reach.active())
+            strm.emfcompat.animationadditions.torso.LowReach.apply(parts,state.rightReach,state.lastReach,other,weight,state.reach);
+    }
+
+    /** Model-space targets for native contact verification; no extra solve or time advancement. */
+    public static Map<String,float[]> snapshot(UUID uuid) {
+        State state=STATES.fresh(uuid);var frame=InteractionRuntime.frame(uuid);
+        Map<String,float[]> out=new HashMap<>();
+        if(state==null || frame==null)return out;
+        state.targets.forEach((key,anchor)->{
+            Vec3 world=anchor.world();
+            if(world==null || InteractionRuntime.weight(uuid,key.hand,key.source)<.001f)return;
+            Vector3f p=frame.relativeToJoint(world,new Vector3f());
+            float[] drawn=state.drawnTargets.get(key);
+            out.put(key.source+":"+key.hand,drawn!=null?drawn:new float[]{p.x,p.y,p.z,
+                    key.source.equals("PlantReach") || key.source.equals("WallHand")?Skeleton.ARM_TO_PALM:Skeleton.ARM_TO_FINGERTIPS});
+        });
+        return out;
+    }
+
+    public static void apply(UUID uuid, Function<String, ModelPart> parts, Map<Effector,float[]> base) {
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
-        Map<Key, Anchor> targets = STATES.fresh(uuid);
-        if (targets == null) return;
+        State state = STATES.fresh(uuid);
+        if (state == null) return;
         var frame=InteractionRuntime.frame(uuid);
         if(frame==null)return;
-        targets.forEach((key, anchor) -> {
+        state.targets.forEach((key, anchor) -> {
             Vec3 world=anchor.world();
             if(world==null)return;
             Vector3f point=frame.relativeToJoint(world,new Vector3f());
             float w = InteractionRuntime.weight(uuid, key.hand, key.source);
             ModelPart arm = parts.apply(key.hand.part);
             if (w < 1e-3f || arm == null) return;
-            ArmAim.towards(arm, point, w, false);
+            if(anchor.normal!=null && key.source.equals("WallHand")) {
+                Vec3 normal=anchor.space.refresh().directionToWorld(anchor.normal);
+                Vector3f modelNormal=frame.relativeToJoint(world.add(normal),new Vector3f()).sub(point).normalize();
+                Vector3f fitted=PlaneContact.fit(new Vector3f(arm.x,arm.y,arm.z),point,modelNormal,Skeleton.ARM_TO_PALM);
+                if(fitted!=null) {
+                    Vec3 fitWorld=frame.jointWorld(fitted);
+                    var face=strm.emfcompat.animationadditions.wallhand.WallSurface.clip(state.player,
+                            fitWorld.add(normal.scale(.08)),fitWorld.subtract(normal.scale(.08)),
+                            java.util.List.of(anchor.space.refresh()));
+                    if(face!=null && face.normal().dot(normal)>.9 && face.position().distanceTo(fitWorld)<.04)point=fitted;
+                }
+            }
+            state.drawnTargets.put(key,new float[]{point.x,point.y,point.z,
+                    key.source.equals("PlantReach") || key.source.equals("WallHand")?Skeleton.ARM_TO_PALM:Skeleton.ARM_TO_FINGERTIPS});
+            if(key.source.equals("HeavyThrottle")) {ArmAim.towards(arm,point,w,false);return;}
+            float[] original=base.get(key.hand);
+            if(original==null)return;
+            float[] angles;
+            if(key.source.equals("PlantReach")) {
+                float[] wanted=ArmAim.angles(point.x-arm.x,point.y-arm.y,point.z-arm.z);
+                if(wanted==null)return;
+                PlantAim aim=state.plantAims.computeIfAbsent(key.hand,k->new PlantAim());
+                float counter=traben.entity_model_features.models.animation.state.EMFState.getFrameCounter();
+                if(counter!=aim.frame) {
+                    long now=System.nanoTime();double dt=aim.at==0?0:Math.min(.1,(now-aim.at)*1e-9);
+                    aim.at=now;aim.frame=counter;
+                    if(aim.angles==null || w<.05f)aim.angles=wanted.clone();
+                    else for(int i=0;i<2;i++)aim.angles[i]=ContactAim.follow(aim.angles[i],wanted[i],dt,.14,.8);
+                }
+                angles=ContactAim.blend(original,aim.angles,w);
+            } else angles=ContactAim.rotation(original,point.x-arm.x,point.y-arm.y,point.z-arm.z,w);
+            arm.setRotation(angles[0],angles[1],angles[2]);
         });
     }
 }

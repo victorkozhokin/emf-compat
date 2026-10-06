@@ -91,10 +91,21 @@ public final class PlantReach implements InteractionProvider {
             context.decide(why);
             return;
         }
-        float[] right = reach(player, context.frame(), RIGHT_SHOULDER, -1f);
-        float[] left = reach(player, context.frame(), LEFT_SHOULDER, 1f);
-        if (right != null) out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 0.5f, TIMING, Effector.RIGHT_ARM, right));
-        if (left != null) out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 0.5f, TIMING, Effector.LEFT_ARM, left));
+        // Adjacent plants are one continuous brushing gesture. A per-block target would
+        // repeatedly start the global pose handoff while the hand slides along a row.
+        Selection selection=context.data(Selection::new);
+        Reach right = reach(player, context.frame(), RIGHT_SHOULDER, -1f, selection.right);
+        Reach left = reach(player, context.frame(), LEFT_SHOULDER, 1f, selection.left);
+        selection.right=right==null?null:right.point;
+        selection.left=left==null?null:left.point;
+        if (right != null) {
+            strm.emfcompat.animationadditions.interaction.HandContacts.remember(context,id(),Effector.RIGHT_ARM,right.point);
+            out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 0.5f, TIMING, Effector.RIGHT_ARM, right.aim));
+        }
+        if (left != null) {
+            strm.emfcompat.animationadditions.interaction.HandContacts.remember(context,id(),Effector.LEFT_ARM,left.point);
+            out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 0.5f, TIMING, Effector.LEFT_ARM, left.aim));
+        }
         context.decide((right != null ? "R" : "-") + (left != null ? "L" : "-"));
     }
 
@@ -108,7 +119,10 @@ public final class PlantReach implements InteractionProvider {
      * The arm aimed at a plant on this side, or {@code null} when there is none in reach.
      * {@code out} is the model x of this side.
      */
-    private static float[] reach(AbstractClientPlayer player, IKFrame frame, Vector3f shoulder, float out) {
+    private static final class Selection { Vec3 right,left; }
+    private record Reach(float[] aim, Vec3 point) {}
+
+    private static Reach reach(AbstractClientPlayer player, IKFrame frame, Vector3f shoulder, float out, Vec3 previous) {
         Vector3f sidewaysWorld = frame.modelToWorld().transformDirection(new Vector3f(out, 0, 0));
         Vector3f aheadWorld = frame.modelToWorld().transformDirection(new Vector3f(0, 0, -1));
         Vec3 side = new Vec3(sidewaysWorld.x, 0, sidewaysWorld.z);
@@ -125,10 +139,10 @@ public final class PlantReach implements InteractionProvider {
         double highest = from.y - BELOW_SHOULDER;
 
         Level level = player.level();
-        Vec3 best = nearest(player, level, from, hanging, centre, side, ahead, lowest, highest);
-        if (best == null || best.distanceTo(from) > arm) return null;
+        Vec3 best = nearest(player, level, from, hanging, centre, side, ahead, lowest, highest, previous);
+        if (best == null || best.distanceTo(from) > arm + 1e-6) return null;
         IKResult result = OneBoneIK.solveXY(frame, shoulder, best, ARM, 0f, 0f);
-        return result == null ? null : new float[]{result.x(), result.y()};
+        return result == null ? null : new Reach(new float[]{result.x(), result.y()},best);
     }
 
     /**
@@ -136,7 +150,7 @@ public final class PlantReach implements InteractionProvider {
      * not behind, and not under the body.
      */
     private static Vec3 nearest(AbstractClientPlayer player, Level level, Vec3 from, Vec3 hanging, Vec3 centre,
-                                Vec3 side, Vec3 ahead, double lowest, double highest) {
+                                Vec3 side, Vec3 ahead, double lowest, double highest, Vec3 previous) {
         AABB footprint = player.getBoundingBox().inflate(BODY_MARGIN, 0, BODY_MARGIN);
         BlockPos feet = BlockPos.containing(hanging);
         Vec3 best = null;
@@ -150,38 +164,20 @@ public final class PlantReach implements InteractionProvider {
             // The point of the plant's top nearest the hand, no higher than the arm can bring it.
             double y = Math.min(highest, box.maxY - INTO_TOP);
             if (y < lowest || y < box.minY) continue;
-            Vec3 point = new Vec3(Math.max(box.minX, Math.min(box.maxX, hanging.x)), y,
-                    Math.max(box.minZ, Math.min(box.maxZ, hanging.z)));
-            // Not under the body: a plant the player stands in is only reached where it sticks out
-            // on the hand's side - otherwise, in a field or on the edge between two blocks, the hand
-            // went for the feet.
-            point = outside(point, box, footprint, side);
-            if (point == null) continue;
-            if (point.subtract(centre).dot(side) < ACROSS) continue;
-            if (point.subtract(from).dot(ahead) < -BEHIND) continue;
-            double distance = point.distanceTo(hanging);
-            if (distance < bestDistance) {
-                best = point;
-                bestDistance = distance;
+            // A straight arm cannot stop halfway down its length. Pick a real point
+            // on the canopy at arm length, rather than aiming through the nearby plant.
+            for(var candidate:CanopyContact.points(from.x,from.z,from.y-y,from.distanceTo(hanging),
+                    box.minX+1e-5,box.maxX-1e-5,box.minZ+1e-5,box.maxZ-1e-5,
+                    previous==null?hanging.x+side.x*.3:previous.x,previous==null?hanging.z+side.z*.3:previous.z)) {
+                Vec3 point=new Vec3(candidate.x(),y,candidate.z());
+                if(footprint.contains(point.x,(footprint.minY+footprint.maxY)*.5,point.z))continue;
+                if(point.subtract(centre).dot(side)<ACROSS || point.subtract(from).dot(ahead)<-BEHIND)continue;
+                double distance=point.distanceTo(hanging);
+                if(previous!=null)distance+=point.distanceTo(previous)*.6;
+                if(distance<bestDistance) {best=point;bestDistance=distance;}
             }
         }
         return best;
     }
 
-    /**
-     * {@code point}, moved out from under the body towards the hand's side until it clears
-     * {@code footprint}; {@code null} if it leaves the plant first.
-     */
-    private static Vec3 outside(Vec3 point, AABB plant, AABB footprint, Vec3 side) {
-        for (int i = 0; i < 40; i++) {
-            boolean under = point.x > footprint.minX && point.x < footprint.maxX
-                    && point.z > footprint.minZ && point.z < footprint.maxZ;
-            if (!under) return point;
-            point = point.add(side.scale(0.025));
-            if (point.x < plant.minX || point.x > plant.maxX || point.z < plant.minZ || point.z > plant.maxZ) {
-                return null;
-            }
-        }
-        return null;
-    }
 }

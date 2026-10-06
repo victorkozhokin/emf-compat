@@ -8,10 +8,10 @@ import strm.emfcompat.animationadditions.interaction.SubLevels;
 import java.util.List;
 
 /** Query actual vertical collision faces in the world and nearby Sable sub-levels. */
-final class WallSurface {
-    record Hit(Vec3 position, Vec3 normal) {}
+public final class WallSurface {
+    public record Hit(Vec3 position, Vec3 normal, SubLevels.Space space, net.minecraft.core.BlockPos block) {}
 
-    static Hit clip(AbstractClientPlayer player, Vec3 from, Vec3 to, List<SubLevels.Space> spaces) {
+    public static Hit clip(AbstractClientPlayer player, Vec3 from, Vec3 to, List<SubLevels.Space> spaces) {
         Hit best = null;
         double distance = Double.POSITIVE_INFINITY;
         for (SubLevels.Space space : spaces) {
@@ -22,7 +22,7 @@ final class WallSurface {
             if (Math.abs(normal.y) > 0.5) continue;
             Vec3 point = space.toWorld(hit.getLocation());
             double d = from.distanceToSqr(point);
-            if (d < distance) { distance = d; best = new Hit(point, normal.normalize()); }
+            if (d < distance) { distance = d; best = new Hit(point, normal.normalize(), space, hit.getBlockPos().immutable()); }
         }
         return best;
     }

@@ -248,8 +248,8 @@ public final class ButtonPress implements InteractionProvider {
             state.groundReach = player.onGround() && !Seated.seated(player)
                     && (!player.isCrouching() || hand.button.y > RIGHT_SHOULDER.y + 4);
             state.vanillaLever = block.getBlock() instanceof LeverBlock;
-            if (state.vanillaLever && state.groundReach)
-                leverWanted.set(LeverEffort.shift(hand.button, pressing));
+            if (state.groundReach)
+                leverWanted.set(LeverEffort.shift(hand.button, pressing)).mul(state.vanillaLever ? 1 : .35f);
             if (pressing) {
                 state.lean[0] = hand.pitch;
                 state.lean[1] = hand.yaw;
@@ -268,7 +268,9 @@ public final class ButtonPress implements InteractionProvider {
             context.claimArms();
             context.decide(pressing ? "press-R" : "hover-R");
         } finally {
-            state.leverStep.observe(player, context.frame(), state.vanillaLever && state.groundReach, state.button, state.pressedAt);
+            state.leverStep.stride = state.vanillaLever ? 1 : .35f;
+            state.leverStep.height = state.vanillaLever ? .35f : .18f;
+            state.leverStep.observe(player, context.frame(), state.groundReach, state.button, state.pressedAt);
             state.leverLoad.lerp(leverWanted, Smoothing.follow(dt, leverWanted.lengthSquared()>state.leverLoad.lengthSquared() ? .09 : .14));
             if (state.leverLoad.lengthSquared()<1e-8f) state.leverLoad.zero();
             legs(state, legTarget, dt);
@@ -571,7 +573,7 @@ public final class ButtonPress implements InteractionProvider {
      * after the pack's breathing and swing and the torso's lean have moved it - as much as the
      * arm is this provider's. Called last, after the interaction runtime.
      */
-    public static void aimArm(UUID uuid, Function<String, ModelPart> parts) {
+    public static void aimArm(UUID uuid, Function<String, ModelPart> parts, java.util.Map<Effector,float[]> base) {
         State state = STATES.fresh(uuid);
         if (state == null) return;
         Effector effector = Effector.RIGHT_ARM;
@@ -579,7 +581,11 @@ public final class ButtonPress implements InteractionProvider {
         if (w < 1e-3f) return;
         ModelPart arm = parts.apply(effector.part);
         if (arm == null) return;
-        ArmAim.towards(arm, state.button, w, false);
+        float[] original=base.get(effector);
+        if(original==null)return;
+        float[] aim=strm.emfcompat.animationadditions.interaction.ContactAim.rotation(original,
+                state.button.x-arm.x,state.button.y-arm.y,state.button.z-arm.z,w);
+        arm.setRotation(aim[0],aim[1],aim[2]);
     }
 
     /** Ground-supported reach before the final hand aim, shared with the low crank. */
@@ -589,8 +595,8 @@ public final class ButtonPress implements InteractionProvider {
         float weight = state.groundReach && INSTANCE.isEnabled() && EMFCompatConfig.getBoolean(KEY_STRETCH, true)
                 && InteractionRuntime.weight(uuid, Effector.LEFT_ARM) <= 0.01f
                 ? InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id()) : 0;
-        state.lowReach.weightShift = state.vanillaLever ? state.leverLoad.x : 0;
-        state.lowReach.weightForward = state.vanillaLever ? state.leverLoad.z : 0;
+        state.lowReach.weightShift = state.leverLoad.x;
+        state.lowReach.weightForward = state.leverLoad.z;
         state.leverStep.apply(parts, weight);
         LowReach.apply(parts, true, state.button, weight, state.lowReach);
         long now=System.nanoTime();

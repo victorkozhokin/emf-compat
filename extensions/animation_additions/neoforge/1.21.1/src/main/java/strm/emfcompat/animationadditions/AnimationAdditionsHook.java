@@ -134,6 +134,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         EjectorLaunch.apply(uuid, parts);
         WallSqueeze.apply(uuid, parts);
         var supportBase=InteractionRuntime.beginSupport(uuid, parts);
+        HandContacts.support(uuid, parts);
         ButtonPress.apply(uuid, parts);
         BlockUse.apply(uuid, parts);
         strm.emfcompat.animationadditions.leash.LeashHold.support(uuid, parts);
@@ -145,6 +146,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         strm.emfcompat.animationadditions.transport.TransportGrip.support(uuid,parts);
         TorsoLean.apply(uuid, parts);
         strm.emfcompat.animationadditions.transport.TransportGrip.reach(uuid,parts);
+        HandContacts.reach(uuid, parts);
         BlockUse.reachContact(uuid, parts);
         Mining.reach(uuid, parts);
         strm.emfcompat.animationadditions.gesture.Gesture.reach(uuid, parts);
@@ -156,13 +158,13 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         // The hands on the walls of a narrow gap, from where the turned torso has put the shoulders.
         WallSqueeze.aimArms(uuid, parts);
         // Last: a hand on a button or a swing on a block aims from where its shoulder has finally been drawn.
-        ButtonPress.aimArm(uuid, parts);
+        ButtonPress.aimArm(uuid, parts, contactBase);
         BlockUse.aimArm(uuid, parts);
         Mining.aimArm(uuid, parts, contactBase);
         strm.emfcompat.animationadditions.gesture.Gesture.aimArms(uuid, parts, contactBase);
         strm.emfcompat.animationadditions.pocket.PocketStash.aimArm(uuid, parts);
         strm.emfcompat.animationadditions.blockuse.CockpitControls.apply(uuid, parts);
-        HandContacts.apply(uuid, parts);
+        HandContacts.apply(uuid, parts, contactBase);
         strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.aimArms(uuid, parts);
         strm.emfcompat.animationadditions.transport.TransportGrip.aim(uuid,parts);
         strm.emfcompat.animationadditions.leash.LeashHold.capture(uuid, parts);

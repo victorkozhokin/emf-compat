@@ -785,8 +785,42 @@ public final class Driver {
             var cls=Class.forName("strm.emfcompat.animationadditions.blockuse.BlockUse");
             out.add("bellows",new com.google.gson.Gson().toJsonTree(cls.getMethod("bellowsSnapshot",java.util.UUID.class).invoke(null,entity.getUUID())));
             out.add("tableSupport",new com.google.gson.Gson().toJsonTree(cls.getMethod("tableSnapshot",java.util.UUID.class).invoke(null,entity.getUUID())));
+
         } catch(ClassNotFoundException ignored) { }
+        if(entity==mc.player)try {
+            out.add("handContacts",new com.google.gson.Gson().toJsonTree(earlyContacts(entity.getUUID())));
+        } catch(ReflectiveOperationException ignored) { }
         return out;
+    }
+
+    private static java.util.Map<String,float[]> earlyContacts(java.util.UUID uuid) throws ReflectiveOperationException {
+        var cls=Class.forName("strm.emfcompat.animationadditions.interaction.HandContacts");
+        java.util.Map<String,float[]> result=new java.util.HashMap<>();
+        try {result.putAll((java.util.Map<String,float[]>)cls.getMethod("snapshot",java.util.UUID.class).invoke(null,uuid));}
+        catch(NoSuchMethodException oldVersion) {
+            var states=cls.getDeclaredField("STATES");states.setAccessible(true);
+            Object store=states.get(null),state=store.getClass().getMethod("fresh",java.util.UUID.class).invoke(store,uuid);
+            if(state instanceof java.util.Map<?,?> targets) {
+                Object frame=Class.forName("strm.emfcompat.animationadditions.interaction.InteractionRuntime").getMethod("frame",java.util.UUID.class).invoke(null,uuid);
+                if(frame!=null)for(var entry:targets.entrySet()) {
+                    var source=entry.getKey().getClass().getDeclaredMethod("source");source.setAccessible(true);
+                    var hand=entry.getKey().getClass().getDeclaredMethod("hand");hand.setAccessible(true);
+                    var world=entry.getValue().getClass().getDeclaredMethod("world");world.setAccessible(true);
+                    Object at=world.invoke(entry.getValue());if(at==null)continue;
+                    var p=(org.joml.Vector3f)frame.getClass().getMethod("relativeToJoint",net.minecraft.world.phys.Vec3.class,org.joml.Vector3f.class).invoke(frame,at,new org.joml.Vector3f());
+                    result.put(source.invoke(entry.getKey())+":"+hand.invoke(entry.getKey()),new float[]{p.x,p.y,p.z,11});
+                }
+            }
+        }
+        var button=Class.forName("strm.emfcompat.animationadditions.buttonpress.ButtonPress");
+        var states=button.getDeclaredField("STATES");states.setAccessible(true);
+        Object store=states.get(null),state=store.getClass().getMethod("fresh",java.util.UUID.class).invoke(store,uuid);
+        if(state!=null) {
+            var field=state.getClass().getDeclaredField("button");field.setAccessible(true);
+            var p=(org.joml.Vector3f)field.get(state);
+            result.put("ButtonPress:RIGHT_ARM",new float[]{p.x,p.y,p.z,11});
+        }
+        return result;
     }
 
     /**

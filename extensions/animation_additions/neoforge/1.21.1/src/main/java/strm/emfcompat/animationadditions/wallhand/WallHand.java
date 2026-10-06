@@ -100,23 +100,25 @@ public final class WallHand implements InteractionProvider {
         }
         // Facing a wall: both hands on it. Otherwise the nearer wall beside a shoulder.
         boolean rightFree = free(player, true), leftFree = free(player, false);
-        IKResult frontRight = rightFree ? ahead(player, frame, RIGHT_SHOULDER) : null;
-        IKResult frontLeft = leftFree ? ahead(player, frame, LEFT_SHOULDER) : null;
+        Contact frontRight = rightFree ? ahead(player, frame, RIGHT_SHOULDER) : null;
+        Contact frontLeft = leftFree ? ahead(player, frame, LEFT_SHOULDER) : null;
         if (frontRight != null || frontLeft != null) {
             Map<Effector, float[]> aims = new EnumMap<>(Effector.class);
-            if (frontRight != null) aims.put(Effector.RIGHT_ARM, angles(frontRight));
-            if (frontLeft != null) aims.put(Effector.LEFT_ARM, angles(frontLeft));
-            out.add(Candidate.of(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, aims));
+            if (frontRight != null) {aims.put(Effector.RIGHT_ARM, angles(frontRight)); remember(context,Effector.RIGHT_ARM,frontRight);}
+            if (frontLeft != null) {aims.put(Effector.LEFT_ARM, angles(frontLeft)); remember(context,Effector.LEFT_ARM,frontLeft);}
+            out.add(Candidate.of(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, aims).withTarget(java.util.List.of(frontRight==null?"none":frontRight.target,frontLeft==null?"none":frontLeft.target)));
             context.decide(aims.size() == 2 ? "front" : "front-corner");
             return;
         }
-        IKResult right = rightFree ? beside(player, frame, RIGHT_SHOULDER, -1f) : null;
-        IKResult left = leftFree ? beside(player, frame, LEFT_SHOULDER, 1f) : null;
-        if (right != null && (left == null || right.reach() <= left.reach())) {
-            out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.RIGHT_ARM, angles(right)));
+        Contact right = rightFree ? beside(player, frame, RIGHT_SHOULDER, -1f) : null;
+        Contact left = leftFree ? beside(player, frame, LEFT_SHOULDER, 1f) : null;
+        if (right != null && (left == null || right.aim.reach() <= left.aim.reach())) {
+            remember(context,Effector.RIGHT_ARM,right);
+            out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.RIGHT_ARM, angles(right)).withTarget(right.target));
             context.decide("right");
         } else if (left != null) {
-            out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.LEFT_ARM, angles(left)));
+            remember(context,Effector.LEFT_ARM,left);
+            out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.LEFT_ARM, angles(left)).withTarget(left.target));
             context.decide("left");
         } else {
             context.decide("none");
@@ -136,15 +138,19 @@ public final class WallHand implements InteractionProvider {
         return null;
     }
 
-    private static float[] angles(IKResult result) {
-        return result == null ? null : new float[]{result.x(), result.y()};
+    private record Contact(IKResult aim, Vec3 point, Vec3 normal, SubLevels.Space space, Object target) {}
+    private static float[] angles(Contact result) {
+        return new float[]{result.aim.x(),result.aim.y()};
+    }
+    private static void remember(InteractionContext context,Effector hand,Contact contact) {
+        strm.emfcompat.animationadditions.interaction.HandContacts.remember(context,INSTANCE.id(),hand,contact.point,contact.space,contact.normal);
     }
 
     /**
      * The arm aimed at the wall beside this shoulder, or {@code null} when there is none in reach.
      * {@code out} is the model x of this side.
      */
-    private static IKResult beside(AbstractClientPlayer player, IKFrame frame, Vector3f shoulder, float out) {
+    private static Contact beside(AbstractClientPlayer player, IKFrame frame, Vector3f shoulder, float out) {
         Vec3 side = horizontal(frame, new Vector3f(out, 0, 0));
         Vec3 forward = horizontal(frame, new Vector3f(0, 0, -1));
         if (side == null || forward == null) return null;
@@ -171,7 +177,7 @@ public final class WallHand implements InteractionProvider {
      * in reach: the palm goes on the wall in front of the shoulder, as far down as makes an arm's
      * length.
      */
-    private static IKResult ahead(AbstractClientPlayer player, IKFrame frame, Vector3f shoulder) {
+    private static Contact ahead(AbstractClientPlayer player, IKFrame frame, Vector3f shoulder) {
         Vec3 forward = horizontal(frame, new Vector3f(0, 0, -1));
         if (forward == null) return null;
         Vec3 from = frame.jointWorld(shoulder);
@@ -198,12 +204,16 @@ public final class WallHand implements InteractionProvider {
         return new Hit(hit.position().subtract(from).dot(direction), normal);
     }
 
-    private static IKResult contact(AbstractClientPlayer player, IKFrame frame, Vector3f shoulder,
+    private static Contact contact(AbstractClientPlayer player, IKFrame frame, Vector3f shoulder,
                                     Vec3 palm, Vec3 normal) {
         Vec3 from = palm.add(normal.scale(0.12)), to = palm.subtract(normal.scale(0.12));
         var face = WallSurface.clip(player, from, to, SubLevels.around(player.level(), new AABB(from, to).inflate(0.2)));
         if (face == null || face.normal().dot(normal) < 0.7) return null;
-        return aim(frame, shoulder, face.position().add(face.normal().scale(PALM_OFF)));
+        Vec3 point=face.position().add(face.normal().scale(PALM_OFF));
+        IKResult aim=aim(frame,shoulder,point);
+        return aim==null?null:new Contact(aim,point,face.normal(),face.space(),
+                new strm.emfcompat.animationadditions.interaction.ContactTarget(face.space(),face.block(),
+                        player.level().getBlockState(face.block()).getBlock()));
     }
 
     /** A model direction carried into the world and laid flat, or {@code null} if it is vertical. */
