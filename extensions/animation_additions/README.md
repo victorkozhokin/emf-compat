@@ -1,112 +1,142 @@
-# Touch and Motion
+# EMF Compat: Animation Additions
 
-Your character touches the world, shifts their weight and puts their whole body into everyday actions.
+> [!IMPORTANT]
+> **Experimental:** version 0.1.0, not published yet. Things here are tried out, looked at in game and may still change or go.
 
-**Touch and Motion** adds procedural player animations on top of an **Entity Model Features** resource pack. Feet adapt to uneven ground, hands reach for actual objects, and the torso follows the effort of turning a crank, steering a ship or leading an animal.
+A client-side mod that adds animations of its own on top of an **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player model: feet that stand on the ground they are on, hands that go to the thing you use, and a body that takes part in what the hands do.
 
-Designed around **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** (FA+Player), it keeps the pack's walking, idle motion and expressions as the foundation. Additional poses adapt to the height and position of the target, the player's stance and the space available around them.
+Made for and tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**. The pack keeps its own walk, idle motion and expressions; this addon only adds to them. Other player animation packs may give different results.
 
-The current development build is **EMF Compat: Animation Additions 0.1.0**. Its file name and settings tab still use Animation Additions.
+## Features
 
-## Movement that responds to the surroundings
+**Movement and body**
 
-- **Feet on uneven ground.** Foot IK adjusts the feet to stairs, slabs and other collision surfaces, with preparation for stepping up.
-- **Balance on narrow supports.** Fences, walls and similar surfaces get a more deliberate stance, with arms and torso helping the character balance.
-- **Narrow passages and walls.** The body turns to fit the available space; hands can brace against nearby walls, with the legs following the adjustment. Along an ordinary outside wall, the free arm keeps its usual motion.
-- **Weight and inertia.** Body lean, small support steps and weight shifts connect hand movements to the rest of the character.
-- **Plants and nearby creatures.** Hands brush through vegetation, and the character can glance at a nearby creature while idle.
-- **Animated horses.** The rider follows an EMF-animated horse instead of sitting independently of its motion.
+- Feet follow stairs, slabs and other uneven ground instead of floating over it or sinking in.
+- A careful stance on fences, walls and other narrow supports.
+- The torso leans with what the hands do and with your own motion; poses carry a little inertia.
+- In a gap too narrow to walk through square, the body turns to fit it.
 
-## Hands that interact with objects
+**Hands and surroundings**
 
-Buttons, levers, doors, gates, containers and other supported blocks have their own contact points and gestures. A hand can press, pull, place, take or hold, depending on the action.
+- A hand rests on a wall you stand beside, and brushes through grass, crops and flowers.
+- A glance at a creature nearby while standing still.
+- Leading an animal, the hand follows the lead and the body leans against the pull.
+- After picking things up, one gesture puts them away in a back pocket — not one per item.
 
-Examples include chiseled bookshelves, lecterns, jukeboxes, flower pots, candles, bells, composters and workstations. Container searching adds a separate waiting pose and movement during inventory actions. Mining also has a tool-directed swing, with further refinement in progress.
+**Blocks and controls**
 
-The character adjusts their reach for standing, crouching and supported seated interactions. When an interaction ends or its target is lost, the pose blends back into the resource pack's animation. Hand ownership is shared with the EMF Compat framework so competing interactions can take priority.
+- Buttons, levers, doors and gates are pressed, pulled and held at the place where they are.
+- Lecterns, chests, bookshelves, jukeboxes, flower pots, candles, bells, workstations and more are used by hand.
+- Mining swings the tool on to the block you break: a stance for each tool, three different blows, the body going with them.
 
-## Create and Aeronautics
+**Gestures and care**
 
-These integrations are optional: the relevant mods must be installed for their blocks and vehicles to exist.
+- Feeding an animal: the food to its mouth, then the other hand strokes it. Milking and shearing are done bent to the animal.
+- The hand is already held out before you click, so the gesture does not lag behind the action.
+- Putting a piece on an armour stand, and pressing a seed into the bed.
+- Looking through an open chest, barrel or shulker box, the hands working when something is moved.
+- Putting on armour: a helmet pushed down with one hand, a chestplate settled with both, leggings and boots looked over. Curios accessories go to where they are worn.
+- Shaking off water, powder snow and mud.
+- These show on other players too.
 
-| Interaction | Animation |
+**Riding and transport**
+
+- You rise and fall with an animated horse instead of sinking into the saddle, with an optional riding pose.
+- On moving transport the hands brace against what is near.
+
+## Supported mods
+
+Everything below is optional — the matching animations turn on when the mod is there.
+
+| Mod | What it covers |
 |---|---|
-| **Create Hand Crank** | A supported stance, weight transfer and coordinated movement of the legs, pelvis, torso and working hand. |
-| **Create Valve Handle** | Two-handed operation with a supporting stance and body movement. |
-| **Create Weighted Ejector** | Bracing on the moving lid, followed by launch and flight poses. |
-| **Aeronautics Steering Wheel** | Alternating hand changes around six grip positions on the rim, keeping one hand in contact during a regrip. |
-| **Aeronautics Throttle** | Reaching and leaning toward the control, including side controls in a seated cockpit. |
-| **Aeronautics Navigation Table** | Leaning over the table with hand support and a supporting stance. |
-| **Moving transport and ropes** | Bracing against nearby support, counterbalancing vehicle motion and a dedicated rope-holding pose near the edge. |
+| **[Create](https://modrinth.com/mod/create)** | Hand crank and valve handle turned with the whole body; depots, basins, drains, funnels and other blocks used by hand; the weighted ejector's launch. |
+| **[Create Aeronautics](https://modrinth.com/mod/create-aeronautics)** | Steering wheel with hand-over-hand grips, throttle, navigation table, rope winch; a seated cockpit with the wheel in one hand and a side control in the other. |
+| **[Supplementaries](https://modrinth.com/mod/supplementaries)** | Typewriter, bellows, faucet, globe, jars, pedestals, shelves and other blocks used by hand. |
+| **[Curios](https://modrinth.com/mod/curios)** | Putting on accessories: ring and bracelet, necklace, belt, back and head pieces. |
 
-Supported contacts can follow moving Sable sub-levels in their local space. Coverage depends on the particular block and interaction.
+Contacts follow a moving Sable sub-level, so they hold on a ship under way. Interactions on Create contraptions are not covered, apart from driving controls.
 
-### A cockpit that uses both hands
+## Config
 
-Sit facing a steering wheel with a throttle or a Supplementaries typewriter beside the seat. The character can lean toward the side control while the other hand stays assigned to the wheel. Typing produces short key-press movements, and returning to steering restores the rim grip.
+Open the in-game config screen (Mods → EMF Compat Core → Config) and pick the **Animation Additions** tab. The button at the top turns the whole addon off and keeps the settings.
 
-Left and right layouts are supported. The seated body stays oriented toward the wheel while the head follows the player's view.
+**Movement & body**
 
-## Supplementaries
+| Option | What it does |
+|---|---|
+| Foot IK (experimental) | Feet stand on the ground under them. Under it: **Balance on narrow supports and slopes**, **Foot IK for horses**. |
+| Torso lean | The torso bends and turns with what the hands do. Under it: **Lean with the motion**. |
+| Pose inertia | Poses settle with a little weight instead of stopping dead. |
 
-- **Typewriter:** key-press gestures, including use beside a seated cockpit.
-- **Bellows:** two-handed compression with body movement and weight transfer.
-- **Other supported blocks:** interactions with items, books, jars, faucets, switches and more, using block-specific contacts where available.
+**Hands & surroundings**
 
-These are visual interactions with existing gameplay. Some blocks use a short tap or placement gesture rather than a complete animated operating cycle.
+| Option | What it does |
+|---|---|
+| Hand on the wall | A hand rests on a wall beside you. |
+| Keep out of walls | The body turns to fit a narrow passage. |
+| Hands brush plants | Hands go through the plants you walk in. |
+| Look at nearby creatures | A glance at a creature near you while idle. |
+| Hold animal leads | The hand and the body follow the lead. |
+| Pocket what was picked up | One gesture after a run of pickups. |
 
-## Small everyday gestures
+**Blocks & controls**
 
-- **Leading animals:** the hand follows leash tension, the body counterbalances, and stopping adds a short pulling gesture.
-- **Putting pickups away:** after a series of item pickups, a delayed pocket gesture suggests stashing them away without animating every item separately.
-- **Animal care:** feeding and petting, milking and shearing, with reaching, body lean and a supporting stance.
-- **Planting seeds and equipping an armour stand:** short movements directed toward the interaction point.
-- **Putting on armour:** gestures for the helmet and chestplate; boots and leggings trigger an inspection of the left leg, turning it inward and outward with a lowered gaze.
-- **Curios accessories:** equipment gestures for recognised slot locations, such as the hand, neck or waist. Native in-game coverage is still being validated.
-- **Shaking off water, powder snow and mud:** a short body shake after leaving the environment.
+| Option | What it does |
+|---|---|
+| Press buttons | Buttons and levers pressed where they are. Under it: **Throttle effort**. |
+| Reaching pose | The body stretches to a control out of arm's reach. |
+| Use blocks by hand | The hand goes to the block being used. |
+| Hold doors | A hand on the door or gate as it is opened. |
+| Lecterns and chests | Pages turned, lids opened. |
+| Mining | The tool is swung on to the block. |
+| Weighted ejector | Bracing on the lid, then the launch and the flight. |
 
-## Installation
+**Gestures & care**
 
-The current implementation targets **Minecraft 1.21.1 on NeoForge** and runs on the client. A server installation is not required for these visual additions.
+| Option | What it does |
+|---|---|
+| Feed, milk and shear by hand | Under it: **Feeding** (and **Stroke it after**), **Milking**, **Shearing**. |
+| Dress an armour stand by hand | The hand goes to the part of the stand that was clicked. |
+| Plant seeds by hand | Bending down and pressing the seed in. |
+| Look through open containers | Under it: **Hands answer what is moved**. |
+| Put on armour and accessories | Under it: **Helmet**, **Chestplate**, **Leggings and boots**, **Accessories**. |
+| Shake off water, snow and mud | Under it: **After water**, **After powder snow**, **After mud**. |
+| Hand out before the click | The hand is held out as soon as you aim at the thing with the right item. |
+| Other players' gestures | Shows these gestures on other players as well. |
+| Lean in until the hand is there | The torso and hips shift so the hand lands on what it reaches for. |
+| Step into a stance | The feet step apart for a gesture and back after. |
+| Look at what the hands do | The head turns to the thing being worked on. |
+| Give a gesture up when leaving | Walking off or turning away brings the hands back at once. |
+| The other arm joins in | The free arm waits half raised or goes out against the lean. |
+| Act when the hand gets there | Off by default. The game waits for the hand before feeding, milking, shearing, dressing a stand or planting. |
 
-1. Install **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** **3.3.2 or newer** and its required **[Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures)** dependency, using builds for your Minecraft version and loader.
-2. Install **[EMF Compat Core](../../core/README.md)** **2.2.0 or newer**.
-3. Put the Animation Additions jar in your client's `mods` folder.
-4. Enable **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)** and the dependencies required by that resource pack.
-5. Install Create, Aeronautics, Supplementaries or Curios if you want their corresponding interactions.
+**Riding & transport**
 
-Other player animation packs may produce different results. Contact positions and the style of the added movements are developed and checked primarily with FA+Player.
+| Option | What it does |
+|---|---|
+| Horse sync | Keeps you on the saddle of an animated horse. Under it: **Riding animation**. |
+| Brace on moving transport | Hands hold on to what is near while the vehicle moves. |
 
-## Settings
+**Debug** holds logging switches; leave them off for normal play.
 
-Open **Mods → EMF Compat Core → Config → Animation Additions**.
+## Dependencies
 
-Settings are grouped into **Movement & body**, **Hands & surroundings**, **Blocks & controls**, **Gestures & care**, and **Riding & transport**. You can disable individual features or use the addon's master switch while keeping their settings. The Core's global compatibility switch also covers this addon.
+- [Entity Model Features](https://modrinth.com/mod/entity-model-features) 3.3.2+
+- [Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures) (required by EMF)
+- EMF Compat Core 2.2.0+
+- [Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension) (recommended)
 
-## How the animations work
+## Supported loaders / versions
 
-The resource pack animates the player first. Touch and Motion then adds authored movement phases and uses inverse kinematics to direct limbs toward contacts in the world. Support steps, pelvis movement and torso adjustments make the action visible throughout the body.
+| Loader | Minecraft versions |
+|--------|-------------------|
+| NeoForge | 1.21.1 |
 
-The additional animations are generated by code; they do not directly play animation files from Fresh Animations PE or Actions & Stuff. FA+Player provides the base pose and visual style, while other animation references inform timing and movement. The existing straight-limb rig is preserved, without adding knee joints or finger animations.
-
-## Development status
-
-This is an experimental **0.1.0** build. Mining, some early block interactions, extreme reach cases and parts of the moving-transport support still need refinement. Arbitrary custom player models, accessory slots and multiplayer scenarios are not all covered by the current game tests. Some gestures use local interaction information that is unavailable for remote players.
-
-For the current work queue, see the [animation to-do](../../docs/animation-todo.md). The [feature catalogue](../../docs/showreel-feature-catalog.md) lists supported interactions and their demonstration status.
-
-## Build from source
-
-Use JDK 21 from the repository root:
+## Build
 
 ```bash
-./gradlew :animation-additions-neoforge-1.21.1:build --configure-on-demand
+./gradlew :animation-additions-neoforge-1.21.1:build
 ```
 
-The jar is copied to `upload/Animation Additions/neoforge/1.21.1/`.
-
-## Credits and licence
-
-Developed by **STRadaT** as part of EMF Compat. Player animation foundation: **Fresh Animations: Player Extension**. **Actions & Stuff** is a movement reference; its assets are not bundled with this addon.
-
-Mod licence: **GNU GPL 3.0**. Referenced mods and resource packs retain their own licences.
+enjoy ^_^
