@@ -86,6 +86,14 @@ public abstract class Gesture implements InteractionProvider {
         public Vector3f rightAt, leftAt;
         public float rightReach, leftReach;
         public boolean onBody;
+        /**
+         * What the torso is fitted to, if not the hand that is further out: this arm's hand on this
+         * point, this much, followed this slowly - for a gesture whose hands come and go while the
+         * body should make one move of it.
+         */
+        public Vector3f fitAt;
+        public boolean fitRight;
+        public float fitWeight, fitSeconds;
 
         public void hand(boolean right, Vector3f at, float reach) {
             if (right) {
@@ -112,7 +120,9 @@ public abstract class Gesture implements InteractionProvider {
 
         void reset() {
             right = left = head = rightLeg = leftLeg = null;
-            rightAt = leftAt = rightFoot = leftFoot = look = null;
+            rightAt = leftAt = rightFoot = leftFoot = look = fitAt = null;
+            fitWeight = 0;
+            fitSeconds = .14f;
             looking = 0;
             pitch = yaw = roll = 0;
             apart = onBody = false;
@@ -627,7 +637,11 @@ public abstract class Gesture implements InteractionProvider {
                 // The hand further out leads; it gives the lead up only to one clearly further.
                 if (play.fitRight ? l > r + .15f : r > l + .15f) play.fitRight = !play.fitRight;
                 Vector3f at = play.fitRight ? pose.rightAt : pose.leftAt, second = play.fitRight ? pose.leftAt : pose.rightAt;
-                if (at != null) {
+                if (pose.fitAt != null) {
+                    play.fitRight = pose.fitRight;
+                    play.fitAt.set(pose.fitAt);
+                    weight = gesture.shown(uuid, play) * Math.max(0, Math.min(1, pose.fitWeight));
+                } else if (at != null) {
                     play.fitAt.set(at);
                     weight = gesture.shown(uuid, play) * smooth((Math.max(r, l) - .5f) / .5f);
                     if (second != null && Math.min(r, l) > .6f) other = second;
@@ -636,6 +650,7 @@ public abstract class Gesture implements InteractionProvider {
             if (weight < 1e-3f && !play.fit.active()) continue;
             // A moderate lean after the hand and no more: a thing further off is held out to, not lunged at.
             play.fit.angleLimit = FIT;
+            play.fit.followSeconds = pose.fitSeconds;
             strm.emfcompat.animationadditions.torso.LowReach.apply(parts, play.fitRight, play.fitAt, other, weight, play.fit);
         }
     }

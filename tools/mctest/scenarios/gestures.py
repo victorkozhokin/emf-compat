@@ -16,7 +16,7 @@ ANIMAL = '{NoAI:1b,Tags:["gesture_test"]}'
 
 # name: (set-up commands, what is in the hand, the look's pitch, what to do, ticks the gesture lasts)
 CASES = {
-    "feed": (["summon cow 452.3 150 7.5 " + ANIMAL], "wheat", 12, "use", 62),
+    "feed": (["summon cow 452.3 150 7.5 " + ANIMAL], "wheat", 12, "use", 78),
     # Fed, then the back turned on it and off: the hands come back to the body, not twisted round to the cow.
     "leave": (["summon cow 452.3 150 7.5 " + ANIMAL], "wheat", 12, "leave", 50),
     # Further off than two blocks from its side: fed all the same, but with no hand put out to it.

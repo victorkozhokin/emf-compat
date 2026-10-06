@@ -141,7 +141,7 @@ public final class AnimalCare extends Gesture {
     }
 
     protected double work(Play play) {
-        return play.kind == FEED ? 2 : play.kind == MILK ? 1.7 : 1.05;
+        return play.kind == FEED ? 2.8 : play.kind == MILK ? 1.7 : 1.05;
     }
 
     protected void pose(Play play, float work, Pose out) {
@@ -165,11 +165,13 @@ public final class AnimalCare extends Gesture {
         float toolReach = level, otherReach = level, bend;
         Vec3 watched;
         if (play.kind == FEED) {
-            // The food is held out and taken; the giving hand comes away as the other strokes the
-            // animal: two long passes from its brow back along the neck, pressing, and forward again
-            // lifted. The body leans into each pass and out of it, slowly, and does nothing quicker.
-            float stroke = play.acted ? smooth((work - .1f) / .2f) * (1 - smooth((work - .86f) / .14f)) : 0;
-            double pass = Math.PI * 2 * 2 * Math.max(0, Math.min(1, (work - .22f) / .62f));
+            // In turn: the food is brought to its mouth and held there a moment while it is taken;
+            // that hand is drawn away; then the other strokes it, twice and unhurried, from the brow
+            // back along the neck pressing and forward again lifted. The body makes three moves of
+            // it - in to the mouth, over to the brow, back - and none for the strokes themselves.
+            float away = play.acted ? smooth((work - .24f) / .2f) : 0;
+            float stroke = play.acted ? smooth((work - .36f) / .16f) * (1 - smooth((work - .88f) / .12f)) : 0;
+            double pass = Math.PI * 2 * 2 * Math.max(0, Math.min(1, (work - .52f) / .36f));
             float gone = (float) (.5 - .5 * Math.cos(pass)), up = (float) Math.max(0, -Math.sin(pass));
             Vec3 neck = head == null ? side.scale(-1) : head[2];
             // The food comes to the mouth from where the player stands.
@@ -179,17 +181,22 @@ public final class AnimalCare extends Gesture {
             Vec3 feet = play.player.getPosition(partial);
             double far = brow.add(neck.scale(.3)).subtract(feet).multiply(1, 0, 1).length();
             double length = Math.max(.14, Math.min(.3, .3 - (far - 1.15)));
-            float taken = play.acted ? bell(work, .12f, .2f, .4f) : 0;
+            float taken = play.acted ? bell(work, .1f, .2f, .3f) : 0;
             tool = model(play, mouth.add(from.scale(.08 - .03 * taken)).add(0, -.02, 0));
             other = model(play, brow.add(0, .04 + .09 * up * up * stroke, 0).add(neck.scale(length * gone * stroke)));
-            toolReach = level * (1 - smooth((work - .42f) / .3f));
+            toolReach = level * (1 - away);
             otherReach = stroke * Math.min(1, level * 1.4f);
-            float lean = 1 - (1 - Math.min(1, toolReach)) * (1 - Math.min(1, otherReach));
-            bend = lean * ((float) Math.toRadians(9) + Reach.low(model(play, mouth).y) * (float) Math.toRadians(16))
-                    + (float) Math.toRadians(4) * gone * stroke;
-            // The shoulder of the hand at work comes forward: the giving one first, then the stroking one, going with its passes.
-            out.yaw = hand * (.13f * otherReach - .09f * toolReach + .05f * (gone - .5f) * stroke);
-            watched = mouth.lerp(brow, stroke).add(neck.scale(length * .5 * gone * stroke));
+            // The body stays in for the whole of it and goes over from the one hand's place to the other's once.
+            float stay = level * (play.acted ? 1 - smooth((work - .88f) / .12f) : 1), over = play.acted ? smooth((work - .28f) / .22f) : 0;
+            Vector3f mid = model(play, brow.add(0, .04, 0).add(neck.scale(length * .5)));
+            out.fitAt = new Vector3f(tool).lerp(mid, over);
+            out.fitRight = over < .5f == right;
+            out.fitWeight = stay;
+            out.fitSeconds = .3f;
+            bend = stay * ((float) Math.toRadians(9) + Reach.low(model(play, mouth).y) * (float) Math.toRadians(16));
+            // The shoulder of the hand at work comes forward: the giving one, then the stroking one.
+            out.yaw = hand * stay * (.07f * over - .05f * (1 - over));
+            watched = mouth.lerp(brow, over).add(neck.scale(length * .5 * gone * stroke));
             foot(out, right, 1.2f, .8f, .2f);
         } else if (play.kind == MILK) {
             // The bucket held still under it; the other hand draws down and lets go, and the body gives with each draw.
