@@ -14,7 +14,7 @@ import strm.emfcompat.animationadditions.interaction.InteractionContext;
 
 /**
  * Out of water, powder snow or mud after a while in it, and on firm ground again: one shake of the
- * arms and the body, and as it runs down a hand brushes the thigh off. Once for a stay, not at
+ * arms and the body. Once for a stay, not at
  * every step across the edge.
  */
 public final class ShakeOff extends Gesture {
@@ -22,8 +22,10 @@ public final class ShakeOff extends Gesture {
     public static final String KEY_ENABLED = "shakeoff.enabled";
     /** In it for this long to be worth shaking off, and out of it for this long before doing so, seconds. */
     private static final float SOAKED = 1.5f, OUT = .6f;
-    /** The whole of it; the shake takes the first of these, the brushing starts before it is over. */
-    private static final float SECONDS = 3f, SHAKE = 1.55f, BRUSH_AT = 1.25f, BRUSH = 1.6f;
+    private static final int WATER=0,SNOW=1,MUD=2;
+    private static final class Exposure { float inside,outside; int kind; }
+    /** Keep the main shake, then release; no separate hand brushing the clothing. */
+    private static final float SECONDS = 1.75f, SHAKE = 1.55f;
 
     public String id() {
         return "ShakeOff";
@@ -45,21 +47,22 @@ public final class ShakeOff extends Gesture {
 
     protected void watch(InteractionContext context, Play play) {
         AbstractClientPlayer player = context.player();
-        float[] wet = play.notes instanceof float[] notes ? notes : new float[2];
+        Exposure wet = play.notes instanceof Exposure notes ? notes : new Exposure();
         play.notes = wet;
         float dt = (float) Math.min(.1, context.dt());
         boolean in = player.isInWater() || player.isInPowderSnow || player.getBlockStateOn().is(Blocks.MUD);
         if (in) {
-            wet[0] += dt;
-            wet[1] = 0;
-        } else if (wet[0] >= SOAKED) {
-            wet[1] += dt;
-            if (wet[1] >= OUT && player.onGround()) {
-                wet[0] = wet[1] = 0;
-                if (isEnabled()) trigger(player, 0, null);
-            } else if (wet[1] > 6) wet[0] = 0;
+            wet.inside += dt;
+            wet.kind = player.getBlockStateOn().is(Blocks.MUD) ? MUD : player.isInPowderSnow ? SNOW : WATER;
+            wet.outside = 0;
+        } else if (wet.inside >= SOAKED) {
+            wet.outside += dt;
+            if (wet.outside >= OUT && player.onGround()) {
+                wet.inside = wet.outside = 0;
+                if (isEnabled()) trigger(player, wet.kind, null);
+            } else if (wet.outside > 6) wet.inside = 0;
         } else {
-            wet[0] = 0;
+            wet.inside = 0;
         }
     }
 
@@ -79,20 +82,19 @@ public final class ShakeOff extends Gesture {
         double turn = Math.PI * 2 * (4.7 * s - 1.5 * s * s);
         float arms = (float) Math.sin(turn) * in, wave = (float) Math.sin(turn - 1.1) * in;
         float body = (float) Math.sin(turn - .7) * in, head = (float) Math.sin(turn - 1.5) * in;
-        // Then the right hand brushes the thigh off: twice down along it pressing, forward again
-        // lifted clear, the body bent over it and the eyes on it.
-        float b = (t - BRUSH_AT) / BRUSH;
-        float over = smooth(b / .22f) * (1 - smooth((b - .72f) / .28f));
-        double pass = Math.PI * 2 * 2 * Math.max(0, Math.min(1, (b - .2f) / .5f));
-        float down = (float) (.5 - .5 * Math.cos(pass)), clear = (float) Math.max(0, -Math.sin(pass));
-        clear *= clear;
-        out.right = new float[]{(-.3f + .24f * arms) * in + over * (-.5f + .8f * down), .15f * over,
-                (.4f + .1f * wave) * in + over * (.1f + .16f * clear), -.3f * in + .7f * over * (1 - clear)};
-        out.left = new float[]{(-.3f - .24f * arms) * in + .12f * over, 0, -(.4f - .1f * wave) * in - .16f * over, -.3f * in};
-        out.yaw = .15f * body + over * (.1f + .05f * (down - .5f));
-        out.roll = .05f * (float) Math.cos(turn - .7) * in + .09f * over;
-        out.pitch = .05f * in + .13f * over;
-        out.head = new float[]{.07f * in + .4f * over, .2f * head + .3f * over};
-        out.letGo = .95f;
+        out.right = new float[]{(-.3f + .24f * arms) * in, 0, (.4f + .1f * wave) * in, -.3f * in};
+        out.left = new float[]{(-.3f - .24f * arms) * in, 0, -(.4f - .1f * wave) * in, -.3f * in};
+        out.yaw = (play.kind == MUD ? .09f : .15f) * body;
+        out.roll = .05f * (float) Math.cos(turn - .7) * in;
+        out.pitch = .05f * in;
+        out.head = new float[]{.07f * in, .2f * head};
+        out.apart = phase > .04f && phase < .65f;
+        out.rightFoot = new Vector3f(-.65f, 0, .35f);
+        out.leftFoot = new Vector3f(.65f, 0, -.35f);
+        if (play.kind == SNOW) {
+            out.right[0] -= .35f * in;
+            out.right[2] += .12f * in;
+            out.head[1] -= .12f * in;
+        }
     }
 }

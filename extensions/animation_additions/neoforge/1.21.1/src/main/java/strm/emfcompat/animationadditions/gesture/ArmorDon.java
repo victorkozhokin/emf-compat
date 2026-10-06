@@ -41,7 +41,7 @@ public final class ArmorDon extends Gesture {
 
     private static final class Worn {
         final Item[] armour = new Item[4];
-        final Map<String, String> curios = new HashMap<>();
+        final Map<String, java.util.List<String>> curios = new HashMap<>();
         long since, curiosAt;
         int queued;
         boolean curiosKnown;
@@ -79,6 +79,7 @@ public final class ArmorDon extends Gesture {
             Item item = player.getItemBySlot(SLOTS[i]).getItem();
             if (item != worn.armour[i] && item != Items.AIR && settled) worn.queued |= 1 << i;
             worn.armour[i] = item;
+            if(item == Items.AIR)worn.queued &= ~(1 << i);
         }
         if (now - worn.curiosAt > CURIOS_EVERY_NANOS) {
             worn.curiosAt = now;
@@ -113,17 +114,16 @@ public final class ArmorDon extends Gesture {
             for (Map.Entry<?, ?> slot : ((Map<?, ?>) curiosOf.invoke(inventory)).entrySet()) {
                 String id = String.valueOf(slot.getKey());
                 Object stacks = stacksOf.invoke(slot.getValue());
-                StringBuilder now = new StringBuilder();
+                java.util.List<String> now = new java.util.ArrayList<>();
                 int count = (int) slotsOf.invoke(stacks);
                 for (int i = 0; i < count; i++) {
                     ItemStack stack = (ItemStack) stackIn.invoke(stacks, i);
-                    now.append(stack.isEmpty() ? "-" : stack.getItem().toString()).append(';');
+                    now.add(stack.isEmpty() ? "-" : stack.getItem().toString());
                 }
-                String was = worn.curios.put(id, now.toString());
+                java.util.List<String> was = worn.curios.put(id, now);
                 Integer place = CURIOS.get(id);
                 // New in the slot, and something rather than nothing: taking one off is not putting one on.
-                if (queue && place != null && was != null && !was.equals(now.toString())
-                        && now.toString().replace("-;", "").length() > was.replace("-;", "").length()) worn.queued |= 1 << place;
+                if (queue && place != null && GestureMath.equipped(was == null ? java.util.List.of() : was, now)) worn.queued |= 1 << place;
             }
         } catch (ClassNotFoundException | NoSuchMethodException | LinkageError missing) {
             curiosMissing = true;
@@ -131,6 +131,15 @@ public final class ArmorDon extends Gesture {
             curiosMissing = true;
             LOGGER.warn("[ArmorDon] could not read Curios; accessories are left alone", failed);
         }
+    }
+
+    /** A tiny bounded sweep check; the inspection never kicks through a nearby block. */
+    private static boolean legRoom(AbstractClientPlayer player, boolean right) {
+        double yaw = Math.toRadians(player.yBodyRot);
+        double side = right ? -.18 : .18;
+        var start = player.position().add(Math.cos(yaw) * side, .04, Math.sin(yaw) * side);
+        var end = start.add(-Math.sin(yaw) * .38, .22, Math.cos(yaw) * .38);
+        return player.level().noCollision(player, new net.minecraft.world.phys.AABB(start, end).inflate(.10, 0, .10));
     }
 
     /** A push: up from nothing and down to nothing over 0..1. */
@@ -143,8 +152,8 @@ public final class ArmorDon extends Gesture {
     }
 
     protected double seconds(Play play) {
-        // Up to the head and down to the feet are long ways for an arm, and boots are two: more time, the same pace.
-        return play.kind == FEET ? 2.3 : play.kind == HEAD ? 1.9 : play.kind == BACK || play.kind == CHEST ? 1.7 : 1.4;
+        // Lower pieces get time for one unhurried inspection; upper pieces keep the accepted fitting gesture.
+        return play.kind == FEET || play.kind == LEGS ? InspectionMotion.SECONDS : play.kind == HEAD ? 1.9 : play.kind == BACK || play.kind == CHEST ? 1.7 : 1.4;
     }
 
     protected void pose(Play play, float phase, Pose out) {
@@ -175,27 +184,29 @@ public final class ArmorDon extends Gesture {
                 out.roll = .035f * (float) Math.sin(Math.PI * 2 * 2 * through) * set;
                 out.head = new float[]{.22f * in * (1 - slide * .5f), 0};
             }
-            case LEGS -> {
-                // Bent to the hips, then drawn up and the body straightening with the pull.
-                float pull = smooth(through * 1.3f);
-                right = new Vector3f(-4.6f, 14f - 2.6f * pull, -1.5f);
-                out.pitch = (float) Math.toRadians(20) * in * (1 - .55f * pull);
-                out.roll = .03f * (float) Math.sin(Math.PI * 2 * through) * set;
-                out.head = new float[]{.22f * in, 0};
-            }
-            case FEET -> {
-                // One boot, then the other: both hands down to a foot, the weight on the other leg.
-                float over = smooth((phase - .44f) / .14f), foot = 1 - 2 * over;
-                float tug = (float) Math.sin(Math.PI * 2 * Math.max(0, Math.min(1, (phase - .22f) / .5f)));
-                right = new Vector3f(-2.4f * foot - 1f, 21f - Math.abs(tug), -4f);
-                left = new Vector3f(-2.4f * foot + 1f, 21f - Math.abs(tug), -4f);
-                out.pitch = (float) Math.toRadians(38) * in;
-                out.roll = .07f * foot * in;
-                out.yaw = .08f * foot * in;
-                out.head = new float[]{.3f * in, -.1f * foot * in};
-                out.apart = phase > .04f && phase < .78f;
-                out.rightFoot = new Vector3f(-.7f, 0, .4f);
-                out.leftFoot = new Vector3f(.7f, 0, -.9f);
+            case LEGS, FEET -> {
+                InspectionMotion.Pose inspect = InspectionMotion.at(phase);
+                float l = inspect.left(), spread = inspect.spread(), look = inspect.look();
+                // The right side bears the weight before the left foot leaves the floor.
+                // Eyes arrive first; asymmetric hands counterbalance and settle a beat later.
+                out.right = new float[]{.08f * l - .02f * inspect.settle(), 0, .31f * spread + .035f * l, 0};
+                out.left = new float[]{-.06f * l, -.035f * l, -.38f * spread, 0};
+                out.head = new float[]{.95f * look + .08f * l, -.30f * look};
+                out.pitch = .08f * look + .035f * l + .012f * inspect.settle();
+                out.yaw = -.09f * look;
+                out.roll = -.035f * inspect.support() + .012f * inspect.settle();
+                out.weightSide = -.65f * inspect.support();
+                out.weightForward = -.10f * l;
+                out.apart = phase > .035f && phase < .87f;
+                out.rightFoot = new Vector3f(-.8f, 0, 0);
+                out.leftFoot = new Vector3f(.8f, 0, 0);
+                boolean planted = play.player.onGround() && !play.player.isPassenger()
+                        && play.player.getDeltaMovement().horizontalDistanceSqr() < .0004;
+                // Crouch keeps both soles; no lift if the small forward sweep meets a block.
+                if (planted && !play.player.isCrouching() && legRoom(play.player, false))
+                    out.leftLeg = new float[]{-.43f * l, inspect.turnLeft(), .05f * l};
+                out.letGo = .97f;
+                return;
             }
             case NECK -> {
                 // Round the neck from behind to the front, then let hang.
@@ -225,6 +236,6 @@ public final class ArmorDon extends Gesture {
         }
         out.onBody = true;
         out.hand(true, right, in);
-        out.hand(false, left != null ? left : Reach.mirror(right), in);
+        out.hand(false, left != null ? left : Reach.mirror(right), in * smooth(phase / .12f));
     }
 }

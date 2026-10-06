@@ -250,6 +250,10 @@ public final class AnimalCare extends Gesture {
         }
         out.hand(right, tool, toolReach);
         out.hand(!right, other, otherReach);
+        // Broad weight transfer supports the work; individual strokes do not pump the pelvis.
+        float effort = level * (play.acted ? 1-smooth((work-.88f)/.12f) : 1);
+        out.weightSide = (right ? .3f : -.3f) * effort;
+        out.weightForward = -.25f * effort;
         out.pitch = bend;
         out.look = model(play, watched);
         out.looking = Math.min(1, level * 1.6f) * .85f;

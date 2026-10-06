@@ -37,7 +37,8 @@ public final class ContainerSearch extends Gesture {
     private static final class Open {
         BlockPos pos;
         boolean open;
-        long lookedAt;
+        long lookedAt, actedAt;
+        java.util.List<net.minecraft.world.item.ItemStack> contents;
     }
 
     public String id() {
@@ -72,7 +73,15 @@ public final class ContainerSearch extends Gesture {
                 && player.getEyePosition().distanceTo(Vec3.atCenterOf(open.pos)) < REACH + 1) pos = open.pos;
         open.open = pos != null;
         if (pos == null) return;
+        if(!pos.equals(open.pos)) { open.contents=null;open.actedAt=0; }
         open.pos = pos;
+        if(player==Minecraft.getInstance().player && Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen) {
+            var slots=screen.getMenu().slots;
+            java.util.List<net.minecraft.world.item.ItemStack> current=new java.util.ArrayList<>();
+            for(var slot:slots)current.add(slot.getItem().copy());
+            if(open.contents!=null && (open.contents.size()!=current.size() || changed(open.contents,current)))open.actedAt=now;
+            open.contents=current;
+        }
         if (!play.playing && !play.pending && isEnabled()) {
             Play started = trigger(player, 0, Vec3.atCenterOf(pos));
             started.right = player.getMainArm() == HumanoidArm.RIGHT;
@@ -98,6 +107,16 @@ public final class ContainerSearch extends Gesture {
         return state.hasProperty(BarrelBlock.OPEN) && state.getValue(BarrelBlock.OPEN);
     }
 
+    private static boolean changed(java.util.List<net.minecraft.world.item.ItemStack> before,java.util.List<net.minecraft.world.item.ItemStack> after) {
+        for(int i=0;i<after.size();i++)if(!net.minecraft.world.item.ItemStack.matches(before.get(i),after.get(i)))return true;
+        return false;
+    }
+
+    protected int priority() {
+        // Open-container work replaces the opening gesture (8), but yields to held controls (12).
+        return 10;
+    }
+
     protected float holdAt() {
         return HOLD;
     }
@@ -120,19 +139,35 @@ public final class ContainerSearch extends Gesture {
         Vec3 along = new Vec3(-side.z, 0, side.x);
         boolean right = play.right;
         // In it: round and round, and a dip every second or so as something is taken hold of.
-        double turn = play.held * 2.3, beat = (play.held % 1.25f) / 1.25f;
-        double dip = beat < .28 ? Math.sin(Math.PI * beat / .28) : 0;
-        Vec3 inside = middle.add(0, .28 - .12 * dip, 0).add(side.scale(.1 + .1 * Math.sin(turn)))
-                .add(along.scale(.16 * Math.cos(turn * .7) * (right ? -1 : 1)));
+        boolean local=play.player==Minecraft.getInstance().player;
+        float elapsed=open.actedAt==0?10f:(System.nanoTime()-open.actedAt)*1e-9f;
+        float activity=local ? bell(elapsed,.12f,.65f,1.15f) : .35f;
+        double turn = (local ? Math.min(elapsed,1.15f) : play.held) * 2.3, beat = (play.held % 1.25f) / 1.25f;
+        double dip = (beat < .28 ? Math.sin(Math.PI * beat / .28) : 0) * activity;
+        Vec3 inside = middle.add(0, .28 - .12 * dip, 0).add(side.scale(.1 + .1 * Math.sin(turn) * activity))
+                .add(along.scale(.16 * Math.cos(turn * .7) * activity * (right ? -1 : 1)));
         Vec3 rim = middle.add(0, .46, 0).add(side.scale(.42)).add(along.scale(right ? .3 : -.3));
+        BlockState state=play.player.level().getBlockState(open.pos);
+        boolean front = state.hasProperty(BarrelBlock.FACING) && state.getValue(BarrelBlock.FACING).getAxis().isHorizontal();
+        if(state.hasProperty(BarrelBlock.FACING)) {
+            var face=state.getValue(BarrelBlock.FACING);
+            if(face.getAxis().isHorizontal()) {
+                Vec3 normal=Vec3.atLowerCornerOf(face.getNormal()),tangent=new Vec3(-normal.z,0,normal.x);
+                inside=middle.add(normal.scale(.43-.12*dip)).add(tangent.scale(.08*Math.sin(turn)*activity));
+                rim=middle.add(normal.scale(.52)).add(tangent.scale(right?.3:-.3)).add(0,-.15,0);
+            }
+        }
         out.hand(right, model(play, inside), in);
         out.hand(!right, model(play, rim), in);
-        out.pitch = in * ((float) Math.toRadians(8) + Reach.low(model(play, inside).y) * (float) Math.toRadians(22)) + .03f * (float) dip * in;
+        // A front opening is worked from its face; bending over it would put the head through the barrel.
+        out.pitch = in * ((float) Math.toRadians(8) + (front ? 0 : Reach.low(model(play, inside).y) * (float) Math.toRadians(22))) + .03f * (float) dip * in;
         // The eyes on the hand that looks, the shoulder of it down and in, the body giving with each dip.
         out.look = model(play, inside);
         out.looking = in * .8f;
         out.yaw = (right ? -1 : 1) * (.09f + .03f * (float) Math.sin(turn)) * in;
         out.roll = (right ? 1 : -1) * .04f * (float) dip * in;
+        out.weightSide = (right ? .25f : -.25f) * in;
+        out.weightForward = -.25f * in;
         out.apart = phase > .04f && phase < HOLD + .2f;
         AnimalCare.foot(out, right, 1.1f, .7f, .5f);
         out.letGo = .92f;

@@ -120,7 +120,12 @@ public final class InteractionRuntime {
 
         int swingStart=player.tickCount-player.swingTime;
         if(player.swinging && context.armsClaimed())state.claimedSwingStart=swingStart;
-        Set<Effector> reserved = reserved(player, context.armsClaimed()
+        // Only the local container gesture supersedes WATUT's generic GUI hands.
+        // Weapons, other addon poses and ordinary inventory screens keep their reservation.
+        boolean containerSearch = player == net.minecraft.client.Minecraft.getInstance().player
+                && net.minecraft.client.Minecraft.getInstance().screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>
+                && candidates.stream().anyMatch(candidate -> candidate.source().equals("ContainerSearch"));
+        Set<Effector> reserved = reserved(player, containerSearch, context.armsClaimed()
                 || player.swinging && state.claimedSwingStart==swingStart);
         Map<Effector, String> holders = new EnumMap<>(Effector.class);
         state.slots.forEach((effector, slot) -> {
@@ -209,10 +214,10 @@ public final class InteractionRuntime {
     }
 
     /** Parts something outside the runtime owns this frame. */
-    private static Set<Effector> reserved(AbstractClientPlayer player, boolean swingClaimed) {
+    private static Set<Effector> reserved(AbstractClientPlayer player, boolean containerSearch, boolean swingClaimed) {
         Set<Effector> reserved = EnumSet.noneOf(Effector.class);
         // A swing, an item in use or another addon's arm pose owns the arms.
-        if (player.swinging && !swingClaimed || player.isUsingItem() || PoseManager.hasArmPoseExcept(player.getUUID(), "")) {
+        if (player.swinging && !swingClaimed || player.isUsingItem() || PoseManager.hasArmPoseExcept(player.getUUID(), containerSearch ? "watut" : "")) {
             reserved.add(Effector.RIGHT_ARM);
             reserved.add(Effector.LEFT_ARM);
         }

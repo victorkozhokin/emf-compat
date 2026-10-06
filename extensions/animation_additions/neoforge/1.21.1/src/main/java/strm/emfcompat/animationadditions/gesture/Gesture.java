@@ -117,6 +117,8 @@ public abstract class Gesture implements InteractionProvider {
         public Vector3f look;
         public float looking;
         public float pitch, yaw, roll;
+        /** Grounded weight transfer in model pixels, before solving the hands. */
+        public float weightSide, weightForward;
         /** {xRot, yRot, zRot} added to a leg after the feet are set: a leg lifted, a foot shaken. */
         public float[] rightLeg, leftLeg;
         /** Where the soles stand from where the pack has them, while {@link #apart}. */
@@ -131,7 +133,7 @@ public abstract class Gesture implements InteractionProvider {
             fitWeight = 0;
             fitSeconds = .14f;
             looking = 0;
-            pitch = yaw = roll = 0;
+            pitch = yaw = roll = weightSide = weightForward = 0;
             apart = onBody = false;
             rightReach = leftReach = 0;
             letGo = .9f;
@@ -253,6 +255,10 @@ public abstract class Gesture implements InteractionProvider {
 
     protected boolean watches() {
         return false;
+    }
+
+    protected int priority() {
+        return 6;
     }
 
     protected boolean ready(AbstractClientPlayer player) {
@@ -467,7 +473,7 @@ public abstract class Gesture implements InteractionProvider {
         play.primary = r != null ? Effector.RIGHT_ARM : l != null ? Effector.LEFT_ARM : Effector.HEAD;
         play.shows = true;
         // The click swings the arm; with the hands already on their way that swing is not shown over them.
-        out.add(Candidate.of(id(), Category.USE, 6, 1f, TIMING, aims).withQuietSwing(true));
+        out.add(Candidate.of(id(), Category.USE, priority(), 1f, TIMING, aims).withQuietSwing(true));
         // What set it off was a click, and a click swings the arm: the gesture is what shows.
         context.claimArms();
         context.decide(play.phase < holdAt() ? "play" : "hold");
@@ -611,6 +617,9 @@ public abstract class Gesture implements InteractionProvider {
                 BraceSteps.apply(play.stance, play.player, play.frame, parts, apart ? pose.rightFoot : HOME,
                         apart ? pose.leftFoot : HOME, held, 0, LOGGER, gesture.id());
             if (!play.playing || shown < 1e-3f) continue;
+            if (play.player.onGround() && !play.player.isPassenger()
+                    && play.player.getDeltaMovement().horizontalDistanceSqr() < .0004)
+                strm.emfcompat.animationadditions.torso.PelvisFollow.shift(parts, pose.weightSide * shown, pose.weightForward * shown);
             leg(parts.apply("right_leg"), pose.rightLeg, shown);
             leg(parts.apply("left_leg"), pose.leftLeg, shown);
         }
@@ -663,33 +672,40 @@ public abstract class Gesture implements InteractionProvider {
     }
 
     /** After the runtime: a hand that goes to a point goes there from the shoulder as it is drawn; the roll and the lift put back. */
-    public static void aimArms(UUID uuid, Function<String, ModelPart> parts) {
+    public static void aimArms(UUID uuid, Function<String, ModelPart> parts, Map<Effector,float[]> base) {
         long now = System.nanoTime();
         for (Gesture gesture : ALL) {
             if (gesture.quiet(now)) continue;
             Play play = gesture.states.fresh(uuid);
             if (play == null || !play.playing) continue;
             float shown = gesture.shown(uuid, play);
-            if (shown < 1e-3f || play.phase >= play.pose.letGo) continue;
+            if (shown < 1e-3f || (!gesture.poises() && play.phase >= play.pose.letGo)) continue;
             Pose pose = play.pose;
-            one(parts.apply("right_arm"), pose.right, pose.rightAt, pose.rightReach, pose.onBody, true, InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, gesture.id()));
-            one(parts.apply("left_arm"), pose.left, pose.leftAt, pose.leftReach, pose.onBody, false, InteractionRuntime.weight(uuid, Effector.LEFT_ARM, gesture.id()));
+            one(parts.apply("right_arm"), pose.right, contact(parts, pose.rightAt, pose.onBody), pose.rightReach, base.get(Effector.RIGHT_ARM), InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, gesture.id()));
+            one(parts.apply("left_arm"), pose.left, contact(parts, pose.leftAt, pose.onBody), pose.leftReach, base.get(Effector.LEFT_ARM), InteractionRuntime.weight(uuid, Effector.LEFT_ARM, gesture.id()));
         }
     }
 
-    private static void one(ModelPart arm, float[] angles, Vector3f at, float reach, boolean onBody, boolean right, float weight) {
+    private static Vector3f contact(Function<String,ModelPart> parts, Vector3f at, boolean onBody) {
+        if (at == null || !onBody) return at;
+        ModelPart body=parts.apply("body"),r=parts.apply("right_leg"),l=parts.apply("left_leg");
+        if(body==null || r==null || l==null)return at;
+        return GestureMath.bodyPoint(at,new Vector3f((r.x+l.x)*.5f,(r.y+l.y)*.5f,(r.z+l.z)*.5f),
+                body.xRot,body.yRot,body.zRot);
+    }
+
+    private static void one(ModelPart arm, float[] angles, Vector3f at, float reach, float[] base, float weight) {
         if (arm == null || weight < 1e-3f) return;
         if (angles != null) {
             arm.zRot += (angles[2] - arm.zRot) * weight;
             arm.y += angles[3] * weight;
-        } else if (at != null) {
-            // A place on the body is aimed at as the torso has turned the arm already; a point in the
-            // world, from the shoulder where it is drawn.
-            if (onBody) return;
+        } else if (at != null && base != null) {
             float[] aim = arm(null, at, reach, new Vector3f(arm.x, arm.y, arm.z));
             if (aim == null) return;
-            arm.xRot += strm.emfcompat.core.ik.IKMath.wrap(aim[0] - arm.xRot) * weight;
-            arm.yRot += strm.emfcompat.core.ik.IKMath.wrap(aim[1] - arm.yRot) * weight;
+            // Replace the preliminary canonical-shoulder aim. Blend once from the post-torso base.
+            arm.xRot = base[0] + strm.emfcompat.core.ik.IKMath.wrap(aim[0] - base[0]) * weight;
+            arm.yRot = base[1] + strm.emfcompat.core.ik.IKMath.wrap(aim[1] - base[1]) * weight;
+            arm.zRot = base[2] * (1-weight);
         }
     }
 }

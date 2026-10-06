@@ -32,6 +32,21 @@ class ArbiterTest {
     }
 
     @Test
+    void containerWorkReplacesOpeningButYieldsWholeGroupToHeldControlsOrReservedHands() {
+        Candidate opening = one("BlockUse", Category.USE, 8, 1f, Effector.RIGHT_ARM);
+        Candidate search = both("ContainerSearch", Category.USE, 10);
+        Candidate held = both("SteeringWheel", Category.USE, 12);
+        Map<Effector, String> openingHolder = Map.of(Effector.RIGHT_ARM, "BlockUse");
+        assertSame(search, Arbiter.resolve(List.of(opening, search), NONE, openingHolder).get(Effector.RIGHT_ARM));
+        Map<Effector, Candidate> controlled = Arbiter.resolve(List.of(search, opening, held), NONE, openingHolder);
+        assertSame(held, controlled.get(Effector.RIGHT_ARM));
+        assertSame(held, controlled.get(Effector.LEFT_ARM));
+        Map<Effector, Candidate> reserved = Arbiter.resolve(List.of(opening, search), Set.of(Effector.LEFT_ARM), NOBODY);
+        assertSame(opening, reserved.get(Effector.RIGHT_ARM));
+        assertFalse(reserved.containsValue(search));
+    }
+
+    @Test
     void higherPriorityWins() {
         Candidate plant = one("plant", Category.PASSIVE, 10, 1f, Effector.RIGHT_ARM);
         Candidate wall = one("wall", Category.PASSIVE, 20, 0.1f, Effector.RIGHT_ARM);

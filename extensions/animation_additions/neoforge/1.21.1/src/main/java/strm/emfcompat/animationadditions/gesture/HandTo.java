@@ -133,17 +133,19 @@ public final class HandTo extends Gesture {
             // Pressed in with the heel of the hand and a small twist; the weight goes down with it.
             point.y += .9f * press;
             point.x += .5f * hand * (float) Math.sin(Math.PI * 2 * work) * press;
-            out.pitch = level * (float) Math.toRadians(31) + .04f * press;
+            out.pitch = level * (float) Math.toRadians(play.player.isCrouching() ? 12 : 25) + .04f * press;
             out.yaw = -hand * .1f * level;
             out.roll = hand * .04f * level;
             AnimalCare.foot(out, play.right, 1.3f, .9f, .5f);
         } else {
             // Set in place with a short push, the shoulder going in behind the hand.
-            point.z -= .9f * press;
+            Vector3f direction=new Vector3f(point).sub(play.right ? -5 : 5,2,0);
+            if(direction.lengthSquared()>1e-6f)point.add(direction.normalize(.65f * press));
             out.pitch = level * ((float) Math.toRadians(5) + Reach.low(point.y) * (float) Math.toRadians(22)) + .02f * press;
             out.yaw = -hand * (.09f * level + .05f * press);
             AnimalCare.foot(out, play.right, .9f, .6f, .3f);
         }
+        out.weightForward = -.35f * level;
         out.apart = !play.back;
         out.hand(play.right, point, level);
         // The other arm goes out and back against the lean instead of hanging by the side.
