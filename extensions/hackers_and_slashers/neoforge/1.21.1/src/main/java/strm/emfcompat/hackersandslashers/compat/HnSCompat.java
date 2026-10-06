@@ -2,6 +2,9 @@ package strm.emfcompat.hackersandslashers.compat;
 
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
+import com.zigythebird.playeranimcore.animation.Animation;
+import com.zigythebird.playeranimcore.animation.AnimationController;
+import com.zigythebird.playeranimcore.animation.ExtraAnimationData;
 import com.zigythebird.playeranimcore.animation.layered.IAnimation;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
@@ -71,6 +74,26 @@ public final class HnSCompat {
      */
     public static boolean isAimedActionActive(AbstractClientPlayer player) {
         return isLayerActive(player, ATTACK_LAYER) || isLayerActive(player, DEFENSE_LAYER);
+    }
+
+    /**
+     * {@code true} while an action's animation is past its end tick and on its way back to rest -
+     * the last few ticks of an attack, in which the mod brings the arms home.
+     */
+    public static boolean isReturning(AbstractClientPlayer player) {
+        try {
+            for (ResourceLocation layer : ACTION_LAYERS) {
+                IAnimation animation = PlayerAnimationAccess.getPlayerAnimationLayer(player, layer);
+                if (!(animation instanceof AnimationController controller) || !controller.isActive()) continue;
+                Animation playing = controller.getCurrentAnimationInstance();
+                if (playing == null) continue;
+                Object end = playing.data().getNullable(ExtraAnimationData.END_TICK_KEY);
+                if (end instanceof Number tick && controller.getAnimationTicks() >= tick.floatValue()) return true;
+            }
+        } catch (Throwable t) {
+            // Fail-safe, as every render-time check here.
+        }
+        return false;
     }
 
     /**

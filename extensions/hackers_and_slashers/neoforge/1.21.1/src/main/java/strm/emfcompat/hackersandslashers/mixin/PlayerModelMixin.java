@@ -107,9 +107,18 @@ public class PlayerModelMixin {
                 ? new Vector3f(model.body.x, model.body.y, model.body.z)
                 : null;
 
-        emfcompat$captureStance(model, uuid, bodyBase, player);
+        boolean action = HnSCompat.isActionActive(player);
+        boolean stance = EMFCompatHnSMod.isStances() && HnSCompat.isStanceActive(player);
+        PoseSnapshot[] arms = emfcompat$arms(model, uuid, action, stance && action && HnSCompat.isReturning(player), stance);
 
-        if (!HnSCompat.isActionActive(player)) {
+        if (stance) {
+            // Arms only: the player walks around in this pose, so the legs have to keep EMF's cycle.
+            PoseManager.savePoses(uuid, POSE_SOURCE, arms[0], arms[1], null, bodyBase);
+        } else {
+            PoseManager.clearPoses(uuid, POSE_SOURCE);
+        }
+
+        if (!action) {
             PoseManager.clearPoses(uuid, SOURCE);
             // Each action decides afresh: a gate left from the last swing would hold the legs of
             // a player who has started running since.
@@ -145,11 +154,92 @@ public class PlayerModelMixin {
 
         PoseManager.savePoses(
                 uuid, SOURCE,
-                new PoseSnapshot(model.leftArm),
-                new PoseSnapshot(model.rightArm),
+                arms[0],
+                arms[1],
                 parts,
                 bodyBase
         );
+    }
+
+    /**
+     * How long after an action the arms go on being eased into the stance, and the time the easing
+     * works with. The mod brings the arms from the end of a swing back to the stance over the last
+     * five ticks of the attack - 34 degrees a tick with a mace - which reads as a snap. From the
+     * moment the animation turns back, the arms follow it with a lag instead, and the lag runs out
+     * over the window after the action, so they arrive exactly, a little later.
+     */
+    @Unique
+    private static final long SETTLE_NANOS = 600_000_000L;
+
+    @Unique
+    private static final double SETTLE_SECONDS = 0.2;
+
+    /** Per player: the arms as last shown {left xRot, yRot, zRot, x, y, z, right ...}, when, and when the action was last seen. */
+    @Unique
+    private static final Map<UUID, double[]> SETTLING = new HashMap<>();
+
+    /** The arms to hold this frame, {left, right}: as the model has them, or eased on the way back into a stance. */
+    @Unique
+    private static PoseSnapshot[] emfcompat$arms(PlayerModel<AbstractClientPlayer> model, UUID uuid,
+                                                 boolean action, boolean returning, boolean stance) {
+        long now = System.nanoTime();
+        double[] shown = SETTLING.get(uuid);
+        boolean settling = stance && shown != null && (returning || !action && now - (long) shown[13] < SETTLE_NANOS);
+        if (!settling) {
+            if (action) {
+                // The action has the arms: remember where it has them, for when it turns back.
+                if (shown == null) {
+                    if (SETTLING.size() > 64) SETTLING.clear();
+                    shown = new double[14];
+                    SETTLING.put(uuid, shown);
+                }
+                emfcompat$read(model, shown);
+                shown[12] = now;
+                shown[13] = now;
+            } else if (shown != null) {
+                SETTLING.remove(uuid);
+            }
+            return new PoseSnapshot[]{new PoseSnapshot(model.leftArm), new PoseSnapshot(model.rightArm)};
+        }
+        // The lag is whole while the animation is still coming back and shrinks to nothing after it.
+        double left = action ? 1 : 1 - (now - (long) shown[13]) / (double) SETTLE_NANOS;
+        if (action) shown[13] = now;
+        double dt = Math.min(0.1, (now - (long) shown[12]) * 1e-9);
+        double k = 1 - Math.exp(-dt / Math.max(1e-3, SETTLE_SECONDS * left));
+        double[] live = new double[12];
+        emfcompat$read(model, live);
+        for (int i = 0; i < 12; i++) {
+            double d = live[i] - shown[i];
+            if (i % 6 < 3) d = Math.atan2(Math.sin(d), Math.cos(d));
+            shown[i] += d * k;
+        }
+        shown[12] = now;
+        return new PoseSnapshot[]{emfcompat$posed(model.leftArm, shown, 0), emfcompat$posed(model.rightArm, shown, 6)};
+    }
+
+    @Unique
+    private static void emfcompat$read(PlayerModel<AbstractClientPlayer> model, double[] out) {
+        ModelPart[] arms = {model.leftArm, model.rightArm};
+        for (int a = 0; a < 2; a++) {
+            out[a * 6] = arms[a].xRot;
+            out[a * 6 + 1] = arms[a].yRot;
+            out[a * 6 + 2] = arms[a].zRot;
+            out[a * 6 + 3] = arms[a].x;
+            out[a * 6 + 4] = arms[a].y;
+            out[a * 6 + 5] = arms[a].z;
+        }
+    }
+
+    /** A snapshot of the arm as {@code pose} has it from {@code at}; the part itself is left as it was. */
+    @Unique
+    private static PoseSnapshot emfcompat$posed(ModelPart arm, double[] pose, int at) {
+        float xRot = arm.xRot, yRot = arm.yRot, zRot = arm.zRot, x = arm.x, y = arm.y, z = arm.z;
+        arm.setRotation((float) pose[at], (float) pose[at + 1], (float) pose[at + 2]);
+        arm.setPos((float) pose[at + 3], (float) pose[at + 4], (float) pose[at + 5]);
+        PoseSnapshot snapshot = new PoseSnapshot(arm);
+        arm.setRotation(xRot, yRot, zRot);
+        arm.setPos(x, y, z);
+        return snapshot;
     }
 
     /** Whether the legs are held this frame: standing still, with hysteresis and a short hold. */
@@ -194,23 +284,5 @@ public class PlayerModelMixin {
         head.yRot = yRot;
         head.zRot = zRot;
         return aimed;
-    }
-
-    @Unique
-    private static void emfcompat$captureStance(PlayerModel<AbstractClientPlayer> model, UUID uuid,
-                                                Vector3f bodyBase, AbstractClientPlayer player) {
-        if (!EMFCompatHnSMod.isStances() || !HnSCompat.isStanceActive(player)) {
-            PoseManager.clearPoses(uuid, POSE_SOURCE);
-            return;
-        }
-
-        // Arms only: the player walks around in this pose, so the legs have to keep EMF's cycle.
-        PoseManager.savePoses(
-                uuid, POSE_SOURCE,
-                new PoseSnapshot(model.leftArm),
-                new PoseSnapshot(model.rightArm),
-                null,
-                bodyBase
-        );
     }
 }
