@@ -21,7 +21,39 @@ Made for and tested with **[Fresh Animations: Player Extension](https://modrinth
 
 ## Everything it does
 
-Foot IK on stairs, slabs and uneven ground, with the step up prepared ahead; balance on fences, walls, bars and slopes; torso lean and pose inertia; turning the body to fit a narrow passage; a hand on the wall beside you; hands brushing through plants; a glance at a nearby creature; holding an animal's lead with the body against the pull; one pocketing gesture after a run of pickups; pressing buttons and levers at their real height, standing, crouched or seated; reaching past arm's length for a control; a hand on doors and gates as they open; lids, pages and work slots of blocks used by hand; mining with a stance for each tool and three different blows; feeding with a stroke after, milking and shearing; the hand held out before the click; dressing an armour stand; planting seeds along a row; looking through an open container; putting on a helmet, a chestplate, leggings and boots, and Curios accessories; shaking off water, powder snow and mud; these gestures on other players; turning a crank or a valve with the whole body; a steering wheel held hand over hand; a seated cockpit with the wheel in one hand and a throttle or typewriter in the other; bracing on moving transport and holding a rope at the edge; the weighted ejector's launch and flight; staying on the saddle of an animated horse, with an optional riding pose; contacts that follow a moving Sable sub-level.
+| | Feature | What you see |
+|---|---|---|
+| **Movement** | Foot IK | Feet stand on stairs, slabs and uneven ground; the step up is prepared ahead. |
+|  | Balance | A careful stance on fences, walls, bars and slopes. |
+|  | Torso lean and inertia | The torso goes with your motion and with the hands; poses settle with weight. |
+|  | Narrow passages | The body turns to fit the gap. |
+| **Surroundings** | Hand on the wall | A hand rests on the wall beside you. |
+|  | Plants | Hands brush through grass, crops and flowers. |
+|  | Look at creatures | A glance at a creature nearby while idle. |
+|  | Animal leads | The hand follows the lead, the body leans against the pull. |
+|  | Pocket | One gesture after a run of pickups puts them away. |
+| **Blocks** | Buttons and levers | Pressed at their real height — standing, crouched or seated. |
+|  | Reaching | The body stretches for a control past arm's length. |
+|  | Doors and gates | A hand on them as they open. |
+|  | Blocks used by hand | Lids, pages and work slots: the hand goes to the right place. |
+|  | Mining | A stance for each tool, three different blows, the body going with them. |
+| **Gestures** | Feeding | The food to the animal's mouth, then a stroke with the other hand. |
+|  | Milking and shearing | Done bent to the animal, both hands at work. |
+|  | Hand out before the click | Aiming with the right item already holds the hand out. |
+|  | Armour stand | The hand goes to the part that was clicked. |
+|  | Planting | Seeds pressed into the bed, along a row without straightening up. |
+|  | Open containers | One hand on the edge, the other looking through. |
+|  | Putting on armour | Helmet, chestplate, leggings and boots — each its own way. |
+|  | Curios accessories | Put on where they are worn. |
+|  | Shaking off | After water, powder snow and mud. |
+|  | Other players | All of these show on other players too. |
+| **Machines** | Cranks and valves | Turned with the whole body: feet, hips, torso and hands. |
+|  | Steering wheel | Held hand over hand, one hand always on the rim. |
+|  | Cockpit | Seated: the wheel in one hand, a throttle or typewriter in the other. |
+|  | Weighted ejector | Bracing on the lid, the launch, the flight. |
+| **Transport** | Moving transport | Hands brace on what is near; a rope held at the edge. |
+|  | Horses | You stay on the saddle of an animated horse; optional riding pose. |
+|  | Sable sub-levels | Contacts follow a ship under way. |
 
 ## Blocks you can interact with
 
