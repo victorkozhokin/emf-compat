@@ -99,11 +99,13 @@ public final class PlantReach implements InteractionProvider {
         selection.right=right==null?null:right.point;
         selection.left=left==null?null:left.point;
         if (right != null) {
-            strm.emfcompat.animationadditions.interaction.HandContacts.rememberPlant(context,Effector.RIGHT_ARM,right.point,right.box);
+            if (right.box != null) strm.emfcompat.animationadditions.interaction.HandContacts.rememberPlant(context,Effector.RIGHT_ARM,right.point,right.box);
+            else strm.emfcompat.animationadditions.interaction.HandContacts.forget(context,id(),Effector.RIGHT_ARM);
             out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 0.5f, TIMING, Effector.RIGHT_ARM, right.aim));
         }
         if (left != null) {
-            strm.emfcompat.animationadditions.interaction.HandContacts.rememberPlant(context,Effector.LEFT_ARM,left.point,left.box);
+            if (left.box != null) strm.emfcompat.animationadditions.interaction.HandContacts.rememberPlant(context,Effector.LEFT_ARM,left.point,left.box);
+            else strm.emfcompat.animationadditions.interaction.HandContacts.forget(context,id(),Effector.LEFT_ARM);
             out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 0.5f, TIMING, Effector.LEFT_ARM, left.aim));
         }
         context.decide((right != null ? "R" : "-") + (left != null ? "L" : "-"));
@@ -140,6 +142,17 @@ public final class PlantReach implements InteractionProvider {
         double highest = from.y - BELOW_SHOULDER;
 
         Level level = player.level();
+        // Standing in the plants themselves there is no row to slide a hand along: every block
+        // around is one, and an edge picked block by block sends the hands from plant to plant.
+        // There the hand goes to the nearest top beside the body, as it always did, and the
+        // runtime's own smoothing carries it; the edge is for walking along the outside of a row.
+        // (A little above the soles: farmland is lower than a block, and the crop is in the block over it.)
+        if (level.getBlockState(BlockPos.containing(player.getX(), player.getY() + .3, player.getZ())).getBlock() instanceof BushBlock) {
+            Vec3 point = nearestInField(player, level, from, hanging, centre, side, ahead, lowest, highest);
+            if (point == null || point.distanceTo(from) > arm) return null;
+            IKResult result = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
+            return result == null ? null : new Reach(new float[]{result.x(), result.y()}, point, null);
+        }
         Surface surface = nearest(player, level, from, hanging, centre, side, ahead, lowest, highest, previous);
         if(surface==null)return null;
         Vec3 best=surface.point;
@@ -192,4 +205,54 @@ public final class PlantReach implements InteractionProvider {
         return best;
     }
 
+    /** In a field: the point on a plant's top nearest to where the hand hangs, beside the body. */
+    private static Vec3 nearestInField(AbstractClientPlayer player, Level level, Vec3 from, Vec3 hanging, Vec3 centre,
+                                Vec3 side, Vec3 ahead, double lowest, double highest) {
+        AABB footprint = player.getBoundingBox().inflate(BODY_MARGIN, 0, BODY_MARGIN);
+        BlockPos feet = BlockPos.containing(hanging);
+        Vec3 best = null;
+        double bestDistance = Double.MAX_VALUE;
+        for (BlockPos pos : BlockPos.betweenClosed(feet.offset(-1, -1, -1), feet.offset(1, 1, 1))) {
+            BlockState state = level.getBlockState(pos);
+            if (!(state.getBlock() instanceof BushBlock)) continue;
+            VoxelShape shape = state.getShape(level, pos);
+            if (shape.isEmpty()) continue;
+            AABB box = shape.bounds().move(pos);
+            // The point of the plant's top nearest the hand, no higher than the arm can bring it.
+            double y = Math.min(highest, box.maxY - INTO_TOP);
+            if (y < lowest || y < box.minY) continue;
+            Vec3 point = new Vec3(Math.max(box.minX, Math.min(box.maxX, hanging.x)), y,
+                    Math.max(box.minZ, Math.min(box.maxZ, hanging.z)));
+            // Not under the body: a plant the player stands in is only reached where it sticks out
+            // on the hand's side - otherwise, in a field or on the edge between two blocks, the hand
+            // went for the feet.
+            point = outside(point, box, footprint, side);
+            if (point == null) continue;
+            if (point.subtract(centre).dot(side) < ACROSS) continue;
+            if (point.subtract(from).dot(ahead) < -BEHIND) continue;
+            double distance = point.distanceTo(hanging);
+            if (distance < bestDistance) {
+                best = point;
+                bestDistance = distance;
+            }
+        }
+        return best;
+    }
+
+    /**
+     * {@code point}, moved out from under the body towards the hand's side until it clears
+     * {@code footprint}; {@code null} if it leaves the plant first.
+     */
+    private static Vec3 outside(Vec3 point, AABB plant, AABB footprint, Vec3 side) {
+        for (int i = 0; i < 40; i++) {
+            boolean under = point.x > footprint.minX && point.x < footprint.maxX
+                    && point.z > footprint.minZ && point.z < footprint.maxZ;
+            if (!under) return point;
+            point = point.add(side.scale(0.025));
+            if (point.x < plant.minX || point.x > plant.maxX || point.z < plant.minZ || point.z > plant.maxZ) {
+                return null;
+            }
+        }
+        return null;
+    }
 }

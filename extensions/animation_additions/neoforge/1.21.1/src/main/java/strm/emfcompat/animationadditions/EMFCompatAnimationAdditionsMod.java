@@ -95,6 +95,7 @@ public class EMFCompatAnimationAdditionsMod {
             HorseSync.register(riding, modEventBus);
             strm.emfcompat.animationadditions.transport.TransportGrip.register(riding, debug);
             DebugLog.register(debug);
+            strm.emfcompat.animationadditions.compat.ParCoolActivity.register(movement, debug);
             // Order is only the log's order; who wins is the arbiter's call.
             InteractionRuntime.register(WallHand.INSTANCE);
             InteractionRuntime.register(PlantReach.INSTANCE);

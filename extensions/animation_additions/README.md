@@ -102,6 +102,7 @@ Everything below is optional — the matching animations turn on when the mod is
 | **[Create Aeronautics](https://modrinth.com/mod/create-aeronautics)** | Steering wheel with hand-over-hand grips, throttle, linked typewriter, navigation table, rope winch; a seated cockpit with the wheel in one hand and a side control in the other. |
 | **[Supplementaries](https://modrinth.com/mod/supplementaries)** | Crank, bellows, faucet, globe, jars, pedestals, shelves and other blocks used by hand. |
 | **[Curios](https://modrinth.com/mod/curios)** | Putting on accessories: ring and bracelet, necklace, belt, back and head pieces. |
+| **[ParCool](https://modrinth.com/mod/parcool)** | Nothing of its own: the addon stands down in ParCool's hanging, climbing, vaulting, rolling and diving moves, and goes on working in a fast run. |
 
 Contacts follow a moving Sable sub-level, so they hold on a ship under way. Interactions on Create contraptions are not covered, apart from driving controls.
 
@@ -116,6 +117,7 @@ Open the in-game config screen (Mods → EMF Compat Core → Config) and pick th
 | Foot IK (experimental) | Feet stand on the ground under them. Under it: **Balance on narrow supports and slopes**, **Foot IK for horses**. |
 | Torso lean | The torso bends and turns with what the hands do. Under it: **Lean with the motion**. |
 | Pose inertia | Poses settle with a little weight instead of stopping dead. |
+| Give way to ParCool moves | In the ParCool moves that animate the whole body their own way — hanging, climbing, vaulting, rolling, diving and the like — this addon adds nothing. A fast run keeps the foot IK and the lean. |
 
 **Hands & surroundings**
 

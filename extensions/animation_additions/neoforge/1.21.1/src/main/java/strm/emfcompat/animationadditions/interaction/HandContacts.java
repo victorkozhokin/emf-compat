@@ -27,7 +27,11 @@ public final class HandContacts {
         final strm.emfcompat.animationadditions.torso.LowReach.State reach = new strm.emfcompat.animationadditions.torso.LowReach.State();
         final Vector3f lastReach = new Vector3f();
         boolean rightReach=true;
+        /** When each wall contact's refined point was last tried against the wall itself, and whether it held. */
+        final Map<Key,long[]> wallChecked = new HashMap<>();
     }
+    /** The wall is asked again this often, not every frame: a ray a frame for each hand and again for the armour is too dear. */
+    private static final long WALL_CHECK_NANOS = 150_000_000L;
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
     private HandContacts() {}
 
@@ -49,6 +53,16 @@ public final class HandContacts {
     public static void rememberPlant(InteractionContext context,Effector hand,Vec3 world,net.minecraft.world.phys.AABB box) {
         remember(context,"PlantReach",hand,world);
         STATES.fresh(context.player().getUUID()).plantBounds.put(hand,box);
+    }
+
+    /** The hand keeps its owner but no longer has a point to be brought on to: the runtime's own aim stands. */
+    public static void forget(InteractionContext context,String source,Effector hand) {
+        State state=STATES.fresh(context.player().getUUID());
+        if(state==null)return;
+        Key key=new Key(source,hand);
+        state.targets.remove(key);
+        state.drawnTargets.remove(key);
+        if(source.equals("PlantReach"))state.plantBounds.remove(hand);
     }
 
     private record Support(ContactStance pose, float weight) {}
@@ -160,11 +174,17 @@ public final class HandContacts {
                 Vector3f modelNormal=frame.relativeToJoint(world.add(normal),new Vector3f()).sub(point).normalize();
                 Vector3f fitted=PlaneContact.fit(new Vector3f(arm.x,arm.y,arm.z),point,modelNormal,Skeleton.ARM_TO_PALM);
                 if(fitted!=null) {
-                    Vec3 fitWorld=frame.jointWorld(fitted);
-                    var face=strm.emfcompat.animationadditions.wallhand.WallSurface.clip(state.player,
-                            fitWorld.add(normal.scale(.08)),fitWorld.subtract(normal.scale(.08)),
-                            java.util.List.of(anchor.space.refresh()));
-                    if(face!=null && face.normal().dot(normal)>.9 && face.position().distanceTo(fitWorld)<.04)point=fitted;
+                    long now=System.nanoTime();
+                    long[] checked=state.wallChecked.computeIfAbsent(key,k->new long[2]);
+                    if(checked[0]==0 || now-checked[0]>WALL_CHECK_NANOS) {
+                        Vec3 fitWorld=frame.jointWorld(fitted);
+                        var face=strm.emfcompat.animationadditions.wallhand.WallSurface.clip(state.player,
+                                fitWorld.add(normal.scale(.08)),fitWorld.subtract(normal.scale(.08)),
+                                java.util.List.of(anchor.space.refresh()));
+                        checked[0]=now;
+                        checked[1]=face!=null && face.normal().dot(normal)>.9 && face.position().distanceTo(fitWorld)<.04?1:0;
+                    }
+                    if(checked[1]!=0)point=fitted;
                 }
             }
             if(key.source.equals("PlantReach")) {

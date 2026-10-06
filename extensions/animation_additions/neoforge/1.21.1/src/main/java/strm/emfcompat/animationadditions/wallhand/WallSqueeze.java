@@ -148,7 +148,8 @@ public final class WallSqueeze {
         boolean on = EMFCompatConfig.getBoolean(KEY_ENABLED, true) && EMFCompatCore.isCompatEnabled()
                 && !EMFCompatCore.isLocalPlayerInFirstPerson(uuid)
                 && !player.isPassenger() && !player.isSleeping() && !player.isFallFlying() && !player.isSwimming()
-                && (player.getPose() == Pose.STANDING || player.getPose() == Pose.CROUCHING);
+                && (player.getPose() == Pose.STANDING || player.getPose() == Pose.CROUCHING)
+                && !strm.emfcompat.animationadditions.compat.ParCoolActivity.fastRun(player);
         float squeezed = 0f, upRight = 0f, upLeft = 0f;
         boolean turned = false;
         boolean rightWall = false, leftWall = false;
