@@ -104,6 +104,8 @@ public final class HandContacts {
         if (state == null || state.player == null || !EMFCompatCore.isCompatEnabled()
                 || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         Support support = stance(uuid, state);
+        // No contact and the feet home again: nothing to step to, nothing to shift.
+        if (support == null && state.feet.resting()) return;
         ContactStance pose = support == null ? new ContactStance(0, 0, 0, 0, 0) : support.pose;
         float weight = support == null ? 0 : support.weight;
         strm.emfcompat.animationadditions.torso.BraceSteps.apply(state.feet, state.player, InteractionRuntime.frame(uuid), parts,

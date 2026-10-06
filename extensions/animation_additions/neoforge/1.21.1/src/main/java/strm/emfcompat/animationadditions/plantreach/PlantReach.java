@@ -24,7 +24,9 @@ import strm.emfcompat.core.ik.IKFrame;
 import strm.emfcompat.core.ik.IKResult;
 import strm.emfcompat.core.ik.OneBoneIK;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -94,8 +96,10 @@ public final class PlantReach implements InteractionProvider {
         // Adjacent plants are one continuous brushing gesture. A per-block target would
         // repeatedly start the global pose handoff while the hand slides along a row.
         Selection selection = context.data(Selection::new);
-        Reach right = reach(player, context.frame(), RIGHT_SHOULDER, -1f, selection.right);
-        Reach left = reach(player, context.frame(), LEFT_SHOULDER, 1f, selection.left);
+        Map<BlockPos, AABB> plants = selection.plants(player, context.now());
+        // Nothing growing within reach - by far the usual case - costs nothing more.
+        Reach right = plants.isEmpty() ? null : reach(player, plants, context.frame(), RIGHT_SHOULDER, -1f, selection.right);
+        Reach left = plants.isEmpty() ? null : reach(player, plants, context.frame(), LEFT_SHOULDER, 1f, selection.left);
         selection.right = right == null ? null : right.point;
         selection.left = left == null ? null : left.point;
         if (right != null) {
@@ -121,11 +125,37 @@ public final class PlantReach implements InteractionProvider {
      * The arm aimed at a plant on this side, or {@code null} when there is none in reach.
      * {@code out} is the model x of this side.
      */
-    private static final class Selection { Vec3 right, left; }
+    private static final class Selection {
+        Vec3 right, left;
+        /** The plants round the player and where their tops are, looked up when the player changes block or this grows stale. */
+        private final Map<BlockPos, AABB> plants = new HashMap<>();
+        private BlockPos centre;
+        private long lookedAt;
+
+        Map<BlockPos, AABB> plants(AbstractClientPlayer player, long now) {
+            BlockPos here = BlockPos.containing(player.getX(), player.getY() + .5, player.getZ());
+            if (here.equals(centre) && now - lookedAt < STALE_NANOS) return plants;
+            centre = here;
+            lookedAt = now;
+            plants.clear();
+            Level level = player.level();
+            // Two blocks each way: a hand hangs up to a block from the body's middle and looks a block round itself.
+            for (BlockPos pos : BlockPos.betweenClosed(here.offset(-2, -2, -2), here.offset(2, 2, 2))) {
+                BlockState state = level.getBlockState(pos);
+                if (!(state.getBlock() instanceof BushBlock)) continue;
+                VoxelShape shape = state.getShape(level, pos);
+                if (!shape.isEmpty()) plants.put(pos.immutable(), shape.bounds().move(pos));
+            }
+            return plants;
+        }
+    }
+
+    /** A plant broken or grown shows in the hands within this. */
+    private static final long STALE_NANOS = 250_000_000L;
     private record Reach(float[] aim, Vec3 point, AABB box) {}
     private record Surface(Vec3 point, AABB box) {}
 
-    private static Reach reach(AbstractClientPlayer player, IKFrame frame, Vector3f shoulder, float out, Vec3 previous) {
+    private static Reach reach(AbstractClientPlayer player, Map<BlockPos, AABB> plants, IKFrame frame, Vector3f shoulder, float out, Vec3 previous) {
         Vector3f sidewaysWorld = frame.modelToWorld().transformDirection(new Vector3f(out, 0, 0));
         Vector3f aheadWorld = frame.modelToWorld().transformDirection(new Vector3f(0, 0, -1));
         Vec3 side = new Vec3(sidewaysWorld.x, 0, sidewaysWorld.z);
@@ -147,13 +177,13 @@ public final class PlantReach implements InteractionProvider {
         // There the hand goes to the nearest top beside the body, as it always did, and the
         // runtime's own smoothing carries it; the edge is for walking along the outside of a row.
         // (A little above the soles: farmland is lower than a block, and the crop is in the block over it.)
-        if (level.getBlockState(BlockPos.containing(player.getX(), player.getY() + .3, player.getZ())).getBlock() instanceof BushBlock) {
-            Vec3 point = nearestInField(player, level, from, hanging, centre, side, ahead, lowest, highest);
+        if (plants.containsKey(BlockPos.containing(player.getX(), player.getY() + .3, player.getZ()))) {
+            Vec3 point = nearestInField(player, plants, from, hanging, centre, side, ahead, lowest, highest);
             if (point == null || point.distanceTo(from) > arm) return null;
             IKResult result = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
             return result == null ? null : new Reach(new float[]{result.x(), result.y()}, point, null);
         }
-        Surface surface = nearest(player, level, from, hanging, centre, side, ahead, lowest, highest, previous);
+        Surface surface = nearest(player, plants, from, hanging, centre, side, ahead, lowest, highest, previous);
         if (surface == null) return null;
         Vec3 best = surface.point;
         if (best.distanceTo(from) > arm + 1e-6) return null;
@@ -165,18 +195,15 @@ public final class PlantReach implements InteractionProvider {
      * The point on a plant's top nearest to where the hand hangs, on its side, ahead or beside but
      * not behind, and not under the body.
      */
-    private static Surface nearest(AbstractClientPlayer player, Level level, Vec3 from, Vec3 hanging, Vec3 centre,
+    private static Surface nearest(AbstractClientPlayer player, Map<BlockPos, AABB> plants, Vec3 from, Vec3 hanging, Vec3 centre,
                                 Vec3 side, Vec3 ahead, double lowest, double highest, Vec3 previous) {
         AABB footprint = player.getBoundingBox().inflate(BODY_MARGIN, 0, BODY_MARGIN);
         BlockPos feet = BlockPos.containing(hanging);
         Surface best = null;
         double bestDistance = Double.MAX_VALUE;
         for (BlockPos pos : BlockPos.betweenClosed(feet.offset(-1, -1, -1), feet.offset(1, 1, 1))) {
-            BlockState state = level.getBlockState(pos);
-            if (!(state.getBlock() instanceof BushBlock)) continue;
-            VoxelShape shape = state.getShape(level, pos);
-            if (shape.isEmpty()) continue;
-            AABB box = shape.bounds().move(pos);
+            AABB box = plants.get(pos);
+            if (box == null) continue;
             // The point of the plant's top nearest the hand, no higher than the arm can bring it.
             double y = Math.min(highest, box.maxY - INTO_TOP);
             if (y < lowest || y < box.minY) continue;
@@ -206,18 +233,15 @@ public final class PlantReach implements InteractionProvider {
     }
 
     /** In a field: the point on a plant's top nearest to where the hand hangs, beside the body. */
-    private static Vec3 nearestInField(AbstractClientPlayer player, Level level, Vec3 from, Vec3 hanging, Vec3 centre,
+    private static Vec3 nearestInField(AbstractClientPlayer player, Map<BlockPos, AABB> plants, Vec3 from, Vec3 hanging, Vec3 centre,
                                 Vec3 side, Vec3 ahead, double lowest, double highest) {
         AABB footprint = player.getBoundingBox().inflate(BODY_MARGIN, 0, BODY_MARGIN);
         BlockPos feet = BlockPos.containing(hanging);
         Vec3 best = null;
         double bestDistance = Double.MAX_VALUE;
         for (BlockPos pos : BlockPos.betweenClosed(feet.offset(-1, -1, -1), feet.offset(1, 1, 1))) {
-            BlockState state = level.getBlockState(pos);
-            if (!(state.getBlock() instanceof BushBlock)) continue;
-            VoxelShape shape = state.getShape(level, pos);
-            if (shape.isEmpty()) continue;
-            AABB box = shape.bounds().move(pos);
+            AABB box = plants.get(pos);
+            if (box == null) continue;
             // The point of the plant's top nearest the hand, no higher than the arm can bring it.
             double y = Math.min(highest, box.maxY - INTO_TOP);
             if (y < lowest || y < box.minY) continue;
