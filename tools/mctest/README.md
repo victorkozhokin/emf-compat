@@ -401,6 +401,20 @@ to a connection that never negotiated their channels, and the keep-alive would t
 {"bot": {"swing": true}}   {"bot": {"remove": true}}                     "name": "Bob" when there are several
 ```
 
+**Zones 12, 13, the field station and the decor** come from `polygon/gestures_section.py`, which writes
+four functions into the map's pack and rebuilds nothing else: `emf_atlas:gestures` (zone 12 CARE & GESTURES,
+x 2244..2294 z 2111..2166, south of zone 10: six pens to feed, milk and shear in, armour stands, a seed bed,
+containers, basins of water, powder snow and mud to shake off, armour for oneself, items to pocket),
+`emf_atlas:mining_gallery` (zone 13, x 2300..2334: a bay per tool with a wall from the feet to over the head,
+a patch in the floor and an overhang, and lone blocks at four heights), `emf_atlas:field` (the cockpit, lead
+and effort pads near 370..491 150 7 hang in the void: a kerbed bridge between them, a landing with buttons,
+names above - nothing inside the pads, which their scenarios clear) and `emf_atlas:decor` (zone colours on the
+pavilions and before the hub's buttons, the hub's buttons to zones 11-13 and the field station, a lawn belt
+with trees outside the west and north rim). `gestures_restock` and `mining_gallery_reset` put back what a
+test uses up; the buttons in the zones call them. To apply without going there: `forceload add` the
+section's corners, wait, run the function, `forceload remove`. A text display's `transformation` needs all
+four of its keys or its scale is dropped - the older sections' labels are all at scale 1 for that reason.
+
 **Extending EMF ATLAS**: the stands are generated - edit `polygon/build_polygon.py`, then run it with
 `ATLAS_WORLD="run/mctest/Test/saves/EMF ATLAS - Animation Campus"` to write the pack into the map
 itself; in game `/reload` and `/function emf_atlas:interactions` adds zone 03's second row (z 2097:
