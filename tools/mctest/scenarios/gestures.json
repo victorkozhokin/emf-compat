@@ -3800,6 +3800,1324 @@
   "cmd": "clear @s"
  },
  {
+  "cmd": "summon cow 453.75 150 7.5 {NoAI:1b,Tags:[\"gesture_test\"]}"
+ },
+ {
+  "cmd": "tp @s 450.5 150 7.5 -90 12"
+ },
+ {
+  "cmd": "item replace entity @s weapon.mainhand with wheat"
+ },
+ {
+  "orbit": [
+   0,
+   10,
+   3.5
+  ]
+ },
+ {
+  "wait": 25
+ },
+ {
+  "cameraLook": [
+   -90,
+   12
+  ]
+ },
+ {
+  "wait": 4
+ },
+ {
+  "log": "gesture far/back"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "log": "gesture far/back click"
+ },
+ {
+  "click": "use"
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-10"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-11"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-12"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-13"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-14"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-15"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-16"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-17"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-18"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-19"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-20"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-21"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-22"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-23"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "screenshot": "gesture-far-back-24"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "model": "player"
+ },
+ {
+  "closeScreen": true
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "wait": 12
+ },
+ {
+  "closeScreen": true
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "cmd": "kill @e[tag=gesture_test]"
+ },
+ {
+  "cmd": "kill @e[type=item,distance=..16]"
+ },
+ {
+  "cmd": "fill 446 150 5 454 153 9 air"
+ },
+ {
+  "cmd": "fill 446 149 5 454 149 9 smooth_stone"
+ },
+ {
+  "cmd": "clear @s"
+ },
+ {
+  "cmd": "summon cow 453.75 150 7.5 {NoAI:1b,Tags:[\"gesture_test\"]}"
+ },
+ {
+  "cmd": "tp @s 450.5 150 7.5 -90 12"
+ },
+ {
+  "cmd": "item replace entity @s weapon.mainhand with wheat"
+ },
+ {
+  "orbit": [
+   90,
+   10,
+   3.5
+  ]
+ },
+ {
+  "wait": 25
+ },
+ {
+  "cameraLook": [
+   -90,
+   12
+  ]
+ },
+ {
+  "wait": 4
+ },
+ {
+  "log": "gesture far/left"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "log": "gesture far/left click"
+ },
+ {
+  "click": "use"
+ },
+ {
+  "screenshot": "gesture-far-left-10"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-11"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-12"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-13"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-14"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-15"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-16"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-17"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-18"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-19"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-20"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-21"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-22"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-23"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-left-24"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "closeScreen": true
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "wait": 12
+ },
+ {
+  "closeScreen": true
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "cmd": "kill @e[tag=gesture_test]"
+ },
+ {
+  "cmd": "kill @e[type=item,distance=..16]"
+ },
+ {
+  "cmd": "fill 446 150 5 454 153 9 air"
+ },
+ {
+  "cmd": "fill 446 149 5 454 149 9 smooth_stone"
+ },
+ {
+  "cmd": "clear @s"
+ },
+ {
+  "cmd": "summon cow 453.75 150 7.5 {NoAI:1b,Tags:[\"gesture_test\"]}"
+ },
+ {
+  "cmd": "tp @s 450.5 150 7.5 -90 12"
+ },
+ {
+  "cmd": "item replace entity @s weapon.mainhand with wheat"
+ },
+ {
+  "orbit": [
+   180,
+   10,
+   3.5
+  ]
+ },
+ {
+  "wait": 25
+ },
+ {
+  "cameraLook": [
+   -90,
+   12
+  ]
+ },
+ {
+  "wait": 4
+ },
+ {
+  "log": "gesture far/front"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "log": "gesture far/front click"
+ },
+ {
+  "click": "use"
+ },
+ {
+  "screenshot": "gesture-far-front-10"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-11"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-12"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-13"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-14"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-15"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-16"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-17"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-18"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-19"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-20"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-21"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-22"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-23"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-front-24"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "closeScreen": true
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "wait": 12
+ },
+ {
+  "closeScreen": true
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "cmd": "kill @e[tag=gesture_test]"
+ },
+ {
+  "cmd": "kill @e[type=item,distance=..16]"
+ },
+ {
+  "cmd": "fill 446 150 5 454 153 9 air"
+ },
+ {
+  "cmd": "fill 446 149 5 454 149 9 smooth_stone"
+ },
+ {
+  "cmd": "clear @s"
+ },
+ {
+  "cmd": "summon cow 453.75 150 7.5 {NoAI:1b,Tags:[\"gesture_test\"]}"
+ },
+ {
+  "cmd": "tp @s 450.5 150 7.5 -90 12"
+ },
+ {
+  "cmd": "item replace entity @s weapon.mainhand with wheat"
+ },
+ {
+  "orbit": [
+   270,
+   10,
+   3.5
+  ]
+ },
+ {
+  "wait": 25
+ },
+ {
+  "cameraLook": [
+   -90,
+   12
+  ]
+ },
+ {
+  "wait": 4
+ },
+ {
+  "log": "gesture far/right"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "log": "gesture far/right click"
+ },
+ {
+  "click": "use"
+ },
+ {
+  "screenshot": "gesture-far-right-10"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-11"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-12"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-13"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-14"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-15"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-16"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-17"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-18"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-19"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-20"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-21"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-22"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-23"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "gesture-far-right-24"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "closeScreen": true
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "wait": 12
+ },
+ {
+  "closeScreen": true
+ },
+ {
+  "releaseAll": true
+ },
+ {
+  "cmd": "kill @e[tag=gesture_test]"
+ },
+ {
+  "cmd": "kill @e[type=item,distance=..16]"
+ },
+ {
+  "cmd": "fill 446 150 5 454 153 9 air"
+ },
+ {
+  "cmd": "fill 446 149 5 454 149 9 smooth_stone"
+ },
+ {
+  "cmd": "clear @s"
+ },
+ {
   "cmd": "summon cow 452.3 150 7.5 {NoAI:1b,Tags:[\"gesture_test\"]}"
  },
  {

@@ -42,6 +42,7 @@ public abstract class Gesture implements InteractionProvider {
     private static final long BUSY_NANOS = 14_000_000_000L;
     private static final float NECK = (float) Math.toRadians(70);
     private static final Vector3f HOME = new Vector3f();
+    private static final float FIT = (float) Math.toRadians(20);
 
     /** Off by default: the game does what was clicked at once and the gesture goes with it. */
     public static final String KEY_ACT_AFTER = "gesture.actAfter";
@@ -154,6 +155,10 @@ public abstract class Gesture implements InteractionProvider {
         final boolean[] handSet = new boolean[2];
         /** The hands' points and the eyes' as last asked for at work, model pixels: what they come back from. */
         final Vector3f[] kept = new Vector3f[3];
+        /** The fit of the torso and the pelvis that brings the hand on to its point, and the hand and point it was last made for. */
+        final strm.emfcompat.animationadditions.torso.LowReach.State fit = new strm.emfcompat.animationadditions.torso.LowReach.State();
+        final Vector3f fitAt = new Vector3f();
+        boolean fitRight = true;
         boolean keeps;
     }
 
@@ -599,6 +604,40 @@ public abstract class Gesture implements InteractionProvider {
         leg.xRot += turn[0] * weight;
         leg.yRot += turn[1] * weight;
         leg.zRot += turn[2] * weight;
+    }
+
+    /**
+     * After the torso: an arm is as long as it is, so pointing it at a thing does not put the hand
+     * on it - the torso turns about the hips and the pelvis shifts over the soles until the hand
+     * that leads is on its point, the other hand's point weighed in when it is out as well.
+     * Standing still only; a point on the player's own body needs none of it.
+     */
+    public static void reach(UUID uuid, Function<String, ModelPart> parts) {
+        long now = System.nanoTime();
+        for (Gesture gesture : ALL) {
+            if (gesture.quiet(now)) continue;
+            Play play = gesture.states.fresh(uuid);
+            if (play == null || play.player == null) continue;
+            Pose pose = play.pose;
+            float weight = 0;
+            Vector3f other = null;
+            if (play.playing && play.shows && !pose.onBody && play.player.onGround() && !play.player.isPassenger()
+                    && play.player.getDeltaMovement().horizontalDistanceSqr() < .0004) {
+                float r = pose.rightAt == null ? 0 : Math.min(1, pose.rightReach), l = pose.leftAt == null ? 0 : Math.min(1, pose.leftReach);
+                // The hand further out leads; it gives the lead up only to one clearly further.
+                if (play.fitRight ? l > r + .15f : r > l + .15f) play.fitRight = !play.fitRight;
+                Vector3f at = play.fitRight ? pose.rightAt : pose.leftAt, second = play.fitRight ? pose.leftAt : pose.rightAt;
+                if (at != null) {
+                    play.fitAt.set(at);
+                    weight = gesture.shown(uuid, play) * smooth((Math.max(r, l) - .5f) / .5f);
+                    if (second != null && Math.min(r, l) > .6f) other = second;
+                }
+            }
+            if (weight < 1e-3f && !play.fit.active()) continue;
+            // A moderate lean after the hand and no more: a thing further off is held out to, not lunged at.
+            play.fit.angleLimit = FIT;
+            strm.emfcompat.animationadditions.torso.LowReach.apply(parts, play.fitRight, play.fitAt, other, weight, play.fit);
+        }
     }
 
     /** After the runtime: a hand that goes to a point goes there from the shoulder as it is drawn; the roll and the lift put back. */

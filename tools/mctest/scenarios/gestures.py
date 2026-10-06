@@ -19,6 +19,8 @@ CASES = {
     "feed": (["summon cow 452.3 150 7.5 " + ANIMAL], "wheat", 12, "use", 62),
     # Fed, then the back turned on it and off: the hands come back to the body, not twisted round to the cow.
     "leave": (["summon cow 452.3 150 7.5 " + ANIMAL], "wheat", 12, "leave", 50),
+    # Further off than two blocks from its side: fed all the same, but with no hand put out to it.
+    "far": (["summon cow 453.75 150 7.5 " + ANIMAL], "wheat", 12, "use", 30),
     "milk": (["summon cow 452.3 150 7.5 " + ANIMAL], "bucket", 12, "use", 56),
     "shear": (["summon sheep 452.3 150 7.5 " + ANIMAL], "shears", 18, "use", 40),
     "stand": (['summon armor_stand 452.0 150 7.5 {Tags:["gesture_test"],Rotation:[90f]}'], "iron_chestplate", 8, "use", 30),

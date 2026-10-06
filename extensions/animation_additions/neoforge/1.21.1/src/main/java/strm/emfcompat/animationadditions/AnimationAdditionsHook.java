@@ -147,6 +147,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         strm.emfcompat.animationadditions.transport.TransportGrip.reach(uuid,parts);
         BlockUse.reachContact(uuid, parts);
         Mining.reach(uuid, parts);
+        strm.emfcompat.animationadditions.gesture.Gesture.reach(uuid, parts);
         ButtonPress.reachContact(uuid, parts);
         strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.reachContact(uuid, parts);
         InteractionRuntime.finishSupport(uuid, parts, supportBase, EMFState.getFrameCounter(), mainModel);

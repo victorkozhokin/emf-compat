@@ -4,6 +4,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Shearable;
@@ -46,11 +49,41 @@ public final class AnimalCare extends Gesture {
 
     /** The game accepted this player's use of what was in that hand on that animal. */
     public static void done(AbstractClientPlayer player, Entity animal, int kind, boolean mainHand) {
+        if (gap(player, animal) > NEAR) return;
         Play play = INSTANCE.trigger(player, kind, animal.position());
         if (play.kind != kind) return;
         play.entity = animal.getId();
         play.right = (player.getMainArm() == HumanoidArm.RIGHT) == mainHand;
-        play.notes = new float[]{animal.distanceTo(player)};
+    }
+
+    /** No further from the animal than this, blocks, for a hand to be put out to it at all. */
+    private static final double NEAR = 2;
+
+    /** How far the player stands from the animal's side, level, blocks. */
+    static double gap(Entity player, Entity animal) {
+        AABB box = animal.getBoundingBox();
+        double x = Math.max(0, Math.max(box.minX - player.getX(), player.getX() - box.maxX));
+        double z = Math.max(0, Math.max(box.minZ - player.getZ(), player.getZ() - box.maxZ));
+        return Math.hypot(x, z);
+    }
+
+    /**
+     * Where the animal's head is: {its mouth, its brow, the way back along its neck}. The box and
+     * the eye height say how big it is, the body's turn where the neck leaves it, the head's own
+     * turn where the head points from there.
+     */
+    static Vec3[] head(Entity animal, float partial) {
+        Vec3 at = animal.getPosition(partial);
+        float body = animal.getYRot(), head = body;
+        if (animal instanceof LivingEntity living) {
+            body = Mth.rotLerp(partial, living.yBodyRotO, living.yBodyRot);
+            head = Mth.rotLerp(partial, living.yHeadRotO, living.yHeadRot);
+        }
+        Vec3 along = Vec3.directionFromRotation(0, body), nose = Vec3.directionFromRotation(0, head);
+        double width = animal.getBbWidth(), height = animal.getBbHeight(), eyes = animal.getEyeHeight();
+        Vec3 neck = at.add(along.scale(width * .5));
+        return new Vec3[]{neck.add(nose.scale(width * .45)).add(0, eyes - height * .14, 0),
+                neck.add(nose.scale(width * .2)).add(0, eyes + height * .12, 0), along.scale(-1)};
     }
 
     protected boolean poises() {
@@ -65,7 +98,7 @@ public final class AnimalCare extends Gesture {
         AbstractClientPlayer player = context.player();
         for (InteractionHand hand : InteractionHand.values()) {
             int kind = kindOf(player.getItemInHand(hand), target);
-            if (kind < 0) continue;
+            if (kind < 0 || gap(player, target) > NEAR) continue;
             if (!play.acted) {
                 play.kind = kind;
                 play.entity = target.getId();
@@ -81,8 +114,7 @@ public final class AnimalCare extends Gesture {
     protected boolean lost(Play play) {
         Entity animal = play.player.level().getEntity(play.entity);
         if (animal == null || !animal.isAlive()) return true;
-        float from = play.notes instanceof float[] notes ? notes[0] : 2f;
-        return animal.distanceTo(play.player) > Math.max(2.2f, from + .9f)
+        return gap(play.player, animal) > NEAR + .6
                 || turnedFrom(play, animal.position().add(0, animal.getBbHeight() * .5, 0));
     }
 
@@ -97,11 +129,10 @@ public final class AnimalCare extends Gesture {
 
     /** The click is held back until the hand is at the animal; {@code false}: let it through now. */
     public static boolean hold(AbstractClientPlayer player, Entity animal, int kind, boolean mainHand, Runnable click) {
-        if (!INSTANCE.isEnabled() || !INSTANCE.defer(player, kind, animal.position(), click)) return false;
+        if (!INSTANCE.isEnabled() || gap(player, animal) > NEAR || !INSTANCE.defer(player, kind, animal.position(), click)) return false;
         Play play = INSTANCE.play(player);
         play.entity = animal.getId();
         play.right = (player.getMainArm() == HumanoidArm.RIGHT) == mainHand;
-        play.notes = new float[]{animal.distanceTo(player)};
         return true;
     }
 
@@ -119,7 +150,8 @@ public final class AnimalCare extends Gesture {
         Vec3 at = animal == null ? play.point : animal.getPosition(partial);
         if (at == null) return;
         float height = animal == null ? 1f : animal.getBbHeight(), width = animal == null ? .9f : animal.getBbWidth();
-        Vec3 mouth = animal == null ? at.add(0, height * .8, 0) : animal.getEyePosition(partial);
+        Vec3[] head = animal == null ? null : head(animal, partial);
+        Vec3 mouth = head == null ? at.add(0, height * .8, 0) : head[0], brow = head == null ? mouth.add(0, .2, 0) : head[1];
         // Towards the player, level: the side of the animal that is worked at.
         Vec3 side = play.player.getPosition(partial).subtract(at).multiply(1, 0, 1);
         side = side.lengthSqr() < 1e-6 ? new Vec3(0, 0, 1) : side.normalize();
@@ -139,15 +171,17 @@ public final class AnimalCare extends Gesture {
             float stroke = play.acted ? smooth((work - .1f) / .2f) * (1 - smooth((work - .86f) / .14f)) : 0;
             double pass = Math.PI * 2 * 2 * Math.max(0, Math.min(1, (work - .22f) / .62f));
             float gone = (float) (.5 - .5 * Math.cos(pass)), up = (float) Math.max(0, -Math.sin(pass));
-            Vec3 neck = at.subtract(mouth).multiply(1, 0, 1);
-            neck = neck.lengthSqr() < 1e-4 ? side.scale(-1) : neck.normalize();
+            Vec3 neck = head == null ? side.scale(-1) : head[2];
+            // The food comes to the mouth from where the player stands.
+            Vec3 from = play.player.getPosition(partial).subtract(mouth).multiply(1, 0, 1);
+            from = from.lengthSqr() < 1e-6 ? side : from.normalize();
             // As long a pass as the arm has: its far end no further off than a hand held out.
             Vec3 feet = play.player.getPosition(partial);
-            double far = mouth.add(neck.scale(.3)).subtract(feet).multiply(1, 0, 1).length();
+            double far = brow.add(neck.scale(.3)).subtract(feet).multiply(1, 0, 1).length();
             double length = Math.max(.14, Math.min(.3, .3 - (far - 1.15)));
             float taken = play.acted ? bell(work, .12f, .2f, .4f) : 0;
-            tool = model(play, mouth.add(side.scale(.1 - .03 * taken)).add(0, -.04, 0));
-            other = model(play, mouth.add(0, .2 + .09 * up * up * stroke, 0).add(neck.scale(-.04 + length * gone * stroke)).add(along.scale(.04 * hand)));
+            tool = model(play, mouth.add(from.scale(.08 - .03 * taken)).add(0, -.02, 0));
+            other = model(play, brow.add(0, .04 + .09 * up * up * stroke, 0).add(neck.scale(length * gone * stroke)));
             toolReach = level * (1 - smooth((work - .42f) / .3f));
             otherReach = stroke * Math.min(1, level * 1.4f);
             float lean = 1 - (1 - Math.min(1, toolReach)) * (1 - Math.min(1, otherReach));
@@ -155,7 +189,7 @@ public final class AnimalCare extends Gesture {
                     + (float) Math.toRadians(4) * gone * stroke;
             // The shoulder of the hand at work comes forward: the giving one first, then the stroking one, going with its passes.
             out.yaw = hand * (.13f * otherReach - .09f * toolReach + .05f * (gone - .5f) * stroke);
-            watched = mouth.add(0, .1 * stroke, 0).add(neck.scale(length * .5 * gone * stroke));
+            watched = mouth.lerp(brow, stroke).add(neck.scale(length * .5 * gone * stroke));
             foot(out, right, 1.2f, .8f, .2f);
         } else if (play.kind == MILK) {
             // The bucket held still under it; the other hand draws down and lets go, and the body gives with each draw.
