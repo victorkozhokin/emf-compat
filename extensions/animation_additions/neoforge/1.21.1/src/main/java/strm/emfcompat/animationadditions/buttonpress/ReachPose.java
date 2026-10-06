@@ -94,6 +94,8 @@ public final class ReachPose {
 
     /** A bounded torso adjustment closes the remaining gap at the far part of a crank's orbit. */
     public static void contact(Function<String, ModelPart> parts, boolean right, Vector3f target, float weight, Quaternionf smoothed, double dt) {
+        // Nothing asked for and nothing left of the last turn: every part would be put back where it is.
+        if (weight < 1e-4f && Math.abs(smoothed.x) + Math.abs(smoothed.y) + Math.abs(smoothed.z) < 1e-5f) return;
         ModelPart body = parts.apply("body");
         ModelPart arm = parts.apply(right ? "right_arm" : "left_arm");
         if (body == null || arm == null) return;

@@ -44,7 +44,8 @@ public final class ArmorDon extends Gesture {
     private static final class Worn {
         final Item[] armour = new Item[4];
         final Map<String, java.util.List<String>> curios = new HashMap<>();
-        long since, curiosAt;
+        long since, curiosAt, roomAt;
+        boolean room;
         int queued;
         boolean curiosKnown;
     }
@@ -144,6 +145,19 @@ public final class ArmorDon extends Gesture {
     }
 
     /** A tiny bounded sweep check; the inspection never kicks through a nearby block. */
+    private static boolean legRoom(Play play) {
+        // The blocks before a standing player do not change by the frame: asked a few times a second.
+        if (!(play.notes instanceof Worn worn)) return legRoom(play.player, false);
+        long now = System.nanoTime();
+        if (now - worn.roomAt > ROOM_EVERY_NANOS) {
+            worn.roomAt = now;
+            worn.room = legRoom(play.player, false);
+        }
+        return worn.room;
+    }
+
+    private static final long ROOM_EVERY_NANOS = 200_000_000L;
+
     private static boolean legRoom(AbstractClientPlayer player, boolean right) {
         double yaw = Math.toRadians(player.yBodyRot);
         double side = right ? -.18 : .18;
@@ -213,7 +227,7 @@ public final class ArmorDon extends Gesture {
                 boolean planted = play.player.onGround() && !play.player.isPassenger()
                         && play.player.getDeltaMovement().horizontalDistanceSqr() < .0004;
                 // Crouch keeps both soles; no lift if the small forward sweep meets a block.
-                if (planted && !play.player.isCrouching() && legRoom(play.player, false))
+                if (planted && !play.player.isCrouching() && legRoom(play))
                     out.leftLeg = new float[]{-.52f * l, inspect.turnLeft(), .05f * l};
                 out.letGo = .97f;
                 return;
