@@ -428,7 +428,7 @@ public final class BlockUse implements InteractionProvider {
     /** The spot under the look on a block a hand uses, keeping the block to watch it change; {@code null} when none. */
     private static BlockTarget.Spot look(AbstractClientPlayer player, State state) {
         if (state.pos != null && state.target != null && state.target.quietsSwing()
-                && player == Minecraft.getInstance().player && Minecraft.getInstance().options.keyUse.isDown()) {
+                && strm.emfcompat.animationadditions.net.Inputs.useHeld(player)) {
             BlockState kept = player.level().getBlockState(state.pos);
             if (state.target.matches(kept)) {
                 Vec3 local = state.target.swayCentre(player.level(), state.pos, kept);
@@ -451,8 +451,7 @@ public final class BlockUse implements InteractionProvider {
         }
         // Our own player: the game's crosshair target, the block a click uses. Sable's sub-levels
         // (Aeronautics' craft) are in it, but not in a plain pick; others' is the pick.
-        HitResult hit = player == Minecraft.getInstance().player && Minecraft.getInstance().hitResult != null
-                ? Minecraft.getInstance().hitResult : player.pick(RANGE, 1f, false);
+        HitResult hit = strm.emfcompat.animationadditions.net.Inputs.sight(player, RANGE, 1f);
         if (!(hit instanceof BlockHitResult blockHit) || hit.getType() != HitResult.Type.BLOCK) {
             state.pos = null;
             return null;
@@ -486,6 +485,14 @@ public final class BlockUse implements InteractionProvider {
         }
         state.target = target;
         return spot;
+    }
+
+    /** The control our own player's hands are kept on while the eyes wander - a wheel, a keyboard, a plate - or {@code null}. */
+    public static BlockPos heldBlock(AbstractClientPlayer player) {
+        State state = STATES.fresh(player.getUUID());
+        if (state == null || state.pos == null || state.target == null) return null;
+        BlockState kept = player.level().getBlockState(state.pos);
+        return state.target.matches(kept) && state.target.holds(player, player.level(), state.pos, kept) ? state.pos : null;
     }
 
     /** The targets a block is one of, in {@link #TARGETS}' order; found once for each block. */

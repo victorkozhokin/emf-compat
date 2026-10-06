@@ -85,15 +85,22 @@ public class GestureInteractionMixin {
         if (!cir.getReturnValue().consumesAction() || !(player instanceof AbstractClientPlayer client)) return;
         ItemStack used = emfcompat$used;
         boolean main = hand == InteractionHand.MAIN_HAND;
-        if (used.is(Items.SHEARS) && target instanceof Shearable) AnimalCare.done(client, target, AnimalCare.SHEAR, main);
-        else if (used.is(Items.BUCKET) && (target instanceof Cow || target instanceof Goat)) AnimalCare.done(client, target, AnimalCare.MILK, main);
-        else if (target instanceof Animal animal && !used.isEmpty() && animal.isFood(used)) AnimalCare.done(client, target, AnimalCare.FEED, main);
+        int kind = used.is(Items.SHEARS) && target instanceof Shearable ? AnimalCare.SHEAR
+                : used.is(Items.BUCKET) && (target instanceof Cow || target instanceof Goat) ? AnimalCare.MILK
+                : target instanceof Animal animal && !used.isEmpty() && animal.isFood(used) ? AnimalCare.FEED : -1;
+        if (kind < 0) return;
+        AnimalCare.done(client, target, kind, main);
+        // The kinds are the packet's own numbers: FEED, MILK, SHEAR.
+        strm.emfcompat.animationadditions.net.ClientHands.act(kind, target, null, main);
     }
 
     @Inject(method = "interactAt", at = @At("RETURN"))
     private void emfcompat$dressed(Player player, Entity target, EntityHitResult ray, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
         if (cir.getReturnValue().consumesAction() && target instanceof ArmorStand && player instanceof AbstractClientPlayer client)
+        {
             HandTo.done(client, HandTo.STAND, ray.getLocation(), hand == InteractionHand.MAIN_HAND);
+            strm.emfcompat.animationadditions.net.ClientHands.act(strm.emfcompat.animationadditions.net.HandsAct.STAND, target, ray.getLocation(), hand == InteractionHand.MAIN_HAND);
+        }
     }
 
     @Inject(method = "useItemOn", at = @At("HEAD"))
@@ -105,6 +112,9 @@ public class GestureInteractionMixin {
     private void emfcompat$planted(LocalPlayer player, InteractionHand hand, BlockHitResult result, CallbackInfoReturnable<InteractionResult> cir) {
         if (!cir.getReturnValue().consumesAction() || !(emfcompat$used.getItem() instanceof BlockItem seed)) return;
         if (HandTo.plants(seed))
+        {
             HandTo.done(player, HandTo.SEED, result.getLocation(), hand == InteractionHand.MAIN_HAND);
+            strm.emfcompat.animationadditions.net.ClientHands.act(strm.emfcompat.animationadditions.net.HandsAct.SEED, null, result.getLocation(), hand == InteractionHand.MAIN_HAND);
+        }
     }
 }

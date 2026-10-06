@@ -329,7 +329,7 @@ public final class ButtonPress implements InteractionProvider {
     /** Levers require a direct block hit; ordinary buttons retain their existing look cone. */
     private static BlockPos look(AbstractClientPlayer player, IKFrame frame, State state) {
         Vec3 eye = player.getEyePosition();
-        var hit = player == Minecraft.getInstance().player ? Minecraft.getInstance().hitResult : player.pick(3, 1, false);
+        var hit = strm.emfcompat.animationadditions.net.Inputs.sight(player, 3, 1);
         Vec3 view = player.getViewVector(1f);
         Vec3 chest = player.position().add(0, CHEST, 0);
         double yaw = Math.toRadians(player.yBodyRot);

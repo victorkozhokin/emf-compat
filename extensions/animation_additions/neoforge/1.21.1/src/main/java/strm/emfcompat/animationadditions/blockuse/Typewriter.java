@@ -27,7 +27,7 @@ import java.util.List;
  * dealt out by a random number seeded with the key's code. The keys held ({@code getPressedKeys},
  * key codes) and who types ({@code currentUser}) are every client's to see.</p>
  */
-final class Typewriter implements BlockTarget {
+public final class Typewriter implements BlockTarget {
 
     private static final String BLOCK = "dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterBlock";
     private static final String HANDLER = "dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterInteractionHandler";
@@ -99,6 +99,11 @@ final class Typewriter implements BlockTarget {
         if (pressed == 13) at[0] = right ? 4 : 12;
         return Spots.turned(pos, facing.getOpposite(), at[0], at[1] - PRESSED, at[2]);
     }
+    /** The key the player holds down, 0..{@link #KEYS}-1, or -1: our own from the screen, another's as their game says. */
+    public static int pressedKey(AbstractClientPlayer player) {
+        return player == Minecraft.getInstance().player ? pressedKey() : strm.emfcompat.animationadditions.net.Inputs.typedKey(player);
+    }
+
     static int pressedKey() {
         Object held = ownHeld();
         int result = -1;
@@ -111,8 +116,8 @@ final class Typewriter implements BlockTarget {
     private static java.lang.reflect.Method activeMode;
     private static boolean activeAbsent;
 
-    static BlockPos activePosition(AbstractClientPlayer player) {
-        if (player != Minecraft.getInstance().player) return null;
+    public static BlockPos activePosition(AbstractClientPlayer player) {
+        if (player != Minecraft.getInstance().player) return strm.emfcompat.animationadditions.net.Inputs.typing(player);
         try {
             // Asked every frame of our own player: the class and the method are found once.
             if (activeAbsent) return null;

@@ -1,0 +1,1569 @@
+[
+ {
+  "cmd": "gamemode creative"
+ },
+ {
+  "cmd": "time set noon"
+ },
+ {
+  "config": {
+   "debug.decisions": true,
+   "lookat.enabled": false
+  }
+ },
+ {
+  "hideGui": true
+ },
+ {
+  "camera": "first"
+ },
+ {
+  "cmd": "tp @s 2069.5 151 2125.5 150 5"
+ },
+ {
+  "wait": 30
+ },
+ {
+  "bot": {
+   "spawn": "Bob",
+   "at": [
+    2066.5,
+    151,
+    2122.4
+   ],
+   "look": [
+    0,
+    0
+   ]
+  }
+ },
+ {
+  "wait": 30
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {}
+  }
+ },
+ {
+  "wait": 40
+ },
+ {
+  "log": "sync crank told"
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "use": true,
+    "block": [
+     2066,
+     151,
+     2121
+    ],
+    "face": "south",
+    "hit": [
+     2066.5,
+     151.5,
+     2121.9
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-told-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-told-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "use": true,
+    "block": [
+     2066,
+     151,
+     2121
+    ],
+    "face": "south",
+    "hit": [
+     2066.5,
+     151.5,
+     2121.9
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-told-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-told-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "use": true,
+    "block": [
+     2066,
+     151,
+     2121
+    ],
+    "face": "south",
+    "hit": [
+     2066.5,
+     151.5,
+     2121.9
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-told-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-told-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "use": true,
+    "block": [
+     2066,
+     151,
+     2121
+    ],
+    "face": "south",
+    "hit": [
+     2066.5,
+     151.5,
+     2121.9
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-told-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-told-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "use": true,
+    "block": [
+     2066,
+     151,
+     2121
+    ],
+    "face": "south",
+    "hit": [
+     2066.5,
+     151.5,
+     2121.9
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-told-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-told-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {}
+  }
+ },
+ {
+  "wait": 40
+ },
+ {
+  "log": "sync crank untold"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-untold-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-untold-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-untold-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-untold-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-untold-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-untold-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-untold-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-untold-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-untold-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-crank-untold-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "cmd": "tp @s 450.5 150 11.5 180 5"
+ },
+ {
+  "wait": 20
+ },
+ {
+  "cmd": "fill 446 150 5 454 153 9 air"
+ },
+ {
+  "cmd": "fill 446 149 5 454 149 9 smooth_stone"
+ },
+ {
+  "cmd": "setblock 452 151 7 stone"
+ },
+ {
+  "cmd": "setblock 452 150 7 stone"
+ },
+ {
+  "cmd": "setblock 449 149 7 farmland[moisture=7]"
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "at": [
+    450.5,
+    150,
+    7.5
+   ],
+   "look": [
+    -90,
+    0
+   ],
+   "item": "minecraft:iron_pickaxe"
+  }
+ },
+ {
+  "wait": 30
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {}
+  }
+ },
+ {
+  "wait": 40
+ },
+ {
+  "log": "sync mine told"
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "attack": true,
+    "block": [
+     452,
+     151,
+     7
+    ],
+    "face": "west",
+    "hit": [
+     452.0,
+     151.5,
+     7.5
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-told-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-told-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "attack": true,
+    "block": [
+     452,
+     151,
+     7
+    ],
+    "face": "west",
+    "hit": [
+     452.0,
+     151.5,
+     7.5
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-told-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-told-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "attack": true,
+    "block": [
+     452,
+     151,
+     7
+    ],
+    "face": "west",
+    "hit": [
+     452.0,
+     151.5,
+     7.5
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-told-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-told-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "attack": true,
+    "block": [
+     452,
+     151,
+     7
+    ],
+    "face": "west",
+    "hit": [
+     452.0,
+     151.5,
+     7.5
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-told-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-told-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "attack": true,
+    "block": [
+     452,
+     151,
+     7
+    ],
+    "face": "west",
+    "hit": [
+     452.0,
+     151.5,
+     7.5
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-told-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-told-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {}
+  }
+ },
+ {
+  "wait": 40
+ },
+ {
+  "log": "sync mine untold"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-untold-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-untold-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-untold-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-untold-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-untold-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-untold-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-untold-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-untold-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-untold-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-mine-untold-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "at": [
+    450.5,
+    150,
+    7.5
+   ],
+   "look": [
+    90,
+    60
+   ],
+   "item": "minecraft:wheat_seeds"
+  }
+ },
+ {
+  "wait": 20
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {}
+  }
+ },
+ {
+  "wait": 40
+ },
+ {
+  "log": "sync seed told"
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "block": [
+     449,
+     149,
+     7
+    ],
+    "face": "up",
+    "hit": [
+     449.5,
+     149.94,
+     7.5
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-told-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-told-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "block": [
+     449,
+     149,
+     7
+    ],
+    "face": "up",
+    "hit": [
+     449.5,
+     149.94,
+     7.5
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-told-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-told-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "block": [
+     449,
+     149,
+     7
+    ],
+    "face": "up",
+    "hit": [
+     449.5,
+     149.94,
+     7.5
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-told-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "act": {
+    "kind": 4,
+    "at": [
+     449.5,
+     149.94,
+     7.5
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-told-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "block": [
+     449,
+     149,
+     7
+    ],
+    "face": "up",
+    "hit": [
+     449.5,
+     149.94,
+     7.5
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-told-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-told-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {
+    "block": [
+     449,
+     149,
+     7
+    ],
+    "face": "up",
+    "hit": [
+     449.5,
+     149.94,
+     7.5
+    ]
+   }
+  }
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-told-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-told-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "hands": {}
+  }
+ },
+ {
+  "wait": 40
+ },
+ {
+  "log": "sync seed untold"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-untold-00"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-untold-01"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-untold-02"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-untold-03"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-untold-04"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-untold-05"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-untold-06"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-untold-07"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-untold-08"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "screenshot": "sync-seed-untold-09"
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "wait": 1
+ },
+ {
+  "bot": {
+   "name": "Bob",
+   "remove": true
+  }
+ },
+ {
+  "cmd": "fill 446 150 5 454 153 9 air"
+ },
+ {
+  "cmd": "fill 446 149 5 454 149 9 smooth_stone"
+ },
+ {
+  "hideGui": false
+ },
+ {
+  "camera": "back"
+ },
+ {
+  "cmd": "gamemode survival"
+ },
+ {
+  "cmd": "tp @s 450.5 150 7.5 -90 0"
+ }
+]

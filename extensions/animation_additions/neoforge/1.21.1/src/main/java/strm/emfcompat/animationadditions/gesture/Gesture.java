@@ -419,7 +419,8 @@ public abstract class Gesture implements InteractionProvider {
                 play.swingBegan = player.swinging && (!play.swinging || player.swingTime < play.swingTime);
                 play.swinging = player.swinging;
                 play.swingTime = player.swingTime;
-                if (isEnabled()) remote(context, play);
+                // Told of the click itself (see ClientHands), there is nothing to guess from the swing.
+                if (isEnabled() && !strm.emfcompat.animationadditions.net.Inputs.told(player)) remote(context, play);
             }
             if (play.poised && on(KEY_POISE)) {
                 busyAt = now;

@@ -248,6 +248,10 @@ public final class Mining implements InteractionProvider {
             return mc.gameMode != null && mc.gameMode.isDestroying()
                     && mc.hitResult instanceof BlockHitResult hit ? hit.getBlockPos() : null;
         }
+        // Their own game says it outright; the crack list is the guess for a server that passes nothing on.
+        if (strm.emfcompat.animationadditions.net.Inputs.told(player))
+            return strm.emfcompat.animationadditions.net.Inputs.attackHeld(player) && strm.emfcompat.animationadditions.net.Inputs.sight(player, 6, 1f) instanceof BlockHitResult told
+                    && told.getType() == HitResult.Type.BLOCK ? told.getBlockPos() : null;
         if ((now - state.swungAt) / 1e9 > SWING_GAP) return null;
         var blocks = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).emfcompat$destroyingBlocks();
         BlockDestructionProgress progress = blocks.get(player.getId());
@@ -261,7 +265,7 @@ public final class Mining implements InteractionProvider {
         HitResult hit = player == mc.player && mc.hitResult instanceof BlockHitResult own
                 && SubLevels.toWorld(player.level(), own.getBlockPos(), own.getLocation())
                         .distanceTo(player.getEyePosition(partial)) <= range + 1e-3
-                ? mc.hitResult : player.pick(range, partial, false);
+                ? mc.hitResult : strm.emfcompat.animationadditions.net.Inputs.sight(player, range, partial);
         return hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK ? block.getBlockPos() : null;
     }
 

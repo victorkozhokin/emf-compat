@@ -78,6 +78,12 @@ Everything below is optional — the matching animations turn on when the mod is
 | **[Supplementaries](https://www.curseforge.com/minecraft/mc-mods/supplementaries)** | Crank, bellows, faucet, globe, jars, shelves and other blocks used by hand |
 | **[Curios](https://www.curseforge.com/minecraft/mc-mods/curios)** | Putting on accessories |
 
+## Multiplayer
+
+Works on the client alone, on any server: what other players do is then guessed from where they look and how they swing.
+
+Put the same jar on a **NeoForge server** too and nothing is guessed — each player's game tells the others what its hands are at, so a crank turned, a wheel held, a key typed or an animal fed looks to others as it does to you. The server only passes this on; it changes nothing in the world. Players without the addon can still join.
+
 ## Loaders
 
 - **NeoForge 1.21.1**

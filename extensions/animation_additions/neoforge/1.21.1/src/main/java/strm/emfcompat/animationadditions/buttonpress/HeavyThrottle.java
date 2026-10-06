@@ -50,7 +50,7 @@ public final class HeavyThrottle implements InteractionProvider {
         s.helper = false;
         s.player = player;
         s.frame = context.frame();
-        BlockPos pos = player == Minecraft.getInstance().player ? ThrottleLever.heldPosition() : null;
+        BlockPos pos = player == Minecraft.getInstance().player ? ThrottleLever.heldPosition() : strm.emfcompat.animationadditions.net.Inputs.throttle(player);
         boolean eligible = pos != null && player.onGround() && !Seated.seated(player) && !player.isPassenger()
             && !player.isUsingItem() && !player.isSleeping() && !player.isInWaterOrBubble()
             && !player.isFallFlying() && player.getDeltaMovement().horizontalDistanceSqr() < .0025;

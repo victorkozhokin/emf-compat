@@ -108,8 +108,7 @@ public final class CockpitControls implements InteractionProvider {
                 state.contactAt = 0;
                 state.transport = new strm.emfcompat.animationadditions.transport.TransportMotion();
             }
-            BlockHitResult hit = player == Minecraft.getInstance().player && Minecraft.getInstance().hitResult instanceof BlockHitResult b
-                    ? b : player.pick(3, 1, false) instanceof BlockHitResult b ? b : null;
+            BlockHitResult hit = strm.emfcompat.animationadditions.net.Inputs.sight(player, 3, 1) instanceof BlockHitResult b ? b : null;
             if (hit != null && WHEEL.matches(player.level().getBlockState(hit.getBlockPos()))
                     && !hit.getBlockPos().equals(state.wheel)) {
                 state.wheel = hit.getBlockPos().immutable();
@@ -132,7 +131,7 @@ public final class CockpitControls implements InteractionProvider {
                 context.decide("off:wheel-range");
                 return;
             }
-            BlockPos requested = player == Minecraft.getInstance().player ? ThrottleLever.heldPosition() : null;
+            BlockPos requested = player == Minecraft.getInstance().player ? ThrottleLever.heldPosition() : strm.emfcompat.animationadditions.net.Inputs.throttle(player);
             state.held = requested != null;
             boolean typing = false;
             if (requested == null) {
@@ -142,7 +141,7 @@ public final class CockpitControls implements InteractionProvider {
             }
             if (requested == null && hit != null && ThrottleLever.is(player.level().getBlockState(hit.getBlockPos())))
                 requested = hit.getBlockPos();
-            state.keys.advance(typing ? Typewriter.pressedKey() : -1, context.dt());
+            state.keys.advance(typing ? Typewriter.pressedKey(player) : -1, context.dt());
             Vec3 knob = requested == null ? null : typing
                     ? Typewriter.cockpitSpot(requested, player.level().getBlockState(requested), -1, true).point()
                     : ThrottleLever.knob(player.level(), requested);

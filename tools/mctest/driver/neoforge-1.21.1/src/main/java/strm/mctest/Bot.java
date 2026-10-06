@@ -164,6 +164,8 @@ public final class Bot {
                 bot.containerMenu.broadcastChanges();
                 out.addProperty("menu", bot.containerMenu.getClass().getSimpleName());
             }
+            if (v.has("hands")) hands(bot, v.getAsJsonObject("hands"), out);
+            if (v.has("act")) act(bot, v.getAsJsonObject("act"), out);
             if (v.has("close")) bot.closeContainer();
             if (v.has("swing")) bot.swing(InteractionHand.MAIN_HAND, true);
             if (v.has("remove")) {
@@ -246,6 +248,60 @@ public final class Bot {
 
     public static boolean isBot(Connection connection) {
         return connection instanceof BotConnection;
+    }
+
+    /**
+     * What a real second player's game would tell the server of their hands, said for the bot: the
+     * server passes it on to our client by the addon's own channel, so the packet, its reading and
+     * everything after are the real ones. {"use": true, "attack": false, "block": [x, y, z],
+     * "face": "up", "hit": [x, y, z], "hold": true, "entity": id, "menu": 1, "actions": 3}; {} clears.
+     */
+    private static void hands(ServerPlayer bot, JsonObject h, JsonObject out) {
+        try {
+            String net = "strm.emfcompat.animationadditions.net.";
+            int flags = 0, face = 1, entity = -1;
+            BlockPos block = null;
+            double x = 0, y = 0, z = 0;
+            if (h.has("use") && h.get("use").getAsBoolean()) flags |= 1;
+            if (h.has("attack") && h.get("attack").getAsBoolean()) flags |= 2;
+            if (h.has("block")) {
+                JsonArray b = h.getAsJsonArray("block");
+                block = new BlockPos(b.get(0).getAsInt(), b.get(1).getAsInt(), b.get(2).getAsInt());
+                flags |= 4;
+                if (h.has("face")) face = Direction.byName(h.get("face").getAsString()).get3DDataValue();
+                Vec3 hit = h.has("hit") ? vec(h.getAsJsonArray("hit")) : Vec3.atCenterOf(block);
+                x = hit.x;
+                y = hit.y;
+                z = hit.z;
+                if (h.has("hold") && h.get("hold").getAsBoolean()) flags |= 16;
+            } else if (h.has("entity")) {
+                entity = h.get("entity").getAsInt();
+                flags |= 8;
+            }
+            Class<?> type = Class.forName(net + "HandsState");
+            Object state = type.getDeclaredConstructors()[0].newInstance(bot.getId(), flags, block, face, x, y, z, entity, null, null, -1,
+                    h.has("menu") ? h.get("menu").getAsInt() : 0, h.has("actions") ? h.get("actions").getAsInt() : 0);
+            Class.forName(net + "HandsNet").getMethod("relay", ServerPlayer.class, net.minecraft.network.protocol.common.custom.CustomPacketPayload.class)
+                    .invoke(null, bot, state);
+            out.addProperty("hands", flags);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("bot hands: " + e, e);
+        }
+    }
+
+    /** The same for one accepted click: {"kind": 0 feed / 1 milk / 2 shear / 3 stand / 4 seed, "entity": id, "at": [x, y, z]}. */
+    private static void act(ServerPlayer bot, JsonObject a, JsonObject out) {
+        try {
+            String net = "strm.emfcompat.animationadditions.net.";
+            Vec3 at = a.has("at") ? vec(a.getAsJsonArray("at")) : Vec3.ZERO;
+            Object act = Class.forName(net + "HandsAct").getDeclaredConstructors()[0].newInstance(bot.getId(), a.get("kind").getAsInt(),
+                    a.has("entity") ? a.get("entity").getAsInt() : -1, at.x, at.y, at.z, true);
+            Class.forName(net + "HandsNet").getMethod("relay", ServerPlayer.class, net.minecraft.network.protocol.common.custom.CustomPacketPayload.class)
+                    .invoke(null, bot, act);
+            out.addProperty("act", a.get("kind").getAsInt());
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("bot act: " + e, e);
+        }
     }
 
     private static Vec3 vec(JsonArray a) {

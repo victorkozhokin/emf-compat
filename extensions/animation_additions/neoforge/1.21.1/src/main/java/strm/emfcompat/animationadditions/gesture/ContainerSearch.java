@@ -38,6 +38,8 @@ public final class ContainerSearch extends Gesture {
         BlockPos pos;
         boolean open;
         long lookedAt, actedAt;
+        /** For another player: how many slot actions their game had counted when last looked. */
+        int heardActions = -1;
         java.util.List<net.minecraft.world.item.ItemStack> contents;
     }
 
@@ -85,6 +87,13 @@ public final class ContainerSearch extends Gesture {
             if (open.contents != null && (open.contents.size() != current.size() || changed(open.contents, current))) open.actedAt = now;
             open.contents = current;
         }
+        int heard = strm.emfcompat.animationadditions.net.Inputs.menuActions(player);
+        if (heard >= 0) {
+            if (open.heardActions >= 0 && heard != open.heardActions) open.actedAt = now;
+            open.heardActions = heard;
+        } else {
+            open.heardActions = -1;
+        }
         if (!play.playing && !play.pending && isEnabled()) {
             Play started = trigger(player, 0, Vec3.atCenterOf(pos));
             started.right = player.getMainArm() == HumanoidArm.RIGHT;
@@ -93,7 +102,7 @@ public final class ContainerSearch extends Gesture {
 
     private static BlockPos looked(AbstractClientPlayer player) {
         Minecraft mc = Minecraft.getInstance();
-        HitResult hit = player == mc.player ? mc.hitResult : player.pick(REACH, 1f, false);
+        HitResult hit = strm.emfcompat.animationadditions.net.Inputs.sight(player, REACH, 1f);
         return hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK ? block.getBlockPos() : null;
     }
 
@@ -142,7 +151,7 @@ public final class ContainerSearch extends Gesture {
         Vec3 along = new Vec3(-side.z, 0, side.x);
         boolean right = play.right;
         // In it: round and round, and a dip every second or so as something is taken hold of.
-        boolean local = play.player == Minecraft.getInstance().player && on(KEY_SLOTS);
+        boolean local = (play.player == Minecraft.getInstance().player || strm.emfcompat.animationadditions.net.Inputs.menuActions(play.player) >= 0) && on(KEY_SLOTS);
         float elapsed = open.actedAt == 0 ? 10f : (System.nanoTime() - open.actedAt) * 1e-9f;
         float activity = local ? bell(elapsed, .12f, .65f, 1.15f) : .35f;
         double turn = (local ? Math.min(elapsed, 1.15f) : play.held) * 2.3, beat = (play.held % 1.25f) / 1.25f;

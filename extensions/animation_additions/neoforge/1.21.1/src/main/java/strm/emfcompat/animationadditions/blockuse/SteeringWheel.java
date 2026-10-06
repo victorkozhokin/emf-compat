@@ -94,7 +94,9 @@ final class SteeringWheel implements BlockTarget {
     }
 
     public boolean holds(AbstractClientPlayer player, Level level, BlockPos pos, BlockState block) {
-        if (holdFailed || player != Minecraft.getInstance().player) return false;
+        // Another player's hold is their own game's to say.
+        if (player != Minecraft.getInstance().player) return strm.emfcompat.animationadditions.net.Inputs.holds(player, pos);
+        if (holdFailed) return false;
         try {
             if (handler == null) {
                 handler = Class.forName("dev.simulated_team.simulated.index.SimClickInteractions")

@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > **Experimental:** version 0.1.0, not published yet. Things here are tried out, looked at in game and may still change or go.
 
-A client-side mod that adds animations of its own on top of an **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player model: feet that stand on the ground they are on, hands that go to the thing you use, and a body that takes part in what the hands do.
+A mod, client-side with an optional server part, that adds animations of its own on top of an **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player model: feet that stand on the ground they are on, hands that go to the thing you use, and a body that takes part in what the hands do.
 
 Made for and tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**. The pack keeps its own walk, idle motion and expressions; this addon only adds to them. Other player animation packs may give different results.
 
@@ -105,6 +105,14 @@ Everything below is optional — the matching animations turn on when the mod is
 | **[ParCool](https://modrinth.com/mod/parcool)** | Nothing of its own: the addon stands down in ParCool's hanging, climbing, vaulting, rolling and diving moves, and goes on working in a fast run. |
 
 Contacts follow a moving Sable sub-level, so they hold on a ship under way. Interactions on Create contraptions are not covered, apart from driving controls.
+
+## Multiplayer
+
+The addon works on the client alone, on any server: what other players do is then guessed from what the game shows of them — where they look, the swing of an arm, the block that changed.
+
+Put the same jar on a **NeoForge server** as well and nothing is guessed. Each player's game tells the server what its hands are at — the buttons held, the block or the creature under the crosshair (a ship's blocks included), the control held on to, the key typed, the click the game accepted — and the server passes it on to the players nearby. Turning a crank, holding a wheel or a throttle, typing, mining, feeding an animal then look to others as they do to you.
+
+The server does nothing else with it: no world or gameplay change, nothing stored. Players without the addon can join such a server, and players with it can join servers without it.
 
 ## Config
 

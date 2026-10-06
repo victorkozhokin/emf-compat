@@ -31,6 +31,8 @@ final class Sight {
     static HitResult of(AbstractClientPlayer player, long now) {
         Minecraft mc = Minecraft.getInstance();
         if (player == mc.player) return mc.hitResult;
+        // Their own game's word, when the server passes it on, is better than any ray of ours.
+        if (strm.emfcompat.animationadditions.net.Inputs.told(player)) return strm.emfcompat.animationadditions.net.Inputs.sight(player, 4.5, 1f);
         Seen seen = SEEN.get(player);
         if (seen != null && now - seen.at < EVERY_NANOS) return seen.hit;
         Vec3 eye = player.getEyePosition(), look = player.getViewVector(1f);
