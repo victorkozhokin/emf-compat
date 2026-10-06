@@ -16,7 +16,9 @@ ANIMAL = '{NoAI:1b,Tags:["gesture_test"]}'
 
 # name: (set-up commands, what is in the hand, the look's pitch, what to do, ticks the gesture lasts)
 CASES = {
-    "feed": (["summon cow 452.3 150 7.5 " + ANIMAL], "wheat", 12, "use", 50),
+    "feed": (["summon cow 452.3 150 7.5 " + ANIMAL], "wheat", 12, "use", 62),
+    # Fed, then the back turned on it and off: the hands come back to the body, not twisted round to the cow.
+    "leave": (["summon cow 452.3 150 7.5 " + ANIMAL], "wheat", 12, "leave", 50),
     "milk": (["summon cow 452.3 150 7.5 " + ANIMAL], "bucket", 12, "use", 56),
     "shear": (["summon sheep 452.3 150 7.5 " + ANIMAL], "shears", 18, "use", 40),
     "stand": (['summon armor_stand 452.0 150 7.5 {Tags:["gesture_test"],Rotation:[90f]}'], "iron_chestplate", 8, "use", 30),
@@ -24,13 +26,13 @@ CASES = {
     "armour": ([], None, 0, "armour", 150),
     "boots": ([], None, 0, "boots", 50),
     "chest": (["setblock 452 150 7 chest[facing=west]"], None, 30, "chest", 110),
-    "shake": (["fill 446 150 6 447 151 8 water"], None, 0, "shake", 40),
+    "shake": (["fill 446 150 6 447 151 8 water"], None, 0, "shake", 76),
 }
 
 
 def run(name, view, yaw, first):
     setup, item, pitch, act, ticks = CASES[name]
-    distance = 1.3 if view == "front" and name in ("feed", "milk", "shear", "stand", "chest") else 3.5
+    distance = 1.3 if view == "front" and name in ("feed", "leave", "milk", "shear", "stand", "chest") else 3.5
     s = CLEAR + [{"cmd": c} for c in setup]
     s += [{"cmd": "tp @s %s %s %s -90 %d" % (X, Y, Z, pitch)}]
     if item:
@@ -47,10 +49,12 @@ def run(name, view, yaw, first):
     elif act == "chest":
         s += [{"hideScreen": True}, {"click": "use"}]
     # With the thing in hand and the target under the crosshair the hand is poised first; the click comes a second in.
-    poise = 20 if act == "use" else 0
+    poise = 20 if act in ("use", "leave") else 0
     for i in range(ticks + poise):
         s += [{"wait": 1}]
-        if act == "use" and i == poise:
+        if act == "leave" and i == poise + 12:
+            s += [{"cameraLook": [90, 0]}, {"hold": "forward"}]
+        if act in ("use", "leave") and i == poise:
             s += [{"log": "gesture %s/%s click" % (name, view)}, {"click": "use"}]
         if first:
             s += [{"model": "player"}]
@@ -58,7 +62,7 @@ def run(name, view, yaw, first):
             s += [{"screenshot": "gesture-%s-%s-%02d" % (name, view, i // 2)}]
         if act == "chest" and i == 70:
             s += [{"closeScreen": True}]
-    return s + [{"closeScreen": True}, {"wait": 12}]
+    return s + [{"closeScreen": True}, {"releaseAll": True}, {"wait": 12}]
 
 
 only = [c for c in os.environ.get("GESTURES", "").split(",") if c]

@@ -13,14 +13,17 @@ import net.minecraft.world.level.block.Blocks;
 import strm.emfcompat.animationadditions.interaction.InteractionContext;
 
 /**
- * Out of water, powder snow or mud after a while in it, and on firm ground again: one short shake
- * of the arms and the body. Once for a stay, not at every step across the edge.
+ * Out of water, powder snow or mud after a while in it, and on firm ground again: one shake of the
+ * arms and the body, and as it runs down a hand brushes the thigh off. Once for a stay, not at
+ * every step across the edge.
  */
 public final class ShakeOff extends Gesture {
     public static final ShakeOff INSTANCE = new ShakeOff();
     public static final String KEY_ENABLED = "shakeoff.enabled";
     /** In it for this long to be worth shaking off, and out of it for this long before doing so, seconds. */
     private static final float SOAKED = 1.5f, OUT = .6f;
+    /** The whole of it; the shake takes the first of these, the brushing starts before it is over. */
+    private static final float SECONDS = 3f, SHAKE = 1.55f, BRUSH_AT = 1.25f, BRUSH = 1.6f;
 
     public String id() {
         return "ShakeOff";
@@ -65,22 +68,31 @@ public final class ShakeOff extends Gesture {
     }
 
     protected double seconds(Play play) {
-        return 1.7;
+        return SECONDS;
     }
 
     protected void pose(Play play, float phase, Pose out) {
         // A shake starts hard and runs down: quick at first and slowing, each one less than the last;
-        // it goes through the body from the hands in - the arms, then the torso, then the head a beat behind.
-        float in = swell(phase, .14f, .5f, .95f);
-        double turn = Math.PI * 2 * (5.2 * phase - 1.6 * phase * phase);
-        float arms = (float) Math.sin(turn) * in, body = (float) Math.sin(turn - .7) * in, head = (float) Math.sin(turn - 1.5) * in;
-        float flick = (float) Math.sin(turn * 2) * in;
-        out.right = new float[]{(-.3f + .24f * arms) * in, 0, (.4f + .1f * flick) * in, -.5f * Math.abs(arms)};
-        out.left = new float[]{(-.3f - .24f * arms) * in, 0, -(.4f - .1f * flick) * in, -.5f * Math.abs(arms)};
-        out.yaw = .15f * body;
-        out.roll = .05f * (float) Math.cos(turn - .7) * in;
-        out.pitch = .05f * in;
-        out.head = new float[]{.07f * in, .2f * head};
-        out.letGo = .93f;
+        // it goes through the body as a wave - the arms, their spread a beat behind, the torso, the head last.
+        float t = phase * SECONDS, s = t / SHAKE;
+        float in = swell(s, .16f, .4f, 1f);
+        double turn = Math.PI * 2 * (4.7 * s - 1.5 * s * s);
+        float arms = (float) Math.sin(turn) * in, wave = (float) Math.sin(turn - 1.1) * in;
+        float body = (float) Math.sin(turn - .7) * in, head = (float) Math.sin(turn - 1.5) * in;
+        // Then the right hand brushes the thigh off: twice down along it pressing, forward again
+        // lifted clear, the body bent over it and the eyes on it.
+        float b = (t - BRUSH_AT) / BRUSH;
+        float over = smooth(b / .22f) * (1 - smooth((b - .72f) / .28f));
+        double pass = Math.PI * 2 * 2 * Math.max(0, Math.min(1, (b - .2f) / .5f));
+        float down = (float) (.5 - .5 * Math.cos(pass)), clear = (float) Math.max(0, -Math.sin(pass));
+        clear *= clear;
+        out.right = new float[]{(-.3f + .24f * arms) * in + over * (-.5f + .8f * down), .15f * over,
+                (.4f + .1f * wave) * in + over * (.1f + .16f * clear), -.3f * in + .7f * over * (1 - clear)};
+        out.left = new float[]{(-.3f - .24f * arms) * in + .12f * over, 0, -(.4f - .1f * wave) * in - .16f * over, -.3f * in};
+        out.yaw = .15f * body + over * (.1f + .05f * (down - .5f));
+        out.roll = .05f * (float) Math.cos(turn - .7) * in + .09f * over;
+        out.pitch = .05f * in + .13f * over;
+        out.head = new float[]{.07f * in + .4f * over, .2f * head + .3f * over};
+        out.letGo = .95f;
     }
 }

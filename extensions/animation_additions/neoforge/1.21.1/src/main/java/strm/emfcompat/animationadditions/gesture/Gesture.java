@@ -152,6 +152,9 @@ public abstract class Gesture implements InteractionProvider {
         /** Where the hands are drawn to this frame: the pose's points, followed with a little give. */
         final Vector3f[] hand = {new Vector3f(), new Vector3f()}, handSpeed = {new Vector3f(), new Vector3f()};
         final boolean[] handSet = new boolean[2];
+        /** The hands' points and the eyes' as last asked for at work, model pixels: what they come back from. */
+        final Vector3f[] kept = new Vector3f[3];
+        boolean keeps;
     }
 
     private final EntityStates<Play> states = new EntityStates<>(Play::new);
@@ -184,6 +187,12 @@ public abstract class Gesture implements InteractionProvider {
     /** Once it has acted: whether the player has gone from what the gesture is done to, which calls it off. */
     protected boolean lost(Play play) {
         return false;
+    }
+
+    /** Whether a point in the world is out to a side of the body or behind it: too far round for a hand at it. */
+    protected static boolean turnedFrom(Play play, Vec3 point) {
+        Vector3f at = model(play, point);
+        return Math.atan2(Math.abs(at.x), -at.z) > Math.toRadians(62);
     }
 
     /** How far out the hands wait, 0..1, and how long the work takes once the act has come, seconds. */
@@ -385,6 +394,20 @@ public abstract class Gesture implements InteractionProvider {
         pose.reset();
         pose(play, poises() ? play.work : play.phase, pose);
         float dt = (float) Math.min(.1, context.dt());
+        if (poises()) {
+            // Coming back, the hands leave from where they were by the body - not from the thing they
+            // were at, which a player who has turned away from it has behind them by now.
+            if (!play.back) {
+                play.kept[0] = pose.rightAt == null ? null : new Vector3f(pose.rightAt);
+                play.kept[1] = pose.leftAt == null ? null : new Vector3f(pose.leftAt);
+                play.kept[2] = pose.look == null ? null : new Vector3f(pose.look);
+                play.keeps = true;
+            } else if (play.keeps) {
+                pose.rightAt = play.kept[0] == null ? null : new Vector3f(play.kept[0]);
+                pose.leftAt = play.kept[1] == null ? null : new Vector3f(play.kept[1]);
+                pose.look = play.kept[2] == null ? null : new Vector3f(play.kept[2]);
+            }
+        }
         pose.rightAt = follow(play, 0, pose.rightAt, pose.rightReach, dt);
         pose.leftAt = follow(play, 1, pose.leftAt, pose.leftReach, dt);
         if (pose.look != null) {
@@ -475,7 +498,7 @@ public abstract class Gesture implements InteractionProvider {
         }
         play.level = Math.max(0, Math.min(1.1f, play.level));
         if (play.back && play.level < .015f && Math.abs(play.speed) < .25f) {
-            play.playing = play.acted = play.back = false;
+            play.playing = play.acted = play.back = play.keeps = false;
             play.level = play.speed = play.work = 0;
         }
     }

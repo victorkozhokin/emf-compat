@@ -50,6 +50,7 @@ public final class AnimalCare extends Gesture {
         if (play.kind != kind) return;
         play.entity = animal.getId();
         play.right = (player.getMainArm() == HumanoidArm.RIGHT) == mainHand;
+        play.notes = new float[]{animal.distanceTo(player)};
     }
 
     protected boolean poises() {
@@ -76,10 +77,13 @@ public final class AnimalCare extends Gesture {
         return false;
     }
 
-    /** Gone further from the animal than a hand's reach and a step. */
+    /** A step further from the animal than when it was done, or turned away from it. */
     protected boolean lost(Play play) {
         Entity animal = play.player.level().getEntity(play.entity);
-        return animal == null || !animal.isAlive() || animal.distanceTo(play.player) > 4.2f;
+        if (animal == null || !animal.isAlive()) return true;
+        float from = play.notes instanceof float[] notes ? notes[0] : 2f;
+        return animal.distanceTo(play.player) > Math.max(2.2f, from + .9f)
+                || turnedFrom(play, animal.position().add(0, animal.getBbHeight() * .5, 0));
     }
 
     /** What this in the hand would do to that animal: FEED, MILK, SHEAR, or -1 for nothing of ours. */
@@ -97,6 +101,7 @@ public final class AnimalCare extends Gesture {
         Play play = INSTANCE.play(player);
         play.entity = animal.getId();
         play.right = (player.getMainArm() == HumanoidArm.RIGHT) == mainHand;
+        play.notes = new float[]{animal.distanceTo(player)};
         return true;
     }
 
@@ -105,7 +110,7 @@ public final class AnimalCare extends Gesture {
     }
 
     protected double work(Play play) {
-        return play.kind == FEED ? 1.5 : play.kind == MILK ? 1.7 : 1.05;
+        return play.kind == FEED ? 2 : play.kind == MILK ? 1.7 : 1.05;
     }
 
     protected void pose(Play play, float work, Pose out) {
@@ -128,21 +133,29 @@ public final class AnimalCare extends Gesture {
         float toolReach = level, otherReach = level, bend;
         Vec3 watched;
         if (play.kind == FEED) {
-            // The food is held out; the animal takes it in little tugs; the giving hand comes away
-            // as the other strokes its head - back along it pressing, forward again lifted.
-            float stroke = play.acted ? smooth((work - .1f) / .2f) * (1 - smooth((work - .84f) / .16f)) : 0;
-            double pass = Math.PI * 2 * 3 * Math.max(0, work - .2f) / .64;
-            double back = .13 * Math.cos(pass) * stroke, lift = .06 * Math.max(0, Math.sin(pass)) * stroke;
-            double tug = Math.sin(Math.PI * 2 * 5 * work) * Math.exp(-4 * work) * busy;
-            tool = model(play, mouth.add(side.scale(.1 + .03 * tug)).add(0, -.04 - .03 * tug, 0));
-            other = model(play, mouth.add(0, .22 + lift, 0).add(side.scale(-.1 + back)).add(along.scale(.04 * hand)));
+            // The food is held out and taken; the giving hand comes away as the other strokes the
+            // animal: two long passes from its brow back along the neck, pressing, and forward again
+            // lifted. The body leans into each pass and out of it, slowly, and does nothing quicker.
+            float stroke = play.acted ? smooth((work - .1f) / .2f) * (1 - smooth((work - .86f) / .14f)) : 0;
+            double pass = Math.PI * 2 * 2 * Math.max(0, Math.min(1, (work - .22f) / .62f));
+            float gone = (float) (.5 - .5 * Math.cos(pass)), up = (float) Math.max(0, -Math.sin(pass));
+            Vec3 neck = at.subtract(mouth).multiply(1, 0, 1);
+            neck = neck.lengthSqr() < 1e-4 ? side.scale(-1) : neck.normalize();
+            // As long a pass as the arm has: its far end no further off than a hand held out.
+            Vec3 feet = play.player.getPosition(partial);
+            double far = mouth.add(neck.scale(.3)).subtract(feet).multiply(1, 0, 1).length();
+            double length = Math.max(.14, Math.min(.3, .3 - (far - 1.15)));
+            float taken = play.acted ? bell(work, .12f, .2f, .4f) : 0;
+            tool = model(play, mouth.add(side.scale(.1 - .03 * taken)).add(0, -.04, 0));
+            other = model(play, mouth.add(0, .2 + .09 * up * up * stroke, 0).add(neck.scale(-.04 + length * gone * stroke)).add(along.scale(.04 * hand)));
             toolReach = level * (1 - smooth((work - .42f) / .3f));
             otherReach = stroke * Math.min(1, level * 1.4f);
-            bend = Math.max(toolReach, otherReach) * ((float) Math.toRadians(9) + Reach.low(tool.y) * (float) Math.toRadians(16));
-            // The shoulder of the hand at work comes forward: the giving one first, then the stroking one.
-            out.yaw = hand * (.13f * otherReach - .09f * toolReach);
-            out.roll = -hand * .03f * (float) Math.cos(pass) * stroke;
-            watched = mouth.add(0, .1 * stroke, 0);
+            float lean = 1 - (1 - Math.min(1, toolReach)) * (1 - Math.min(1, otherReach));
+            bend = lean * ((float) Math.toRadians(9) + Reach.low(model(play, mouth).y) * (float) Math.toRadians(16))
+                    + (float) Math.toRadians(4) * gone * stroke;
+            // The shoulder of the hand at work comes forward: the giving one first, then the stroking one, going with its passes.
+            out.yaw = hand * (.13f * otherReach - .09f * toolReach + .05f * (gone - .5f) * stroke);
+            watched = mouth.add(0, .1 * stroke, 0).add(neck.scale(length * .5 * gone * stroke));
             foot(out, right, 1.2f, .8f, .2f);
         } else if (play.kind == MILK) {
             // The bucket held still under it; the other hand draws down and lets go, and the body gives with each draw.
