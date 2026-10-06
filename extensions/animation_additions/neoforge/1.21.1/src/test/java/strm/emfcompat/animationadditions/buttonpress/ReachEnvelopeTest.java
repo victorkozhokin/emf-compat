@@ -75,7 +75,7 @@ class ReachEnvelopeTest {
         var limited = ReachEnvelope.contactTurn(shoulder, new Vector3f(30, -12, -10), 11, .3f);
         assertEquals(.3f, limited.angle(), 1e-5);
         assertTrue(limited.transform(new Vector3f(shoulder)).distance(new Vector3f(30, -12, -10))
-                < shoulder.distance(new Vector3f(30, -12, -10)));
+ < shoulder.distance(new Vector3f(30, -12, -10)));
     }
     @Test void oppositeAndDegenerateContactDirectionsStayFinite() {
         assertTrue(ReachEnvelope.contactTurn(new Vector3f(0, -12, 0), new Vector3f(0, 20, 0), 11, .3f).isFinite());

@@ -54,7 +54,9 @@ final class TerrainBalance {
         // four times a second.
         if (sampledPosition == null || sampledPosition.distanceToSqr(centre) > 0.0025
                 || Math.abs(player.yBodyRot - sampledYaw) > 4 || now - sampledAt > STILL_EVERY_NANOS) {
-            sampledAt = now; sampledPosition = centre; sampledYaw = player.yBodyRot;
+            sampledAt = now;
+            sampledPosition = centre;
+            sampledYaw = player.yBodyRot;
             List<SubLevels.Space> spaces = SubLevels.around(player.level(),
                     new AABB(centre, centre).inflate(1));
             List<SupportSurface.Point> points = new ArrayList<>();
@@ -94,25 +96,30 @@ final class TerrainBalance {
                     // Stair/slab ramps: the tread normals alone are all vertical.
                     tilt = BalanceMath.surfaceSlope(heights);
                 }
-                pitchTarget = tilt[0]; rollTarget = tilt[1];
+                pitchTarget = tilt[0];
+                rollTarget = tilt[1];
             }
         }
         float k = Smoothing.snapFirst(dt, 0.12);
         narrow += (surface.narrow - narrow) * k;
-        pitch += (pitchTarget - pitch) * k; roll += (rollTarget - roll) * k;
+        pitch += (pitchTarget - pitch) * k;
+        roll += (rollTarget - roll) * k;
         // +roll leans right. Support on model +X means the body overhangs to the
         // right; include that offset even on a flat fence with upright tread normals.
-        float lean = roll + surface.lateralOffset() * narrow * (float)Math.toRadians(12) / 6;
+        float lean = roll + surface.lateralOffset() * narrow * (float) Math.toRadians(12) / 6;
         float counterTarget = BalanceMath.counterbalance(lean) * narrow;
         counterbalance += (counterTarget - counterbalance) * Smoothing.snapFirst(dt, 0.16);
         float idle = SupportSurface.clamp(1 - player.walkAnimation.speed() / 0.25f, 0, 1);
-        shift(balanced(r), -1.9f, right, dt, idle); shift(balanced(l), 1.9f, left, dt, idle);
+        shift(balanced(r), -1.9f, right, dt, idle);
+        shift(balanced(l), 1.9f, left, dt, idle);
         armsFree = !player.swinging && !player.isUsingItem()
                 && !PoseManager.hasArmPoseExcept(player.getUUID(), "");
     }
 
     void reset() {
-        surface = EMPTY; sampledPosition = null; sampledAt = 0;
+        surface = EMPTY;
+        sampledPosition = null;
+        sampledAt = 0;
         pitchTarget = rollTarget = pitch = roll = narrow = 0;
         counterbalance = 0;
         right[0] = right[1] = left[0] = left[1] = 0;
@@ -140,7 +147,8 @@ final class TerrainBalance {
     float[] pose(float[] pose, boolean r) {
         if (pose == null) return null;
         float[] copy = balanced(pose), shift = r ? right : left;
-        copy[3] += shift[0]; copy[5] += shift[1];
+        copy[3] += shift[0];
+        copy[5] += shift[1];
         return copy;
     }
 
@@ -155,7 +163,7 @@ final class TerrainBalance {
         // Phase comes from the pack's actual stance foot, not an independent sine wave.
         float side = (1 - 2 * support) * narrow;
         return new float[]{pitch, 0, roll - side * 0.045f
-                - counterbalance * (float)Math.toRadians(4), side * 0.7f};
+                - counterbalance * (float) Math.toRadians(4), side * 0.7f};
     }
 
     boolean needsSoleContact() { return raisedCollision; }
@@ -190,14 +198,16 @@ final class TerrainBalance {
         }
         BalanceMath.Leg solved = BalanceMath.leg(leg.xRot, leg.yRot, leg.zRot,
                 12 * leg.yScale, dx, dz);
-        leg.xRot = solved.pitch(); leg.yRot = solved.yaw(); leg.zRot = solved.roll();
+        leg.xRot = solved.pitch();
+        leg.yRot = solved.yaw();
+        leg.zRot = solved.roll();
         leg.y += solved.pivotY();
     }
 
     private static void arm(ModelPart arm, float side, float weight, float counter) {
         if (arm == null) return;
         // Moderate spread, well below a T pose; existing arm swing remains visible.
-        arm.zRot -= side * (0.55f + counter * (float)Math.toRadians(25)) * weight;
+        arm.zRot -= side * (0.55f + counter * (float) Math.toRadians(25)) * weight;
         arm.xRot *= 1 - 0.35f * weight;
     }
 

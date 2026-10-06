@@ -9,10 +9,12 @@ public final class ContactTarget {
     private final BlockPos block;
     private final Object kind;
     public ContactTarget(SubLevels.Space space, BlockPos block, Object kind) {
-        this.space=space;this.block=block.immutable();this.kind=kind;
+        this.space = space;
+        this.block = block.immutable();
+        this.kind = kind;
     }
     @Override public boolean equals(Object other) {
         return other instanceof ContactTarget t && space.same(t.space) && block.equals(t.block) && kind.equals(t.kind);
     }
-    @Override public int hashCode() { return 31*block.hashCode()+kind.hashCode(); }
+    @Override public int hashCode() { return 31 * block.hashCode() + kind.hashCode(); }
 }

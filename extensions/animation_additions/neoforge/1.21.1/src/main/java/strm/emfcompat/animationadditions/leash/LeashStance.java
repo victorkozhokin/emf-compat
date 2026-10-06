@@ -17,9 +17,9 @@ final class LeashStance {
     static final class State extends BraceSteps.State {
     }
 
-    static void apply(State s,AbstractClientPlayer player,IKFrame frame,Function<String,ModelPart> parts,
-                      Vector3f direction,float effort) {
-        BraceSteps.apply(s,player,frame,parts,LeashPose.foot(true,direction,effort),
-                LeashPose.foot(false,direction,effort),effort,effort*(float)Math.toRadians(5),LOGGER,"LeashStance");
+    static void apply(State s, AbstractClientPlayer player, IKFrame frame, Function<String, ModelPart> parts,
+                      Vector3f direction, float effort) {
+        BraceSteps.apply(s, player, frame, parts, LeashPose.foot(true, direction, effort),
+                LeashPose.foot(false, direction, effort), effort, effort * (float) Math.toRadians(5), LOGGER, "LeashStance");
     }
 }

@@ -104,20 +104,20 @@ public final class WallHand implements InteractionProvider {
         Contact frontLeft = leftFree ? ahead(player, frame, LEFT_SHOULDER) : null;
         if (frontRight != null || frontLeft != null) {
             Map<Effector, float[]> aims = new EnumMap<>(Effector.class);
-            if (frontRight != null) {aims.put(Effector.RIGHT_ARM, angles(frontRight)); remember(context,Effector.RIGHT_ARM,frontRight);}
-            if (frontLeft != null) {aims.put(Effector.LEFT_ARM, angles(frontLeft)); remember(context,Effector.LEFT_ARM,frontLeft);}
-            out.add(Candidate.of(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, aims).withTarget(java.util.List.of(frontRight==null?"none":frontRight.target,frontLeft==null?"none":frontLeft.target)));
+            if (frontRight != null) { aims.put(Effector.RIGHT_ARM, angles(frontRight)); remember(context, Effector.RIGHT_ARM, frontRight); }
+            if (frontLeft != null) { aims.put(Effector.LEFT_ARM, angles(frontLeft)); remember(context, Effector.LEFT_ARM, frontLeft); }
+            out.add(Candidate.of(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, aims).withTarget(java.util.List.of(frontRight == null ? "none" : frontRight.target, frontLeft == null ? "none" : frontLeft.target)));
             context.decide(aims.size() == 2 ? "front" : "front-corner");
             return;
         }
         Contact right = rightFree ? beside(player, frame, RIGHT_SHOULDER, -1f) : null;
         Contact left = leftFree ? beside(player, frame, LEFT_SHOULDER, 1f) : null;
         if (right != null && (left == null || right.aim.reach() <= left.aim.reach())) {
-            remember(context,Effector.RIGHT_ARM,right);
+            remember(context, Effector.RIGHT_ARM, right);
             out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.RIGHT_ARM, angles(right)).withTarget(right.target));
             context.decide("right");
         } else if (left != null) {
-            remember(context,Effector.LEFT_ARM,left);
+            remember(context, Effector.LEFT_ARM, left);
             out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.LEFT_ARM, angles(left)).withTarget(left.target));
             context.decide("left");
         } else {
@@ -140,10 +140,10 @@ public final class WallHand implements InteractionProvider {
 
     private record Contact(IKResult aim, Vec3 point, Vec3 normal, SubLevels.Space space, Object target) {}
     private static float[] angles(Contact result) {
-        return new float[]{result.aim.x(),result.aim.y()};
+        return new float[]{result.aim.x(), result.aim.y()};
     }
-    private static void remember(InteractionContext context,Effector hand,Contact contact) {
-        strm.emfcompat.animationadditions.interaction.HandContacts.remember(context,INSTANCE.id(),hand,contact.point,contact.space,contact.normal);
+    private static void remember(InteractionContext context, Effector hand, Contact contact) {
+        strm.emfcompat.animationadditions.interaction.HandContacts.remember(context, INSTANCE.id(), hand, contact.point, contact.space, contact.normal);
     }
 
     /**
@@ -209,10 +209,10 @@ public final class WallHand implements InteractionProvider {
         Vec3 from = palm.add(normal.scale(0.12)), to = palm.subtract(normal.scale(0.12));
         var face = WallSurface.clip(player, from, to, SubLevels.around(player.level(), new AABB(from, to).inflate(0.2)));
         if (face == null || face.normal().dot(normal) < 0.7) return null;
-        Vec3 point=face.position().add(face.normal().scale(PALM_OFF));
-        IKResult aim=aim(frame,shoulder,point);
-        return aim==null?null:new Contact(aim,point,face.normal(),face.space(),
-                new strm.emfcompat.animationadditions.interaction.ContactTarget(face.space(),face.block(),
+        Vec3 point = face.position().add(face.normal().scale(PALM_OFF));
+        IKResult aim = aim(frame, shoulder, point);
+        return aim == null ? null : new Contact(aim, point, face.normal(), face.space(),
+                new strm.emfcompat.animationadditions.interaction.ContactTarget(face.space(), face.block(),
                         player.level().getBlockState(face.block()).getBlock()));
     }
 

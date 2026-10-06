@@ -736,7 +736,7 @@ public abstract class Gesture implements InteractionProvider {
     }
 
     /** After the runtime: a hand that goes to a point goes there from the shoulder as it is drawn; the roll and the lift put back. */
-    public static void aimArms(UUID uuid, Function<String, ModelPart> parts, Map<Effector,float[]> base) {
+    public static void aimArms(UUID uuid, Function<String, ModelPart> parts, Map<Effector, float[]> base) {
         long now = System.nanoTime();
         for (Gesture gesture : ALL) {
             if (gesture.quiet(now)) continue;
@@ -750,12 +750,12 @@ public abstract class Gesture implements InteractionProvider {
         }
     }
 
-    private static Vector3f contact(Function<String,ModelPart> parts, Vector3f at, boolean onBody) {
+    private static Vector3f contact(Function<String, ModelPart> parts, Vector3f at, boolean onBody) {
         if (at == null || !onBody) return at;
-        ModelPart body=parts.apply("body"),r=parts.apply("right_leg"),l=parts.apply("left_leg");
-        if(body==null || r==null || l==null)return at;
-        return GestureMath.bodyPoint(at,new Vector3f((r.x+l.x)*.5f,(r.y+l.y)*.5f,(r.z+l.z)*.5f),
-                body.xRot,body.yRot,body.zRot);
+        ModelPart body = parts.apply("body"), r = parts.apply("right_leg"), l = parts.apply("left_leg");
+        if (body == null || r == null || l == null) return at;
+        return GestureMath.bodyPoint(at, new Vector3f((r.x + l.x) * .5f, (r.y + l.y) * .5f, (r.z + l.z) * .5f),
+                body.xRot, body.yRot, body.zRot);
     }
 
     private static void one(ModelPart arm, float[] angles, Vector3f at, float reach, float[] base, float weight) {
@@ -769,7 +769,7 @@ public abstract class Gesture implements InteractionProvider {
             // Replace the preliminary canonical-shoulder aim. Blend once from the post-torso base.
             arm.xRot = base[0] + strm.emfcompat.core.ik.IKMath.wrap(aim[0] - base[0]) * weight;
             arm.yRot = base[1] + strm.emfcompat.core.ik.IKMath.wrap(aim[1] - base[1]) * weight;
-            arm.zRot = base[2] * (1-weight);
+            arm.zRot = base[2] * (1 - weight);
         }
     }
 }

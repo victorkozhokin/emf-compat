@@ -95,7 +95,7 @@ public final class EntityStates<T> {
     }
 
     /** Drop a feature's old pose when another system takes exclusive ownership. */
-    public void forget(UUID uuid) {entries.remove(uuid);}
+    public void forget(UUID uuid) { entries.remove(uuid); }
 
     public int size() {
         return entries.size();

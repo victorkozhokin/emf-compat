@@ -34,20 +34,21 @@ public final class SubLevels {
         private final Object pose;
         private final Object sub;
 
-        private Space(Object pose,Object sub) {
-            this.pose = pose; this.sub=sub;
+        private Space(Object pose, Object sub) {
+            this.pose = pose;
+            this.sub = sub;
         }
 
         /** Stable identity and a fresh render transform for a retained contact. */
-        public boolean same(Space other) { return other!=null && sub==other.sub; }
-        public boolean valid() { return sub==null || !(boolean)call(removed,sub); }
-        public Space refresh() { return sub==null ? this : space(sub); }
+        public boolean same(Space other) { return other != null && sub == other.sub; }
+        public boolean valid() { return sub == null || !(boolean) call(removed, sub); }
+        public Space refresh() { return sub == null ? this : space(sub); }
         public Vec3 tickToWorld(Vec3 local) {
-            return sub==null ? local : (Vec3)call(toWorld,call(logicalPose,sub),local);
+            return sub == null ? local : (Vec3) call(toWorld, call(logicalPose, sub), local);
         }
 
         public Vec3 tickToLocal(Vec3 world) {
-            return sub==null ? world : (Vec3)call(toLocal,call(logicalPose,sub),world);
+            return sub == null ? world : (Vec3) call(toLocal, call(logicalPose, sub), world);
         }
 
         public boolean isWorld() {
@@ -75,7 +76,7 @@ public final class SubLevels {
         }
     }
 
-    public static final Space WORLD = new Space(null,null);
+    public static final Space WORLD = new Space(null, null);
 
     private static boolean looked, absent;
     private static Object helper;
@@ -136,8 +137,9 @@ public final class SubLevels {
                 intersecting = helper.getClass().getMethod("getAllIntersecting", Level.class, boxInterface);
                 box = boxClass.getConstructor(AABB.class);
                 renderPose = Class.forName("dev.ryanhcode.sable.sublevel.ClientSubLevel").getMethod("renderPose", float.class);
-                Class<?> subClass=Class.forName("dev.ryanhcode.sable.sublevel.SubLevel");
-                logicalPose=subClass.getMethod("logicalPose"); removed=subClass.getMethod("isRemoved");
+                Class<?> subClass = Class.forName("dev.ryanhcode.sable.sublevel.SubLevel");
+                logicalPose = subClass.getMethod("logicalPose");
+                removed = subClass.getMethod("isRemoved");
                 toWorld = pose.getMethod("transformPosition", Vec3.class);
                 toLocal = pose.getMethod("transformPositionInverse", Vec3.class);
                 normalToWorld = pose.getMethod("transformNormal", Vec3.class);

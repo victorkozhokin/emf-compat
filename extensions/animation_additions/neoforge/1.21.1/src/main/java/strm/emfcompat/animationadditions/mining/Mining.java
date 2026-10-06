@@ -206,11 +206,11 @@ public final class Mining implements InteractionProvider {
         IKFrame frame = context.frame();
         // The point, in the world, is taken again at the start of each swing and for a new block;
         // only looking and not swinging, it follows the look. It glides there, never jumps.
-        SubLevels.Space space=SubLevels.at(player.level(),pos);
+        SubLevels.Space space = SubLevels.at(player.level(), pos);
         Vec3 point = space.toLocal(point(player, pos, partial));
         if (!state.active || !space.same(state.space)) state.point = state.aimed = point;
         else if (!pos.equals(state.pos) || phase < state.phase - NEW_SWING || !breaking && phase <= 0f) state.aimed = point;
-        state.space=space;
+        state.space = space;
         state.point = state.point.lerp(state.aimed, Smoothing.follow(context.dt(), POINT_SECONDS));
         // Where it is on the model this frame: the player may walk or turn meanwhile.
         state.hit.set(frame.relativeToJoint(state.space.refresh().toWorld(state.point), new Vector3f()));
@@ -230,7 +230,7 @@ public final class Mining implements InteractionProvider {
         float[] aim = ToolSwing.solve(to, state.tool);
         out.add(Candidate.single(id(), Category.ACTIVE, PRIORITY, 1f, TIMING,
                 state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, new float[]{aim[0], aim[1]}).withTarget(
-                new strm.emfcompat.animationadditions.interaction.ContactTarget(SubLevels.at(player.level(),pos),pos,player.level().getBlockState(pos).getBlock())));
+                new strm.emfcompat.animationadditions.interaction.ContactTarget(SubLevels.at(player.level(), pos), pos, player.level().getBlockState(pos).getBlock())));
         // The swing is the strike.
         context.claimArms();
         context.decide((breaking ? "mine:" : "hover:") + state.tool.name() + (aim[2] > 1.05f ? ":short" : ":contact"));

@@ -41,7 +41,7 @@ public class AnimationAdditionsRenderMixin {
             return;
         }
         if (!(entity instanceof AbstractClientPlayer player)) return;
-        if(strm.emfcompat.animationadditions.compat.ParCoolActivity.active(player)) {
+        if (strm.emfcompat.animationadditions.compat.ParCoolActivity.active(player)) {
             InteractionRuntime.suspend(player.getUUID());
             return;
         }
@@ -51,10 +51,10 @@ public class AnimationAdditionsRenderMixin {
         FootGrounding.modelPose(player, stack);
         IKFrame frame = IKFrame.capture(stack.last().pose(),
                 Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
-        strm.emfcompat.animationadditions.blockuse.CockpitControls.frame(player,frame);
+        strm.emfcompat.animationadditions.blockuse.CockpitControls.frame(player, frame);
         MotionRuntime.modelPose(player);
         InteractionRuntime.modelPose(player, frame);
-        strm.emfcompat.animationadditions.blockuse.BlockUse.frame(player,frame);
+        strm.emfcompat.animationadditions.blockuse.BlockUse.frame(player, frame);
         EjectorLaunch.modelPose(player);
         WallSqueeze.modelPose(player, frame);
         TorsoLean.modelPose(player);

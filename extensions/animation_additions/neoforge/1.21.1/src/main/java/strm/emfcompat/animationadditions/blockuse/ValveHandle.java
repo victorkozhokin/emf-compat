@@ -41,29 +41,33 @@ final class ValveHandle implements BlockTarget {
         Vec3 side = SubLevels.at(player.level(), pos).directionToWorld(
                 point(pos, facing, 0, new Vector3f(1, 6.5f / 16f, .5f))
                         .subtract(point(pos, facing, 0, new Vector3f(.5f, 6.5f / 16f, .5f))));
-        Vec3 toward = SubLevels.toWorld(player.level(),pos,
-                point(pos,facing,0,new Vector3f(.5f,6.5f/16f,.5f))).subtract(player.position());
-        boolean positive = WheelGeometry.positiveSide((float)side.x,(float)side.z,(float)toward.x,(float)toward.z);
+        Vec3 toward = SubLevels.toWorld(player.level(), pos,
+                point(pos, facing, 0, new Vector3f(.5f, 6.5f / 16f, .5f))).subtract(player.position());
+        boolean positive = WheelGeometry.positiveSide((float) side.x, (float) side.z, (float) toward.x, (float) toward.z);
         long now = System.nanoTime();
-        GripState state = GRIPS.seen(player.getUUID(),now).value;
+        GripState state = GRIPS.seen(player.getUUID(), now).value;
         boolean fresh = !pos.equals(state.pos) || !block.equals(state.mount)
-                || positive != state.positive || now-state.at > 600_000_000L;
+                || positive != state.positive || now - state.at > 600_000_000L;
         if (fresh) {
-            state.pos=pos.immutable();state.mount=block;state.positive=positive;
-            state.motion=new SteeringGripMotion();state.frame=-1;
+            state.pos = pos.immutable();
+            state.mount = block;
+            state.positive = positive;
+            state.motion = new SteeringGripMotion();
+            state.frame = -1;
         }
         float frame = traben.entity_model_features.models.animation.state.EMFState.getFrameCounter();
         if (frame != state.frame) {
-            state.motion.advance((float)Math.toRadians(degrees),fresh ? 0 : Math.min(.1f,(now-state.at)*1e-9f));
-            state.at=now;state.frame=frame;
+            state.motion.advance((float) Math.toRadians(degrees), fresh ? 0 : Math.min(.1f, (now - state.at) * 1e-9f));
+            state.at = now;
+            state.frame = frame;
         }
-        boolean rightHand = (player.getMainArm()==HumanoidArm.RIGHT) != support;
+        boolean rightHand = (player.getMainArm() == HumanoidArm.RIGHT) != support;
         int hand = rightHand ? 0 : 1;
         positive = rightHand ? state.positive : !state.positive;
         Vec3 out = Vec3.atLowerCornerOf(facing.getNormal());
-        return new Spot(point(pos,facing,(float)Math.toDegrees(state.motion.radians(hand)),
-                new Vector3f(positive ? 14f/16f : 2f/16f,6.5f/16f,.5f))
-                .add(out.scale(state.motion.lift(hand))),out);
+        return new Spot(point(pos, facing, (float) Math.toDegrees(state.motion.radians(hand)),
+                new Vector3f(positive ? 14f / 16f : 2f / 16f, 6.5f / 16f, .5f))
+                .add(out.scale(state.motion.lift(hand))), out);
     }
 
     public Float stanceAngle(Level level, BlockPos pos) { return ANGLE.read(level, pos); }

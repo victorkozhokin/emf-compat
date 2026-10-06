@@ -14,13 +14,13 @@ class PelvisFollowTest {
                     for (float turnYaw : new float[]{-1.2f, 0, 1.2f}) {
                         Quaternionf turn = new Quaternionf().rotationZYX(.25f, turnYaw, .45f);
                         var head = PelvisFollow.carryGaze(neck, pitch, yaw, roll, turn, waist, 1.5f);
-                        Vector3f expectedNeck = turn.transform(new Vector3f(neck).sub(waist)).add(waist).add(1.5f,0,0);
+                        Vector3f expectedNeck = turn.transform(new Vector3f(neck).sub(waist)).add(waist).add(1.5f, 0, 0);
                         assertTrue(expectedNeck.distance(head.pivot()) < 1e-5f);
-                        Quaternionf before = new Quaternionf().rotationZYX(roll,yaw,pitch);
-                        Quaternionf after = new Quaternionf().rotationZYX(head.roll(),head.yaw(),head.pitch());
-                        for (Vector3f axis : new Vector3f[]{new Vector3f(0,0,-1),new Vector3f(0,-1,0)})
+                        Quaternionf before = new Quaternionf().rotationZYX(roll, yaw, pitch);
+                        Quaternionf after = new Quaternionf().rotationZYX(head.roll(), head.yaw(), head.pitch());
+                        for (Vector3f axis : new Vector3f[]{new Vector3f(0, 0, -1), new Vector3f(0, -1, 0)})
                             assertTrue(before.transform(new Vector3f(axis)).distance(after.transform(new Vector3f(axis))) < 1e-5f);
-                        assertEquals(new Vector3f(0,-2,1), neck);
+                        assertEquals(new Vector3f(0, -2, 1), neck);
                     }
     }
 
@@ -81,7 +81,9 @@ class PelvisFollowTest {
         Vector3f pivot = new Vector3f(2, 12, 4);
         var leg = PelvisFollow.leg(pivot, 0.5f, 0.2f, -0.1f, 12, new Vector3f(), 0, 0);
         assertEquals(pivot, leg.pivot());
-        assertEquals(0.5f, leg.pitch()); assertEquals(0.2f, leg.yaw()); assertEquals(-0.1f, leg.roll());
+        assertEquals(0.5f, leg.pitch());
+        assertEquals(0.2f, leg.yaw());
+        assertEquals(-0.1f, leg.roll());
     }
 
     @Test void hipFollowRemainsContinuousWhenReachLimitEngages() {
@@ -120,27 +122,31 @@ class PelvisFollowTest {
                 previous = leg.pivot();
             }
             var neutral = PelvisFollow.translate(pivot, pitch, .2f, .1f, 12, 0, 0);
-            assertEquals(pivot, neutral.pivot()); assertEquals(pitch, neutral.pitch());
-            assertEquals(.2f, neutral.yaw()); assertEquals(.1f, neutral.roll());
+            assertEquals(pivot, neutral.pivot());
+            assertEquals(pitch, neutral.pitch());
+            assertEquals(.2f, neutral.yaw());
+            assertEquals(.1f, neutral.roll());
         }
     }
     @Test void setupStepReachesItsLiftedSoleWithoutStretchAndToeTwistDoesNotUnplantIt() {
-        Vector3f hip = new Vector3f(2,12,0);
-        for (float pitch : new float[]{-.1f,.1f,.4f})
-            for (float side : new float[]{-1.5f,1.5f})
-                for (float lift : new float[]{0,-.4f,-.65f}) {
-                    Vector3f offset=new Vector3f(side,lift,.8f);
-                    Vector3f expected=PelvisFollow.waist(hip,pitch,0,0,12).add(offset);
-                    var leg=PelvisFollow.sole(hip,pitch,0,0,12,offset,.07f);
-                    Vector3f actual=PelvisFollow.waist(leg.pivot(),leg.pitch(),leg.yaw(),leg.roll(),12);
-                    assertTrue(actual.distance(expected)<1e-4f);
-                    assertEquals(12,actual.distance(leg.pivot()),1e-4f);
+        Vector3f hip = new Vector3f(2, 12, 0);
+        for (float pitch : new float[]{-.1f, .1f, .4f})
+            for (float side : new float[]{-1.5f, 1.5f})
+                for (float lift : new float[]{0, -.4f, -.65f}) {
+                    Vector3f offset = new Vector3f(side, lift, .8f);
+                    Vector3f expected = PelvisFollow.waist(hip, pitch, 0, 0, 12).add(offset);
+                    var leg = PelvisFollow.sole(hip, pitch, 0, 0, 12, offset, .07f);
+                    Vector3f actual = PelvisFollow.waist(leg.pivot(), leg.pitch(), leg.yaw(), leg.roll(), 12);
+                    assertTrue(actual.distance(expected) < 1e-4f);
+                    assertEquals(12, actual.distance(leg.pivot()), 1e-4f);
                 }
     }
     @Test void hiddenZeroLengthLegKeepsItsOriginalPose() {
-        Vector3f hip=new Vector3f(2,12,0);
-        var leg=PelvisFollow.sole(hip,.4f,.2f,.1f,0,new Vector3f(1,-.5f,1),.1f);
-        assertEquals(hip,leg.pivot());assertEquals(.4f,leg.pitch());
-        assertEquals(.2f,leg.yaw());assertEquals(.1f,leg.roll());
+        Vector3f hip = new Vector3f(2, 12, 0);
+        var leg = PelvisFollow.sole(hip, .4f, .2f, .1f, 0, new Vector3f(1, -.5f, 1), .1f);
+        assertEquals(hip, leg.pivot());
+        assertEquals(.4f, leg.pitch());
+        assertEquals(.2f, leg.yaw());
+        assertEquals(.1f, leg.roll());
     }
 }

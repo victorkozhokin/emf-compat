@@ -13,8 +13,8 @@ public final class LowReach {
     public static final class State {
         final Quaternionf turn = new Quaternionf();
         final Vector3f shift = new Vector3f();
-        public double followSeconds=.14;
-        public float angleLimit=(float)Math.toRadians(40);
+        public double followSeconds = .14;
+        public float angleLimit = (float) Math.toRadians(40);
         public float weightShift;
         public float weightForward;
         float frame = -1;
@@ -42,7 +42,8 @@ public final class LowReach {
         long now = System.nanoTime();
         if (frame != state.frame) {
             double dt = state.updatedAt == 0 ? 0 : Math.min(.1, (now - state.updatedAt) * 1e-9);
-            state.updatedAt = now; state.frame = frame;
+            state.updatedAt = now;
+            state.frame = frame;
             Vector3f shoulder = new Vector3f(arm.x, arm.y, arm.z).sub(hips);
             Vector3f point = new Vector3f(target).sub(hips);
             Quaternionf wanted = LowReachMath.turn(shoulder, point, 11, state.angleLimit);

@@ -87,22 +87,23 @@ final class Typewriter implements BlockTarget {
         Direction facing = block.getValue(BlockStateProperties.HORIZONTAL_FACING);
         // The model is made facing north; Spots.turned takes one made facing south.
         return key != null ? Spots.turned(pos, facing.getOpposite(), key[0], key[1] - PRESSED, key[2])
-                : Spots.turned(pos, facing.getOpposite(), right ? 8 - REST_SIDE : 8 + REST_SIDE, REST_Y, REST_Z);
+ : Spots.turned(pos, facing.getOpposite(), right ? 8 - REST_SIDE : 8 + REST_SIDE, REST_Y, REST_Z);
     }
 
     /** A cockpit typist uses one hand for the whole keyboard; the other keeps the rim. */
-    static Spot cockpitSpot(BlockPos pos,BlockState block,int pressed,boolean right) {
-        Direction facing=block.getValue(BlockStateProperties.HORIZONTAL_FACING);
-        if(pressed<0)return Spots.turned(pos,facing.getOpposite(),8,REST_Y,REST_Z);
-        double[] at=key(Math.min(KEYS-1,pressed));
+    static Spot cockpitSpot(BlockPos pos, BlockState block, int pressed, boolean right) {
+        Direction facing = block.getValue(BlockStateProperties.HORIZONTAL_FACING);
+        if (pressed < 0) return Spots.turned(pos, facing.getOpposite(), 8, REST_Y, REST_Z);
+        double[] at = key(Math.min(KEYS - 1, pressed));
         // Space spans ten pixels: press its outer portion rather than trapping the wrist at its centre.
-        if(pressed==13)at[0]=right?4:12;
-        return Spots.turned(pos,facing.getOpposite(),at[0],at[1]-PRESSED,at[2]);
+        if (pressed == 13) at[0] = right ? 4 : 12;
+        return Spots.turned(pos, facing.getOpposite(), at[0], at[1] - PRESSED, at[2]);
     }
     static int pressedKey() {
-        Object held=ownHeld();int result=-1;
-        if(held instanceof List<?> keys)for(Object each:List.copyOf(keys))
-            if(each instanceof Integer k)result=Math.max(0,Math.min(KEYS-1,k));
+        Object held = ownHeld();
+        int result = -1;
+        if (held instanceof List<?> keys) for (Object each : List.copyOf(keys))
+            if (each instanceof Integer k) result = Math.max(0, Math.min(KEYS - 1, k));
         return result;
     }
     private static Field activeField;
@@ -111,22 +112,22 @@ final class Typewriter implements BlockTarget {
     private static boolean activeAbsent;
 
     static BlockPos activePosition(AbstractClientPlayer player) {
-        if(player!=Minecraft.getInstance().player)return null;
+        if (player != Minecraft.getInstance().player) return null;
         try {
             // Asked every frame of our own player: the class and the method are found once.
-            if(activeAbsent)return null;
-            if(activeMode==null) {
-                try {activeHandler=Class.forName(HANDLER);activeMode=activeHandler.getMethod("getMode");}
-                catch(ReflectiveOperationException | LinkageError missing) {activeAbsent=true;return null;}
+            if (activeAbsent) return null;
+            if (activeMode == null) {
+                try { activeHandler = Class.forName(HANDLER); activeMode = activeHandler.getMethod("getMode"); }
+                catch (ReflectiveOperationException | LinkageError missing) { activeAbsent = true; return null; }
             }
-            Class<?> handler=activeHandler;
-            if(!"ACTIVE".equals(String.valueOf(activeMode.invoke(null))))return null;
-            if(activeField==null){activeField=handler.getDeclaredField("TYPEWRITER");activeField.setAccessible(true);}
-            Object reference=activeField.get(null);
-            Object value=reference instanceof java.lang.ref.Reference<?> ref?ref.get():null;
-            if(value instanceof net.minecraft.world.level.block.entity.BlockEntity be && !be.isRemoved() && be.getLevel()==player.level())
+            Class<?> handler = activeHandler;
+            if (!"ACTIVE".equals(String.valueOf(activeMode.invoke(null)))) return null;
+            if (activeField == null) { activeField = handler.getDeclaredField("TYPEWRITER"); activeField.setAccessible(true); }
+            Object reference = activeField.get(null);
+            Object value = reference instanceof java.lang.ref.Reference<?> ref ? ref.get() : null;
+            if (value instanceof net.minecraft.world.level.block.entity.BlockEntity be && !be.isRemoved() && be.getLevel() == player.level())
                 return be.getBlockPos();
-        } catch(ReflectiveOperationException | RuntimeException | LinkageError ignored) {}
+        } catch (ReflectiveOperationException | RuntimeException | LinkageError ignored) {}
         return null;
     }
 

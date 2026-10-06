@@ -65,7 +65,7 @@ public final class EjectorLid {
         // Level, from the hinge towards the lid's far end: against the way the block faces.
         double fromFront = facing.getAxis() == Direction.Axis.X
                 ? (facing.getStepX() > 0 ? pos.getX() + 1 - x : x - pos.getX())
-                : (facing.getStepZ() > 0 ? pos.getZ() + 1 - z : z - pos.getZ());
+ : (facing.getStepZ() > 0 ? pos.getZ() + 1 - z : z - pos.getZ());
         // The point of the plate's top over this spot: along the plate, and the top's height over the hinge across it.
         double along = (fromFront - HINGE_IN + TOP_OVER_HINGE * Math.sin(angle)) / Math.cos(angle);
         if (along < PLATE_FROM || along > PLATE_TO) return Double.NaN;

@@ -163,8 +163,8 @@ public final class BlockUse implements InteractionProvider {
         BlockPos stancePos;
         final LowReach.State lowReach = new LowReach.State();
         long tracedAt;
-        final TableSupport.State table=new TableSupport.State();
-        final TableSupport.State bellows=new TableSupport.State();
+        final TableSupport.State table = new TableSupport.State();
+        final TableSupport.State bellows = new TableSupport.State();
         BlockTarget tableTarget;
         long tableUntil;
         boolean tableUnloading;
@@ -198,7 +198,7 @@ public final class BlockUse implements InteractionProvider {
         float standUp = 0f;
         state.crouching = player.getPose() == Pose.CROUCHING;
         state.groundReach = false;
-        state.tableUnloading=false;
+        state.tableUnloading = false;
         float stretchTarget = 0f;
         try {
             // On a seat the hands use what is in front of them as standing; the body stays seated.
@@ -241,16 +241,19 @@ public final class BlockUse implements InteractionProvider {
                 outwards = outwards(state.gesture.motion(), t);
             } else {
                 boolean still = Math.hypot(player.getX() - player.xo, player.getZ() - player.zo) <= SLOW_BELOW;
-                BlockPos oldPos=state.pos;BlockTarget oldTarget=state.target;
+                BlockPos oldPos = state.pos;
+                BlockTarget oldTarget = state.target;
                 spot = still ? look(player, state) : null;
-                if(spot!=null && state.target!=null && state.target.supportSurface(player.level().getBlockState(state.pos))!=null)
-                    state.tableUntil=now+350_000_000L;
-                if(spot==null && still && oldPos!=null && oldTarget!=null && now<state.tableUntil) {
-                    BlockState oldBlock=player.level().getBlockState(oldPos);
-                    if(oldTarget.matches(oldBlock) && oldTarget.supportSurface(oldBlock)!=null
-                            && SubLevels.toWorld(player.level(),oldPos,Vec3.atCenterOf(oldPos)).distanceTo(player.position())<2) {
-                        state.pos=oldPos;state.target=oldTarget;state.tableUnloading=true;
-                        spot=oldTarget.hover(player,oldPos,oldBlock,new BlockHitResult(Vec3.atCenterOf(oldPos),net.minecraft.core.Direction.UP,oldPos,false));
+                if (spot != null && state.target != null && state.target.supportSurface(player.level().getBlockState(state.pos)) != null)
+                    state.tableUntil = now + 350_000_000L;
+                if (spot == null && still && oldPos != null && oldTarget != null && now < state.tableUntil) {
+                    BlockState oldBlock = player.level().getBlockState(oldPos);
+                    if (oldTarget.matches(oldBlock) && oldTarget.supportSurface(oldBlock) != null
+                            && SubLevels.toWorld(player.level(), oldPos, Vec3.atCenterOf(oldPos)).distanceTo(player.position()) < 2) {
+                        state.pos = oldPos;
+                        state.target = oldTarget;
+                        state.tableUnloading = true;
+                        spot = oldTarget.hover(player, oldPos, oldBlock, new BlockHitResult(Vec3.atCenterOf(oldPos), net.minecraft.core.Direction.UP, oldPos, false));
                     }
                 }
                 outwards = HOVER_OUT;
@@ -262,9 +265,9 @@ public final class BlockUse implements InteractionProvider {
             // Targets work in their block's own space; on a craft (a Sable sub-level) that is a
             // plot far off, drawn moved and turned: the hand goes to where it is drawn.
             SubLevels.Space space = state.pos == null ? SubLevels.WORLD : SubLevels.at(player.level(), state.pos);
-            boolean table=state.target!=null && state.pos!=null && state.target.supportSurface(player.level().getBlockState(state.pos))!=null;
-            if(table)state.tableTarget=state.target;
-            if((table || state.target instanceof Bellows) && state.gesture==null)outwards=.5f;
+            boolean table = state.target != null && state.pos != null && state.target.supportSurface(player.level().getBlockState(state.pos)) != null;
+            if (table) state.tableTarget = state.target;
+            if ((table || state.target instanceof Bellows) && state.gesture == null) outwards = .5f;
             spot = inWorld(space, spot);
 
             IKFrame frame = context.frame();
@@ -281,10 +284,10 @@ public final class BlockUse implements InteractionProvider {
             IKResult ik = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
             float reachLimit = state.target instanceof HandCrank && player.onGround() && !seated
                     ? GROUNDED_CRANK_REACH : MAX_REACH;
-            Object contactIdentity = state.pos==null ? null : new strm.emfcompat.animationadditions.interaction.ContactTarget(
-                    space,state.pos,player.level().getBlockState(state.pos).getBlock());
-            boolean retained=InteractionRuntime.holds(player.getUUID(),id(),right ? Effector.RIGHT_ARM : Effector.LEFT_ARM,contactIdentity);
-            if (ik == null || !strm.emfcompat.animationadditions.interaction.ContactReach.accepts(ik.reach(),reachLimit,retained)) {
+            Object contactIdentity = state.pos == null ? null : new strm.emfcompat.animationadditions.interaction.ContactTarget(
+                    space, state.pos, player.level().getBlockState(state.pos).getBlock());
+            boolean retained = InteractionRuntime.holds(player.getUUID(), id(), right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, contactIdentity);
+            if (ik == null || !strm.emfcompat.animationadditions.interaction.ContactReach.accepts(ik.reach(), reachLimit, retained)) {
                 context.decide("out-of-reach");
                 return;
             }
@@ -323,7 +326,7 @@ public final class BlockUse implements InteractionProvider {
                 if (state.crouching) state.lean[0] = Math.min(state.lean[0], (float) Math.toRadians(20));
             }
             BlockTarget.Spot support = held != null ? held.support()
-                    : state.target == null || state.pos == null ? null
+ : state.target == null || state.pos == null ? null
                     : state.target.supportHand(player, state.pos, player.level().getBlockState(state.pos));
             if (support != null && held == null) support = inWorld(space, support);
             boolean supported = state.support;
@@ -331,7 +334,7 @@ public final class BlockUse implements InteractionProvider {
             if (support != null) {
                 Vec3 otherPoint = support.point().add(support.out().scale((held != null ? 0f : table || state.target instanceof Bellows ? .5f : HOVER_OUT) / 16.0));
                 IKResult other = OneBoneIK.solveXY(frame, right ? LEFT_SHOULDER : RIGHT_SHOULDER, otherPoint, ARM, 0f, 0f);
-                if (other == null || !strm.emfcompat.animationadditions.interaction.ContactReach.accepts(other.reach(),MAX_REACH,retained)) {
+                if (other == null || !strm.emfcompat.animationadditions.interaction.ContactReach.accepts(other.reach(), MAX_REACH, retained)) {
                     context.decide("support-out-of-reach");
                     return;
                 }
@@ -351,10 +354,10 @@ public final class BlockUse implements InteractionProvider {
             } else {
                 out.add(Candidate.single(id(), Category.USE, priority(state), 1f, TIMING, effector, aim));
             }
-            for(int i=out.size()-1;i>=0;i--) {
-                Candidate c=out.get(i);
-                if(!c.source().equals(id()))break;
-                out.set(i,c.withTarget(contactIdentity).withQuietSwing(state.target!=null && state.target.quietsSwing()));
+            for (int i = out.size() - 1; i >= 0; i--) {
+                Candidate c = out.get(i);
+                if (!c.source().equals(id())) break;
+                out.set(i, c.withTarget(contactIdentity).withQuietSwing(state.target != null && state.target.quietsSwing()));
             }
             shown = true;
             // The click swings the arm; the gesture is the swing.
@@ -474,7 +477,8 @@ public final class BlockUse implements InteractionProvider {
             return null;
         }
         if (!pos.equals(state.pos) || target != state.target) {
-            state.table.motion.load=state.table.motion.settled=0;state.table.supportGap=Float.POSITIVE_INFINITY;
+            state.table.motion.load = state.table.motion.settled = 0;
+            state.table.supportGap = Float.POSITIVE_INFINITY;
             state.table.turn.identity();
             state.gesture = null;
             state.pos = pos.immutable();
@@ -495,8 +499,9 @@ public final class BlockUse implements InteractionProvider {
     public static void apply(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
         if (state == null) return;
-        state.table.snapshot.clear();state.bellows.snapshot.clear();
-        if(!INSTANCE.isEnabled())return;
+        state.table.snapshot.clear();
+        state.bellows.snapshot.clear();
+        if (!INSTANCE.isEnabled()) return;
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         float w = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
         ReachPose.upright(parts, state.standUp * w);
@@ -517,19 +522,19 @@ public final class BlockUse implements InteractionProvider {
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         State state = STATES.fresh(uuid);
         if (state == null) return;
-        if(state.target!=null && state.target==state.tableTarget && (state.pos==null || state.target.supportSurface(net.minecraft.client.Minecraft.getInstance().level.getBlockState(state.pos))!=null)) {
-            float tableWeight=Math.min(InteractionRuntime.weight(uuid,Effector.RIGHT_ARM,INSTANCE.id()),InteractionRuntime.weight(uuid,Effector.LEFT_ARM,INSTANCE.id()));
-            TableSupport.apply(state.table,parts,net.minecraft.client.Minecraft.getInstance().level.getPlayerByUUID(uuid) instanceof AbstractClientPlayer p?p:null,
-                    state.shown && !state.tableUnloading,state.right,state.grip,state.supportGrip,tableWeight);
+        if (state.target != null && state.target == state.tableTarget && (state.pos == null || state.target.supportSurface(net.minecraft.client.Minecraft.getInstance().level.getBlockState(state.pos)) != null)) {
+            float tableWeight = Math.min(InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id()), InteractionRuntime.weight(uuid, Effector.LEFT_ARM, INSTANCE.id()));
+            TableSupport.apply(state.table, parts, net.minecraft.client.Minecraft.getInstance().level.getPlayerByUUID(uuid) instanceof AbstractClientPlayer p ? p : null,
+                    state.shown && !state.tableUnloading, state.right, state.grip, state.supportGrip, tableWeight);
         }
-        if(state.target instanceof Bellows) {
-            var player=net.minecraft.client.Minecraft.getInstance().level.getPlayerByUUID(uuid);
-            if(player instanceof AbstractClientPlayer p) {
-                float weight=Math.min(InteractionRuntime.weight(uuid,Effector.RIGHT_ARM,INSTANCE.id()),InteractionRuntime.weight(uuid,Effector.LEFT_ARM,INSTANCE.id()));
-                float press=state.pos==null?0:BellowsGeometry.compression(Bellows.height(p.level(),state.pos));
-                TableSupport.apply(state.bellows,parts,p,state.shown && state.pos!=null && Bellows.pressing(p,state.pos),
-                        state.right,state.grip,state.supportGrip,weight,press);
-                if(!state.bellows.snapshot.isEmpty())state.bellows.snapshot.put("compression",press);
+        if (state.target instanceof Bellows) {
+            var player = net.minecraft.client.Minecraft.getInstance().level.getPlayerByUUID(uuid);
+            if (player instanceof AbstractClientPlayer p) {
+                float weight = Math.min(InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id()), InteractionRuntime.weight(uuid, Effector.LEFT_ARM, INSTANCE.id()));
+                float press = state.pos == null ? 0 : BellowsGeometry.compression(Bellows.height(p.level(), state.pos));
+                TableSupport.apply(state.bellows, parts, p, state.shown && state.pos != null && Bellows.pressing(p, state.pos),
+                        state.right, state.grip, state.supportGrip, weight, press);
+                if (!state.bellows.snapshot.isEmpty()) state.bellows.snapshot.put("compression", press);
             }
         }
         boolean lowFree = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) <= 0.01f;
@@ -583,8 +588,8 @@ public final class BlockUse implements InteractionProvider {
             ModelPart otherArm = parts.apply(other.part);
             if (otherArm != null && otherWeight > 1e-3f) ArmAim.towards(otherArm, state.supportGrip, otherWeight, true);
         }
-        TableSupport.capture(state.table,parts,state.right,state.grip,state.supportGrip);
-        TableSupport.capture(state.bellows,parts,state.right,state.grip,state.supportGrip);
+        TableSupport.capture(state.table, parts, state.right, state.grip, state.supportGrip);
+        TableSupport.capture(state.bellows, parts, state.right, state.grip, state.supportGrip);
         long now = System.nanoTime();
         if (DebugLog.trace()
                 && now - state.tracedAt > 100_000_000L) {
@@ -604,27 +609,33 @@ public final class BlockUse implements InteractionProvider {
     }
 
     /** Moving bellows plate is sampled in the same frame as its native renderer. */
-    public static void frame(AbstractClientPlayer player,IKFrame frame) {
-        State s=STATES.fresh(player.getUUID());if(s==null || !s.shown || !(s.target instanceof Bellows) || s.pos==null)return;
-        var block=player.level().getBlockState(s.pos);if(!s.target.matches(block))return;
-        var space=SubLevels.at(player.level(),s.pos);
-        s.bellows.obstacleMin=new Vector3f(Float.POSITIVE_INFINITY);
-        s.bellows.obstacleMax=new Vector3f(Float.NEGATIVE_INFINITY);
-        for(int x=0;x<=1;x++)for(int y=0;y<=1;y++)for(int z=0;z<=1;z++) {
-            var corner=frame.relativeToJoint(space.toWorld(new Vec3(s.pos.getX()+x,s.pos.getY()+y,s.pos.getZ()+z)),new Vector3f());
-            s.bellows.obstacleMin.min(corner);s.bellows.obstacleMax.max(corner);
+    public static void frame(AbstractClientPlayer player, IKFrame frame) {
+        State s = STATES.fresh(player.getUUID());
+        if (s == null || !s.shown || !(s.target instanceof Bellows) || s.pos == null) return;
+        var block = player.level().getBlockState(s.pos);
+        if (!s.target.matches(block)) return;
+        var space = SubLevels.at(player.level(), s.pos);
+        s.bellows.obstacleMin = new Vector3f(Float.POSITIVE_INFINITY);
+        s.bellows.obstacleMax = new Vector3f(Float.NEGATIVE_INFINITY);
+        for (int x = 0; x <= 1; x++) for (int y = 0; y <= 1; y++) for (int z = 0; z <= 1; z++) {
+            var corner = frame.relativeToJoint(space.toWorld(new Vec3(s.pos.getX() + x, s.pos.getY() + y, s.pos.getZ() + z)), new Vector3f());
+            s.bellows.obstacleMin.min(corner);
+            s.bellows.obstacleMax.max(corner);
         }
-        var main=Bellows.contact(player,s.pos,block,true);var other=Bellows.contact(player,s.pos,block,false);
-        s.grip.set(frame.relativeToJoint(space.toWorld(main.point().add(main.out().scale(.5/16))),new Vector3f()));
-        s.supportGrip.set(frame.relativeToJoint(space.toWorld(other.point().add(other.out().scale(.5/16))),new Vector3f()));
+        var main = Bellows.contact(player, s.pos, block, true);
+        var other = Bellows.contact(player, s.pos, block, false);
+        s.grip.set(frame.relativeToJoint(space.toWorld(main.point().add(main.out().scale(.5 / 16))), new Vector3f()));
+        s.supportGrip.set(frame.relativeToJoint(space.toWorld(other.point().add(other.out().scale(.5 / 16))), new Vector3f()));
     }
-    public static Map<String,Object> bellowsSnapshot(UUID uuid) {
-        State s=STATES.fresh(uuid);return s==null?Map.of():new java.util.LinkedHashMap<>(s.bellows.snapshot);
+    public static Map<String, Object> bellowsSnapshot(UUID uuid) {
+        State s = STATES.fresh(uuid);
+        return s == null ? Map.of() : new java.util.LinkedHashMap<>(s.bellows.snapshot);
     }
 
     /** Same-render table measurements for native regression checks. */
-    public static Map<String,Object> tableSnapshot(UUID uuid) {
-        State s=STATES.fresh(uuid);return s==null?Map.of():new java.util.LinkedHashMap<>(s.table.snapshot);
+    public static Map<String, Object> tableSnapshot(UUID uuid) {
+        State s = STATES.fresh(uuid);
+        return s == null ? Map.of() : new java.util.LinkedHashMap<>(s.table.snapshot);
     }
 
     private static float supportDistance(State state, Function<String, ModelPart> parts) {

@@ -75,7 +75,7 @@ final class HandCrank implements BlockTarget {
     private static Vec3 place(BlockPos pos, Direction facing, float angle, Vector3f model) {
         Direction turned = facing.getOpposite();
         float horizontal = turned.getAxis().isVertical() ? 0f
-                : turned.getAxis() == Direction.Axis.X ? -turned.toYRot() : turned.toYRot();
+ : turned.getAxis() == Direction.Axis.X ? -turned.toYRot() : turned.toYRot();
         float vertical = turned == Direction.UP ? -90f : turned == Direction.DOWN ? 90f : 0f;
         Vector3f v = new Vector3f(model).div(16f).sub(0.5f, 0.5f, 0.5f);
         new Quaternionf().rotationY((float) Math.toRadians(horizontal)).rotateX((float) Math.toRadians(vertical)).transform(v);

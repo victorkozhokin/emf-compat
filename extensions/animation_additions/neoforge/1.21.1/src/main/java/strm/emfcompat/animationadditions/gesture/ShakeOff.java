@@ -23,8 +23,8 @@ public final class ShakeOff extends Gesture {
     public static final String KEY_WATER = "shakeoff.water", KEY_SNOW = "shakeoff.snow", KEY_MUD = "shakeoff.mud";
     /** In it for this long to be worth shaking off, and out of it for this long before doing so, seconds. */
     private static final float SOAKED = 1.5f, OUT = .6f;
-    private static final int WATER=0,SNOW=1,MUD=2;
-    private static final class Exposure { float inside,outside; int kind; }
+    private static final int WATER = 0, SNOW = 1, MUD = 2;
+    private static final class Exposure { float inside, outside; int kind; }
     /** Keep the main shake, then release; no separate hand brushing the clothing. */
     private static final float SECONDS = 1.75f, SHAKE = 1.55f;
 

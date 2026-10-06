@@ -15,16 +15,16 @@ import java.util.Map;
 public record Candidate(String source, Category category, int priority, Map<Effector, float[]> aims,
                         float confidence, Timing timing, Object target, boolean quietSwing) {
 
-    public Candidate(String source, Category category, int priority, Map<Effector,float[]> aims,
+    public Candidate(String source, Category category, int priority, Map<Effector, float[]> aims,
                      float confidence, Timing timing) {
-        this(source,category,priority,aims,confidence,timing,null,false);
+        this(source, category, priority, aims, confidence, timing, null, false);
     }
     public Candidate withTarget(Object identity) {
-        return new Candidate(source,category,priority,aims,confidence,timing,identity,quietSwing);
+        return new Candidate(source, category, priority, aims, confidence, timing, identity, quietSwing);
     }
 
     public Candidate withQuietSwing(boolean quiet) {
-        return new Candidate(source,category,priority,aims,confidence,timing,target,quiet);
+        return new Candidate(source, category, priority, aims, confidence, timing, target, quiet);
     }
 
     public Candidate {

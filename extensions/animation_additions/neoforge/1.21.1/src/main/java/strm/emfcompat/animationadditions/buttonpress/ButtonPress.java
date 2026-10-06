@@ -263,7 +263,7 @@ public final class ButtonPress implements InteractionProvider {
             }
             out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING,
                     Effector.RIGHT_ARM, aim).withTarget(
-                    new strm.emfcompat.animationadditions.interaction.ContactTarget(SubLevels.at(player.level(),target),target,block.getBlock())));
+                    new strm.emfcompat.animationadditions.interaction.ContactTarget(SubLevels.at(player.level(), target), target, block.getBlock())));
             // The press swings the arm; the push is the swing.
             context.claimArms();
             context.decide(pressing ? "press-R" : "hover-R");
@@ -271,8 +271,8 @@ public final class ButtonPress implements InteractionProvider {
             state.leverStep.stride = state.vanillaLever ? 1 : .35f;
             state.leverStep.height = state.vanillaLever ? .35f : .18f;
             state.leverStep.observe(player, context.frame(), state.groundReach, state.button, state.pressedAt);
-            state.leverLoad.lerp(leverWanted, Smoothing.follow(dt, leverWanted.lengthSquared()>state.leverLoad.lengthSquared() ? .09 : .14));
-            if (state.leverLoad.lengthSquared()<1e-8f) state.leverLoad.zero();
+            state.leverLoad.lerp(leverWanted, Smoothing.follow(dt, leverWanted.lengthSquared() > state.leverLoad.lengthSquared() ? .09 : .14));
+            if (state.leverLoad.lengthSquared() < 1e-8f) state.leverLoad.zero();
             legs(state, legTarget, dt);
             state.stretch += (stretchTarget - state.stretch)
                     * (stretchTarget > state.stretch ? Smoothing.fadeIn(dt, ReachPose.SECONDS) : Smoothing.fadeOut(dt, ReachPose.SECONDS));
@@ -573,7 +573,7 @@ public final class ButtonPress implements InteractionProvider {
      * after the pack's breathing and swing and the torso's lean have moved it - as much as the
      * arm is this provider's. Called last, after the interaction runtime.
      */
-    public static void aimArm(UUID uuid, Function<String, ModelPart> parts, java.util.Map<Effector,float[]> base) {
+    public static void aimArm(UUID uuid, Function<String, ModelPart> parts, java.util.Map<Effector, float[]> base) {
         State state = STATES.fresh(uuid);
         if (state == null) return;
         Effector effector = Effector.RIGHT_ARM;
@@ -581,11 +581,11 @@ public final class ButtonPress implements InteractionProvider {
         if (w < 1e-3f) return;
         ModelPart arm = parts.apply(effector.part);
         if (arm == null) return;
-        float[] original=base.get(effector);
-        if(original==null)return;
-        float[] aim=strm.emfcompat.animationadditions.interaction.ContactAim.rotation(original,
-                state.button.x-arm.x,state.button.y-arm.y,state.button.z-arm.z,w);
-        arm.setRotation(aim[0],aim[1],aim[2]);
+        float[] original = base.get(effector);
+        if (original == null) return;
+        float[] aim = strm.emfcompat.animationadditions.interaction.ContactAim.rotation(original,
+                state.button.x - arm.x, state.button.y - arm.y, state.button.z - arm.z, w);
+        arm.setRotation(aim[0], aim[1], aim[2]);
     }
 
     /** Ground-supported reach before the final hand aim, shared with the low crank. */
@@ -599,14 +599,14 @@ public final class ButtonPress implements InteractionProvider {
         state.lowReach.weightForward = state.leverLoad.z;
         state.leverStep.apply(parts, weight);
         LowReach.apply(parts, true, state.button, weight, state.lowReach);
-        long now=System.nanoTime();
-        if ((state.vanillaLever || state.leverStep.consumed>0) && strm.emfcompat.animationadditions.DebugLog.trace() && now-state.tracedAt>50_000_000L) {
-            state.tracedAt=now;
+        long now = System.nanoTime();
+        if ((state.vanillaLever || state.leverStep.consumed > 0) && strm.emfcompat.animationadditions.DebugLog.trace() && now - state.tracedAt > 50_000_000L) {
+            state.tracedAt = now;
             org.slf4j.LoggerFactory.getLogger("EMFCompatButtonPress").info(
                     "[LeverPoseTrace] grounded={} weight={} loadX={} loadZ={} pressing={} step={} progress={} footX={} footZ={}",
-                    state.groundReach,weight,state.leverLoad.x,state.leverLoad.z,
-                    state.pressedAt!=NEVER && (now-state.pressedAt)*1e-9<PRESS_SECONDS,
-                    state.leverStep.foot,state.leverStep.progress,state.leverStep.offset.x,state.leverStep.offset.z);
+                    state.groundReach, weight, state.leverLoad.x, state.leverLoad.z,
+                    state.pressedAt != NEVER && (now - state.pressedAt) * 1e-9 < PRESS_SECONDS,
+                    state.leverStep.foot, state.leverStep.progress, state.leverStep.offset.x, state.leverStep.offset.z);
         }
     }
 

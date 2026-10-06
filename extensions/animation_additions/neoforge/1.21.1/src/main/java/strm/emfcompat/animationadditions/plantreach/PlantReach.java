@@ -93,19 +93,19 @@ public final class PlantReach implements InteractionProvider {
         }
         // Adjacent plants are one continuous brushing gesture. A per-block target would
         // repeatedly start the global pose handoff while the hand slides along a row.
-        Selection selection=context.data(Selection::new);
+        Selection selection = context.data(Selection::new);
         Reach right = reach(player, context.frame(), RIGHT_SHOULDER, -1f, selection.right);
         Reach left = reach(player, context.frame(), LEFT_SHOULDER, 1f, selection.left);
-        selection.right=right==null?null:right.point;
-        selection.left=left==null?null:left.point;
+        selection.right = right == null ? null : right.point;
+        selection.left = left == null ? null : left.point;
         if (right != null) {
-            if (right.box != null) strm.emfcompat.animationadditions.interaction.HandContacts.rememberPlant(context,Effector.RIGHT_ARM,right.point,right.box);
-            else strm.emfcompat.animationadditions.interaction.HandContacts.forget(context,id(),Effector.RIGHT_ARM);
+            if (right.box != null) strm.emfcompat.animationadditions.interaction.HandContacts.rememberPlant(context, Effector.RIGHT_ARM, right.point, right.box);
+            else strm.emfcompat.animationadditions.interaction.HandContacts.forget(context, id(), Effector.RIGHT_ARM);
             out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 0.5f, TIMING, Effector.RIGHT_ARM, right.aim));
         }
         if (left != null) {
-            if (left.box != null) strm.emfcompat.animationadditions.interaction.HandContacts.rememberPlant(context,Effector.LEFT_ARM,left.point,left.box);
-            else strm.emfcompat.animationadditions.interaction.HandContacts.forget(context,id(),Effector.LEFT_ARM);
+            if (left.box != null) strm.emfcompat.animationadditions.interaction.HandContacts.rememberPlant(context, Effector.LEFT_ARM, left.point, left.box);
+            else strm.emfcompat.animationadditions.interaction.HandContacts.forget(context, id(), Effector.LEFT_ARM);
             out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 0.5f, TIMING, Effector.LEFT_ARM, left.aim));
         }
         context.decide((right != null ? "R" : "-") + (left != null ? "L" : "-"));
@@ -121,9 +121,9 @@ public final class PlantReach implements InteractionProvider {
      * The arm aimed at a plant on this side, or {@code null} when there is none in reach.
      * {@code out} is the model x of this side.
      */
-    private static final class Selection { Vec3 right,left; }
+    private static final class Selection { Vec3 right, left; }
     private record Reach(float[] aim, Vec3 point, AABB box) {}
-    private record Surface(Vec3 point,AABB box) {}
+    private record Surface(Vec3 point, AABB box) {}
 
     private static Reach reach(AbstractClientPlayer player, IKFrame frame, Vector3f shoulder, float out, Vec3 previous) {
         Vector3f sidewaysWorld = frame.modelToWorld().transformDirection(new Vector3f(out, 0, 0));
@@ -154,11 +154,11 @@ public final class PlantReach implements InteractionProvider {
             return result == null ? null : new Reach(new float[]{result.x(), result.y()}, point, null);
         }
         Surface surface = nearest(player, level, from, hanging, centre, side, ahead, lowest, highest, previous);
-        if(surface==null)return null;
-        Vec3 best=surface.point;
+        if (surface == null) return null;
+        Vec3 best = surface.point;
         if (best.distanceTo(from) > arm + 1e-6) return null;
         IKResult result = OneBoneIK.solveXY(frame, shoulder, best, ARM, 0f, 0f);
-        return result == null ? null : new Reach(new float[]{result.x(), result.y()},best,surface.box);
+        return result == null ? null : new Reach(new float[]{result.x(), result.y()}, best, surface.box);
     }
 
     /**
@@ -184,22 +184,22 @@ public final class PlantReach implements InteractionProvider {
             // on the canopy at arm length, rather than aiming through the nearby plant.
             // Brush the nearest outside edge, sliding parallel to the walking player.
             // Fixing canopy height first instead made the hand orbit each plant and trail behind.
-            var edge=CanopyContact.edge(from.x,from.y,from.z,from.distanceTo(hanging),
-                    box.minX,box.maxX,box.minY,Math.min(highest,box.maxY-INTO_TOP),box.minZ,box.maxZ);
+            var edge = CanopyContact.edge(from.x, from.y, from.z, from.distanceTo(hanging),
+                    box.minX, box.maxX, box.minY, Math.min(highest, box.maxY - INTO_TOP), box.minZ, box.maxZ);
             List<CanopyContact.Point> contacts;
-            if(edge!=null) {
-                y=edge.y();
-                contacts=List.of(new CanopyContact.Point(edge.x(),edge.z()));
-            } else contacts=CanopyContact.points(from.x,from.z,from.y-y,from.distanceTo(hanging),
-                    box.minX+1e-5,box.maxX-1e-5,box.minZ+1e-5,box.maxZ-1e-5,
-                    hanging.x+side.x*.3,hanging.z+side.z*.3);
-            for(var candidate:contacts) {
-                Vec3 point=new Vec3(candidate.x(),y,candidate.z());
-                if(footprint.contains(point.x,(footprint.minY+footprint.maxY)*.5,point.z))continue;
-                if(point.subtract(centre).dot(side)<ACROSS || point.subtract(from).dot(ahead)<-BEHIND)continue;
-                double distance=point.distanceTo(hanging);
-                if(previous!=null)distance+=point.distanceTo(previous)*.05;
-                if(distance<bestDistance) {best=new Surface(point,box);bestDistance=distance;}
+            if (edge != null) {
+                y = edge.y();
+                contacts = List.of(new CanopyContact.Point(edge.x(), edge.z()));
+            } else contacts = CanopyContact.points(from.x, from.z, from.y - y, from.distanceTo(hanging),
+                    box.minX + 1e-5, box.maxX - 1e-5, box.minZ + 1e-5, box.maxZ - 1e-5,
+                    hanging.x + side.x * .3, hanging.z + side.z * .3);
+            for (var candidate : contacts) {
+                Vec3 point = new Vec3(candidate.x(), y, candidate.z());
+                if (footprint.contains(point.x, (footprint.minY + footprint.maxY) * .5, point.z)) continue;
+                if (point.subtract(centre).dot(side) < ACROSS || point.subtract(from).dot(ahead) < -BEHIND) continue;
+                double distance = point.distanceTo(hanging);
+                if (previous != null) distance += point.distanceTo(previous) * .05;
+                if (distance < bestDistance) { best = new Surface(point, box); bestDistance = distance; }
             }
         }
         return best;

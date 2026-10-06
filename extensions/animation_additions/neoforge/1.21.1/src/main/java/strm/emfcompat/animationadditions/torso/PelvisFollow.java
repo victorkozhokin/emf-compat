@@ -27,9 +27,9 @@ public final class PelvisFollow {
 
     private static Vector3f angles(Quaternionf q) {
         return new Vector3f(
-                (float)Math.atan2(2 * (q.w * q.x + q.y * q.z), 1 - 2 * (q.x * q.x + q.y * q.y)),
-                (float)Math.asin(Math.max(-1, Math.min(1, 2 * (q.w * q.y - q.z * q.x)))),
-                (float)Math.atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z)));
+                (float) Math.atan2(2 * (q.w * q.x + q.y * q.z), 1 - 2 * (q.x * q.x + q.y * q.y)),
+                (float) Math.asin(Math.max(-1, Math.min(1, 2 * (q.w * q.y - q.z * q.x)))),
+                (float) Math.atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z)));
     }
 
     static Vector3f waist(Vector3f pivot, float pitch, float yaw, float roll, float length) {
@@ -80,13 +80,13 @@ public final class PelvisFollow {
     /** Reach a new stepping sole without stretching the straight pack leg. */
     static Leg sole(Vector3f pivot, float pitch, float yaw, float roll, float length,
                     Vector3f offset, float twist) {
-        if (length < 1e-4f) return new Leg(new Vector3f(pivot),pitch,yaw,roll);
+        if (length < 1e-4f) return new Leg(new Vector3f(pivot), pitch, yaw, roll);
         Quaternionf original = new Quaternionf().rotationZYX(roll, yaw, pitch);
         Vector3f before = original.transform(new Vector3f(0, length, 0));
         Vector3f direction = new Vector3f(before).add(offset);
         float yy = length * length - direction.x * direction.x - direction.z * direction.z;
         if (yy < 0) return new Leg(new Vector3f(pivot), pitch, yaw, roll);
-        float y = Math.copySign((float)Math.sqrt(yy), before.y);
+        float y = Math.copySign((float) Math.sqrt(yy), before.y);
         Vector3f hip = new Vector3f(pivot).add(0, direction.y - y, 0);
         direction.y = y;
         Quaternionf q = new Quaternionf().rotationTo(before, direction).mul(original)
@@ -96,35 +96,40 @@ public final class PelvisFollow {
     }
 
     /** Small weight transfer with both solved soles retained; carry the torso by the achieved shift. */
-    public static void shift(java.util.function.Function<String,net.minecraft.client.model.geom.ModelPart> parts,float dx,float dz) {
-        var r=parts.apply("right_leg");var l=parts.apply("left_leg");if(r==null || l==null)return;
-        var before=new Vector3f((r.x+l.x)*.5f,(r.y+l.y)*.5f,(r.z+l.z)*.5f);
-        for(var p:new net.minecraft.client.model.geom.ModelPart[]{r,l}) {
-            var moved=translate(new Vector3f(p.x,p.y,p.z),p.xRot,p.yRot,p.zRot,12*p.yScale,dx,dz);
-            p.setPos(moved.pivot.x,moved.pivot.y,moved.pivot.z);p.setRotation(moved.pitch,moved.yaw,moved.roll);
+    public static void shift(java.util.function.Function<String, net.minecraft.client.model.geom.ModelPart> parts, float dx, float dz) {
+        var r = parts.apply("right_leg");
+        var l = parts.apply("left_leg");
+        if (r == null || l == null) return;
+        var before = new Vector3f((r.x + l.x) * .5f, (r.y + l.y) * .5f, (r.z + l.z) * .5f);
+        for (var p : new net.minecraft.client.model.geom.ModelPart[]{r, l}) {
+            var moved = translate(new Vector3f(p.x, p.y, p.z), p.xRot, p.yRot, p.zRot, 12 * p.yScale, dx, dz);
+            p.setPos(moved.pivot.x, moved.pivot.y, moved.pivot.z);
+            p.setRotation(moved.pitch, moved.yaw, moved.roll);
         }
-        var delta=new Vector3f((r.x+l.x)*.5f,(r.y+l.y)*.5f,(r.z+l.z)*.5f).sub(before);
-        for(String name:new String[]{"body","head","hat","right_arm","left_arm"}) {
-            var p=parts.apply(name);if(p!=null)p.setPos(p.x+delta.x,p.y+delta.y,p.z+delta.z);
+        var delta = new Vector3f((r.x + l.x) * .5f, (r.y + l.y) * .5f, (r.z + l.z) * .5f).sub(before);
+        for (String name : new String[]{"body", "head", "hat", "right_arm", "left_arm"}) {
+            var p = parts.apply(name);
+            if (p != null) p.setPos(p.x + delta.x, p.y + delta.y, p.z + delta.z);
         }
     }
 
     /** Stepping layer: carry the torso by the achieved mean hip displacement. */
     public static void step(java.util.function.Function<String, net.minecraft.client.model.geom.ModelPart> parts,
                             Vector3f right, Vector3f left, float rightTwist, float leftTwist) {
-        var r = parts.apply("right_leg"); var l = parts.apply("left_leg");
+        var r = parts.apply("right_leg");
+        var l = parts.apply("left_leg");
         if (r == null || l == null) return;
-        Vector3f before = new Vector3f((r.x+l.x)*.5f, (r.y+l.y)*.5f, (r.z+l.z)*.5f);
-        for (var leg : new net.minecraft.client.model.geom.ModelPart[]{r,l}) {
-            var moved = sole(new Vector3f(leg.x,leg.y,leg.z), leg.xRot,leg.yRot,leg.zRot,
-                    12*leg.yScale, leg==r ? right : left, leg==r ? rightTwist : leftTwist);
+        Vector3f before = new Vector3f((r.x + l.x) * .5f, (r.y + l.y) * .5f, (r.z + l.z) * .5f);
+        for (var leg : new net.minecraft.client.model.geom.ModelPart[]{r, l}) {
+            var moved = sole(new Vector3f(leg.x, leg.y, leg.z), leg.xRot, leg.yRot, leg.zRot,
+                    12 * leg.yScale, leg == r ? right : left, leg == r ? rightTwist : leftTwist);
             leg.setPos(moved.pivot.x, moved.pivot.y, moved.pivot.z);
-            leg.setRotation(moved.pitch,moved.yaw,moved.roll);
+            leg.setRotation(moved.pitch, moved.yaw, moved.roll);
         }
-        Vector3f delta = new Vector3f((r.x+l.x)*.5f,(r.y+l.y)*.5f,(r.z+l.z)*.5f).sub(before);
-        for (String name : new String[]{"body","head","hat","right_arm","left_arm"}) {
+        Vector3f delta = new Vector3f((r.x + l.x) * .5f, (r.y + l.y) * .5f, (r.z + l.z) * .5f).sub(before);
+        for (String name : new String[]{"body", "head", "hat", "right_arm", "left_arm"}) {
             var part = parts.apply(name);
-            if (part != null) part.setPos(part.x+delta.x,part.y+delta.y,part.z+delta.z);
+            if (part != null) part.setPos(part.x + delta.x, part.y + delta.y, part.z + delta.z);
         }
     }
 
@@ -139,16 +144,16 @@ public final class PelvisFollow {
         float yy = length * length - x * x - z * z;
         // Avoid a singular fully horizontal leg while shifting the low-reach pelvis.
         if (yy < minVertical * minVertical) return null;
-        float y = Math.copySign((float)Math.sqrt(yy), before.y);
+        float y = Math.copySign((float) Math.sqrt(yy), before.y);
         hip.y = sole.y - y;
         if (Math.abs(hip.y - pivot.y) > heightLimit) return null;
         Quaternionf swung = rotation.mul(new Quaternionf(original));
         Vector3f direction = swung.transform(new Vector3f(0, length, 0));
         Quaternionf q = new Quaternionf().rotationTo(direction, new Vector3f(x, y, z))
                 .mul(swung).normalize();
-        float px = (float)Math.atan2(2 * (q.w * q.x + q.y * q.z), 1 - 2 * (q.x * q.x + q.y * q.y));
-        float py = (float)Math.asin(Math.max(-1, Math.min(1, 2 * (q.w * q.y - q.z * q.x))));
-        float pz = (float)Math.atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z));
+        float px = (float) Math.atan2(2 * (q.w * q.x + q.y * q.z), 1 - 2 * (q.x * q.x + q.y * q.y));
+        float py = (float) Math.asin(Math.max(-1, Math.min(1, 2 * (q.w * q.y - q.z * q.x))));
+        float pz = (float) Math.atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z));
         return new Leg(hip, px, py, pz);
     }
 }

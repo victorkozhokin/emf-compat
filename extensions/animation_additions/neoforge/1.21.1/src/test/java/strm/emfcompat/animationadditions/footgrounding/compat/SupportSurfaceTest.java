@@ -114,7 +114,8 @@ class SupportSurfaceTest {
         assertEquals(0, foot.x(), 1e-5);
         assertEquals(6, foot.z(), 1e-5);
         var post = new SupportSurface(List.of(new SupportSurface.Point(0, 0)), 1.5f).place(2, 2);
-        assertEquals(0, post.x()); assertEquals(0, post.z());
+        assertEquals(0, post.x());
+        assertEquals(0, post.z());
     }
 
     @Test void correctionsAreBoundedAndFinite() {

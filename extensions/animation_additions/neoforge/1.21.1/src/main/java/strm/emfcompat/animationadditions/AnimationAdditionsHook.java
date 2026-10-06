@@ -127,13 +127,13 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
     }
 
     private static void applyAll(UUID uuid, Function<String, ModelPart> parts, boolean player, boolean mainModel) {
-        var entity=EMFState.state();
-        net.minecraft.client.player.AbstractClientPlayer client = player && entity!=null
+        var entity = EMFState.state();
+        net.minecraft.client.player.AbstractClientPlayer client = player && entity != null
                 && entity.emfEntity() instanceof net.minecraft.client.player.AbstractClientPlayer p ? p : null;
-        if(client!=null && strm.emfcompat.animationadditions.compat.ParCoolActivity.active(client))return;
-        float[] before = client!=null && mainModel ? strm.emfcompat.animationadditions.compat.ParCoolActivity.before(parts) : null;
+        if (client != null && strm.emfcompat.animationadditions.compat.ParCoolActivity.active(client)) return;
+        float[] before = client != null && mainModel ? strm.emfcompat.animationadditions.compat.ParCoolActivity.before(parts) : null;
         applyAllParts(uuid, parts, player, mainModel);
-        if(before!=null) strm.emfcompat.animationadditions.compat.ParCoolActivity.after(client, parts, before);
+        if (before != null) strm.emfcompat.animationadditions.compat.ParCoolActivity.after(client, parts, before);
     }
 
     private static void applyAllParts(UUID uuid, Function<String, ModelPart> parts, boolean player, boolean mainModel) {
@@ -143,7 +143,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         FootGrounding.apply(uuid, parts);
         EjectorLaunch.apply(uuid, parts);
         WallSqueeze.apply(uuid, parts);
-        var supportBase=InteractionRuntime.beginSupport(uuid, parts);
+        var supportBase = InteractionRuntime.beginSupport(uuid, parts);
         HandContacts.support(uuid, parts);
         ButtonPress.apply(uuid, parts);
         BlockUse.apply(uuid, parts);
@@ -153,9 +153,9 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         strm.emfcompat.animationadditions.gesture.Gesture.support(uuid, parts);
         // The torso before the arm aims: a hand on a wall aims from where the shoulder has gone.
         WallSqueeze.support(uuid, parts);
-        strm.emfcompat.animationadditions.transport.TransportGrip.support(uuid,parts);
+        strm.emfcompat.animationadditions.transport.TransportGrip.support(uuid, parts);
         TorsoLean.apply(uuid, parts);
-        strm.emfcompat.animationadditions.transport.TransportGrip.reach(uuid,parts);
+        strm.emfcompat.animationadditions.transport.TransportGrip.reach(uuid, parts);
         HandContacts.reach(uuid, parts);
         BlockUse.reachContact(uuid, parts);
         Mining.reach(uuid, parts);
@@ -176,7 +176,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         strm.emfcompat.animationadditions.blockuse.CockpitControls.apply(uuid, parts);
         HandContacts.apply(uuid, parts, contactBase, mainModel);
         strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.aimArms(uuid, parts);
-        strm.emfcompat.animationadditions.transport.TransportGrip.aim(uuid,parts);
+        strm.emfcompat.animationadditions.transport.TransportGrip.aim(uuid, parts);
         strm.emfcompat.animationadditions.leash.LeashHold.capture(uuid, parts);
         InteractionRuntime.finishHands(uuid, parts, contactBase, EMFState.getFrameCounter(), mainModel);
     }

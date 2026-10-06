@@ -159,8 +159,8 @@ public final class HandTo extends Gesture {
             AnimalCare.foot(out, play.right, 1.3f, .9f, .5f);
         } else {
             // Set in place with a short push, the shoulder going in behind the hand.
-            Vector3f direction=new Vector3f(point).sub(play.right ? -5 : 5,2,0);
-            if(direction.lengthSquared()>1e-6f)point.add(direction.normalize(.65f * press));
+            Vector3f direction = new Vector3f(point).sub(play.right ? -5 : 5, 2, 0);
+            if (direction.lengthSquared() > 1e-6f) point.add(direction.normalize(.65f * press));
             out.pitch = level * ((float) Math.toRadians(5) + Reach.low(point.y) * (float) Math.toRadians(22)) + .02f * press;
             out.yaw = -hand * (.09f * level + .05f * press);
             AnimalCare.foot(out, play.right, .9f, .6f, .3f);

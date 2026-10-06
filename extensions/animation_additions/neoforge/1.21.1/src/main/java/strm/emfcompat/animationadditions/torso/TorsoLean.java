@@ -164,7 +164,7 @@ public final class TorsoLean {
     /** Turns the torso, and carries the head and the arms with it. Called after the pack has animated. */
     public static void apply(UUID uuid, Function<String, ModelPart> parts) {
         // Seated cockpit motion comes from the deck, not the player's free camera yaw.
-        if(strm.emfcompat.animationadditions.blockuse.CockpitControls.active(uuid))return;
+        if (strm.emfcompat.animationadditions.blockuse.CockpitControls.active(uuid)) return;
         State state = STATES.fresh(uuid);
         if (state == null) return;
         float[] lean = state.lean;
@@ -190,8 +190,12 @@ public final class TorsoLean {
             var follow = PelvisFollow.leg(new Vector3f(leg.x, leg.y, leg.z),
                     leg.xRot, leg.yRot, leg.zRot, 12 * leg.yScale, waist,
                     state.wallYaw * state.legShare, state.wallShift);
-            leg.x = follow.pivot().x; leg.y = follow.pivot().y; leg.z = follow.pivot().z;
-            leg.xRot = follow.pitch(); leg.yRot = follow.yaw(); leg.zRot = follow.roll();
+            leg.x = follow.pivot().x;
+            leg.y = follow.pivot().y;
+            leg.z = follow.pivot().z;
+            leg.xRot = follow.pitch();
+            leg.yRot = follow.yaw();
+            leg.zRot = follow.roll();
         }
         // If leg reach limits some hip movement, keep the torso over the movement
         // actually achieved rather than shifting it away from the planted legs.
@@ -205,29 +209,35 @@ public final class TorsoLean {
         }
         float clearance = Math.min(1, Math.abs(state.wallYaw) / .5f + Math.abs(state.wallShift) / 1.5f);
         float relief = ClearancePose.lift(clearance, state.crouch);
-        Vector3f retreat=WallSqueeze.crouchOffset(uuid, 3.5f*clearance*state.crouch);
+        Vector3f retreat = WallSqueeze.crouchOffset(uuid, 3.5f * clearance * state.crouch);
         // Separate obstacle translation from the authored gait and other interactions.
         // The animated hip centre otherwise makes a steady wall yaw bob the chest
         // sharply on every stride; instantaneous reach correction adds another bob.
-        Quaternionf withoutWall = new Quaternionf().rotationZYX(lean[2], lean[1]-state.wallYaw, lean[0]);
-        Vector3f basePivot = PelvisFollow.carry(new Vector3f(body.x,body.y,body.z),
-                body.xRot,body.yRot,body.zRot,withoutWall,waist,lean[3]-state.wallShift).pivot();
+        Quaternionf withoutWall = new Quaternionf().rotationZYX(lean[2], lean[1] - state.wallYaw, lean[0]);
+        Vector3f basePivot = PelvisFollow.carry(new Vector3f(body.x, body.y, body.z),
+                body.xRot, body.yRot, body.zRot, withoutWall, waist, lean[3] - state.wallShift).pivot();
         carry(body, turn, waist, carriedLean);
-        body.x+=retreat.x;body.z+=retreat.z;
-        body.y += carriedWaist.y - waist.y - relief; body.z += carriedWaist.z - waist.z;
-        Vector3f requestedOffset = new Vector3f(body.x,body.y,body.z).sub(basePivot);
+        body.x += retreat.x;
+        body.z += retreat.z;
+        body.y += carriedWaist.y - waist.y - relief;
+        body.z += carriedWaist.z - waist.z;
+        Vector3f requestedOffset = new Vector3f(body.x, body.y, body.z).sub(basePivot);
         Vector3f correction = state.clearanceOffset.sample(
                 traben.entity_model_features.models.animation.state.EMFState.getFrameCounter(),
-                System.nanoTime(),requestedOffset).sub(requestedOffset);
-        body.x+=correction.x;body.y+=correction.y;body.z+=correction.z;
+                System.nanoTime(), requestedOffset).sub(requestedOffset);
+        body.x += correction.x;
+        body.y += correction.y;
+        body.z += correction.z;
         // The turned chest makes the pack's fast pelvis bob much more visible.
         // Give the contacted upper body inertia, while retaining the gait's legs
         // and the whole-model ground/stair translation.
-        Vector3f pivot = new Vector3f(body.x,body.y,body.z);
-        Vector3f contactRelease=state.contactBody.sample(
+        Vector3f pivot = new Vector3f(body.x, body.y, body.z);
+        Vector3f contactRelease = state.contactBody.sample(
                 traben.entity_model_features.models.animation.state.EMFState.getFrameCounter(),
-                System.nanoTime(),pivot).sub(pivot).mul(clearance);
-        body.x+=contactRelease.x;body.y+=contactRelease.y;body.z+=contactRelease.z;
+                System.nanoTime(), pivot).sub(pivot).mul(clearance);
+        body.x += contactRelease.x;
+        body.y += contactRelease.y;
+        body.z += contactRelease.z;
         correction.add(contactRelease);
         if (trace) {
             Vector3f attached = new Quaternionf().rotationZYX(body.zRot, body.yRot, body.xRot)
@@ -246,8 +256,11 @@ public final class TorsoLean {
                         part.xRot, part.yRot, part.zRot, turn, waist, carriedLean[3]);
                 part.setPos(carried.pivot().x, carried.pivot().y, carried.pivot().z);
             } else carry(part, turn, waist, carriedLean);
-            part.x+=retreat.x+correction.x;part.y+=correction.y;part.z+=retreat.z+correction.z;
-            part.y += carriedWaist.y - waist.y - relief; part.z += carriedWaist.z - waist.z;
+            part.x += retreat.x + correction.x;
+            part.y += correction.y;
+            part.z += retreat.z + correction.z;
+            part.y += carriedWaist.y - waist.y - relief;
+            part.z += carriedWaist.z - waist.z;
         }
     }
 
@@ -260,7 +273,11 @@ public final class TorsoLean {
     private static void carry(ModelPart part, Quaternionf turn, Vector3f waist, float[] lean) {
         var carried = PelvisFollow.carry(new Vector3f(part.x, part.y, part.z),
                 part.xRot, part.yRot, part.zRot, turn, waist, lean[3]);
-        part.x = carried.pivot().x; part.y = carried.pivot().y; part.z = carried.pivot().z;
-        part.xRot = carried.pitch(); part.yRot = carried.yaw(); part.zRot = carried.roll();
+        part.x = carried.pivot().x;
+        part.y = carried.pivot().y;
+        part.z = carried.pivot().z;
+        part.xRot = carried.pitch();
+        part.yRot = carried.yaw();
+        part.zRot = carried.roll();
     }
 }

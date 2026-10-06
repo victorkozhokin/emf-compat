@@ -17,7 +17,7 @@ class WallPoseMathTest {
     @Test void aimsReconstructFrontAndRearWallContactsWithoutStretching() {
         for (float across = -9; across <= 9; across += .5f)
             for (float direction : new float[]{-1, 1}) {
-                float along = direction * (float)Math.sqrt(100 - across * across - 9);
+                float along = direction * (float) Math.sqrt(100 - across * across - 9);
                 var aim = WallPoseMath.aim(across, 3, along);
                 var reconstructed = new Quaternionf().rotationZYX(aim.roll(), 0, aim.pitch())
                         .transform(new Vector3f(0, 10, 0));

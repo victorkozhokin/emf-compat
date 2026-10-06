@@ -15,9 +15,9 @@ import strm.emfcompat.animationadditions.leash.LeashHold;
 /** Remember the actual attaching hand before survival consumes the last lead. */
 @Mixin(MultiPlayerGameMode.class)
 public class LeashInteractionMixin {
-    @Inject(method="interact",at=@At("HEAD"))
-    private void emfcompat$leadHand(Player player,Entity target,InteractionHand hand,
+    @Inject(method = "interact", at = @At("HEAD"))
+    private void emfcompat$leadHand(Player player, Entity target, InteractionHand hand,
                                    CallbackInfoReturnable<InteractionResult> cir) {
-        if(player instanceof AbstractClientPlayer client) LeashHold.attachHand(client,target,hand);
+        if (player instanceof AbstractClientPlayer client) LeashHold.attachHand(client, target, hand);
     }
 }

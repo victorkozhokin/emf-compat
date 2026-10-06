@@ -89,7 +89,7 @@ public final class ArmorDon extends Gesture {
             Item item = player.getItemBySlot(SLOTS[i]).getItem();
             if (item != worn.armour[i] && item != Items.AIR && settled && on(KEYS[i])) worn.queued |= 1 << i;
             worn.armour[i] = item;
-            if(item == Items.AIR)worn.queued &= ~(1 << i);
+            if (item == Items.AIR) worn.queued &= ~(1 << i);
         }
         if (now - worn.curiosAt > CURIOS_EVERY_NANOS) {
             worn.curiosAt = now;

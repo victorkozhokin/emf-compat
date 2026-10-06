@@ -11,9 +11,9 @@ import strm.emfcompat.animationadditions.leash.LeashHold;
 
 @Mixin(Player.class)
 public class LeashPlayerMixin {
-    @Inject(method="getRopeHoldPosition",at=@At("RETURN"),cancellable=true)
-    private void emfcompat$leashPalm(float partial,CallbackInfoReturnable<Vec3> cir) {
-        if((Object)this instanceof AbstractClientPlayer player)
-            cir.setReturnValue(LeashHold.rope(player,partial,cir.getReturnValue()));
+    @Inject(method = "getRopeHoldPosition", at = @At("RETURN"), cancellable = true)
+    private void emfcompat$leashPalm(float partial, CallbackInfoReturnable<Vec3> cir) {
+        if ((Object) this instanceof AbstractClientPlayer player)
+            cir.setReturnValue(LeashHold.rope(player, partial, cir.getReturnValue()));
     }
 }

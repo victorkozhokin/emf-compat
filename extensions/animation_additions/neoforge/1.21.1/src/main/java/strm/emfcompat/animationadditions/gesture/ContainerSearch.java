@@ -76,14 +76,14 @@ public final class ContainerSearch extends Gesture {
                 && player.getEyePosition().distanceTo(Vec3.atCenterOf(open.pos)) < REACH + 1) pos = open.pos;
         open.open = pos != null;
         if (pos == null) return;
-        if(!pos.equals(open.pos)) { open.contents=null;open.actedAt=0; }
+        if (!pos.equals(open.pos)) { open.contents = null; open.actedAt = 0; }
         open.pos = pos;
-        if(player==Minecraft.getInstance().player && Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen) {
-            var slots=screen.getMenu().slots;
-            java.util.List<net.minecraft.world.item.ItemStack> current=new java.util.ArrayList<>();
-            for(var slot:slots)current.add(slot.getItem().copy());
-            if(open.contents!=null && (open.contents.size()!=current.size() || changed(open.contents,current)))open.actedAt=now;
-            open.contents=current;
+        if (player == Minecraft.getInstance().player && Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen) {
+            var slots = screen.getMenu().slots;
+            java.util.List<net.minecraft.world.item.ItemStack> current = new java.util.ArrayList<>();
+            for (var slot : slots) current.add(slot.getItem().copy());
+            if (open.contents != null && (open.contents.size() != current.size() || changed(open.contents, current))) open.actedAt = now;
+            open.contents = current;
         }
         if (!play.playing && !play.pending && isEnabled()) {
             Play started = trigger(player, 0, Vec3.atCenterOf(pos));
@@ -110,8 +110,8 @@ public final class ContainerSearch extends Gesture {
         return state.hasProperty(BarrelBlock.OPEN) && state.getValue(BarrelBlock.OPEN);
     }
 
-    private static boolean changed(java.util.List<net.minecraft.world.item.ItemStack> before,java.util.List<net.minecraft.world.item.ItemStack> after) {
-        for(int i=0;i<after.size();i++)if(!net.minecraft.world.item.ItemStack.matches(before.get(i),after.get(i)))return true;
+    private static boolean changed(java.util.List<net.minecraft.world.item.ItemStack> before, java.util.List<net.minecraft.world.item.ItemStack> after) {
+        for (int i = 0; i < after.size(); i++) if (!net.minecraft.world.item.ItemStack.matches(before.get(i), after.get(i))) return true;
         return false;
     }
 
@@ -142,22 +142,22 @@ public final class ContainerSearch extends Gesture {
         Vec3 along = new Vec3(-side.z, 0, side.x);
         boolean right = play.right;
         // In it: round and round, and a dip every second or so as something is taken hold of.
-        boolean local=play.player==Minecraft.getInstance().player && on(KEY_SLOTS);
-        float elapsed=open.actedAt==0?10f:(System.nanoTime()-open.actedAt)*1e-9f;
-        float activity=local ? bell(elapsed,.12f,.65f,1.15f) : .35f;
-        double turn = (local ? Math.min(elapsed,1.15f) : play.held) * 2.3, beat = (play.held % 1.25f) / 1.25f;
+        boolean local = play.player == Minecraft.getInstance().player && on(KEY_SLOTS);
+        float elapsed = open.actedAt == 0 ? 10f : (System.nanoTime() - open.actedAt) * 1e-9f;
+        float activity = local ? bell(elapsed, .12f, .65f, 1.15f) : .35f;
+        double turn = (local ? Math.min(elapsed, 1.15f) : play.held) * 2.3, beat = (play.held % 1.25f) / 1.25f;
         double dip = (beat < .28 ? Math.sin(Math.PI * beat / .28) : 0) * activity;
         Vec3 inside = middle.add(0, .28 - .12 * dip, 0).add(side.scale(.1 + .1 * Math.sin(turn) * activity))
                 .add(along.scale(.16 * Math.cos(turn * .7) * activity * (right ? -1 : 1)));
         Vec3 rim = middle.add(0, .46, 0).add(side.scale(.42)).add(along.scale(right ? .3 : -.3));
-        BlockState state=play.player.level().getBlockState(open.pos);
+        BlockState state = play.player.level().getBlockState(open.pos);
         boolean front = state.hasProperty(BarrelBlock.FACING) && state.getValue(BarrelBlock.FACING).getAxis().isHorizontal();
-        if(state.hasProperty(BarrelBlock.FACING)) {
-            var face=state.getValue(BarrelBlock.FACING);
-            if(face.getAxis().isHorizontal()) {
-                Vec3 normal=Vec3.atLowerCornerOf(face.getNormal()),tangent=new Vec3(-normal.z,0,normal.x);
-                inside=middle.add(normal.scale(.43-.12*dip)).add(tangent.scale(.08*Math.sin(turn)*activity));
-                rim=middle.add(normal.scale(.52)).add(tangent.scale(right?.3:-.3)).add(0,-.15,0);
+        if (state.hasProperty(BarrelBlock.FACING)) {
+            var face = state.getValue(BarrelBlock.FACING);
+            if (face.getAxis().isHorizontal()) {
+                Vec3 normal = Vec3.atLowerCornerOf(face.getNormal()), tangent = new Vec3(-normal.z, 0, normal.x);
+                inside = middle.add(normal.scale(.43 - .12 * dip)).add(tangent.scale(.08 * Math.sin(turn) * activity));
+                rim = middle.add(normal.scale(.52)).add(tangent.scale(right ? .3 : -.3)).add(0, -.15, 0);
             }
         }
         out.hand(right, model(play, inside), in);

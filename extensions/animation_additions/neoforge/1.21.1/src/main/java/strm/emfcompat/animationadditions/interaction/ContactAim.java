@@ -9,12 +9,12 @@ public final class ContactAim {
     public static float[] rotation(float[] base, float x, float y, float z, float weight) {
         float[] aim = ArmAim.angles(x, y, z);
         if (aim == null) return new float[]{base[0], base[1], base[2]};
-        return blend(base,aim,weight);
+        return blend(base, aim, weight);
     }
 
-    public static float[] blend(float[] base,float[] aim,float weight) {
+    public static float[] blend(float[] base, float[] aim, float weight) {
         weight = Math.max(0, Math.min(1, weight));
         return new float[]{base[0] + IKMath.wrap(aim[0] - base[0]) * weight,
-                base[1] + IKMath.wrap(aim[1] - base[1]) * weight, base[2] * (1-weight)};
+                base[1] + IKMath.wrap(aim[1] - base[1]) * weight, base[2] * (1 - weight)};
     }
 }

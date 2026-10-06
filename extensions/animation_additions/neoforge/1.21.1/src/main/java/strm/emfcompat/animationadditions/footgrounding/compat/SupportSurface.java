@@ -23,15 +23,19 @@ final class SupportSurface {
         float xx = 0, zz = 0, xz = 0;
         for (Point p : points) {
             float dx = p.x - cx, dz = p.z - cz;
-            xx += dx * dx; zz += dz * dz; xz += dx * dz;
+            xx += dx * dx;
+            zz += dz * dz;
+            xz += dx * dz;
         }
         // Principal long axis; the normal is where the stance needs to become narrower.
         double angle = 0.5 * Math.atan2(2 * xz, xx - zz);
-        nx = (float) -Math.sin(angle); nz = (float) Math.cos(angle);
+        nx = (float) - Math.sin(angle);
+        nz = (float) Math.cos(angle);
         float min = Float.POSITIVE_INFINITY, max = Float.NEGATIVE_INFINITY;
         for (Point p : points) {
             float across = (p.x - cx) * nx + (p.z - cz) * nz;
-            min = Math.min(min, across); max = Math.max(max, across);
+            min = Math.min(min, across);
+            max = Math.max(max, across);
         }
         float width = max - min + spacing;
         // A wall is wider than a fence, but still narrower than a full block. A strip

@@ -104,8 +104,8 @@ public final class Furniture implements InteractionProvider {
     }
 
     /** Where the hands go and how far they may reach. */
-    private record Grips(String what, Vec3 right, Vec3 left, float reach, SubLevels.Space space,Object target) {
-        Grips(String what,Vec3 right,Vec3 left,float reach){this(what,right,left,reach,SubLevels.WORLD,null);}
+    private record Grips(String what, Vec3 right, Vec3 left, float reach, SubLevels.Space space, Object target) {
+        Grips(String what, Vec3 right, Vec3 left, float reach) { this(what, right, left, reach, SubLevels.WORLD, null); }
     }
 
     @Override
@@ -166,7 +166,7 @@ public final class Furniture implements InteractionProvider {
                 Grips grips = chest ? chest(at, view, level, pos.immutable(), block) : lectern(at, view, pos.immutable(), block);
                 if (grips == null) continue;
                 if (!Visibility.visible(player, pos, space.toWorld(middle))) continue;
-                best = new Grips(grips.what, space.toWorld(grips.right), space.toWorld(grips.left), grips.reach,space,new strm.emfcompat.animationadditions.interaction.ContactTarget(space,pos,block.getBlock()));
+                best = new Grips(grips.what, space.toWorld(grips.right), space.toWorld(grips.left), grips.reach, space, new strm.emfcompat.animationadditions.interaction.ContactTarget(space, pos, block.getBlock()));
                 bestDot = dot;
             }
         }

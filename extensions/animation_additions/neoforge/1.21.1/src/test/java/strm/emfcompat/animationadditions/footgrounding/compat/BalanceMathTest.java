@@ -11,7 +11,7 @@ class BalanceMathTest {
     @Test void counterbalanceIsMirroredBoundedAndContinuousThroughNeutral() {
         float previous = 0;
         for (int i = 0; i <= 300; i++) {
-            float angle = (float)Math.toRadians(i * 0.1);
+            float angle = (float) Math.toRadians(i * 0.1);
             float value = BalanceMath.counterbalance(angle);
             assertEquals(-value, BalanceMath.counterbalance(-angle), 1e-6);
             assertTrue(value >= previous && value <= 1);
@@ -99,7 +99,7 @@ class BalanceMathTest {
     @Test void insufficientOrCollinearContactsNeverInventASlope() {
         assertArrayEquals(new float[2], BalanceMath.surfaceSlope(List.of()));
         assertArrayEquals(new float[2], BalanceMath.surfaceSlope(List.of(
-                new BalanceMath.Sample(0,0,0), new BalanceMath.Sample(0,1,2),
-                new BalanceMath.Sample(0,2,4))));
+                new BalanceMath.Sample(0, 0, 0), new BalanceMath.Sample(0, 1, 2),
+                new BalanceMath.Sample(0, 2, 4))));
     }
 }

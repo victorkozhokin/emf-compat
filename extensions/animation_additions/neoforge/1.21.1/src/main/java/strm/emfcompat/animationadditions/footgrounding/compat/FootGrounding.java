@@ -746,8 +746,8 @@ public final class FootGrounding {
 
     /** Existing FA walking phase for other additive support layers. */
     public static float supportWeight(UUID uuid) {
-        State state=STATES.fresh(uuid);
-        return state==null ? .5f : state.support;
+        State state = STATES.fresh(uuid);
+        return state == null ? .5f : state.support;
     }
 
     /** Direct additive torso angles and waist shift from the supporting surface. */

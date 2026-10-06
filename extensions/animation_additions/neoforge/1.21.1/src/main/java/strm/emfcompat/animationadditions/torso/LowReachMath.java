@@ -8,8 +8,8 @@ final class LowReachMath {
     static Quaternionf turn(Vector3f shoulder, Vector3f target, float arm, float limit) {
         float a = shoulder.length(), b = target.length();
         if (a < 1e-5f || b < 1e-5f) return new Quaternionf();
-        float theta = (float)Math.acos(clamp(shoulder.dot(target) / (a * b)));
-        float desired = (float)Math.acos(clamp((a * a + b * b - arm * arm) / (2 * a * b)));
+        float theta = (float) Math.acos(clamp(shoulder.dot(target) / (a * b)));
+        float desired = (float) Math.acos(clamp((a * a + b * b - arm * arm) / (2 * a * b)));
         float angle = Math.max(-limit, Math.min(limit, theta - desired));
         Vector3f axis = new Vector3f(shoulder).cross(target);
         if (axis.lengthSquared() < 1e-8f) {

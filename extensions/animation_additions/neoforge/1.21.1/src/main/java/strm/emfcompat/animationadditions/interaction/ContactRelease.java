@@ -15,17 +15,17 @@ public final class ContactRelease {
         active = true;
     }
     public void cancel() { active = false; }
-    public void advance(double dt) { if(active) elapsed += Math.max(0,dt); }
+    public void advance(double dt) { if (active) elapsed += Math.max(0, dt); }
     public float remaining() {
-        if(!active)return 0;
+        if (!active) return 0;
         // Match the old fade's settling interval (six time constants), with zero velocity
         // at both ends. An exponential starts withdrawing at its greatest speed.
-        double t=Math.min(1,Math.max(0,elapsed-UNLOAD_SECONDS)/(6*tau));
-        return (float)(1-t*t*(3-2*t));
+        double t = Math.min(1, Math.max(0, elapsed - UNLOAD_SECONDS) / (6 * tau));
+        return (float)(1 - t * t * (3 - 2 * t));
     }
     public float supportRemaining() {
-        if(!active)return 0;
-        return (float)Math.exp(-elapsed/tau);
+        if (!active) return 0;
+        return (float) Math.exp(-elapsed / tau);
     }
-    public String phase() { return remaining()==0 ? "released" : elapsed<=UNLOAD_SECONDS ? "unload" : "release"; }
+    public String phase() { return remaining() == 0 ? "released" : elapsed <= UNLOAD_SECONDS ? "unload" : "release"; }
 }

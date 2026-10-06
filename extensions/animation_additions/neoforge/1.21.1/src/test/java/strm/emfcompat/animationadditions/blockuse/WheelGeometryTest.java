@@ -18,14 +18,14 @@ class WheelGeometryTest {
         }
     }
     @Test void valveMatchesRendererMatrixOnAllSixFacesAndReverseTurns() {
-        for (Vector3f face : new Vector3f[]{new Vector3f(1,0,0), new Vector3f(-1,0,0),
-                new Vector3f(0,1,0), new Vector3f(0,-1,0), new Vector3f(0,0,1), new Vector3f(0,0,-1)}) {
+        for (Vector3f face : new Vector3f[]{new Vector3f(1, 0, 0), new Vector3f(-1, 0, 0),
+                new Vector3f(0, 1, 0), new Vector3f(0, -1, 0), new Vector3f(0, 0, 1), new Vector3f(0, 0, -1)}) {
             for (float angle : new float[]{-6.2f, -1.7f, 0, .4f, 3.1f, 6.2f}) {
                 Vector3f model = new Vector3f(.125f, .40625f, .5f);
-                Vector3f expected = new Matrix4f().translate(.5f,.5f,.5f)
+                Vector3f expected = new Matrix4f().translate(.5f, .5f, .5f)
                         .rotate(angle, Math.abs(face.x), Math.abs(face.y), Math.abs(face.z))
-                        .rotate(new Quaternionf().rotationTo(new Vector3f(0,1,0), face))
-                        .translate(-.5f,-.5f,-.5f).transformPosition(new Vector3f(model));
+                        .rotate(new Quaternionf().rotationTo(new Vector3f(0, 1, 0), face))
+                        .translate(-.5f, -.5f, -.5f).transformPosition(new Vector3f(model));
                 assertEquals(0, expected.distance(WheelGeometry.valve(model, face, angle)), 1e-6);
             }
         }
@@ -35,10 +35,10 @@ class WheelGeometryTest {
             for (float yaw : new float[]{0, 1.57f, 3.14f, 4.71f}) {
                 Quaternionf facing = new Quaternionf().rotationYXZ(yaw, 1.5707964f, 0);
                 for (float angle : new float[]{-3.14f, -.785f, 0, .785f, 3.14f}) {
-                    Vector3f model = new Vector3f(1,.5f,.5f);
-                    Vector3f expected = new Matrix4f().translate(.5f,.5f,.5f).rotate(facing)
+                    Vector3f model = new Vector3f(1, .5f, .5f);
+                    Vector3f expected = new Matrix4f().translate(.5f, .5f, .5f).rotate(facing)
                             .translate(0, .40625f, floor ? -.3125f : .3125f).rotateY(angle)
-                            .translate(-.5f,-.5f,-.5f).transformPosition(new Vector3f(model));
+                            .translate(-.5f, -.5f, -.5f).transformPosition(new Vector3f(model));
                     assertEquals(0, expected.distance(WheelGeometry.steering(model, facing, floor, angle)), 1e-6);
                 }
             }
@@ -47,10 +47,10 @@ class WheelGeometryTest {
     @Test void steeringHandsKeepTheirSeparationAndReturnAfterAFullTurn() {
         Quaternionf facing = new Quaternionf().rotationZ(1.5707964f);
         for (float angle = -6.3f; angle < 6.3f; angle += .05f) {
-            Vector3f right = WheelGeometry.steering(new Vector3f(1,.5f,.5f), facing, true, angle);
-            Vector3f left = WheelGeometry.steering(new Vector3f(0,.5f,.5f), facing, true, angle);
+            Vector3f right = WheelGeometry.steering(new Vector3f(1, .5f, .5f), facing, true, angle);
+            Vector3f left = WheelGeometry.steering(new Vector3f(0, .5f, .5f), facing, true, angle);
             assertEquals(1, right.distance(left), 1e-6);
-            assertEquals(0, right.distance(WheelGeometry.steering(new Vector3f(1,.5f,.5f), facing, true,
+            assertEquals(0, right.distance(WheelGeometry.steering(new Vector3f(1, .5f, .5f), facing, true,
                     angle + (float)(2 * Math.PI))), 1e-6);
         }
     }

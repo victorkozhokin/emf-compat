@@ -16,14 +16,14 @@ final class WallPoseMath {
     }
 
     static Aim aim(float x, float y, float z) {
-        float length = (float)Math.sqrt(x * x + y * y + z * z);
+        float length = (float) Math.sqrt(x * x + y * y + z * z);
         if (!Float.isFinite(length) || length < 1e-4f) return null;
-        return new Aim((float)Math.asin(Math.max(-1, Math.min(1, z / length))),
-                (float)Math.atan2(-x, y));
+        return new Aim((float) Math.asin(Math.max(-1, Math.min(1, z / length))),
+                (float) Math.atan2(-x, y));
     }
 
     static float followAngle(float from, float to, float weight) {
-        float delta = (float)Math.atan2(Math.sin(to - from), Math.cos(to - from));
+        float delta = (float) Math.atan2(Math.sin(to - from), Math.cos(to - from));
         return from + delta * weight;
     }
 

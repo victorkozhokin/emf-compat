@@ -22,12 +22,12 @@ public final class ReachEnvelope {
     public static float follow(float current, float target, double dt) {
         if (dt <= 0) return current;
         double tau = target > current ? 0.16 : 0.24;
-        return current + (target - current) * (float) -Math.expm1(-dt / tau);
+        return current + (target - current) * (float) - Math.expm1(-dt / tau);
     }
 
     /** Smooth the contact correction itself, including its return to identity. */
     public static Quaternionf followContact(Quaternionf current, Quaternionf target, double dt) {
-        float alpha = (float) -Math.expm1(-Math.max(0, Math.min(dt, 0.1)) / 0.18);
+        float alpha = (float) - Math.expm1(-Math.max(0, Math.min(dt, 0.1)) / 0.18);
         return current.slerp(target, alpha).normalize();
     }
 
