@@ -24,8 +24,8 @@ HUB = "tp @p 2144.5 151 2237.5 180 0"
 class Section:
     """One function's commands; its labels and creatures carry `tag`."""
 
-    def __init__(self, tag, floor=150):
-        self.tag, self.floor, self.c = tag, floor, [f"kill @e[tag={tag}]"]
+    def __init__(self, tag, floor=150, front="north"):
+        self.tag, self.floor, self.front, self.c = tag, floor, front, [f"kill @e[tag={tag}]"]
 
     def cmd(self, s):
         self.c.append(s)
@@ -41,26 +41,42 @@ class Section:
     def block(self, x, y, z, b):
         self.c.append(f"setblock {x} {y} {z} {b}")
 
-    def label(self, x, y, z, title, color="aqua", scale=.9):
-        content = json.dumps(json.dumps({"text": title, "color": color}, ensure_ascii=False), ensure_ascii=False)
-        self.c.append(f'summon text_display {x} {y} {z} {{Tags:["atlas","{self.tag}"],text:{content},billboard:"center",'
-                      f'background:1073741824,line_width:280,transformation:{{translation:[0f,0f,0f],left_rotation:[0f,0f,0f,1f],scale:[{scale}f,{scale}f,{scale}f],right_rotation:[0f,0f,0f,1f]}}}}')
+    def label(self, *_, **__):
+        """Nothing: names hung in the air were taken out; what has to be said is on a sign."""
+
+    @staticmethod
+    def lines(title):
+        """A title cut into a sign's four lines of some fifteen letters."""
+        out = [""]
+        for word in title.split():
+            if out[-1] and len(out[-1]) + len(word) + 1 > 15:
+                out.append("")
+            out[-1] = (out[-1] + " " + word).strip()
+        return out[:4]
+
+    def messages(self, lines):
+        return ",".join("'" + json.dumps({"text": v, "color": "black"}, ensure_ascii=False) + "'" for v in (lines + [""] * 4)[:4])
 
     def sign(self, x, z, lines, rotation=8, y=None):
-        msgs = ",".join("'" + json.dumps({"text": v, "color": "black"}, ensure_ascii=False) + "'" for v in (lines + [""] * 4)[:4])
-        self.block(x, self.floor + 1 if y is None else y, z, f"oak_sign[rotation={rotation}]{{is_waxed:1b,front_text:{{messages:[{msgs}]}}}}")
+        self.block(x, self.floor + 1 if y is None else y, z, f"oak_sign[rotation={rotation}]{{is_waxed:1b,front_text:{{messages:[{self.messages(lines)}]}}}}")
 
-    def button(self, x, z, title, command, y=None):
+    def plate(self, x, y, z, title, front=None):
+        """A sign on the side of the block at x y z that the visitor comes to."""
+        front = front or self.front
+        dz = -1 if front == "north" else 1
+        self.block(x, y, z + dz, f"oak_wall_sign[facing={front}]{{is_waxed:1b,front_text:{{messages:[{self.messages(self.lines(title))}]}}}}")
+
+    def button(self, x, z, title, command, y=None, front=None):
         y = self.floor + 1 if y is None else y
         self.block(x, y, z, "command_block{Command:" + json.dumps(command, ensure_ascii=False) + ",TrackOutput:0b}")
         self.block(x, y + 1, z, "polished_blackstone_button[face=floor]")
-        self.label(x + .5, y + 1.6, z + .5, title)
+        self.plate(x, y, z, title, front)
 
     def barrel(self, x, z, items, title, y=None):
         y = self.floor + 1 if y is None else y
         self.block(x, y, z, "air")
         self.block(x, y, z, "barrel[facing=up]")
-        self.label(x + .5, y + 1.45, z + .5, title, "gold", 1.1)
+        self.plate(x, y, z, title)
         for i, item in enumerate(items[:27]):
             self.c.append(f"item replace block {x} {y} {z} container.{i} with {item}")
 
@@ -107,8 +123,7 @@ for i, (kind, title, how, extra) in enumerate(PENS):
     g.block(a + 5, 152, c, "lantern")
     g.block(a + 5, 151, c + 7, "air")
     g.block(a + 5, 151, c + 7, "hay_block")
-    g.label(a + 3, 153.2, c + .5, title)
-    g.label(a + 3, 152.7, c + .5, how, "white", .7)
+    g.sign(a + 1, c - 1, [title, "", *g.lines(how)])
     restock.cmd(f'summon {kind} {a + 3} 151 {c + 4} {{Tags:["atlas","atlas_gestures_live"],PersistenceRequired:1b,Invulnerable:1b,{extra}FallDistance:0f}}')
     if kind in ("cow", "sheep"):
         restock.cmd(f'summon {kind} {a + 2} 151 {c + 5} {{Tags:["atlas","atlas_gestures_live"],PersistenceRequired:1b,Invulnerable:1b,Age:-6000000}}')
@@ -122,7 +137,7 @@ for i, (dy, title) in enumerate([(0, "НА ПОЛУ"), (1, "НА БЛОКЕ"), (
         g.block(a, 151, 2132, "smooth_stone")
     extra = "ShowArms:1b," if i == 2 else "Small:1b," if i == 3 else ""
     restock.cmd(f'summon armor_stand {a}.5 {151 + dy} 2132.5 {{Tags:["atlas","atlas_gestures_live"],{extra}Rotation:[180f],Invulnerable:1b}}')
-    g.label(a + .5, 154.4 if dy else 153.6, 2132.5, title, scale=.7)
+    g.sign(a, 2130, g.lines(title))
 g.barrel(2259, 2132, ["iron_helmet", "iron_chestplate", "iron_leggings", "iron_boots", "leather_helmet", "leather_chestplate", "leather_leggings", "leather_boots",
                       "carved_pumpkin", "elytra", "shield", "iron_sword"], "На стойку")
 g.sign(2259, 2130, ["СТОЙКА", "Предмет: ПКМ", "по нужной части", "рука идёт туда"])
@@ -155,7 +170,7 @@ for a, what, title, rim in BASINS:
     if what == "water":
         g.fill(a, 148, 2142, a + 4, 148, 2146, rim)
         restock.cmd(f"fill {a} 149 2142 {a + 4} 149 2145 water")
-    g.label(a + 2.5, 152.6, 2144.5, title)
+    g.sign(a + 2, 2140, [title, "Постой внутри", "2 секунды, выйди", "и встань"])
 g.label(2258.5, 153.6, 2140.5, "ОТРЯХИВАНИЕ: постой внутри 2 с, выйди и встань", "white", .8)
 g.fill(2274, 150, 2141, 2280, 150, 2147, "polished_andesite")
 g.barrel(2275, 2144, ["iron_helmet", "iron_chestplate", "iron_leggings", "iron_boots", "diamond_helmet", "diamond_chestplate", "diamond_leggings", "diamond_boots",
@@ -166,6 +181,7 @@ g.fill(2284, 150, 2141, 2291, 150, 2147, "light_gray_concrete")
 g.button(2285, 2144, "РАССЫПАТЬ ПРЕДМЕТЫ", "function emf_atlas:gestures_scatter")
 g.sign(2285, 2142, ["КАРМАН", "Собери предметы,", "встань: через 2 с", "жест за спину"])
 # The way in and out.
+g.sign(2268, 2115, ["ЗОНА 12", "CARE & GESTURES", "уход и жесты", ""])
 g.button(2246, 2114, "К ВХОДУ", HUB)
 g.button(2249, 2114, "ВОССТАНОВИТЬ", "function emf_atlas:gestures_restock")
 g.button(2252, 2114, "SURVIVAL", "gamemode survival @p")
@@ -183,6 +199,8 @@ for a in range(2250, 2290, 10):
     g.fill(a - 1, 157, 2160, a + 1, 157, 2162, "birch_leaves[persistent=true]")
 g.block(2262, 151, 2157, "dark_oak_stairs[facing=south]")
 g.block(2276, 151, 2157, "dark_oak_stairs[facing=south]")
+# Rebuilt in place, the old lanterns and signs drop as items.
+g.cmd("kill @e[type=item,x=2244,y=148,z=2111,dx=51,dy=14,dz=56]")
 g.cmd("function emf_atlas:gestures_restock")
 g.cmd('tellraw @a {"text":"EMF ATLAS • зона 12: уход за животными и жесты готовы","color":"aqua"}')
 g.write("gestures")
@@ -225,9 +243,10 @@ for j, (dy, title) in enumerate([(-1, "В ПОЛУ"), (0, "У НОГ"), (1, "Г�
         m.fill(a, 151, 2140, a, 150 + dy, 2140, "polished_deepslate_wall")
     reset.append(f"setblock {a} {151 + dy} 2140 stone")
     m.block(a, 150, 2136, "yellow_concrete")
-    m.label(a + .5, 154.6, 2140.5, title, scale=.8)
+    m.sign(a, 2137, [title, "один блок:", "камера с любой", "стороны"])
 m.label(2317.5, 155.6, 2140.5, "ОДИН БЛОК: камера с четырёх сторон", "white", .8)
 m.barrel(2331, 2136, ["iron_pickaxe", "iron_axe", "iron_shovel", "iron_hoe", "diamond_pickaxe", "diamond_axe", "wooden_pickaxe", "wooden_axe", "shears", "torch 64"], "Инструменты")
+m.sign(2316, 2115, ["ЗОНА 13", "MINING GALLERY", "добыча", ""])
 m.button(2302, 2114, "К ВХОДУ", HUB)
 m.button(2305, 2114, "ВОССТАНОВИТЬ", "function emf_atlas:mining_gallery_reset")
 m.button(2308, 2114, "SURVIVAL", "gamemode survival @p")
@@ -240,6 +259,7 @@ for a in range(2304, 2334, 10):
     m.fill(a, 152, 2159, a, 155, 2159, "spruce_log")
     m.fill(a - 2, 154, 2157, a + 2, 155, 2161, "spruce_leaves[persistent=true]")
     m.fill(a - 1, 156, 2158, a + 1, 157, 2160, "spruce_leaves[persistent=true]")
+m.cmd("kill @e[type=item,x=2300,y=148,z=2111,dx=35,dy=14,dz=56]")
 m.cmd("function emf_atlas:mining_gallery_reset")
 m.cmd('tellraw @a {"text":"EMF ATLAS • зона 13: галерея добычи готова","color":"aqua"}')
 m.write("mining_gallery")
@@ -250,7 +270,7 @@ m.write("mining_gallery")
 # y 149 and are cleared by their own functions and by the scenarios that use them (450 150 7 is the
 # gesture and mining scenarios' pad). Nothing is put inside them: a path between, names above, a
 # way back.
-f = Section("atlas_field", floor=149)
+f = Section("atlas_field", floor=149, front="south")
 # The pads hang in the void: the path is a bridge with a kerb, and widens into a landing half way.
 f.fill(375, 148, 5, 434, 148, 9, "deepslate_tiles")
 f.fill(375, 149, 6, 434, 149, 8, "polished_andesite")
@@ -281,6 +301,7 @@ f.label(404.5, 153.4, 7.5, "Отдельные площадки сценарие
 f.label(370.5, 157, 7.5, "F1 / COCKPIT", scale=1.4)
 f.label(455.5, 158, 7.5, "F2 / LEASH • GESTURES • MINING PAD", scale=1.4)
 f.label(484.5, 157.5, 8.5, "F3 / EFFORT", scale=1.4)
+f.sign(404, 3, ["FIELD STATION", "F1 кабина", "F2 поводок, жесты", "F3 усилие"], rotation=0)
 f.button(402, 4, "К ВХОДУ АТЛАСА", HUB)
 f.button(404, 4, "F1 / COCKPIT", "tp @p 370.5 150 9.5 180 0")
 f.button(406, 4, "F2 / LEASH PAD", "tp @p 450.5 150 7.5 -90 0")
@@ -316,9 +337,9 @@ for a, col, title, command in MORE:
 d.label(2191, 154.2, 2241.5, "ПРИСТРОЙКИ  10 – 13  •  ПОЛЕВАЯ СТАНЦИЯ", "gold", 1.1)
 d.label(2144.5, 153.6, 2241.5, "ЗОНЫ  01 – 09", "gold", 1.1)
 # From the old mining stand in zone 08 to the gallery that replaces it.
-d.button(2156, 2184, "13 / MINING GALLERY", "tp @p 2317.5 151 2112.5 0 8")
+d.button(2156, 2184, "13 / MINING GALLERY", "tp @p 2317.5 151 2112.5 0 8", front="south")
 # A way back from zone 11, which had none.
-d.button(2302, 2103, "К ВХОДУ", HUB)
+d.button(2302, 2103, "К ВХОДУ", HUB, front="south")
 # Trees outside the west and north rim, and benches by the fountain.
 # The campus hangs in the void, so the trees get a lawn to stand on: a green belt along both rims.
 d.fill(2043, 148, 2043, 2051, 148, 2246, "deepslate_tiles")
