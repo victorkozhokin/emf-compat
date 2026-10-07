@@ -24,7 +24,30 @@ public final class FishingMotion {
      * weight sent forward (model pixels, forward positive), whether the second hand is on the rod,
      * and the free arm's swing: forward positive, radians.
      */
-    public record Aim(Vector3f point, double quick, float weight, boolean twoHands, float freeSwing) {
+    public record Aim(Vector3f point, double quick, float weight, boolean twoHands, float freeSwing, float turn, float forward, float aside, int stance) {
+        Aim(Vector3f point, double quick, float weight, boolean twoHands, float freeSwing) {
+            this(point, quick, weight, twoHands, freeSwing, 0f, 0f, 0f, 0);
+        }
+    }
+
+    /** Radians: bringing the line in the body turns this far to the rod's side, the rod swept round with it; waiting it leans this far forward and away from the rod. */
+    private static final float SWEEP = (float) Math.toRadians(30), WAIT_FORWARD = 0.07f, WAIT_ASIDE = 0.07f;
+
+    /**
+     * Where the soles stand, model pixels from where the pack has them, for a rod in the right
+     * hand: {right foot, left foot} for the wait, the bite and the haul - each a little wider and
+     * longer than the last, so the feet are shifted a step at each.
+     */
+    private static final Vector3f[][] STANCES = {
+            {new Vector3f(-0.6f, 0f, 2.4f), new Vector3f(0.3f, 0f, -1.6f)},
+            {new Vector3f(-1.2f, 0f, 3.0f), new Vector3f(0.8f, 0f, -2.3f)},
+            {new Vector3f(-2.4f, 0f, 3.4f), new Vector3f(2.0f, 0f, -1.9f)}};
+
+    /** The sole's place in stance {@code stance} for the right foot or the left, the rod in the right hand or the left. */
+    public static Vector3f foot(int stance, boolean rightFoot, boolean rodRight) {
+        // Mirrored, the right foot stands where the left one did, the other way out.
+        Vector3f at = STANCES[stance][rightFoot == rodRight ? 0 : 1];
+        return rodRight ? new Vector3f(at) : new Vector3f(-at.x, at.y, at.z);
     }
 
     /** Out over the water, further than the arm: the body leans a little forward after it. */
@@ -55,23 +78,24 @@ public final class FishingMotion {
     /** Waiting, {@code seconds} into it: breath, the tip riding, the weight drifting from foot to foot. */
     public static Aim waiting(float seconds) {
         float breath = (float) Math.sin(seconds * 1.7), drift = (float) Math.sin(seconds * 0.45 + 1), tip = (float) Math.sin(seconds * 2.9 + 0.5);
-        return new Aim(new Vector3f(WAIT).add(0.35f * drift, 0.45f * breath + 0.25f * tip, 0.3f * breath), 0.12, 0.7f + 0.8f * drift, false, 0.05f * breath);
+        return new Aim(new Vector3f(WAIT).add(0.35f * drift, 0.45f * breath + 0.25f * tip, 0.3f * breath), 0.12, 0.7f + 0.8f * drift, false, 0.05f * breath,
+                0f, WAIT_FORWARD, WAIT_ASIDE, 0);
     }
 
     /** {@code seconds} into a bite: the rod snatched down and away, then worked against the pull. */
     public static Aim bite(float seconds) {
         float snatch = (float) Math.exp(-seconds * 6);
         float tug = 0.9f * (float) Math.sin(seconds * 27) * (float) Math.exp(-seconds * 2) + 0.6f * (float) Math.sin(seconds * 8.5);
-        return new Aim(new Vector3f(BITE).add(0.3f * tug, 2.2f * snatch + 0.5f * tug, -1.5f * snatch - 0.6f * tug), 0.04, 1.6f + 1.4f * snatch + 0.4f * tug, true, 0f);
+        return new Aim(new Vector3f(BITE).add(0.3f * tug, 2.2f * snatch + 0.5f * tug, -1.5f * snatch - 0.6f * tug), 0.04, 1.6f + 1.4f * snatch + 0.4f * tug, true, 0f, 0f, 0f, 0f, 1);
     }
 
     /** {@code seconds} into bringing the line in: a heave after a bite ({@code hooked}), a lift without. */
     public static Aim haul(float seconds, boolean hooked) {
-        if (!hooked) return new Aim(new Vector3f(LIFTED), 0.07, -0.8f, false, -0.3f);
-        if (seconds < GATHER) return new Aim(new Vector3f(GATHERED), 0.035, 2.0f, true, 0f);
+        if (!hooked) return new Aim(new Vector3f(LIFTED), 0.07, -0.8f, false, -0.3f, SWEEP, 0f, 0f, 2);
+        if (seconds < GATHER) return new Aim(new Vector3f(GATHERED), 0.035, 2.0f, true, 0f, 0f, 0f, 0f, 2);
         // Staggering back a little under what comes up, then steadied.
         float stagger = (float) Math.exp(-(seconds - GATHER) * 5);
-        return new Aim(new Vector3f(HAULED), 0.06, -2.2f * stagger - 0.6f, seconds < HAUL * 0.7f, 0f);
+        return new Aim(new Vector3f(HAULED), 0.06, -2.2f * stagger - 0.6f, seconds < HAUL * 0.7f, 0f, SWEEP, 0f, 0f, 2);
     }
 
     /** {@code point}, given for a rod in the right hand, for the hand it is in. */

@@ -29,6 +29,7 @@ import strm.emfcompat.animationadditions.motion.Spring;
 import strm.emfcompat.animationadditions.ride.BoatRide;
 import strm.emfcompat.animationadditions.torso.BraceSteps;
 import strm.emfcompat.animationadditions.torso.LowReach;
+import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.ik.IKFrame;
@@ -66,9 +67,7 @@ public final class Fishing implements InteractionProvider {
     private static final double FRESH_BITE = 1.5, BODY_SECONDS = 0.17, WEIGHT_SECONDS = 0.13;
     /** Model pixels the rod hand is carried to the side after the float, for a float square off to that side. */
     private static final float BEARING = 5f;
-    /** Model pixels from where the pack has the soles (back is +z, the right is -x): the foot on the rod's side back, the other forward. */
-    private static final Vector3f BACK_RIGHT = new Vector3f(-0.6f, 0f, 2.4f), FRONT_LEFT = new Vector3f(0.3f, 0f, -1.6f),
-            BACK_LEFT = new Vector3f(0.6f, 0f, 2.4f), FRONT_RIGHT = new Vector3f(-0.3f, 0f, -1.6f), HOME = new Vector3f();
+    private static final Vector3f HOME = new Vector3f();
     /** Model pixels: the second hand takes the rod this far under the first. */
     private static final float UNDER = 2.2f;
     /** Radians: the free arm held out from the body, and how far it swings. */
@@ -85,11 +84,12 @@ public final class Fishing implements InteractionProvider {
         /** The rod hand's place, model pixels, each axis on its spring; set once the pose begins. */
         final Spring x = new Spring(), y = new Spring(), z = new Spring();
         boolean placed;
-        float weight, bearing, freeSwing, shown;
+        float weight, bearing, freeSwing, shown, turn, forward, aside;
+        int stance;
         final Vector3f point = new Vector3f();
         AbstractClientPlayer player;
         IKFrame frame;
-        final BraceSteps.State stance = new BraceSteps.State();
+        final BraceSteps.State feet = new BraceSteps.State();
         final LowReach.State reach = new LowReach.State();
         /** The rod's tip, blocks from the player's own place, as last drawn. */
         Vec3 tip;
@@ -170,6 +170,9 @@ public final class Fishing implements InteractionProvider {
             state.shown += -state.shown * Smoothing.follow(dt, 0.1);
             state.weight += -state.weight * Smoothing.follow(dt, WEIGHT_SECONDS);
             state.freeSwing += -state.freeSwing * Smoothing.follow(dt, 0.12);
+            state.turn += -state.turn * Smoothing.follow(dt, 0.2);
+            state.forward += -state.forward * Smoothing.follow(dt, 0.2);
+            state.aside += -state.aside * Smoothing.follow(dt, 0.2);
             state.twoHands = false;
             state.placed = false;
             context.decide(hand == null ? "off" : able ? "idle" : "off:state");
@@ -184,7 +187,14 @@ public final class Fishing implements InteractionProvider {
             case HAUL -> FishingMotion.haul(in, state.hooked);
             default -> FishingMotion.waiting(in);
         };
-        Vector3f wanted = FishingMotion.sided(aim.point(), state.right);
+        state.turn += (aim.turn() - state.turn) * Smoothing.follow(dt, 0.14);
+        state.forward += (aim.forward() - state.forward) * Smoothing.follow(dt, 0.3);
+        state.aside += (aim.aside() - state.aside) * Smoothing.follow(dt, 0.3);
+        state.stance = aim.stance();
+        // The rod is swept round with the body: its place turned to the rod's side by as much (to the right, -x, for a turn above zero).
+        float sin = Mth.sin(state.turn), cos = Mth.cos(state.turn);
+        Vector3f swept = new Vector3f(aim.point().x * cos + aim.point().z * sin, aim.point().y, -aim.point().x * sin + aim.point().z * cos);
+        Vector3f wanted = FishingMotion.sided(swept, state.right);
         // The rod carried after the float: its bearing against the body, model space (forward is -z, the right is -x).
         float bearing = 0f;
         if (hook != null && state.phase != Phase.CAST) {
@@ -233,14 +243,27 @@ public final class Fishing implements InteractionProvider {
         state.since = now;
     }
 
-    /** The feet, before the torso: the foot on the rod's side set back, the other forward - a step each, held while the line is out. */
+    /**
+     * What fishing asks of the torso before it is fitted to the rod hand: the turn to the rod's
+     * side as the line comes in, and the lean of the wait - forward, and away from the rod.
+     */
+    public static TorsoLean.Hint torsoHint(UUID uuid) {
+        State state = STATES.fresh(uuid);
+        if (state == null || !INSTANCE.isEnabled()) return null;
+        if (Math.abs(state.turn) + Math.abs(state.forward) + Math.abs(state.aside) < 1e-3f) return null;
+        // +yRot takes the right shoulder back - the chest to the right; +zRot leans the body to its left.
+        float side = state.right ? 1f : -1f;
+        return TorsoLean.Hint.turn(state.forward, side * state.turn, side * state.aside);
+    }
+
+    /** The feet, before the torso: the foot on the rod's side set back, the other forward, and shifted a step wider at the bite and again at the haul. */
     public static void support(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
         if (state == null || state.player == null || !INSTANCE.isEnabled()) return;
-        if (state.shown < 0.05f && state.stance.resting()) return;
+        if (state.shown < 0.05f && state.feet.resting()) return;
         boolean apart = state.phase != Phase.NONE && state.standing;
-        BraceSteps.apply(state.stance, state.player, state.frame, parts,
-                !apart ? HOME : state.right ? BACK_RIGHT : FRONT_RIGHT, !apart ? HOME : state.right ? FRONT_LEFT : BACK_LEFT,
+        BraceSteps.apply(state.feet, state.player, state.frame, parts,
+                apart ? FishingMotion.foot(state.stance, true, state.right) : HOME, apart ? FishingMotion.foot(state.stance, false, state.right) : HOME,
                 apart ? state.shown : 0f, 0f, LOGGER, "FishingStance");
     }
 
