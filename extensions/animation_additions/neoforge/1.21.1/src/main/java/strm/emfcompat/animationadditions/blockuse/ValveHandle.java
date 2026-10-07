@@ -4,7 +4,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import strm.emfcompat.animationadditions.interaction.SubLevels;
+import strm.emfcompat.animationadditions.interaction.EntityStates;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
@@ -14,16 +14,7 @@ import strm.emfcompat.animationadditions.interaction.Body;
 
 /** All Create valve colours share this block class and the same octagonal rim geometry. */
 final class ValveHandle implements BlockTarget {
-    private static final strm.emfcompat.animationadditions.interaction.EntityStates<GripState> GRIPS =
-            new strm.emfcompat.animationadditions.interaction.EntityStates<>(GripState::new);
-    private static final class GripState {
-        BlockPos pos;
-        BlockState mount;
-        long at;
-        float frame = -1;
-        boolean positive;
-        SteeringGripMotion motion = new SteeringGripMotion();
-    }
+    private static final EntityStates<RimGrip> GRIPS = new EntityStates<>(RimGrip::new);
     private static final WheelAngle ANGLE = new WheelAngle("getIndependentAngle");
     public boolean matches(BlockState block) {
         return block.getBlock().getClass().getName().equals("com.simibubi.create.content.kinetics.crank.ValveHandleBlock");
@@ -38,32 +29,16 @@ final class ValveHandle implements BlockTarget {
         Float degrees = ANGLE.read(player.level(), pos);
         if (degrees == null) return null;
         Direction facing = block.getValue(BlockStateProperties.FACING);
-        Vec3 side = SubLevels.at(player.level(), pos).directionToWorld(
-                point(pos, facing, 0, new Vector3f(1, 6.5f / 16f, .5f))
-                        .subtract(point(pos, facing, 0, new Vector3f(.5f, 6.5f / 16f, .5f))));
-        Vec3 toward = SubLevels.toWorld(player.level(), pos,
-                point(pos, facing, 0, new Vector3f(.5f, 6.5f / 16f, .5f))).subtract(player.position());
-        boolean positive = WheelGeometry.positiveSide((float) side.x, (float) side.z, (float) toward.x, (float) toward.z);
+        boolean positive = RimGrip.positiveSide(player, pos, point(pos, facing, 0, new Vector3f(.5f, 6.5f / 16f, .5f)),
+                point(pos, facing, 0, new Vector3f(1, 6.5f / 16f, .5f)));
         long now = System.nanoTime();
-        GripState state = GRIPS.seen(player.getUUID(), now).value;
-        boolean fresh = !pos.equals(state.pos) || !block.equals(state.mount)
-                || positive != state.positive || now - state.at > 600_000_000L;
-        if (fresh) {
-            state.pos = pos.immutable();
-            state.mount = block;
-            state.positive = positive;
-            state.motion = new SteeringGripMotion();
-            state.frame = -1;
-        }
-        float frame = traben.entity_model_features.models.animation.state.EMFState.getFrameCounter();
-        if (frame != state.frame) {
-            state.motion.advance((float) Math.toRadians(degrees), fresh ? 0 : Math.min(.1f, (now - state.at) * 1e-9f));
-            state.at = now;
-            state.frame = frame;
-        }
+        RimGrip state = GRIPS.seen(player.getUUID(), now).value;
+        boolean fresh = state.left(pos, block, now) || positive != state.positive;
+        if (fresh) state.lay(pos, block, positive, new SteeringGripMotion());
+        state.turn((float) Math.toRadians(degrees), fresh, now);
         boolean rightHand = Body.right(player, !support);
         int hand = rightHand ? 0 : 1;
-        positive = rightHand ? state.positive : !state.positive;
+        positive = state.side(rightHand);
         Vec3 out = Vec3.atLowerCornerOf(facing.getNormal());
         return new Spot(point(pos, facing, (float) Math.toDegrees(state.motion.radians(hand)),
                 new Vector3f(positive ? 14f / 16f : 2f / 16f, 6.5f / 16f, .5f))

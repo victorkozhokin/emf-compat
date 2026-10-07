@@ -3,7 +3,6 @@ package strm.emfcompat.animationadditions.blockuse;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.Minecraft;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
-import traben.entity_model_features.models.animation.state.EMFState;
 import java.lang.reflect.Method;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,15 +25,9 @@ final class SteeringWheel implements BlockTarget {
     private static Object handler;
     private static Method held, activeBlock;
     private static boolean holdFailed;
-    private static final class GripState {
-        BlockPos pos;
-        BlockState mount;
+    private static final class GripState extends RimGrip {
         HumanoidArm main;
-        boolean positive;
-        float frame = -1;
-        long at;
         final DebugLog.Pace tracePace = new DebugLog.Pace();
-        SteeringGripMotion motion = new SteeringGripMotion();
     }
     public boolean matches(BlockState block) {
         return block.getBlock().getClass().getName().equals("dev.simulated_team.simulated.content.blocks.steering_wheel.SteeringWheelBlock");
@@ -51,37 +44,24 @@ final class SteeringWheel implements BlockTarget {
         Direction facing = block.getValue(BlockStateProperties.HORIZONTAL_FACING);
         long now = System.nanoTime();
         GripState state = GRIPS.seen(player.getUUID(), now).value;
-        boolean fresh = !pos.equals(state.pos) || !block.equals(state.mount)
-                || player.getMainArm() != state.main || now - state.at > 600_000_000L;
+        boolean fresh = state.left(pos, block, now) || player.getMainArm() != state.main;
         if (fresh) {
-            Vec3 side = SubLevels.at(player.level(), pos).directionToWorld(point(pos, block, 0, new Vector3f(1, .5f, .5f))
-                    .subtract(point(pos, block, 0, new Vector3f(.5f))));
-            Vec3 toward = SubLevels.toWorld(player.level(), pos, point(pos, block, 0, new Vector3f(.5f)))
-                    .subtract(player.position());
-            state.positive = WheelGeometry.positiveSide((float) side.x, (float) side.z, (float) toward.x, (float) toward.z);
-            state.pos = pos.immutable();
-            state.mount = block;
-            state.main = player.getMainArm();
             Vec3 centre = point(pos, block, 0, new Vector3f(.5f));
+            boolean positiveSide = RimGrip.positiveSide(player, pos, centre, point(pos, block, 0, new Vector3f(1, .5f, .5f)));
+            state.main = player.getMainArm();
             Vec3 worldCentre = SubLevels.at(player.level(), pos).toWorld(centre);
             float upper = 0;
             if (worldCentre.y - player.getY() < .75) {
                 Vec3 tangent = SubLevels.at(player.level(), pos).directionToWorld(
-                        point(pos, block, (float)(Math.PI / 2), new Vector3f(state.positive ? 1 : 0, .5f, .5f)).subtract(centre));
+                        point(pos, block, (float)(Math.PI / 2), new Vector3f(positiveSide ? 1 : 0, .5f, .5f)).subtract(centre));
                 if (Math.abs(tangent.y) > .01) upper = tangent.y > 0 ? 45 : -45;
             }
-            state.motion = new SteeringGripMotion(upper);
-            state.frame = -1;
+            state.lay(pos, block, positiveSide, new SteeringGripMotion(upper));
         }
-        float frame = EMFState.getFrameCounter();
-        if (state.frame != frame) {
-            state.motion.advance(angle, fresh ? 0 : Math.min(.1f, (now - state.at) * 1e-9f));
-            state.at = now;
-            state.frame = frame;
-        }
+        state.turn(angle, fresh, now);
         boolean rightHand = Body.right(player, !support);
         int hand = rightHand ? 0 : 1;
-        boolean positive = rightHand ? state.positive : !state.positive;
+        boolean positive = state.side(rightHand);
         Vec3 out = Vec3.atLowerCornerOf(facing.getNormal());
         Vec3 grip = point(pos, block, state.motion.radians(hand), new Vector3f(positive ? 1 : 0, .5f, .5f))
                 .add(out.scale(state.motion.lift(hand)));
