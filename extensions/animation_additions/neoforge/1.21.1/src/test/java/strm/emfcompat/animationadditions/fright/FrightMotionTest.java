@@ -7,68 +7,58 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FrightMotionTest {
 
-    private static final int[] VARIANTS = {FrightMotion.RECOIL, FrightMotion.JUMP, FrightMotion.FREEZE};
-
     @Test
-    void theJoltRunsOutAndTheRestGoesWithTheFeet() {
-        for (int variant : VARIANTS) {
-            for (int level = FrightMotion.LIGHT; level <= FrightMotion.STRONG; level++) {
-                // Long after the jolt, with the feet home again, nothing is left.
-                FrightMotion.Pose home = FrightMotion.pose(variant, level, FrightMotion.kept(level) + 1f, 0f, -1f);
-                assertEquals(0f, Math.abs(home.yaw()) + Math.abs(home.bow()) + home.shrug() + home.armsUp() + home.armsOut() + Math.abs(home.tremble())
-                        + Math.abs(home.glance()) + home.duck() + home.round() + home.hop(), 1e-4f);
-                // At the very start nothing has moved yet.
-                FrightMotion.Pose start = FrightMotion.pose(variant, level, 0f, 0f, -1f);
-                assertEquals(0f, Math.abs(start.yaw()) + start.armsOut() + start.hop(), 1e-4f);
-                // In the shake the arms are out from the body whatever the feet do, and the shoulders are never drawn up.
-                assertTrue(FrightMotion.pose(variant, level, FrightMotion.jolt(level) * 0.25f, 0f, -1f).armsOut() > 0.12f);
-                assertEquals(0f, FrightMotion.pose(variant, level, FrightMotion.jolt(level) * 0.25f, 1f, -1f).shrug(), 1e-6f);
-            }
+    void theShakeRunsOutAndTheRestGoesWithTheFeet() {
+        for (int level = FrightMotion.LIGHT; level <= FrightMotion.STRONG; level++) {
+            // Long after the shake, with the feet home again, nothing is left.
+            FrightMotion.Pose home = FrightMotion.pose(level, FrightMotion.kept(level) + 1f, 0f, 0f, -1f);
+            assertEquals(0f, Math.abs(home.yaw()) + Math.abs(home.bow()) + home.armsUp() + home.armsOut() + Math.abs(home.against())
+                    + Math.abs(home.nod()) + home.round() + home.hop(), 1e-4f);
+            // At the very start nothing has moved yet.
+            FrightMotion.Pose start = FrightMotion.pose(level, 0f, 0f, 0f, -1f);
+            assertEquals(0f, Math.abs(start.yaw()) + start.armsOut() + start.hop(), 1e-4f);
+            // In the shake the arms are out from the body whatever the feet do.
+            assertTrue(FrightMotion.pose(level, FrightMotion.shake(level) * 0.25f, 0f, 0f, -1f).armsOut() > 0.1f);
         }
     }
 
     @Test
     void theBodyIsNeverAheadOfTheFeet() {
-        for (int variant : VARIANTS) {
-            FrightMotion.Pose none = FrightMotion.pose(variant, FrightMotion.MEDIUM, 1.2f, 0f, -1f), half = FrightMotion.pose(variant, FrightMotion.MEDIUM, 1.2f, 0.5f, -1f),
-                    all = FrightMotion.pose(variant, FrightMotion.MEDIUM, 1.2f, 1f, -1f);
-            assertEquals(0f, Math.abs(none.bow()) + none.round() + none.duck(), 0.03f);
-            assertTrue(all.round() >= half.round() && half.round() >= none.round());
-            assertTrue(Math.abs(all.bow()) > Math.abs(half.bow()));
-        }
+        float late = FrightMotion.shake(FrightMotion.MEDIUM) + 0.05f;
+        FrightMotion.Pose none = FrightMotion.pose(FrightMotion.MEDIUM, late, 0f, 0f, -1f), half = FrightMotion.pose(FrightMotion.MEDIUM, late, 0.5f, 0f, -1f),
+                all = FrightMotion.pose(FrightMotion.MEDIUM, late, 1f, 0f, -1f);
+        assertEquals(0f, Math.abs(none.bow()) + none.round(), 1e-3f);
+        assertTrue(all.round() > half.round() && half.round() > none.round());
+        assertTrue(Math.abs(all.bow()) > Math.abs(half.bow()));
     }
 
     @Test
-    void recoilGoesBackFromTheSoundWithBothFeetAndLeansAway() {
+    void bothFeetGoBackFromTheSoundAndTheBodyLeansAway() {
         // The sound ahead (-z): back is +z; the right foot leads, the left follows.
-        assertTrue(FrightMotion.foot(FrightMotion.RECOIL, FrightMotion.LIGHT, true, 0f, -1f).z > 1.5f);
-        assertTrue(FrightMotion.foot(FrightMotion.RECOIL, FrightMotion.LIGHT, false, 0f, -1f).z > 0.6f);
+        assertTrue(FrightMotion.foot(FrightMotion.LIGHT, true, 0f, -1f).z > 1.5f);
+        assertTrue(FrightMotion.foot(FrightMotion.LIGHT, false, 0f, -1f).z > 0.6f);
         // To the right (-x): the left foot leads, to the left.
-        assertTrue(FrightMotion.foot(FrightMotion.RECOIL, FrightMotion.LIGHT, false, -1f, 0f).x > 1.5f);
-        // Leaning back from a sound ahead, forward from one behind.
-        assertTrue(FrightMotion.pose(FrightMotion.RECOIL, FrightMotion.LIGHT, 0.6f, 1f, -1f).bow() < 0f);
-        assertTrue(FrightMotion.pose(FrightMotion.RECOIL, FrightMotion.LIGHT, 0.6f, 1f, 1f).bow() > 0f);
-        assertTrue(FrightMotion.pose(FrightMotion.RECOIL, FrightMotion.LIGHT, 0.6f, 1f, -1f).round() > 0.3f);
+        assertTrue(FrightMotion.foot(FrightMotion.LIGHT, false, -1f, 0f).x > 1.5f);
+        // Leaning back from a sound ahead, forward from one behind, and looking at it.
+        assertTrue(FrightMotion.pose(FrightMotion.LIGHT, 1.1f, 1f, 0f, -1f).bow() < 0f);
+        assertTrue(FrightMotion.pose(FrightMotion.LIGHT, 1.1f, 1f, 0f, 1f).bow() > 0f);
+        assertTrue(FrightMotion.pose(FrightMotion.LIGHT, 0.6f, 1f, 0f, -1f).round() > 0.3f);
     }
 
     @Test
-    void jumpLeavesTheGroundAndLandsWider() {
-        assertTrue(FrightMotion.pose(FrightMotion.JUMP, FrightMotion.LIGHT, 0.15f, 0f, -1f).hop() > 0.8f);
-        assertEquals(0f, FrightMotion.pose(FrightMotion.JUMP, FrightMotion.LIGHT, 0.5f, 1f, -1f).hop(), 1e-6f);
-        assertTrue(FrightMotion.lands(FrightMotion.JUMP, FrightMotion.LIGHT));
-        assertTrue(FrightMotion.foot(FrightMotion.JUMP, FrightMotion.LIGHT, true, 0f, -1f).x < -0.5f);
-        assertTrue(FrightMotion.foot(FrightMotion.JUMP, FrightMotion.LIGHT, false, 0f, -1f).x > 0.5f);
-        // The look goes to one side and then the other.
-        assertTrue(FrightMotion.pose(FrightMotion.JUMP, FrightMotion.LIGHT, 0.5f, 1f, -1f).glance()
-                * FrightMotion.pose(FrightMotion.JUMP, FrightMotion.LIGHT, 1.05f, 1f, -1f).glance() < 0f);
+    void theArmGoesAgainstItsLegWithAStep() {
+        float late = FrightMotion.shake(FrightMotion.LIGHT) + 0.05f;
+        // The right foot stepping: the right arm forward (against below zero), the chest against the hips.
+        FrightMotion.Pose right = FrightMotion.pose(FrightMotion.LIGHT, late, 0.5f, 1f, -1f), left = FrightMotion.pose(FrightMotion.LIGHT, late, 0.5f, -1f, -1f);
+        assertTrue(right.against() < -0.1f && left.against() > 0.1f);
+        assertTrue(right.yaw() < 0f && left.yaw() > 0f);
     }
 
     @Test
-    void freezeKeepsTheFeetForAStartAndTakesOneLook() {
-        assertEquals(0f, FrightMotion.foot(FrightMotion.FREEZE, FrightMotion.LIGHT, true, 0f, -1f).length()
-                + FrightMotion.foot(FrightMotion.FREEZE, FrightMotion.LIGHT, false, 0f, -1f).length(), 1e-6f);
-        assertEquals(0f, FrightMotion.hop(FrightMotion.FREEZE, FrightMotion.LIGHT), 1e-6f);
-        assertTrue(FrightMotion.pose(FrightMotion.FREEZE, FrightMotion.LIGHT, 0.5f, 1f, -1f).round() > 0.4f);
-        assertEquals(0f, FrightMotion.pose(FrightMotion.FREEZE, FrightMotion.LIGHT, FrightMotion.kept(FrightMotion.LIGHT), 1f, -1f).round(), 1e-4f);
+    void onlyTheWorseOnesLeaveTheGround() {
+        assertEquals(0f, FrightMotion.hop(FrightMotion.LIGHT), 1e-6f);
+        assertEquals(0f, FrightMotion.pose(FrightMotion.LIGHT, 0.15f, 0f, 0f, -1f).hop(), 1e-6f);
+        assertTrue(FrightMotion.pose(FrightMotion.MEDIUM, 0.15f, 0f, 0f, -1f).hop() > 0.8f);
+        assertTrue(FrightMotion.pose(FrightMotion.STRONG, 0.15f, 0f, 0f, -1f).hop() > FrightMotion.pose(FrightMotion.MEDIUM, 0.15f, 0f, 0f, -1f).hop());
     }
 }

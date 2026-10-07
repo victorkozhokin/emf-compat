@@ -43,7 +43,7 @@ public final class Fright implements InteractionProvider {
     public static final Fright INSTANCE = new Fright();
     public static final String KEY_ENABLED = "fright.enabled";
     public static final String KEY_SCULK = "fright.sculk", KEY_WARDEN = "fright.warden", KEY_CREAKING = "fright.creaking",
-            KEY_CREEPER = "fright.creeper", KEY_EXPLOSION = "fright.explosions", KEY_THUNDER = "fright.thunder", KEY_USED = "fright.getUsedTo", KEY_VARIANT = "fright.variant";
+            KEY_CREEPER = "fright.creeper", KEY_EXPLOSION = "fright.explosions", KEY_THUNDER = "fright.thunder", KEY_USED = "fright.getUsedTo";
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatFright");
 
     /** Seconds: a sound no worse than the last is not jumped at again this soon; each fright counts against the next for this long. */
@@ -99,9 +99,8 @@ public final class Fright implements InteractionProvider {
         /** The way round to the sound, radians, against the body as drawn (to the right above zero). */
         float yaw;
         boolean grounded, wary, landed;
-        int variant = FrightMotion.RECOIL;
-        /** How far the soles are to their stand, 0..1, eased; seconds into the fright. */
-        float stand, in;
+        /** How far the soles are to their stand, 0..1, and the step under way, both eased; seconds into the fright. */
+        float stand, swing, in;
         float sx, sz;
         AbstractClientPlayer player;
         strm.emfcompat.core.ik.IKFrame frame;
@@ -125,9 +124,6 @@ public final class Fright implements InteractionProvider {
         config.addChild(KEY_ENABLED, KEY_CREEPER, "Creeper's fuse", true, "On", "A creeper starting to hiss near by frightens.", "Off", "A creeper's hiss is not reacted to.");
         config.addChild(KEY_ENABLED, KEY_EXPLOSION, "Explosions", true, "On", "An explosion near by frightens.", "Off", "Explosions are not reacted to.");
         config.addChild(KEY_ENABLED, KEY_THUNDER, "Thunder", true, "On", "Lightning striking near by frightens.", "Off", "Thunder is not reacted to.");
-        config.addChoice(KEY_ENABLED, KEY_VARIANT, "Way of taking fright (to choose)", new double[]{1, 2, 3},
-                new String[]{"A: recoil", "B: jump", "C: freeze"}, 1,
-                "Three takes on the same fright, to pick one: A steps back from the sound and keeps the eyes on it; B hops on the spot and looks about; C stands stock still and takes one slow look.");
         config.addChild(KEY_ENABLED, KEY_USED, "Get used to it", true, "On", "Frightened again and again, each fright is taken more lightly for a while.", "Off", "Every sound frightens as much as the first.");
     }
 
@@ -206,7 +202,6 @@ public final class Fright implements InteractionProvider {
                 state.since = state.lastAt = now;
                 state.source = worst.at;
                 state.nerve += 1f;
-                state.variant = Mth.clamp((int) Math.round(EMFCompatConfig.getNumber(KEY_VARIANT, 1)), FrightMotion.RECOIL, FrightMotion.FREEZE);
                 state.landed = false;
                 if (DebugLog.decisions()) LOGGER.info("[Fright] {} {} level={} at {}", player.getName().getString(), worst.kind.sound, level,
                         Math.round(worst.at.distanceTo(player.getEyePosition()) * 10) / 10.0);
@@ -217,12 +212,12 @@ public final class Fright implements InteractionProvider {
         boolean planted = Body.planted(player);
         // Kept for its time; then the feet are sent home, and it is over when they are there and the jolt has run out.
         state.wary = state.level > 0 && able && planted && in < FrightMotion.kept(state.level);
-        if (state.level > 0 && (!able || in >= FrightMotion.kept(state.level) && in >= FrightMotion.jolt(state.level)
+        if (state.level > 0 && (!able || in >= FrightMotion.kept(state.level) && in >= FrightMotion.shake(state.level)
                 && (state.feet.resting() || !planted) && state.stand < 0.02f)) state.level = 0;
         if (state.level == 0) {
             state.pose = state.ahead = FrightMotion.Pose.NONE;
             state.wary = false;
-            state.stand = 0f;
+            state.stand = state.swing = 0f;
             context.decide("calm");
             return;
         }
@@ -233,15 +228,14 @@ public final class Fright implements InteractionProvider {
         state.sx = flat < 4f ? 0f : to.x / flat;
         state.sz = flat < 4f ? -1f : to.z / flat;
         // How far the soles have come to their stand: the body goes with them, never ahead. With no stand to take, the clock stands in for it.
-        float far = new Vector3f(FrightMotion.foot(state.variant, state.level, true, state.sx, state.sz))
-                .add(FrightMotion.foot(state.variant, state.level, false, state.sx, state.sz)).mul(0.5f).length();
-        float stood = far > 0.15f && planted ? Mth.clamp(state.feet.mean().length() / far, 0f, 1f)
-                : in < FrightMotion.kept(state.level) ? Mth.clamp(in / 0.3f, 0f, 1f) : 0f;
-        state.stand += (stood - state.stand) * strm.emfcompat.animationadditions.interaction.Smoothing.follow(context.dt(), 0.12);
-        state.pose = FrightMotion.pose(state.variant, state.level, in, state.stand, state.sz);
-        state.ahead = FrightMotion.pose(state.variant, state.level, in + LEAN_LAG, state.stand, state.sz);
-        context.decide((state.level == FrightMotion.STRONG ? "terror" : state.level == FrightMotion.MEDIUM ? "scare" : "start")
-                + (state.variant == FrightMotion.RECOIL ? " recoil" : state.variant == FrightMotion.JUMP ? " jump" : " freeze") + (state.wary ? "" : " home"));
+        float far = new Vector3f(FrightMotion.foot(state.level, true, state.sx, state.sz))
+                .add(FrightMotion.foot(state.level, false, state.sx, state.sz)).mul(0.5f).length();
+        float stood = planted ? Mth.clamp(state.feet.mean().length() / far, 0f, 1f) : in < FrightMotion.kept(state.level) ? Mth.clamp(in / 0.3f, 0f, 1f) : 0f;
+        state.stand += (stood - state.stand) * strm.emfcompat.animationadditions.interaction.Smoothing.follow(context.dt(), 0.14);
+        state.swing += ((planted ? state.feet.swing() : 0f) - state.swing) * strm.emfcompat.animationadditions.interaction.Smoothing.follow(context.dt(), 0.06);
+        state.pose = FrightMotion.pose(state.level, in, state.stand, state.swing, state.sz);
+        state.ahead = FrightMotion.pose(state.level, in + LEAN_LAG, state.stand, state.swing, state.sz);
+        context.decide((state.level == FrightMotion.STRONG ? "terror" : state.level == FrightMotion.MEDIUM ? "scare" : "start") + (state.wary ? "" : " home"));
     }
 
     /** The bow for the torso - asked for as it will be when the lean has caught up - and, in a terror, its share of the turn to the sound. The shudder is too quick for the lean: {@link #apply} lays it on directly. */
@@ -250,7 +244,7 @@ public final class Fright implements InteractionProvider {
         if (state == null || state.level == 0 || !INSTANCE.isEnabled()) return null;
         FrightMotion.Pose pose = state.ahead;
         // The torso goes a little with the head's look to the sides.
-        return TorsoLean.Hint.turn(pose.bow(), state.yaw * ROUND_TORSO * pose.round() + pose.glance() * 0.35f, 0f);
+        return TorsoLean.Hint.turn(pose.bow(), state.yaw * ROUND_TORSO * pose.round(), 0f);
     }
 
     private static final Vector3f HOME = new Vector3f();
@@ -264,11 +258,11 @@ public final class Fright implements InteractionProvider {
         State state = STATES.fresh(uuid);
         if (state == null || state.player == null || !INSTANCE.isEnabled()) return;
         if (state.level == 0 && state.feet.resting()) return;
-        Vector3f right = state.wary ? FrightMotion.foot(state.variant, state.level, true, state.sx, state.sz) : HOME;
-        Vector3f left = state.wary ? FrightMotion.foot(state.variant, state.level, false, state.sx, state.sz) : HOME;
-        float hop = state.level == 0 ? 0f : FrightMotion.hop(state.variant, state.level);
+        Vector3f right = state.wary ? FrightMotion.foot(state.level, true, state.sx, state.sz) : HOME;
+        Vector3f left = state.wary ? FrightMotion.foot(state.level, false, state.sx, state.sz) : HOME;
+        float hop = state.level == 0 ? 0f : FrightMotion.hop(state.level);
         Vector3f mean;
-        if (state.wary && state.grounded && hop > 0f && state.in < hop && FrightMotion.lands(state.variant, state.level)) {
+        if (state.wary && state.grounded && hop > 0f && state.in < hop) {
             // In the air: both feet go to where they will land at once.
             float way = Mth.clamp(state.in / hop, 0f, 1f);
             way = way * way * (3f - 2f * way);
@@ -280,7 +274,7 @@ public final class Fright implements InteractionProvider {
             strm.emfcompat.animationadditions.torso.BraceSteps.apply(state.feet, state.player, state.frame, parts, right, left, 1f, 0f, LOGGER, "FrightStance");
             mean = state.feet.mean();
         }
-        float carry = state.pose.carry();
+        float carry = state.level == 0 ? 0f : FrightMotion.CARRY;
         if (carry > 0f && mean.lengthSquared() > 1e-4f) strm.emfcompat.animationadditions.torso.PelvisFollow.shift(parts, mean.x * carry, mean.z * carry);
     }
 
@@ -308,7 +302,7 @@ public final class Fright implements InteractionProvider {
             arm.yRot += pose.yaw();
             // A hand at work is left on it.
             if (InteractionRuntime.aim(uuid, right ? Effector.RIGHT_ARM : Effector.LEFT_ARM) != null) continue;
-            arm.xRot += -pose.armsUp() + (right ? pose.tremble() : -pose.tremble());
+            arm.xRot += -pose.armsUp() + (right ? pose.against() : -pose.against());
             // Out from the body is +zRot for the right arm and -zRot for the left.
             // Both to the same side: +zRot takes either hand to the right.
             arm.zRot += (right ? 1f : -1f) * pose.armsOut() + pose.sway();
@@ -316,8 +310,7 @@ public final class Fright implements InteractionProvider {
         if (head != null) {
             if (InteractionRuntime.aim(uuid, Effector.HEAD) == null) {
                 float round = Mth.clamp(state.yaw * (1f - ROUND_TORSO), -1.2f, 1.2f);
-                head.yRot += pose.glance() + IKMath.wrap(round - head.yRot) * pose.round();
-                head.xRot += pose.duck();
+                head.yRot += pose.nod() + IKMath.wrap(round - head.yRot) * pose.round();
             }
             if (hat != null) {
                 hat.yRot = head.yRot;
@@ -331,9 +324,7 @@ public final class Fright implements InteractionProvider {
             }
         }
         if (DebugLog.trace() && state.trace.due(40_000_000L)) {
-            LOGGER.info("[FrightTrace] level={} shrug={} hop={} round={} bodyYaw={} headYaw={} headPitch={}", state.level, Math.round(pose.shrug() * 10) / 10f,
-                    Math.round(pose.hop() * 10) / 10f, Math.round(pose.round() * 100) / 100f, body == null ? 0 : Math.round(Math.toDegrees(body.yRot)),
-                    head == null ? 0 : Math.round(Math.toDegrees(head.yRot)), head == null ? 0 : Math.round(Math.toDegrees(head.xRot)));
+            LOGGER.info("[FrightTrace] level={} stand={} swing={} round={} headYaw={}", state.level, Math.round(state.stand * 100) / 100f, Math.round(state.swing * 100) / 100f, Math.round(pose.round() * 100) / 100f, head == null ? 0 : Math.round(Math.toDegrees(head.yRot)));
         }
     }
 }

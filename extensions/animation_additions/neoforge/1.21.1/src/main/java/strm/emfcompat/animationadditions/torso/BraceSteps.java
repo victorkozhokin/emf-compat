@@ -23,6 +23,13 @@ public final class BraceSteps {
             return new Vector3f(stride.feet[0]).add(stride.feet[1]).mul(.5f);
         }
 
+        /** The step under way: above zero the right foot's, below the left's, as high as the foot is in its arc; zero with both down. */
+        public float swing() {
+            if (stride.stepping < 0) return 0f;
+            float arc = (float) Math.sin(Math.PI * Math.max(0f, Math.min(1f, stride.progress)));
+            return stride.stepping == 0 ? arc : -arc;
+        }
+
         /** Puts both soles down where they are given at once - landed there from a hop - with no step under way. */
         public void place(Vector3f right, Vector3f left) {
             stride.stepping = -1;

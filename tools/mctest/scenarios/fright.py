@@ -1,8 +1,6 @@
-"""Fright at a sound, the three ways of taking it (A recoil, B jump, C freeze - the "fright.variant" choice, which the
-driver cannot set: pick it in the config screen, or pass it here to label the run). A start (sculk sensor) from ahead,
-from the right and from behind, the model every tick; then the same sound again and again for looking at.
-fright.py <tag> [levels] prints the steps; levels is any of "start,scare,terror" (default start).
-Read the [Fright] decisions and [FrightStance] in the log. On the pad at y 160."""
+"""Fright at a sound: back from it. A start (sculk sensor) from ahead, from the right and from behind, the model every
+tick; then the same sound again from four views. fright.py <tag> [levels] prints the steps; levels is any of
+"start,scare,terror" (default start). Read the [Fright] decisions and [FrightStance] in the log. On the pad at y 160."""
 import json, sys
 tag = sys.argv[1] if len(sys.argv) > 1 else "base"
 levels = (sys.argv[2] if len(sys.argv) > 2 else "start").split(",")
