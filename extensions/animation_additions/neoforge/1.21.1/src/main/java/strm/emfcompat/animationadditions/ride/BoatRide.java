@@ -77,7 +77,7 @@ public final class BoatRide implements InteractionProvider {
     /** Model pixels: as far as a shoulder gives to bring its fist home. */
     private static final float SHRUG = 2.5f;
     /** Radians: as far back as the rower leans, and as far as the chest turns. */
-    private static final float LEAN_LIMIT = 1.0f, TURN_LIMIT = 0.45f;
+    private static final float LEAN_LIMIT = 1.0f, TURN_LIMIT = 0.62f;
     /** Radians: the lean over an oar pushed alone, and the chest's turn after it. */
     private static final float HEEL = 0.08f, LONE_TURN = 0.16f;
     /** Boat model pixels: the top of a side plank, and how far along it a hand is looked for. */
@@ -85,7 +85,7 @@ public final class BoatRide implements InteractionProvider {
     /** A handle driven out this fast, pixels a second, is a full push. */
     private static final float FULL_PULL = 28f;
     /** Seconds: a side's rowing coming on and off, the load on it, the springs' half-life, and how far ahead they are read. */
-    private static final double ACTIVE_SECONDS = 0.22, LOAD_SECONDS = 0.06, SPRING = 0.04, LEAD = 0.12;
+    private static final double ACTIVE_SECONDS = 0.22, LOAD_SECONDS = 0.06, SPRING = 0.04, LEAD = 0.12, SLIDE_SECONDS = 0.12;
 
     private static final class State {
         /** For the right hand and the left: how far it is rowing, how far out its handle is (-1..1), the load on it, and where the handle was. */
@@ -94,8 +94,9 @@ public final class BoatRide implements InteractionProvider {
         final Spring pitch = new Spring(), yaw = new Spring(), roll = new Spring();
         boolean riding;
         float seated;
-        final float[] free = new float[2];
-        final float[] miss = new float[2];
+        final float[] free = new float[2], along = new float[2];
+        final boolean[] resting = new boolean[2];
+        final float[] miss = new float[2], gap = new float[2];
         final strm.emfcompat.animationadditions.DebugLog.Pace trace = new strm.emfcompat.animationadditions.DebugLog.Pace();
         final Vector3f[] handle = {new Vector3f(), new Vector3f()};
     }
@@ -181,9 +182,12 @@ public final class BoatRide implements InteractionProvider {
         for (int hand = 0; hand < 2; hand++) {
             float free = Ease.smooth(state.rowing[1 - hand] * (1f - state.rowing[hand]));
             state.free[hand] = free;
-            if (free < 1e-3f) continue;
+            if (free < 1e-3f) {
+                state.resting[hand] = false;
+                continue;
+            }
             int side = (hand == 0) == firstRight ? 0 : 1;
-            Vec3 rest = gunwale(boat, side, frame, hand == 0 ? -HALF_SHOULDERS : HALF_SHOULDERS, leaning, partial);
+            Vec3 rest = gunwale(state, hand, boat, side, frame, hand == 0 ? -HALF_SHOULDERS : HALF_SHOULDERS, leaning, partial, dt);
             if (hand == 0) {
                 right = right.lerp(rest, free);
                 rightAt = Body.model(frame, right);
@@ -199,11 +203,12 @@ public final class BoatRide implements InteractionProvider {
         // Back is -xRot. The lean is the rowing hands'; a hand on the gunwale goes where the body takes it.
         float holdRight = 1f - state.free[0], holdLeft = 1f - state.free[1];
         float pitch = -(leanRight * holdRight + leanLeft * holdLeft) / Math.max(1e-3f, holdRight + holdLeft) + load * 2f * HAUL * both;
-        // What one shoulder needs over the other is the chest's turn: the right shoulder further back is the chest turned to the right, -yRot.
+        // What one shoulder needs over the other is the chest's turn. As the game turns the body for a swing,
+        // +yRot takes the right shoulder back: the paddles out of step, each shoulder goes with its own.
         float apart = TORSO * (Mth.sin(leanRight) - Mth.sin(leanLeft)) * Math.min(holdRight, holdLeft);
-        float yaw = Mth.clamp(-(float) Math.asin(Mth.clamp(apart / (2f * HALF_SHOULDERS), -1f, 1f)), -TURN_LIMIT, TURN_LIMIT);
-        // One hand rowing alone: the chest goes a little after it as it is driven out. The right hand out is the chest turned left, +yRot.
-        yaw += (state.out[0] * state.free[1] - state.out[1] * state.free[0]) * LONE_TURN;
+        float yaw = Mth.clamp((float) Math.asin(Mth.clamp(apart / (2f * HALF_SHOULDERS), -1f, 1f)), -TURN_LIMIT, TURN_LIMIT);
+        // One hand rowing alone: its shoulder goes a little after it as it is driven out - the right one forward is -yRot.
+        yaw -= (state.out[0] * state.free[1] - state.out[1] * state.free[0]) * LONE_TURN;
         float roll = (state.load[0] - state.load[1]) * HEEL;
         state.pitch.update(pitch, SPRING, dt);
         state.yaw.update(yaw, SPRING, dt);
@@ -271,22 +276,35 @@ public final class BoatRide implements InteractionProvider {
      * Where on the gunwale of paddle {@code side}'s side a hand rests: the place along its top an
      * arm's length from that shoulder as the torso leans now, before the body rather than behind it.
      */
-    private static Vec3 gunwale(Boat boat, int side, IKFrame frame, float shoulder, float lean, float partial) {
-        float y = Skeleton.WAIST.y - TORSO * Mth.cos(lean), z = SIT_BACK + TORSO * Mth.sin(lean);
-        Vec3 best = null;
-        float bestScore = Float.MAX_VALUE;
-        for (float along = -GUNWALE_HALF; along <= GUNWALE_HALF; along += 0.5f) {
-            Vec3 point = world(boat, new Vector3f(along, GUNWALE_Y, side == 0 ? GUNWALE_Z : -GUNWALE_Z), partial);
-            Vector3f model = Body.model(frame, point);
-            float reach = (float) Math.sqrt((model.x - shoulder) * (model.x - shoulder) + (model.y - y) * (model.y - y) + (model.z - z) * (model.z - z));
-            // Forward is -z: a place behind the shoulder is a last resort.
-            float score = Math.abs(reach - GRIP) + Math.max(0f, model.z - (z - 3f)) * 0.7f;
-            if (score < bestScore) {
-                bestScore = score;
-                best = point;
-            }
+    private static Vec3 gunwale(State state, int hand, Boat boat, int side, IKFrame frame, float shoulder, float lean, float partial, double dt) {
+        float z0 = side == 0 ? GUNWALE_Z : -GUNWALE_Z;
+        Vec3 from = world(boat, new Vector3f(-GUNWALE_HALF, GUNWALE_Y, z0), partial), to = world(boat, new Vector3f(GUNWALE_HALF, GUNWALE_Y, z0), partial);
+        Vector3f a = Body.model(frame, from), b = Body.model(frame, to);
+        // The end before the body first: forward is -z.
+        if (a.z > b.z) {
+            Vector3f swap = a;
+            a = b;
+            b = swap;
+            Vec3 other = from;
+            from = to;
+            to = other;
         }
-        return best;
+        // Where the sphere of an arm's length round the shoulder cuts the plank's top: solved, not searched, so the
+        // place moves as evenly as the shoulder does. Of the two cuts the one before the body.
+        Vector3f centre = new Vector3f(shoulder, Skeleton.WAIST.y - TORSO * Mth.cos(lean), SIT_BACK + TORSO * Mth.sin(lean));
+        Vector3f along = new Vector3f(b).sub(a), off = new Vector3f(a).sub(centre);
+        float qa = along.lengthSquared(), qb = 2f * off.dot(along), qc = off.lengthSquared() - GRIP * GRIP;
+        float found = qb * qb - 4f * qa * qc;
+        // Too far for a cut: the place nearest the shoulder.
+        float t = found < 0f ? -qb / (2f * qa) : (-qb - (float) Math.sqrt(found)) / (2f * qa);
+        t = Mth.clamp(t, 0f, 1f);
+        // The hand slides along the plank after the body; eased, so that what little the shoulder shakes does not show in it.
+        if (!state.resting[hand]) {
+            state.along[hand] = t;
+            state.resting[hand] = true;
+        }
+        state.along[hand] += (t - state.along[hand]) * Smoothing.follow(dt, SLIDE_SECONDS);
+        return from.lerp(to, state.along[hand]);
     }
 
     /**
@@ -304,6 +322,7 @@ public final class BoatRide implements InteractionProvider {
             if (arm == null || weight < 0.02f) continue;
             strm.emfcompat.animationadditions.interaction.ArmAim.towards(arm, state.handle[hand], weight, true);
             Vector3f left = new Vector3f(state.handle[hand]).sub(Body.tip(arm, GRIP));
+            state.gap[hand] = left.length();
             if (left.length() > SHRUG) left.normalize(SHRUG);
             arm.x += left.x * weight;
             arm.y += left.y * weight;
@@ -312,8 +331,8 @@ public final class BoatRide implements InteractionProvider {
         }
         if (strm.emfcompat.animationadditions.DebugLog.trace() && state.trace.due(50_000_000L)) {
             net.minecraft.client.model.geom.ModelPart body = parts.apply("body");
-            org.slf4j.LoggerFactory.getLogger("EMFCompatRide").info("[BoatTrace] missR={} missL={} freeR={} freeL={} pitch={} yaw={}",
-                    state.miss[0], state.miss[1], state.free[0], state.free[1],
+            org.slf4j.LoggerFactory.getLogger("EMFCompatRide").info("[BoatTrace] missR={} missL={} gapR={} gapL={} freeR={} freeL={} pitch={} yaw={}",
+                    state.miss[0], state.miss[1], state.gap[0], state.gap[1], state.free[0], state.free[1],
                     body == null ? 0 : Math.toDegrees(body.xRot), body == null ? 0 : Math.toDegrees(body.yRot));
         }
     }
