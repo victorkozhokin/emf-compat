@@ -11,7 +11,7 @@ import strm.emfcompat.animationadditions.footgrounding.compat.HorseFootGrounding
 import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
 import strm.emfcompat.animationadditions.blockuse.BlockUse;
-import strm.emfcompat.animationadditions.ejector.EjectorLaunch;
+import strm.emfcompat.animationadditions.create.ejector.EjectorLaunch;
 import strm.emfcompat.animationadditions.mining.Mining;
 import strm.emfcompat.animationadditions.motion.PoseInertia;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
@@ -165,7 +165,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         Mining.reach(uuid, parts);
         strm.emfcompat.animationadditions.gesture.Gesture.reach(uuid, parts);
         ButtonPress.reachContact(uuid, parts);
-        strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.reachContact(uuid, parts);
+        strm.emfcompat.animationadditions.buttonpress.aeronautics.HeavyThrottle.reachContact(uuid, parts);
         InteractionRuntime.finishSupport(uuid, parts, supportBase, EMFState.getFrameCounter(), mainModel);
         var contactBase = InteractionRuntime.beginHands(uuid, parts);
         InteractionRuntime.apply(uuid, parts);
@@ -179,7 +179,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         strm.emfcompat.animationadditions.pocket.PocketStash.aimArm(uuid, parts);
         strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitControls.apply(uuid, parts);
         HandContacts.apply(uuid, parts, contactBase, mainModel);
-        strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.aimArms(uuid, parts);
+        strm.emfcompat.animationadditions.buttonpress.aeronautics.HeavyThrottle.aimArms(uuid, parts);
         strm.emfcompat.animationadditions.transport.TransportGrip.aim(uuid, parts);
         strm.emfcompat.animationadditions.lead.LeadHold.capture(uuid, parts);
         InteractionRuntime.finishHands(uuid, parts, contactBase, EMFState.getFrameCounter(), mainModel);

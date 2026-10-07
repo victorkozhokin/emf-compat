@@ -5,7 +5,7 @@ import org.joml.Vector3f;
 import static org.junit.jupiter.api.Assertions.*;
 import strm.emfcompat.animationadditions.interaction.Ease;
 
-class ReachEnvelopeTest {
+public class ReachEnvelopeTest {
     @Test void contactCorrectionBlendsInAndOutWithoutSnapping() {
         var current = new org.joml.Quaternionf();
         var target = new org.joml.Quaternionf().rotationX((float) Math.toRadians(25));

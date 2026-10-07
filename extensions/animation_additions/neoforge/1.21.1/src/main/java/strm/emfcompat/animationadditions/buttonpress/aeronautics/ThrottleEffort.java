@@ -1,7 +1,9 @@
-package strm.emfcompat.animationadditions.buttonpress;
+package strm.emfcompat.animationadditions.buttonpress.aeronautics;
+
+import strm.emfcompat.animationadditions.buttonpress.*;
 
 /** Bounded visual effort from observed lever travel; never modifies the lever's physics. */
-final class ThrottleEffort {
+public final class ThrottleEffort {
     float load, assist, recoil, regrip;
     int direction;
     private int previous;

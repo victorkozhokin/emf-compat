@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.buttonpress.aeronautics.HeavyThrottle;
 
 /**
  * Runs the interaction providers for each rendered player and puts the result on the model.

@@ -2,7 +2,7 @@ package strm.emfcompat.animationadditions.transport;
 import org.joml.Vector3d;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-class RopePoseMathTest {
+public class RopePoseMathTest {
     @Test void raisedFootRequiresAnEdgeAndAPlantedOppositeSole() {
         assertTrue(RopePoseMath.edgeLift(true, true, true, false, false) > 0);
         assertEquals(0, RopePoseMath.edgeLift(true, true, false, false, false));

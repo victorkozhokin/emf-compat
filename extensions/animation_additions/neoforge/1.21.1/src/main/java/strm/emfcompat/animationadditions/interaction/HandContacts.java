@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.buttonpress.aeronautics.HeavyThrottle;
 
 /** Contact targets reapplied from the drawn shoulder after breathing and torso layers. */
 public final class HandContacts {

@@ -48,6 +48,8 @@ import java.util.UUID;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Body;
 import strm.emfcompat.animationadditions.DebugLog;
+import strm.emfcompat.animationadditions.buttonpress.aeronautics.PhysicsAssembler;
+import strm.emfcompat.animationadditions.buttonpress.aeronautics.ThrottleLever;
 
 /**
  * Pressing a button or throwing a lever with the body: the right hand goes to a button or a

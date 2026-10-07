@@ -1,4 +1,4 @@
-package strm.emfcompat.animationadditions.buttonpress;
+package strm.emfcompat.animationadditions.buttonpress.aeronautics;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
@@ -17,6 +17,7 @@ import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
 import strm.emfcompat.animationadditions.interaction.Body;
 import strm.emfcompat.animationadditions.DebugLog;
+import strm.emfcompat.animationadditions.buttonpress.*;
 
 /** A held Throttle receives phased visual effort; cockpit and item use retain their hands. */
 public final class HeavyThrottle implements InteractionProvider {

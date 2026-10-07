@@ -11,11 +11,12 @@ import strm.emfcompat.animationadditions.interaction.SubLevels;
 import strm.emfcompat.core.ik.IKFrame;
 import java.util.List;
 import strm.emfcompat.animationadditions.interaction.Body;
+import strm.emfcompat.animationadditions.transport.aeronautics.AeronauticRopes;
 
 /** Short local rays. Collision surfaces, or continuous slender outline-only supports. */
-final class SupportSearch {
-    record Contact(SubLevels.Space space, BlockPos block, Vec3 point, Vec3 normal, boolean outline, AeronauticRopes.Grip rope) {
-        Contact(SubLevels.Space space, BlockPos block, Vec3 point, Vec3 normal, boolean outline) { this(space, block, point, normal, outline, null); }
+public final class SupportSearch {
+    public record Contact(SubLevels.Space space, BlockPos block, Vec3 point, Vec3 normal, boolean outline, AeronauticRopes.Grip rope) {
+        public Contact(SubLevels.Space space, BlockPos block, Vec3 point, Vec3 normal, boolean outline) { this(space, block, point, normal, outline, null); }
         Vec3 world() { return rope == null ? space.refresh().toWorld(point) : rope.world(); }
     }
     record Deck(SubLevels.Space space, Vec3 local, Vec3 normal) {}
@@ -34,7 +35,7 @@ final class SupportSearch {
         }
         return best == null || best.space.isWorld() ? null : best;
     }
-    static Contact find(AbstractClientPlayer player, IKFrame frame, List<SubLevels.Space> spaces, boolean right) {
+    public static Contact find(AbstractClientPlayer player, IKFrame frame, List<SubLevels.Space> spaces, boolean right) {
         var physical = AeronauticRopes.find(player, frame, spaces, right);
         if (physical != null) return physical;
         Vector3f shoulder = new Vector3f(right ? -5 : 5, 2, 0);
@@ -73,7 +74,7 @@ final class SupportSearch {
             org.slf4j.LoggerFactory.getLogger("EMFCompatTransport").info("[SupportSearch] right={} hits={} eligible={} reachable={} found={}", right, hits, eligible, reachable, best != null);
         return best;
     }
-    static boolean clear(AbstractClientPlayer player, Vec3 from, Vec3 to, List<SubLevels.Space> spaces) {
+    public static boolean clear(AbstractClientPlayer player, Vec3 from, Vec3 to, List<SubLevels.Space> spaces) {
         double reach = from.distanceTo(to);
         for (var space : spaces) {
             var hit = player.level().clip(new ClipContext(space.toLocal(from), space.toLocal(to),

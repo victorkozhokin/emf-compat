@@ -17,6 +17,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Body;
 import strm.emfcompat.animationadditions.DebugLog;
+import strm.emfcompat.animationadditions.transport.aeronautics.AeronauticRopes;
 
 /** Automatic nearest free-hand contact while standing on a moving Sable deck. */
 public final class TransportGrip implements InteractionProvider {

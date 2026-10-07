@@ -1,4 +1,4 @@
-package strm.emfcompat.animationadditions.buttonpress;
+package strm.emfcompat.animationadditions.buttonpress.aeronautics;
 
 import strm.emfcompat.animationadditions.blockuse.ModFailures;
 import net.minecraft.client.Minecraft;
@@ -15,6 +15,7 @@ import org.joml.Vector3f;
 
 import java.lang.reflect.Method;
 import strm.emfcompat.animationadditions.blockuse.ModBlock;
+import strm.emfcompat.animationadditions.buttonpress.*;
 
 /**
  * Create Aeronautics' physics assembler ({@code simulated}): a lever flicked over and held to
@@ -26,7 +27,7 @@ import strm.emfcompat.animationadditions.blockuse.ModBlock;
  * and within that about the lever's pivot (8, 7, 8) px round east by {@code getRenderAngle}
  * (radians), so the hand goes over with it when it is flicked.</p>
  */
-final class PhysicsAssembler {
+public final class PhysicsAssembler {
 
     private static final ModBlock BLOCK = ModBlock.exact("dev.simulated_team.simulated.content.blocks.physics_assembler.PhysicsAssemblerBlock", "simulated:physics_assembler");
     private static final String RENDERER = "dev.simulated_team.simulated.content.blocks.physics_assembler.PhysicsAssemblerRenderer";
@@ -42,12 +43,12 @@ final class PhysicsAssembler {
     private PhysicsAssembler() {
     }
 
-    static boolean is(BlockState block) {
+    public static boolean is(BlockState block) {
         return BLOCK.is(block);
     }
 
     /** Where the knob is drawn now, world; {@code null} when it cannot be told. */
-    static Vec3 knob(Level level, BlockPos pos, BlockState block) {
+    public static Vec3 knob(Level level, BlockPos pos, BlockState block) {
         Method m = FAILURES.off() ? null : method();
         if (m == null) return null;
         BlockEntity entity = level.getBlockEntity(pos);

@@ -229,7 +229,7 @@ final class TerrainBalance {
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
             if (hit.getType() == HitResult.Type.MISS || hit.isInside()) continue;
             Vec3 normal = space.directionToWorld(Vec3.atLowerCornerOf(hit.getDirection().getNormal()));
-            Vec3 point = space.isWorld() ? strm.emfcompat.animationadditions.ejector.EjectorLid.onLid(player, hit)
+            Vec3 point = space.isWorld() ? strm.emfcompat.animationadditions.create.ejector.EjectorLid.onLid(player, hit)
                     : space.toWorld(hit.getLocation());
             if (normal.y < 0.5 || point.y >= start.y - 0.01) continue;
             double supportY = point.y;

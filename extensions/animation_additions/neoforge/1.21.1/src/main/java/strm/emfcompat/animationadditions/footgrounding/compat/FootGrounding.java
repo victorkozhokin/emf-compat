@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.ik.IKFrame;
 import strm.emfcompat.animationadditions.footgrounding.FootGroundingFeature;
-import strm.emfcompat.animationadditions.ejector.EjectorLid;
+import strm.emfcompat.animationadditions.create.ejector.EjectorLid;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
 

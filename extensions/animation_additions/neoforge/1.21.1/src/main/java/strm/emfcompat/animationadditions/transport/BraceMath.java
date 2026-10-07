@@ -3,7 +3,7 @@ package strm.emfcompat.animationadditions.transport;
 import org.joml.Vector3f;
 
 /** Bounded contact, effort and stance envelopes; model +Z points backwards. */
-final class BraceMath {
+public final class BraceMath {
     private BraceMath() {}
     static boolean reachable(Vector3f target, Vector3f shoulder, boolean right, boolean retained) {
         float d = target.distance(shoulder);

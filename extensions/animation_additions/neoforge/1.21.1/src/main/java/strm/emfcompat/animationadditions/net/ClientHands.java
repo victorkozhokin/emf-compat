@@ -15,7 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import strm.emfcompat.animationadditions.blockuse.BlockUse;
 import strm.emfcompat.animationadditions.blockuse.aeronautics.Typewriter;
-import strm.emfcompat.animationadditions.buttonpress.ThrottleLever;
+import strm.emfcompat.animationadditions.buttonpress.aeronautics.ThrottleLever;
 import strm.emfcompat.animationadditions.gesture.AnimalCare;
 import strm.emfcompat.animationadditions.gesture.HandTo;
 

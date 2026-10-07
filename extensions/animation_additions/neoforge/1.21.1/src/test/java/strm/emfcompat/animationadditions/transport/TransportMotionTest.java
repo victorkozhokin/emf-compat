@@ -2,7 +2,7 @@ package strm.emfcompat.animationadditions.transport;
 import org.joml.Vector3d;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-class TransportMotionTest {
+public class TransportMotionTest {
     @Test void constantVelocityDoesNotInventSustainedAcceleration() {
         TransportMotion m = new TransportMotion();
         for (int i = 0; i < 100; i++) m.sample(i, new Vector3d(i * .1, 0, 0));

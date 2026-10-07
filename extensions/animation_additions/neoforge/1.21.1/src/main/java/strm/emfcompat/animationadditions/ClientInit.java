@@ -13,7 +13,7 @@ import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
 import strm.emfcompat.animationadditions.blockuse.BlockUse;
 import strm.emfcompat.animationadditions.doorhold.DoorHold;
 import strm.emfcompat.animationadditions.furniture.Furniture;
-import strm.emfcompat.animationadditions.ejector.EjectorLaunch;
+import strm.emfcompat.animationadditions.create.ejector.EjectorLaunch;
 import strm.emfcompat.animationadditions.mining.Mining;
 import strm.emfcompat.animationadditions.motion.PoseInertia;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
@@ -56,7 +56,7 @@ final class ClientInit {
         strm.emfcompat.animationadditions.gesture.ShakeOff.register(gestures);
         strm.emfcompat.animationadditions.gesture.Gesture.register(gestures);
         ButtonPress.register(blocks);
-        strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.register(blocks);
+        strm.emfcompat.animationadditions.buttonpress.aeronautics.HeavyThrottle.register(blocks);
         BlockUse.register(blocks);
         DoorHold.register(blocks);
         Furniture.register(blocks);
@@ -79,7 +79,7 @@ final class ClientInit {
         InteractionRuntime.register(strm.emfcompat.animationadditions.gesture.ContainerSearch.INSTANCE);
         InteractionRuntime.register(strm.emfcompat.animationadditions.transport.TransportGrip.INSTANCE);
         InteractionRuntime.register(ButtonPress.INSTANCE);
-        InteractionRuntime.register(strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.INSTANCE);
+        InteractionRuntime.register(strm.emfcompat.animationadditions.buttonpress.aeronautics.HeavyThrottle.INSTANCE);
         InteractionRuntime.register(BlockUse.INSTANCE);
         InteractionRuntime.register(strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitControls.INSTANCE);
         InteractionRuntime.register(DoorHold.INSTANCE);

@@ -1,4 +1,4 @@
-package strm.emfcompat.animationadditions.transport;
+package strm.emfcompat.animationadditions.transport.aeronautics;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -12,18 +12,19 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
 import strm.emfcompat.animationadditions.interaction.Body;
+import strm.emfcompat.animationadditions.transport.*;
 
 /** Optional Simulated physical strands: bounds first, then nearby segments, never block traversal. */
-final class AeronauticRopes {
+public final class AeronauticRopes {
     private static boolean looked, available;
     private static Method manager, strands, strand, points, bounds, uuid, render;
-    static final class Grip {
+    public static final class Grip {
         final Level level;
-        final UUID id;
+        public final UUID id;
         final int count;
         private double coordinate, wanted;
         private Vec3 last;
-        Grip(Level level, UUID id, int segment, int count, double fraction, Vec3 point) {
+        public Grip(Level level, UUID id, int segment, int count, double fraction, Vec3 point) {
             this.level = level;
             this.id = id;
             this.count = count;
@@ -34,12 +35,12 @@ final class AeronauticRopes {
             Object s = call(strand, call(manager, null, level), id);
             return s == null ? null : (List<?>) call(points, s);
         }
-        boolean valid() { var p = vertices(); return p != null && p.size() == count && count >= 2; }
-        void retarget(Grip next) {
+        public boolean valid() { var p = vertices(); return p != null && p.size() == count && count >= 2; }
+        public void retarget(Grip next) {
             if (level == next.level && id.equals(next.id) && count == next.count) wanted = next.coordinate;
         }
-        void advance(double dt) { coordinate = RopePoseMath.slide(coordinate, wanted, dt); }
-        Vec3 world() {
+        public void advance(double dt) { coordinate = RopePoseMath.slide(coordinate, wanted, dt); }
+        public Vec3 world() {
             var p = vertices();
             if (p == null || p.size() != count) return last;
             Vector3d a = RopePoseMath.sample(count, coordinate, i -> position(p.get(i)));
@@ -47,10 +48,10 @@ final class AeronauticRopes {
             return last;
         }
     }
-    static SupportSearch.Contact find(AbstractClientPlayer player, IKFrame frame, List<SubLevels.Space> spaces, boolean right) {
+    public static SupportSearch.Contact find(AbstractClientPlayer player, IKFrame frame, List<SubLevels.Space> spaces, boolean right) {
         return find(player, frame, spaces, right, .25);
     }
-    static SupportSearch.Contact find(AbstractClientPlayer player, IKFrame frame, List<SubLevels.Space> spaces, boolean right, double rise) {
+    public static SupportSearch.Contact find(AbstractClientPlayer player, IKFrame frame, List<SubLevels.Space> spaces, boolean right, double rise) {
         if (!ready()) return null;
         Vector3f shoulder = new Vector3f(right ? -5 : 5, 2, 0);
         Vec3 from = frame.jointWorld(shoulder);

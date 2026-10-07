@@ -1,4 +1,4 @@
-package strm.emfcompat.animationadditions.ejector;
+package strm.emfcompat.animationadditions.create.ejector;
 
 import strm.emfcompat.animationadditions.blockuse.ModFailures;
 import net.minecraft.client.Minecraft;

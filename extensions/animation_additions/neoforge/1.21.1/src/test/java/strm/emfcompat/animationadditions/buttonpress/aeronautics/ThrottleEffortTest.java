@@ -1,7 +1,8 @@
-package strm.emfcompat.animationadditions.buttonpress;
+package strm.emfcompat.animationadditions.buttonpress.aeronautics;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-class ThrottleEffortTest {
+import strm.emfcompat.animationadditions.buttonpress.*;
+public class ThrottleEffortTest {
     @Test void idleAndFreshSignalDoNotInventResistance() {
         ThrottleEffort m = new ThrottleEffort();
         for (int i = 0; i < 200; i++) m.advance(15, true, false, .02, i == 0);

@@ -3,7 +3,7 @@ package strm.emfcompat.animationadditions.buttonpress;
 import org.joml.Vector3f;
 
 /** A light switch needs only a small weight shift, without delaying the action. */
-final class LeverEffort {
+public final class LeverEffort {
     static Vector3f shift(Vector3f grip, boolean pressing) {
         Vector3f direction = new Vector3f(grip.x, 0, grip.z);
         if (direction.lengthSquared() < 1e-5f) return new Vector3f();

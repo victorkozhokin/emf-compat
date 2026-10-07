@@ -3,7 +3,7 @@ import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import strm.emfcompat.animationadditions.interaction.Ease;
-class BraceMathTest {
+public class BraceMathTest {
     @Test void retainedReachHasAHysteresisButCannotCrossTheOppositeHand() {
         Vector3f shoulder = new Vector3f(-5, 2, 0), point = new Vector3f(-5, 2, -13.5f);
         assertFalse(BraceMath.reachable(point, shoulder, true, false));

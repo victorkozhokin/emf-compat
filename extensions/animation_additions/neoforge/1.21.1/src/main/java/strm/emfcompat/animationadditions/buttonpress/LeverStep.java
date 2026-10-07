@@ -12,19 +12,19 @@ import strm.emfcompat.animationadditions.interaction.FrameClock;
 import strm.emfcompat.animationadditions.torso.Stride;
 
 /** One short support step on the click; the other sole stays planted. */
-final class LeverStep {
+public final class LeverStep {
     AbstractClientPlayer player;
     IKFrame space;
     boolean eligible, holding;
-    long press, consumed;
+    public long press, consumed;
     final FrameClock clock = new FrameClock();
-    float progress = 1;
+    public float progress = 1;
     int foot;
-    float stride = 1, duration = .24f, height = .35f;
+    public float stride = 1, duration = .24f, height = .35f;
     final Vector3f grip = new Vector3f(), offset = new Vector3f();
     final Vector3f start = new Vector3f(), end = new Vector3f();
 
-    void observe(AbstractClientPlayer player, IKFrame space, boolean holding, Vector3f grip, long press) {
+    public void observe(AbstractClientPlayer player, IKFrame space, boolean holding, Vector3f grip, long press) {
         this.player = player;
         this.space = space;
         this.holding = holding;
@@ -33,7 +33,7 @@ final class LeverStep {
         this.press = press;
     }
 
-    void apply(Function<String, ModelPart> parts, float owned) {
+    public void apply(Function<String, ModelPart> parts, float owned) {
         if (player == null || space == null) return;
         ModelPart[] legs = {parts.apply("right_leg"), parts.apply("left_leg")};
         if (legs[0] == null || legs[1] == null) return;

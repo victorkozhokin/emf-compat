@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import strm.emfcompat.animationadditions.interaction.Ease;
 
-class LeverEffortTest {
+public class LeverEffortTest {
     @Test void lowAndHighGripsKeepTheSameSmallGroundedLoad() {
         for (float y : new float[]{-30, 2, 20}) {
             Vector3f load = LeverEffort.shift(new Vector3f(3, y, -12), true);

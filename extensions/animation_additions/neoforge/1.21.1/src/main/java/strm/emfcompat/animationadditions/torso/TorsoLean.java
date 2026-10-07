@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
 import strm.emfcompat.animationadditions.blockuse.BlockUse;
-import strm.emfcompat.animationadditions.ejector.EjectorLaunch;
+import strm.emfcompat.animationadditions.create.ejector.EjectorLaunch;
 import strm.emfcompat.animationadditions.footgrounding.compat.FootGrounding;
 import strm.emfcompat.animationadditions.interaction.Effector;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
@@ -124,7 +124,7 @@ public final class TorsoLean {
                 target[0] += head[0] * FOLLOW_PITCH * head[2];
                 target[1] += Math.max(-MAX_YAW, Math.min(MAX_YAW, head[1] * FOLLOW_YAW)) * head[2];
             }
-            for (Hint hint : new Hint[]{strm.emfcompat.animationadditions.compat.CombatBody.torsoHint(uuid), strm.emfcompat.animationadditions.interaction.HandContacts.torsoHint(uuid), ButtonPress.torsoHint(uuid), Hint.of(strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.torsoHint(uuid)), BlockUse.torsoHint(uuid), EjectorLaunch.torsoHint(uuid), WallSqueeze.torsoHint(uuid), Hint.of(strm.emfcompat.animationadditions.transport.TransportGrip.torsoHint(uuid)), Hint.of(FootGrounding.terrainHint(uuid)), Hint.of(strm.emfcompat.animationadditions.lead.LeadHold.torsoHint(uuid)), strm.emfcompat.animationadditions.pocket.PocketStash.torsoHint(uuid), strm.emfcompat.animationadditions.mining.Mining.torsoHint(uuid), strm.emfcompat.animationadditions.gesture.Gesture.torsoHint(uuid)}) {
+            for (Hint hint : new Hint[]{strm.emfcompat.animationadditions.compat.CombatBody.torsoHint(uuid), strm.emfcompat.animationadditions.interaction.HandContacts.torsoHint(uuid), ButtonPress.torsoHint(uuid), Hint.of(strm.emfcompat.animationadditions.buttonpress.aeronautics.HeavyThrottle.torsoHint(uuid)), BlockUse.torsoHint(uuid), EjectorLaunch.torsoHint(uuid), WallSqueeze.torsoHint(uuid), Hint.of(strm.emfcompat.animationadditions.transport.TransportGrip.torsoHint(uuid)), Hint.of(FootGrounding.terrainHint(uuid)), Hint.of(strm.emfcompat.animationadditions.lead.LeadHold.torsoHint(uuid)), strm.emfcompat.animationadditions.pocket.PocketStash.torsoHint(uuid), strm.emfcompat.animationadditions.mining.Mining.torsoHint(uuid), strm.emfcompat.animationadditions.gesture.Gesture.torsoHint(uuid)}) {
                 if (hint == null) continue;
                 target[0] += hint.pitch;
                 target[1] += hint.yaw;

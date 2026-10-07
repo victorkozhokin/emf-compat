@@ -16,7 +16,7 @@ import strm.emfcompat.animationadditions.interaction.FrameClock;
 import strm.emfcompat.animationadditions.torso.Stride;
 
 /** One brace step at a time on the same deck; no extra gait over FA walking. */
-final class TransportStance {
+public final class TransportStance {
     final Stride stride = new Stride();
     final FrameClock clock = new FrameClock();
     final ClearanceOffset hip = new ClearanceOffset();

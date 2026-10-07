@@ -1,4 +1,4 @@
-package strm.emfcompat.animationadditions.buttonpress;
+package strm.emfcompat.animationadditions.buttonpress.aeronautics;
 
 import strm.emfcompat.animationadditions.blockuse.ModFailures;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -12,6 +12,7 @@ import org.joml.Vector3f;
 
 import java.lang.reflect.Method;
 import strm.emfcompat.animationadditions.blockuse.ModBlock;
+import strm.emfcompat.animationadditions.buttonpress.*;
 
 /**
  * Create Aeronautics' throttle lever ({@code simulated}): a lever the player holds and drags, its

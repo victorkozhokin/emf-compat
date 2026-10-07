@@ -9,7 +9,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.buttonpress.ButtonPress;
-import strm.emfcompat.animationadditions.buttonpress.ThrottleLever;
+import strm.emfcompat.animationadditions.buttonpress.aeronautics.ThrottleLever;
 import strm.emfcompat.animationadditions.interaction.*;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.ik.OneBoneIK;
