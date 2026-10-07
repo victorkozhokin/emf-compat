@@ -46,12 +46,19 @@ class FrightMotionTest {
     }
 
     @Test
-    void theArmGoesAgainstItsLegWithAStep() {
-        float late = FrightMotion.shake(FrightMotion.LIGHT) + 0.05f;
-        // The right foot stepping: the right arm forward (against below zero), the chest against the hips.
-        FrightMotion.Pose right = FrightMotion.pose(FrightMotion.LIGHT, late, 0.5f, 1f, -1f), left = FrightMotion.pose(FrightMotion.LIGHT, late, 0.5f, -1f, -1f);
-        assertTrue(right.against() < -0.1f && left.against() > 0.1f);
-        assertTrue(right.yaw() < 0f && left.yaw() > 0f);
+    void theArmsMoveOnceAndAreThenHeldOnGuard() {
+        float late = FrightMotion.shake(FrightMotion.LIGHT) * 0.6f;
+        // After the first jerk: out from the body and before it by the stand, with no swinging - whatever foot is stepping.
+        FrightMotion.Pose held = FrightMotion.pose(FrightMotion.LIGHT, late, 1f, 0f, -1f), stepping = FrightMotion.pose(FrightMotion.LIGHT, late, 1f, 1f, -1f);
+        assertTrue(held.armsOut() > 0.15f && held.armsUp() > 0.1f);
+        assertEquals(0f, Math.abs(held.against()) + Math.abs(held.sway()), 0.012f);
+        assertEquals(held.against(), stepping.against(), 1e-6f);
+        // The chest still goes against the hips with a step.
+        assertTrue(stepping.yaw() < held.yaw());
+        // The first jerk is there, and the arms are out before the feet have moved.
+        assertTrue(FrightMotion.pose(FrightMotion.LIGHT, 0.2f, 0f, 0f, -1f).armsOut() > 0.15f);
+        // They come down with the feet.
+        assertEquals(0f, FrightMotion.pose(FrightMotion.LIGHT, 1.4f, 0f, 0f, -1f).armsOut(), 1e-4f);
     }
 
     @Test

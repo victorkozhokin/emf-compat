@@ -10,10 +10,11 @@ import org.joml.Vector3f;
  * away from it first and furthest, and step home again. The <b>body</b> runs on the feet: how far
  * it is back, how far it leans away and how far the head is round to the sound is the share of
  * the way the soles have come ({@code stand}, 0..1), so it is never ahead of them; and with each
- * step the arm on that side swings forward against its leg and the chest turns a little against
- * the hips, as in a walk ({@code swing}). Over that, on the clock, the <b>shake</b>: the arms out
- * from the body and shaking one against the other, a wave of it through the torso and the head -
- * the shake of shaking something off, smaller and slower - and a small hop for the worse ones.</p>
+ * step the chest turns a little against the hips ({@code swing}). The <b>arms</b> move once: they
+ * jerk out from the body, one a beat before the other, and are then held there on guard - a little
+ * out and before the body, still - until the feet go home, and come down with them. Over that,
+ * on the clock, the <b>shake</b> of shaking something off, smaller and slower, in the torso and
+ * the head - and a small hop for the worse ones.</p>
  *
  * <p>The shoulders are not drawn up, and there is only a trace of trembling: both were tried, and
  * made the pose cramped and the fright unconvincing.</p>
@@ -33,8 +34,10 @@ public final class FrightMotion {
     private static final float HOP_SECONDS = 0.3f;
     /** Pixels back from the sound: the leading foot and the one after it; and out to its side. */
     private static final float LEAD = 1.9f, AFTER = 0.9f, WIDER = 0.25f;
-    /** Radians, with a step: the arm's swing against its leg, and the chest's turn against the hips. */
-    private static final float ARM_SWING = 0.2f, CHEST_SWING = 0.07f;
+    /** Radians, with a step: the chest's turn against the hips. */
+    private static final float CHEST_SWING = 0.07f;
+    /** Radians the arms are held on guard - out from the body and before it - once they have jerked there. */
+    private static final float GUARD_OUT = 0.2f, GUARD_UP = 0.14f;
 
     /**
      * What is added to the pose. {@code yaw}, {@code roll}: the torso's turn and tilt, radians;
@@ -107,13 +110,16 @@ public final class FrightMotion {
                 * smooth(t / 0.15f) * (1f - smooth((t - KEPT[level] * 0.4f) / (KEPT[level] * 0.6f)));
         float hopSeconds = hop(level);
         float hop = hopSeconds > 0f && t < hopSeconds ? 0.5f * level * (float) Math.sin(Math.PI * t / hopSeconds) : 0f;
+        // The arms: out at once with the first jerk, and kept there by the stand - the clock holds them until the feet have got there.
+        float guard = Math.max(smooth(t / 0.18f) * (1f - smooth((t - 0.45f) / 0.4f)), stand);
+        // One move only: the first swing of the shake, one arm a beat before the other, and then still.
+        float first = 1f - smooth((s - 0.1f) / 0.16f);
         // With a step the chest turns against the hips: the right foot going back takes the right hip back, and the right shoulder comes forward.
         return new Pose(0.15f * k * torso - CHEST_SWING * more * swing, 0.05f * k * (float) Math.cos(turn - 0.7) * in,
                 // Upright and leaning away from it: back from a sound ahead, forward from one behind.
                 0.04f * k * in + 0.045f * more * sz * stand,
-                0.3f * k * in, 0.4f * k * in + 0.05f * more * stand,
-                // The right arm forward (against, below zero) as the right foot goes back.
-                0.24f * k * arms + fine - ARM_SWING * more * swing, 0.1f * k * wave,
+                GUARD_UP * more * guard, GUARD_OUT * more * guard,
+                0.24f * k * arms * first + fine, 0.1f * k * wave * first,
                 0.08f * k * head, Math.min(1f, 0.45f * more) * stand, hop);
     }
 
