@@ -47,7 +47,7 @@ final class ClientInit {
         WallSqueeze.register(surroundings, debug);
         PlantReach.register(surroundings);
         LookAt.register(surroundings);
-        strm.emfcompat.animationadditions.leash.LeashHold.register(surroundings);
+        strm.emfcompat.animationadditions.lead.LeadHold.register(surroundings);
         strm.emfcompat.animationadditions.pocket.PocketStash.register(surroundings);
         strm.emfcompat.animationadditions.gesture.AnimalCare.register(gestures);
         strm.emfcompat.animationadditions.gesture.HandTo.register(gestures);
@@ -70,7 +70,7 @@ final class ClientInit {
         InteractionRuntime.register(WallHand.INSTANCE);
         InteractionRuntime.register(PlantReach.INSTANCE);
         InteractionRuntime.register(LookAt.INSTANCE);
-        InteractionRuntime.register(strm.emfcompat.animationadditions.leash.LeashHold.INSTANCE);
+        InteractionRuntime.register(strm.emfcompat.animationadditions.lead.LeadHold.INSTANCE);
         InteractionRuntime.register(strm.emfcompat.animationadditions.pocket.PocketStash.INSTANCE);
         InteractionRuntime.register(strm.emfcompat.animationadditions.gesture.AnimalCare.INSTANCE);
         InteractionRuntime.register(strm.emfcompat.animationadditions.gesture.HandTo.INSTANCE);

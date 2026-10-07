@@ -148,7 +148,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         HandContacts.support(uuid, parts);
         ButtonPress.apply(uuid, parts);
         BlockUse.apply(uuid, parts);
-        strm.emfcompat.animationadditions.leash.LeashHold.support(uuid, parts);
+        strm.emfcompat.animationadditions.lead.LeadHold.support(uuid, parts);
         strm.emfcompat.animationadditions.pocket.PocketStash.support(uuid, parts);
         Mining.support(uuid, parts);
         strm.emfcompat.animationadditions.gesture.Gesture.support(uuid, parts);
@@ -181,7 +181,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         HandContacts.apply(uuid, parts, contactBase, mainModel);
         strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.aimArms(uuid, parts);
         strm.emfcompat.animationadditions.transport.TransportGrip.aim(uuid, parts);
-        strm.emfcompat.animationadditions.leash.LeashHold.capture(uuid, parts);
+        strm.emfcompat.animationadditions.lead.LeadHold.capture(uuid, parts);
         InteractionRuntime.finishHands(uuid, parts, contactBase, EMFState.getFrameCounter(), mainModel);
     }
 }

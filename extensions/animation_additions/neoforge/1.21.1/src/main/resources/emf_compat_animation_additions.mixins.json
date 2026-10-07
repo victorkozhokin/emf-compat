@@ -8,8 +8,8 @@
     "horsesync.AbstractHorseRendererAccessor",
     "horsesync.PlayerModelMixin",
     "AnimationAdditionsRenderMixin",
-    "LeashPlayerMixin",
-    "LeashInteractionMixin",
+    "LeadPlayerMixin",
+    "LeadInteractionMixin",
     "ItemPickupMixin",
     "GestureInteractionMixin",
     "LevelRendererAccessor"

@@ -1,7 +1,7 @@
-package strm.emfcompat.animationadditions.leash;
+package strm.emfcompat.animationadditions.lead;
 
 /** One short invitation after a real walking-to-stop transition, with speed hysteresis. */
-final class LeashStopGesture {
+final class LeadStopGesture {
     private double walking, stopped, phase = 1;
     private boolean armed;
     float advance(double speed, double distance, double dt, boolean reset) {

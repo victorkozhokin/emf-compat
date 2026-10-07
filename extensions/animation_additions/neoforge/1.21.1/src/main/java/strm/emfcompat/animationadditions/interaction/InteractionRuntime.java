@@ -248,7 +248,7 @@ public final class InteractionRuntime {
     }
 
     private static final String[] SUPPORT_PARTS = {"body", "head", "right_leg", "left_leg", "right_arm", "left_arm"};
-    private static final Set<String> BODY_PROVIDERS = Set.of("BlockUse", "ButtonPress", "HeavyThrottle", "TransportGrip", "LeashHold");
+    private static final Set<String> BODY_PROVIDERS = Set.of("BlockUse", "ButtonPress", "HeavyThrottle", "TransportGrip", "LeadHold");
 
     public static Map<String, float[]> beginSupport(UUID uuid, Function<String, ModelPart> parts) {
         PlayerState state = STATES.fresh(uuid);

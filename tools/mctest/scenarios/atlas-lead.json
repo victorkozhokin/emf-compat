@@ -21,10 +21,10 @@
     "cmd": "kill @e[type=item,x=435,y=149,z=-5,dx=40,dy=8,dz=25]"
   },
   {
-    "cmd": "kill @e[tag=emf_atlas_leash]"
+    "cmd": "kill @e[tag=emf_atlas_lead]"
   },
   {
-    "cmd": "kill @e[tag=leash_test]"
+    "cmd": "kill @e[tag=lead_test]"
   },
   {
     "cmd": "fill 435 149 -5 475 149 20 smooth_stone"
@@ -45,7 +45,7 @@
     "wait": 40
   },
   {
-    "cmd": "summon cow 452.5 150 7.5 {NoAI:1b,Tags:[\"leash_test\",\"leash_primary\"]}"
+    "cmd": "summon cow 452.5 150 7.5 {NoAI:1b,Tags:[\"lead_test\",\"lead_primary\"]}"
   },
   {
     "cmd": "item replace entity @s weapon.mainhand with lead"
@@ -55,7 +55,7 @@
   },
   {
     "config": {
-      "leash.enabled": true,
+      "lead.enabled": true,
       "lookat.enabled": false,
       "footgrounding.trace": true
     }
@@ -104,169 +104,10 @@
     "releaseAll": true
   },
   {
-    "log": "leashcase:slack"
+    "log": "leadcase:slack"
   },
   {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 453.5 150 7.5"
-  },
-  {
-    "wait": 10
-  },
-  {
-    "wait": 2
-  },
-  {
-    "model": "player"
-  },
-  {
-    "rope": true
-  },
-  {
-    "screenshot": "leash-slack-00"
-  },
-  {
-    "wait": 2
-  },
-  {
-    "model": "player"
-  },
-  {
-    "rope": true
-  },
-  {
-    "screenshot": "leash-slack-01"
-  },
-  {
-    "wait": 2
-  },
-  {
-    "model": "player"
-  },
-  {
-    "rope": true
-  },
-  {
-    "screenshot": "leash-slack-02"
-  },
-  {
-    "wait": 2
-  },
-  {
-    "model": "player"
-  },
-  {
-    "rope": true
-  },
-  {
-    "screenshot": "leash-slack-03"
-  },
-  {
-    "wait": 2
-  },
-  {
-    "model": "player"
-  },
-  {
-    "rope": true
-  },
-  {
-    "screenshot": "leash-slack-04"
-  },
-  {
-    "wait": 2
-  },
-  {
-    "model": "player"
-  },
-  {
-    "rope": true
-  },
-  {
-    "screenshot": "leash-slack-05"
-  },
-  {
-    "wait": 2
-  },
-  {
-    "model": "player"
-  },
-  {
-    "rope": true
-  },
-  {
-    "screenshot": "leash-slack-06"
-  },
-  {
-    "wait": 2
-  },
-  {
-    "model": "player"
-  },
-  {
-    "rope": true
-  },
-  {
-    "screenshot": "leash-slack-07"
-  },
-  {
-    "wait": 2
-  },
-  {
-    "model": "player"
-  },
-  {
-    "rope": true
-  },
-  {
-    "screenshot": "leash-slack-08"
-  },
-  {
-    "wait": 2
-  },
-  {
-    "model": "player"
-  },
-  {
-    "rope": true
-  },
-  {
-    "screenshot": "leash-slack-09"
-  },
-  {
-    "wait": 2
-  },
-  {
-    "model": "player"
-  },
-  {
-    "rope": true
-  },
-  {
-    "screenshot": "leash-slack-10"
-  },
-  {
-    "wait": 2
-  },
-  {
-    "model": "player"
-  },
-  {
-    "rope": true
-  },
-  {
-    "screenshot": "leash-slack-11"
-  },
-  {
-    "state": true
-  },
-  {
-    "releaseAll": true
-  },
-  {
-    "log": "leashcase:taut"
-  },
-  {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 457 150 7.5"
+    "cmd": "tp @e[tag=lead_primary,limit=1] 453.5 150 7.5"
   },
   {
     "wait": 10
@@ -281,7 +122,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-00"
+    "screenshot": "lead-slack-00"
   },
   {
     "wait": 2
@@ -293,7 +134,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-01"
+    "screenshot": "lead-slack-01"
   },
   {
     "wait": 2
@@ -305,7 +146,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-02"
+    "screenshot": "lead-slack-02"
   },
   {
     "wait": 2
@@ -317,7 +158,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-03"
+    "screenshot": "lead-slack-03"
   },
   {
     "wait": 2
@@ -329,7 +170,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-04"
+    "screenshot": "lead-slack-04"
   },
   {
     "wait": 2
@@ -341,7 +182,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-05"
+    "screenshot": "lead-slack-05"
   },
   {
     "wait": 2
@@ -353,7 +194,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-06"
+    "screenshot": "lead-slack-06"
   },
   {
     "wait": 2
@@ -365,7 +206,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-07"
+    "screenshot": "lead-slack-07"
   },
   {
     "wait": 2
@@ -377,7 +218,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-08"
+    "screenshot": "lead-slack-08"
   },
   {
     "wait": 2
@@ -389,7 +230,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-09"
+    "screenshot": "lead-slack-09"
   },
   {
     "wait": 2
@@ -401,7 +242,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-10"
+    "screenshot": "lead-slack-10"
   },
   {
     "wait": 2
@@ -413,7 +254,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-11"
+    "screenshot": "lead-slack-11"
   },
   {
     "state": true
@@ -422,10 +263,169 @@
     "releaseAll": true
   },
   {
-    "log": "leashcase:taut-crouch"
+    "log": "leadcase:taut"
   },
   {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 457 150 7.5"
+    "cmd": "tp @e[tag=lead_primary,limit=1] 457 150 7.5"
+  },
+  {
+    "wait": 10
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "lead-taut-00"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "lead-taut-01"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "lead-taut-02"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "lead-taut-03"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "lead-taut-04"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "lead-taut-05"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "lead-taut-06"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "lead-taut-07"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "lead-taut-08"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "lead-taut-09"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "lead-taut-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "lead-taut-11"
+  },
+  {
+    "state": true
+  },
+  {
+    "releaseAll": true
+  },
+  {
+    "log": "leadcase:taut-crouch"
+  },
+  {
+    "cmd": "tp @e[tag=lead_primary,limit=1] 457 150 7.5"
   },
   {
     "wait": 10
@@ -443,7 +443,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-crouch-00"
+    "screenshot": "lead-taut-crouch-00"
   },
   {
     "wait": 2
@@ -455,7 +455,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-crouch-01"
+    "screenshot": "lead-taut-crouch-01"
   },
   {
     "wait": 2
@@ -467,7 +467,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-crouch-02"
+    "screenshot": "lead-taut-crouch-02"
   },
   {
     "wait": 2
@@ -479,7 +479,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-crouch-03"
+    "screenshot": "lead-taut-crouch-03"
   },
   {
     "wait": 2
@@ -491,7 +491,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-crouch-04"
+    "screenshot": "lead-taut-crouch-04"
   },
   {
     "wait": 2
@@ -503,7 +503,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-crouch-05"
+    "screenshot": "lead-taut-crouch-05"
   },
   {
     "wait": 2
@@ -515,7 +515,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-crouch-06"
+    "screenshot": "lead-taut-crouch-06"
   },
   {
     "wait": 2
@@ -527,7 +527,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-crouch-07"
+    "screenshot": "lead-taut-crouch-07"
   },
   {
     "wait": 2
@@ -539,7 +539,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-crouch-08"
+    "screenshot": "lead-taut-crouch-08"
   },
   {
     "wait": 2
@@ -551,7 +551,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-crouch-09"
+    "screenshot": "lead-taut-crouch-09"
   },
   {
     "wait": 2
@@ -563,7 +563,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-crouch-10"
+    "screenshot": "lead-taut-crouch-10"
   },
   {
     "wait": 2
@@ -575,7 +575,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-taut-crouch-11"
+    "screenshot": "lead-taut-crouch-11"
   },
   {
     "state": true
@@ -584,10 +584,10 @@
     "releaseAll": true
   },
   {
-    "log": "leashcase:side"
+    "log": "leadcase:side"
   },
   {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 453.5 150 12.5"
+    "cmd": "tp @e[tag=lead_primary,limit=1] 453.5 150 12.5"
   },
   {
     "wait": 10
@@ -602,7 +602,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-side-00"
+    "screenshot": "lead-side-00"
   },
   {
     "wait": 2
@@ -614,7 +614,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-side-01"
+    "screenshot": "lead-side-01"
   },
   {
     "wait": 2
@@ -626,7 +626,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-side-02"
+    "screenshot": "lead-side-02"
   },
   {
     "wait": 2
@@ -638,7 +638,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-side-03"
+    "screenshot": "lead-side-03"
   },
   {
     "wait": 2
@@ -650,7 +650,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-side-04"
+    "screenshot": "lead-side-04"
   },
   {
     "wait": 2
@@ -662,7 +662,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-side-05"
+    "screenshot": "lead-side-05"
   },
   {
     "wait": 2
@@ -674,7 +674,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-side-06"
+    "screenshot": "lead-side-06"
   },
   {
     "wait": 2
@@ -686,7 +686,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-side-07"
+    "screenshot": "lead-side-07"
   },
   {
     "wait": 2
@@ -698,7 +698,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-side-08"
+    "screenshot": "lead-side-08"
   },
   {
     "wait": 2
@@ -710,7 +710,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-side-09"
+    "screenshot": "lead-side-09"
   },
   {
     "wait": 2
@@ -722,7 +722,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-side-10"
+    "screenshot": "lead-side-10"
   },
   {
     "wait": 2
@@ -734,7 +734,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-side-11"
+    "screenshot": "lead-side-11"
   },
   {
     "state": true
@@ -743,10 +743,10 @@
     "releaseAll": true
   },
   {
-    "log": "leashcase:behind"
+    "log": "leadcase:behind"
   },
   {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 446.5 150 7.5"
+    "cmd": "tp @e[tag=lead_primary,limit=1] 446.5 150 7.5"
   },
   {
     "wait": 10
@@ -761,7 +761,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-behind-00"
+    "screenshot": "lead-behind-00"
   },
   {
     "wait": 2
@@ -773,7 +773,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-behind-01"
+    "screenshot": "lead-behind-01"
   },
   {
     "wait": 2
@@ -785,7 +785,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-behind-02"
+    "screenshot": "lead-behind-02"
   },
   {
     "wait": 2
@@ -797,7 +797,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-behind-03"
+    "screenshot": "lead-behind-03"
   },
   {
     "wait": 2
@@ -809,7 +809,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-behind-04"
+    "screenshot": "lead-behind-04"
   },
   {
     "wait": 2
@@ -821,7 +821,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-behind-05"
+    "screenshot": "lead-behind-05"
   },
   {
     "wait": 2
@@ -833,7 +833,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-behind-06"
+    "screenshot": "lead-behind-06"
   },
   {
     "wait": 2
@@ -845,7 +845,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-behind-07"
+    "screenshot": "lead-behind-07"
   },
   {
     "wait": 2
@@ -857,7 +857,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-behind-08"
+    "screenshot": "lead-behind-08"
   },
   {
     "wait": 2
@@ -869,7 +869,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-behind-09"
+    "screenshot": "lead-behind-09"
   },
   {
     "wait": 2
@@ -881,7 +881,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-behind-10"
+    "screenshot": "lead-behind-10"
   },
   {
     "wait": 2
@@ -893,7 +893,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-behind-11"
+    "screenshot": "lead-behind-11"
   },
   {
     "state": true
@@ -902,10 +902,10 @@
     "releaseAll": true
   },
   {
-    "log": "leashcase:high"
+    "log": "leadcase:high"
   },
   {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 454.5 152 7.5"
+    "cmd": "tp @e[tag=lead_primary,limit=1] 454.5 152 7.5"
   },
   {
     "wait": 10
@@ -920,7 +920,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-high-00"
+    "screenshot": "lead-high-00"
   },
   {
     "wait": 2
@@ -932,7 +932,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-high-01"
+    "screenshot": "lead-high-01"
   },
   {
     "wait": 2
@@ -944,7 +944,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-high-02"
+    "screenshot": "lead-high-02"
   },
   {
     "wait": 2
@@ -956,7 +956,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-high-03"
+    "screenshot": "lead-high-03"
   },
   {
     "wait": 2
@@ -968,7 +968,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-high-04"
+    "screenshot": "lead-high-04"
   },
   {
     "wait": 2
@@ -980,7 +980,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-high-05"
+    "screenshot": "lead-high-05"
   },
   {
     "wait": 2
@@ -992,7 +992,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-high-06"
+    "screenshot": "lead-high-06"
   },
   {
     "wait": 2
@@ -1004,7 +1004,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-high-07"
+    "screenshot": "lead-high-07"
   },
   {
     "wait": 2
@@ -1016,7 +1016,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-high-08"
+    "screenshot": "lead-high-08"
   },
   {
     "wait": 2
@@ -1028,7 +1028,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-high-09"
+    "screenshot": "lead-high-09"
   },
   {
     "wait": 2
@@ -1040,7 +1040,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-high-10"
+    "screenshot": "lead-high-10"
   },
   {
     "wait": 2
@@ -1052,7 +1052,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-high-11"
+    "screenshot": "lead-high-11"
   },
   {
     "state": true
@@ -1061,10 +1061,10 @@
     "releaseAll": true
   },
   {
-    "log": "leashcase:jerk"
+    "log": "leadcase:jerk"
   },
   {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 456.3 150 7.5"
+    "cmd": "tp @e[tag=lead_primary,limit=1] 456.3 150 7.5"
   },
   {
     "wait": 15
@@ -1082,7 +1082,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-jerk-00"
+    "screenshot": "lead-jerk-00"
   },
   {
     "wait": 2
@@ -1094,7 +1094,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-jerk-01"
+    "screenshot": "lead-jerk-01"
   },
   {
     "wait": 2
@@ -1106,7 +1106,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-jerk-02"
+    "screenshot": "lead-jerk-02"
   },
   {
     "wait": 2
@@ -1118,7 +1118,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-jerk-03"
+    "screenshot": "lead-jerk-03"
   },
   {
     "wait": 2
@@ -1130,7 +1130,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-jerk-04"
+    "screenshot": "lead-jerk-04"
   },
   {
     "wait": 2
@@ -1142,7 +1142,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-jerk-05"
+    "screenshot": "lead-jerk-05"
   },
   {
     "state": true
@@ -1151,13 +1151,13 @@
     "releaseAll": true
   },
   {
-    "log": "leashcase:relax"
+    "log": "leadcase:relax"
   },
   {
     "cmd": "tp @s 450.5 150 7.5 -90 15"
   },
   {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 453.5 150 7.5"
+    "cmd": "tp @e[tag=lead_primary,limit=1] 453.5 150 7.5"
   },
   {
     "wait": 15
@@ -1172,7 +1172,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-relax-00"
+    "screenshot": "lead-relax-00"
   },
   {
     "wait": 2
@@ -1184,7 +1184,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-relax-01"
+    "screenshot": "lead-relax-01"
   },
   {
     "wait": 2
@@ -1196,7 +1196,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-relax-02"
+    "screenshot": "lead-relax-02"
   },
   {
     "wait": 2
@@ -1208,7 +1208,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-relax-03"
+    "screenshot": "lead-relax-03"
   },
   {
     "wait": 2
@@ -1220,7 +1220,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-relax-04"
+    "screenshot": "lead-relax-04"
   },
   {
     "wait": 2
@@ -1232,7 +1232,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-relax-05"
+    "screenshot": "lead-relax-05"
   },
   {
     "wait": 2
@@ -1244,7 +1244,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-relax-06"
+    "screenshot": "lead-relax-06"
   },
   {
     "wait": 2
@@ -1256,7 +1256,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-relax-07"
+    "screenshot": "lead-relax-07"
   },
   {
     "wait": 2
@@ -1268,7 +1268,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-relax-08"
+    "screenshot": "lead-relax-08"
   },
   {
     "wait": 2
@@ -1280,7 +1280,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-relax-09"
+    "screenshot": "lead-relax-09"
   },
   {
     "wait": 2
@@ -1292,7 +1292,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-relax-10"
+    "screenshot": "lead-relax-10"
   },
   {
     "wait": 2
@@ -1304,7 +1304,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-relax-11"
+    "screenshot": "lead-relax-11"
   },
   {
     "state": true
@@ -1316,7 +1316,7 @@
     "cmd": "tp @s 450.5 150 7.5 -90 15"
   },
   {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 447 150 7.5"
+    "cmd": "tp @e[tag=lead_primary,limit=1] 447 150 7.5"
   },
   {
     "look": [
@@ -1328,7 +1328,7 @@
     "wait": 25
   },
   {
-    "log": "leashcase:walk-forward"
+    "log": "leadcase:walk-forward"
   },
   {
     "hold": "forward"
@@ -1343,7 +1343,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-forward-00"
+    "screenshot": "lead-walk-forward-00"
   },
   {
     "wait": 2
@@ -1355,7 +1355,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-forward-01"
+    "screenshot": "lead-walk-forward-01"
   },
   {
     "wait": 2
@@ -1367,7 +1367,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-forward-02"
+    "screenshot": "lead-walk-forward-02"
   },
   {
     "wait": 2
@@ -1379,7 +1379,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-forward-03"
+    "screenshot": "lead-walk-forward-03"
   },
   {
     "wait": 2
@@ -1391,7 +1391,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-forward-04"
+    "screenshot": "lead-walk-forward-04"
   },
   {
     "wait": 2
@@ -1403,7 +1403,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-forward-05"
+    "screenshot": "lead-walk-forward-05"
   },
   {
     "wait": 2
@@ -1415,7 +1415,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-forward-06"
+    "screenshot": "lead-walk-forward-06"
   },
   {
     "wait": 2
@@ -1427,7 +1427,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-forward-07"
+    "screenshot": "lead-walk-forward-07"
   },
   {
     "state": true
@@ -1436,7 +1436,7 @@
     "releaseAll": true
   },
   {
-    "log": "leashcase:stop-walk-forward"
+    "log": "leadcase:stop-walk-forward"
   },
   {
     "wait": 2
@@ -1448,7 +1448,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-00"
+    "screenshot": "lead-stop-walk-forward-00"
   },
   {
     "wait": 2
@@ -1460,7 +1460,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-01"
+    "screenshot": "lead-stop-walk-forward-01"
   },
   {
     "wait": 2
@@ -1472,7 +1472,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-02"
+    "screenshot": "lead-stop-walk-forward-02"
   },
   {
     "wait": 2
@@ -1484,7 +1484,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-03"
+    "screenshot": "lead-stop-walk-forward-03"
   },
   {
     "wait": 2
@@ -1496,7 +1496,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-04"
+    "screenshot": "lead-stop-walk-forward-04"
   },
   {
     "wait": 2
@@ -1508,7 +1508,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-05"
+    "screenshot": "lead-stop-walk-forward-05"
   },
   {
     "wait": 2
@@ -1520,7 +1520,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-06"
+    "screenshot": "lead-stop-walk-forward-06"
   },
   {
     "wait": 2
@@ -1532,7 +1532,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-07"
+    "screenshot": "lead-stop-walk-forward-07"
   },
   {
     "wait": 2
@@ -1544,7 +1544,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-08"
+    "screenshot": "lead-stop-walk-forward-08"
   },
   {
     "wait": 2
@@ -1556,7 +1556,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-09"
+    "screenshot": "lead-stop-walk-forward-09"
   },
   {
     "wait": 2
@@ -1568,7 +1568,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-10"
+    "screenshot": "lead-stop-walk-forward-10"
   },
   {
     "wait": 2
@@ -1580,7 +1580,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-11"
+    "screenshot": "lead-stop-walk-forward-11"
   },
   {
     "wait": 2
@@ -1592,7 +1592,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-12"
+    "screenshot": "lead-stop-walk-forward-12"
   },
   {
     "wait": 2
@@ -1604,7 +1604,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-13"
+    "screenshot": "lead-stop-walk-forward-13"
   },
   {
     "wait": 2
@@ -1616,7 +1616,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-14"
+    "screenshot": "lead-stop-walk-forward-14"
   },
   {
     "wait": 2
@@ -1628,7 +1628,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-forward-15"
+    "screenshot": "lead-stop-walk-forward-15"
   },
   {
     "state": true
@@ -1640,7 +1640,7 @@
     "cmd": "tp @s 450.5 150 7.5 -90 15"
   },
   {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 447 150 7.5"
+    "cmd": "tp @e[tag=lead_primary,limit=1] 447 150 7.5"
   },
   {
     "look": [
@@ -1652,7 +1652,7 @@
     "wait": 25
   },
   {
-    "log": "leashcase:walk-crouch"
+    "log": "leadcase:walk-crouch"
   },
   {
     "hold": "sneak"
@@ -1670,7 +1670,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-crouch-00"
+    "screenshot": "lead-walk-crouch-00"
   },
   {
     "wait": 2
@@ -1682,7 +1682,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-crouch-01"
+    "screenshot": "lead-walk-crouch-01"
   },
   {
     "wait": 2
@@ -1694,7 +1694,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-crouch-02"
+    "screenshot": "lead-walk-crouch-02"
   },
   {
     "wait": 2
@@ -1706,7 +1706,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-crouch-03"
+    "screenshot": "lead-walk-crouch-03"
   },
   {
     "wait": 2
@@ -1718,7 +1718,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-crouch-04"
+    "screenshot": "lead-walk-crouch-04"
   },
   {
     "wait": 2
@@ -1730,7 +1730,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-crouch-05"
+    "screenshot": "lead-walk-crouch-05"
   },
   {
     "wait": 2
@@ -1742,7 +1742,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-crouch-06"
+    "screenshot": "lead-walk-crouch-06"
   },
   {
     "wait": 2
@@ -1754,7 +1754,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-walk-crouch-07"
+    "screenshot": "lead-walk-crouch-07"
   },
   {
     "state": true
@@ -1763,7 +1763,7 @@
     "releaseAll": true
   },
   {
-    "log": "leashcase:stop-walk-crouch"
+    "log": "leadcase:stop-walk-crouch"
   },
   {
     "wait": 2
@@ -1775,7 +1775,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-00"
+    "screenshot": "lead-stop-walk-crouch-00"
   },
   {
     "wait": 2
@@ -1787,7 +1787,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-01"
+    "screenshot": "lead-stop-walk-crouch-01"
   },
   {
     "wait": 2
@@ -1799,7 +1799,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-02"
+    "screenshot": "lead-stop-walk-crouch-02"
   },
   {
     "wait": 2
@@ -1811,7 +1811,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-03"
+    "screenshot": "lead-stop-walk-crouch-03"
   },
   {
     "wait": 2
@@ -1823,7 +1823,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-04"
+    "screenshot": "lead-stop-walk-crouch-04"
   },
   {
     "wait": 2
@@ -1835,7 +1835,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-05"
+    "screenshot": "lead-stop-walk-crouch-05"
   },
   {
     "wait": 2
@@ -1847,7 +1847,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-06"
+    "screenshot": "lead-stop-walk-crouch-06"
   },
   {
     "wait": 2
@@ -1859,7 +1859,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-07"
+    "screenshot": "lead-stop-walk-crouch-07"
   },
   {
     "wait": 2
@@ -1871,7 +1871,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-08"
+    "screenshot": "lead-stop-walk-crouch-08"
   },
   {
     "wait": 2
@@ -1883,7 +1883,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-09"
+    "screenshot": "lead-stop-walk-crouch-09"
   },
   {
     "wait": 2
@@ -1895,7 +1895,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-10"
+    "screenshot": "lead-stop-walk-crouch-10"
   },
   {
     "wait": 2
@@ -1907,7 +1907,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-11"
+    "screenshot": "lead-stop-walk-crouch-11"
   },
   {
     "wait": 2
@@ -1919,7 +1919,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-12"
+    "screenshot": "lead-stop-walk-crouch-12"
   },
   {
     "wait": 2
@@ -1931,7 +1931,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-13"
+    "screenshot": "lead-stop-walk-crouch-13"
   },
   {
     "wait": 2
@@ -1943,7 +1943,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-14"
+    "screenshot": "lead-stop-walk-crouch-14"
   },
   {
     "wait": 2
@@ -1955,7 +1955,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-stop-walk-crouch-15"
+    "screenshot": "lead-stop-walk-crouch-15"
   },
   {
     "state": true
@@ -1967,13 +1967,13 @@
     "cmd": "tp @s 450.5 150 7.5 -90 15"
   },
   {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 444.5 150 7.5"
+    "cmd": "tp @e[tag=lead_primary,limit=1] 444.5 150 7.5"
   },
   {
     "wait": 25
   },
   {
-    "log": "leashcase:brace-behind"
+    "log": "leadcase:brace-behind"
   },
   {
     "wait": 2
@@ -1985,7 +1985,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-00"
+    "screenshot": "lead-brace-behind-00"
   },
   {
     "wait": 2
@@ -1997,7 +1997,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-01"
+    "screenshot": "lead-brace-behind-01"
   },
   {
     "wait": 2
@@ -2009,7 +2009,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-02"
+    "screenshot": "lead-brace-behind-02"
   },
   {
     "wait": 2
@@ -2021,7 +2021,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-03"
+    "screenshot": "lead-brace-behind-03"
   },
   {
     "wait": 2
@@ -2033,7 +2033,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-04"
+    "screenshot": "lead-brace-behind-04"
   },
   {
     "wait": 2
@@ -2045,7 +2045,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-05"
+    "screenshot": "lead-brace-behind-05"
   },
   {
     "wait": 2
@@ -2057,7 +2057,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-06"
+    "screenshot": "lead-brace-behind-06"
   },
   {
     "wait": 2
@@ -2069,7 +2069,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-07"
+    "screenshot": "lead-brace-behind-07"
   },
   {
     "wait": 2
@@ -2081,7 +2081,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-08"
+    "screenshot": "lead-brace-behind-08"
   },
   {
     "wait": 2
@@ -2093,7 +2093,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-09"
+    "screenshot": "lead-brace-behind-09"
   },
   {
     "wait": 2
@@ -2105,7 +2105,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-10"
+    "screenshot": "lead-brace-behind-10"
   },
   {
     "wait": 2
@@ -2117,7 +2117,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-11"
+    "screenshot": "lead-brace-behind-11"
   },
   {
     "wait": 2
@@ -2129,7 +2129,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-12"
+    "screenshot": "lead-brace-behind-12"
   },
   {
     "wait": 2
@@ -2141,7 +2141,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-13"
+    "screenshot": "lead-brace-behind-13"
   },
   {
     "wait": 2
@@ -2153,7 +2153,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-14"
+    "screenshot": "lead-brace-behind-14"
   },
   {
     "wait": 2
@@ -2165,7 +2165,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-15"
+    "screenshot": "lead-brace-behind-15"
   },
   {
     "wait": 2
@@ -2177,7 +2177,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-16"
+    "screenshot": "lead-brace-behind-16"
   },
   {
     "wait": 2
@@ -2189,7 +2189,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-17"
+    "screenshot": "lead-brace-behind-17"
   },
   {
     "wait": 2
@@ -2201,7 +2201,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-18"
+    "screenshot": "lead-brace-behind-18"
   },
   {
     "wait": 2
@@ -2213,13 +2213,13 @@
     "rope": true
   },
   {
-    "screenshot": "leash-brace-behind-19"
+    "screenshot": "lead-brace-behind-19"
   },
   {
     "state": true
   },
   {
-    "log": "leashcase:turn-behind"
+    "log": "leadcase:turn-behind"
   },
   {
     "look": [
@@ -2240,7 +2240,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-turn-behind-00"
+    "screenshot": "lead-turn-behind-00"
   },
   {
     "wait": 2
@@ -2252,7 +2252,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-turn-behind-01"
+    "screenshot": "lead-turn-behind-01"
   },
   {
     "wait": 2
@@ -2264,7 +2264,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-turn-behind-02"
+    "screenshot": "lead-turn-behind-02"
   },
   {
     "wait": 2
@@ -2276,7 +2276,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-turn-behind-03"
+    "screenshot": "lead-turn-behind-03"
   },
   {
     "wait": 2
@@ -2288,7 +2288,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-turn-behind-04"
+    "screenshot": "lead-turn-behind-04"
   },
   {
     "wait": 2
@@ -2300,7 +2300,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-turn-behind-05"
+    "screenshot": "lead-turn-behind-05"
   },
   {
     "wait": 2
@@ -2312,7 +2312,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-turn-behind-06"
+    "screenshot": "lead-turn-behind-06"
   },
   {
     "wait": 2
@@ -2324,7 +2324,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-turn-behind-07"
+    "screenshot": "lead-turn-behind-07"
   },
   {
     "wait": 2
@@ -2336,7 +2336,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-turn-behind-08"
+    "screenshot": "lead-turn-behind-08"
   },
   {
     "wait": 2
@@ -2348,7 +2348,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-turn-behind-09"
+    "screenshot": "lead-turn-behind-09"
   },
   {
     "wait": 2
@@ -2360,7 +2360,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-turn-behind-10"
+    "screenshot": "lead-turn-behind-10"
   },
   {
     "wait": 2
@@ -2372,7 +2372,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-turn-behind-11"
+    "screenshot": "lead-turn-behind-11"
   },
   {
     "state": true
@@ -2381,7 +2381,7 @@
     "releaseAll": true
   },
   {
-    "log": "leashcase:narrow-support"
+    "log": "leadcase:narrow-support"
   },
   {
     "cmd": "setblock 450 150 7 oak_fence"
@@ -2390,7 +2390,7 @@
     "cmd": "tp @s 450.5 151.5 7.5 -90 15"
   },
   {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 444.5 150 7.5"
+    "cmd": "tp @e[tag=lead_primary,limit=1] 444.5 150 7.5"
   },
   {
     "look": [
@@ -2411,7 +2411,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-narrow-support-00"
+    "screenshot": "lead-narrow-support-00"
   },
   {
     "wait": 2
@@ -2423,7 +2423,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-narrow-support-01"
+    "screenshot": "lead-narrow-support-01"
   },
   {
     "wait": 2
@@ -2435,7 +2435,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-narrow-support-02"
+    "screenshot": "lead-narrow-support-02"
   },
   {
     "wait": 2
@@ -2447,7 +2447,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-narrow-support-03"
+    "screenshot": "lead-narrow-support-03"
   },
   {
     "wait": 2
@@ -2459,7 +2459,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-narrow-support-04"
+    "screenshot": "lead-narrow-support-04"
   },
   {
     "wait": 2
@@ -2471,7 +2471,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-narrow-support-05"
+    "screenshot": "lead-narrow-support-05"
   },
   {
     "wait": 2
@@ -2483,7 +2483,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-narrow-support-06"
+    "screenshot": "lead-narrow-support-06"
   },
   {
     "wait": 2
@@ -2495,7 +2495,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-narrow-support-07"
+    "screenshot": "lead-narrow-support-07"
   },
   {
     "wait": 2
@@ -2507,7 +2507,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-narrow-support-08"
+    "screenshot": "lead-narrow-support-08"
   },
   {
     "wait": 2
@@ -2519,7 +2519,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-narrow-support-09"
+    "screenshot": "lead-narrow-support-09"
   },
   {
     "wait": 2
@@ -2531,7 +2531,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-narrow-support-10"
+    "screenshot": "lead-narrow-support-10"
   },
   {
     "wait": 2
@@ -2543,13 +2543,13 @@
     "rope": true
   },
   {
-    "screenshot": "leash-narrow-support-11"
+    "screenshot": "lead-narrow-support-11"
   },
   {
     "state": true
   },
   {
-    "log": "leashcase:narrow-end"
+    "log": "leadcase:narrow-end"
   },
   {
     "cmd": "setblock 450 150 7 air"
@@ -2570,16 +2570,16 @@
     "cmd": "tp @s 450.5 150 7.5 -90 15"
   },
   {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 447 150 7.5"
+    "cmd": "tp @e[tag=lead_primary,limit=1] 447 150 7.5"
   },
   {
-    "cmd": "data merge entity @e[tag=leash_primary,limit=1] {NoAI:0b}"
+    "cmd": "data merge entity @e[tag=lead_primary,limit=1] {NoAI:0b}"
   },
   {
     "wait": 20
   },
   {
-    "log": "leashcase:animal-follows"
+    "log": "leadcase:animal-follows"
   },
   {
     "hold": "forward"
@@ -2594,7 +2594,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-animal-follows-00"
+    "screenshot": "lead-animal-follows-00"
   },
   {
     "wait": 2
@@ -2606,7 +2606,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-animal-follows-01"
+    "screenshot": "lead-animal-follows-01"
   },
   {
     "wait": 2
@@ -2618,7 +2618,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-animal-follows-02"
+    "screenshot": "lead-animal-follows-02"
   },
   {
     "wait": 2
@@ -2630,7 +2630,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-animal-follows-03"
+    "screenshot": "lead-animal-follows-03"
   },
   {
     "wait": 2
@@ -2642,7 +2642,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-animal-follows-04"
+    "screenshot": "lead-animal-follows-04"
   },
   {
     "wait": 2
@@ -2654,7 +2654,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-animal-follows-05"
+    "screenshot": "lead-animal-follows-05"
   },
   {
     "wait": 2
@@ -2666,7 +2666,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-animal-follows-06"
+    "screenshot": "lead-animal-follows-06"
   },
   {
     "wait": 2
@@ -2678,7 +2678,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-animal-follows-07"
+    "screenshot": "lead-animal-follows-07"
   },
   {
     "wait": 2
@@ -2690,7 +2690,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-animal-follows-08"
+    "screenshot": "lead-animal-follows-08"
   },
   {
     "wait": 2
@@ -2702,7 +2702,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-animal-follows-09"
+    "screenshot": "lead-animal-follows-09"
   },
   {
     "wait": 2
@@ -2714,7 +2714,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-animal-follows-10"
+    "screenshot": "lead-animal-follows-10"
   },
   {
     "wait": 2
@@ -2726,7 +2726,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-animal-follows-11"
+    "screenshot": "lead-animal-follows-11"
   },
   {
     "state": true
@@ -2735,7 +2735,7 @@
     "releaseAll": true
   },
   {
-    "log": "leashcase:follow-stop"
+    "log": "leadcase:follow-stop"
   },
   {
     "wait": 2
@@ -2747,7 +2747,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-follow-stop-00"
+    "screenshot": "lead-follow-stop-00"
   },
   {
     "wait": 2
@@ -2759,7 +2759,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-follow-stop-01"
+    "screenshot": "lead-follow-stop-01"
   },
   {
     "wait": 2
@@ -2771,7 +2771,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-follow-stop-02"
+    "screenshot": "lead-follow-stop-02"
   },
   {
     "wait": 2
@@ -2783,7 +2783,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-follow-stop-03"
+    "screenshot": "lead-follow-stop-03"
   },
   {
     "wait": 2
@@ -2795,7 +2795,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-follow-stop-04"
+    "screenshot": "lead-follow-stop-04"
   },
   {
     "wait": 2
@@ -2807,7 +2807,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-follow-stop-05"
+    "screenshot": "lead-follow-stop-05"
   },
   {
     "wait": 2
@@ -2819,7 +2819,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-follow-stop-06"
+    "screenshot": "lead-follow-stop-06"
   },
   {
     "wait": 2
@@ -2831,7 +2831,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-follow-stop-07"
+    "screenshot": "lead-follow-stop-07"
   },
   {
     "wait": 2
@@ -2843,7 +2843,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-follow-stop-08"
+    "screenshot": "lead-follow-stop-08"
   },
   {
     "wait": 2
@@ -2855,7 +2855,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-follow-stop-09"
+    "screenshot": "lead-follow-stop-09"
   },
   {
     "wait": 2
@@ -2867,7 +2867,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-follow-stop-10"
+    "screenshot": "lead-follow-stop-10"
   },
   {
     "wait": 2
@@ -2879,7 +2879,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-follow-stop-11"
+    "screenshot": "lead-follow-stop-11"
   },
   {
     "wait": 2
@@ -2891,7 +2891,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-follow-stop-12"
+    "screenshot": "lead-follow-stop-12"
   },
   {
     "wait": 2
@@ -2903,25 +2903,25 @@
     "rope": true
   },
   {
-    "screenshot": "leash-follow-stop-13"
+    "screenshot": "lead-follow-stop-13"
   },
   {
     "state": true
   },
   {
-    "cmd": "data merge entity @e[tag=leash_primary,limit=1] {NoAI:1b}"
+    "cmd": "data merge entity @e[tag=lead_primary,limit=1] {NoAI:1b}"
   },
   {
     "cmd": "tp @s 450.5 150 7.5 -90 15"
   },
   {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 453.5 150 7.5"
+    "cmd": "tp @e[tag=lead_primary,limit=1] 453.5 150 7.5"
   },
   {
     "wait": 25
   },
   {
-    "log": "leashcase:busy"
+    "log": "leadcase:busy"
   },
   {
     "cmd": "setblock 451 150 7 lever[face=floor,facing=west]"
@@ -2951,7 +2951,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-busy-00"
+    "screenshot": "lead-busy-00"
   },
   {
     "wait": 2
@@ -2963,7 +2963,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-busy-01"
+    "screenshot": "lead-busy-01"
   },
   {
     "wait": 2
@@ -2975,7 +2975,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-busy-02"
+    "screenshot": "lead-busy-02"
   },
   {
     "wait": 2
@@ -2987,7 +2987,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-busy-03"
+    "screenshot": "lead-busy-03"
   },
   {
     "wait": 2
@@ -2999,7 +2999,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-busy-04"
+    "screenshot": "lead-busy-04"
   },
   {
     "wait": 2
@@ -3011,13 +3011,13 @@
     "rope": true
   },
   {
-    "screenshot": "leash-busy-05"
+    "screenshot": "lead-busy-05"
   },
   {
     "state": true
   },
   {
-    "log": "leashcase:busy-return"
+    "log": "leadcase:busy-return"
   },
   {
     "cmd": "setblock 451 150 7 air"
@@ -3041,7 +3041,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-busy-return-00"
+    "screenshot": "lead-busy-return-00"
   },
   {
     "wait": 2
@@ -3053,7 +3053,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-busy-return-01"
+    "screenshot": "lead-busy-return-01"
   },
   {
     "wait": 2
@@ -3065,7 +3065,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-busy-return-02"
+    "screenshot": "lead-busy-return-02"
   },
   {
     "wait": 2
@@ -3077,7 +3077,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-busy-return-03"
+    "screenshot": "lead-busy-return-03"
   },
   {
     "wait": 2
@@ -3089,7 +3089,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-busy-return-04"
+    "screenshot": "lead-busy-return-04"
   },
   {
     "wait": 2
@@ -3101,13 +3101,13 @@
     "rope": true
   },
   {
-    "screenshot": "leash-busy-return-05"
+    "screenshot": "lead-busy-return-05"
   },
   {
     "state": true
   },
   {
-    "log": "leashcase:first-person"
+    "log": "leadcase:first-person"
   },
   {
     "camera": "first"
@@ -3128,11 +3128,11 @@
     "wait": 30
   },
   {
-    "log": "leashcase:disabled"
+    "log": "leadcase:disabled"
   },
   {
     "config": {
-      "leash.enabled": false
+      "lead.enabled": false
     }
   },
   {
@@ -3148,7 +3148,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-disabled-00"
+    "screenshot": "lead-disabled-00"
   },
   {
     "wait": 2
@@ -3160,7 +3160,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-disabled-01"
+    "screenshot": "lead-disabled-01"
   },
   {
     "wait": 2
@@ -3172,7 +3172,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-disabled-02"
+    "screenshot": "lead-disabled-02"
   },
   {
     "wait": 2
@@ -3184,7 +3184,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-disabled-03"
+    "screenshot": "lead-disabled-03"
   },
   {
     "wait": 2
@@ -3196,7 +3196,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-disabled-04"
+    "screenshot": "lead-disabled-04"
   },
   {
     "wait": 2
@@ -3208,17 +3208,17 @@
     "rope": true
   },
   {
-    "screenshot": "leash-disabled-05"
+    "screenshot": "lead-disabled-05"
   },
   {
     "state": true
   },
   {
-    "log": "leashcase:reenabled"
+    "log": "leadcase:reenabled"
   },
   {
     "config": {
-      "leash.enabled": true
+      "lead.enabled": true
     }
   },
   {
@@ -3234,7 +3234,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-reenabled-00"
+    "screenshot": "lead-reenabled-00"
   },
   {
     "wait": 2
@@ -3246,7 +3246,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-reenabled-01"
+    "screenshot": "lead-reenabled-01"
   },
   {
     "wait": 2
@@ -3258,7 +3258,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-reenabled-02"
+    "screenshot": "lead-reenabled-02"
   },
   {
     "wait": 2
@@ -3270,7 +3270,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-reenabled-03"
+    "screenshot": "lead-reenabled-03"
   },
   {
     "wait": 2
@@ -3282,7 +3282,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-reenabled-04"
+    "screenshot": "lead-reenabled-04"
   },
   {
     "wait": 2
@@ -3294,16 +3294,16 @@
     "rope": true
   },
   {
-    "screenshot": "leash-reenabled-05"
+    "screenshot": "lead-reenabled-05"
   },
   {
     "state": true
   },
   {
-    "log": "leashcase:break"
+    "log": "leadcase:break"
   },
   {
-    "cmd": "tp @e[tag=leash_primary,limit=1] 465.5 150 7.5"
+    "cmd": "tp @e[tag=lead_primary,limit=1] 465.5 150 7.5"
   },
   {
     "wait": 25
@@ -3318,7 +3318,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-break-00"
+    "screenshot": "lead-break-00"
   },
   {
     "wait": 2
@@ -3330,7 +3330,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-break-01"
+    "screenshot": "lead-break-01"
   },
   {
     "wait": 2
@@ -3342,7 +3342,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-break-02"
+    "screenshot": "lead-break-02"
   },
   {
     "wait": 2
@@ -3354,7 +3354,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-break-03"
+    "screenshot": "lead-break-03"
   },
   {
     "wait": 2
@@ -3366,7 +3366,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-break-04"
+    "screenshot": "lead-break-04"
   },
   {
     "wait": 2
@@ -3378,16 +3378,16 @@
     "rope": true
   },
   {
-    "screenshot": "leash-break-05"
+    "screenshot": "lead-break-05"
   },
   {
     "state": true
   },
   {
-    "log": "leashcase:detach"
+    "log": "leadcase:detach"
   },
   {
-    "cmd": "kill @e[tag=leash_test]"
+    "cmd": "kill @e[tag=lead_test]"
   },
   {
     "wait": 30
@@ -3402,7 +3402,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-detach-00"
+    "screenshot": "lead-detach-00"
   },
   {
     "wait": 2
@@ -3414,7 +3414,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-detach-01"
+    "screenshot": "lead-detach-01"
   },
   {
     "wait": 2
@@ -3426,7 +3426,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-detach-02"
+    "screenshot": "lead-detach-02"
   },
   {
     "wait": 2
@@ -3438,7 +3438,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-detach-03"
+    "screenshot": "lead-detach-03"
   },
   {
     "wait": 2
@@ -3450,7 +3450,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-detach-04"
+    "screenshot": "lead-detach-04"
   },
   {
     "wait": 2
@@ -3462,16 +3462,16 @@
     "rope": true
   },
   {
-    "screenshot": "leash-detach-05"
+    "screenshot": "lead-detach-05"
   },
   {
     "state": true
   },
   {
-    "log": "leashcase:offhand"
+    "log": "leadcase:offhand"
   },
   {
-    "cmd": "summon cow 452.5 150 7.5 {NoAI:1b,Tags:[\"leash_test\",\"leash_primary\"]}"
+    "cmd": "summon cow 452.5 150 7.5 {NoAI:1b,Tags:[\"lead_test\",\"lead_primary\"]}"
   },
   {
     "cmd": "item replace entity @s weapon.mainhand with air"
@@ -3504,7 +3504,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-offhand-00"
+    "screenshot": "lead-offhand-00"
   },
   {
     "wait": 2
@@ -3516,7 +3516,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-offhand-01"
+    "screenshot": "lead-offhand-01"
   },
   {
     "wait": 2
@@ -3528,7 +3528,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-offhand-02"
+    "screenshot": "lead-offhand-02"
   },
   {
     "wait": 2
@@ -3540,7 +3540,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-offhand-03"
+    "screenshot": "lead-offhand-03"
   },
   {
     "wait": 2
@@ -3552,7 +3552,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-offhand-04"
+    "screenshot": "lead-offhand-04"
   },
   {
     "wait": 2
@@ -3564,7 +3564,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-offhand-05"
+    "screenshot": "lead-offhand-05"
   },
   {
     "wait": 2
@@ -3576,7 +3576,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-offhand-06"
+    "screenshot": "lead-offhand-06"
   },
   {
     "wait": 2
@@ -3588,7 +3588,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-offhand-07"
+    "screenshot": "lead-offhand-07"
   },
   {
     "wait": 2
@@ -3600,7 +3600,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-offhand-08"
+    "screenshot": "lead-offhand-08"
   },
   {
     "wait": 2
@@ -3612,7 +3612,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-offhand-09"
+    "screenshot": "lead-offhand-09"
   },
   {
     "wait": 2
@@ -3624,7 +3624,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-offhand-10"
+    "screenshot": "lead-offhand-10"
   },
   {
     "wait": 2
@@ -3636,40 +3636,28 @@
     "rope": true
   },
   {
-    "screenshot": "leash-offhand-11"
+    "screenshot": "lead-offhand-11"
   },
   {
     "state": true
   },
   {
-    "log": "leashcase:multiple"
+    "log": "leadcase:multiple"
   },
   {
-    "cmd": "summon cow 452.5 150 8.5 {NoAI:1b,Tags:[\"leash_test\",\"leash_second\"]}"
+    "cmd": "summon cow 452.5 150 8.5 {NoAI:1b,Tags:[\"lead_test\",\"lead_second\"]}"
   },
   {
-    "cmd": "data modify entity @e[tag=leash_second,limit=1] leash.UUID set from entity @s UUID"
-  },
-  {
-    "wait": 15
-  },
-  {
-    "cmd": "tp @e[tag=leash_second,limit=1] 456 150 8.5"
+    "cmd": "data modify entity @e[tag=lead_second,limit=1] leash.UUID set from entity @s UUID"
   },
   {
     "wait": 15
   },
   {
-    "wait": 2
+    "cmd": "tp @e[tag=lead_second,limit=1] 456 150 8.5"
   },
   {
-    "model": "player"
-  },
-  {
-    "rope": true
-  },
-  {
-    "screenshot": "leash-multiple-00"
+    "wait": 15
   },
   {
     "wait": 2
@@ -3681,7 +3669,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-multiple-01"
+    "screenshot": "lead-multiple-00"
   },
   {
     "wait": 2
@@ -3693,7 +3681,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-multiple-02"
+    "screenshot": "lead-multiple-01"
   },
   {
     "wait": 2
@@ -3705,7 +3693,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-multiple-03"
+    "screenshot": "lead-multiple-02"
   },
   {
     "wait": 2
@@ -3717,7 +3705,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-multiple-04"
+    "screenshot": "lead-multiple-03"
   },
   {
     "wait": 2
@@ -3729,7 +3717,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-multiple-05"
+    "screenshot": "lead-multiple-04"
   },
   {
     "wait": 2
@@ -3741,7 +3729,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-multiple-06"
+    "screenshot": "lead-multiple-05"
   },
   {
     "wait": 2
@@ -3753,7 +3741,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-multiple-07"
+    "screenshot": "lead-multiple-06"
   },
   {
     "wait": 2
@@ -3765,7 +3753,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-multiple-08"
+    "screenshot": "lead-multiple-07"
   },
   {
     "wait": 2
@@ -3777,7 +3765,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-multiple-09"
+    "screenshot": "lead-multiple-08"
   },
   {
     "wait": 2
@@ -3789,7 +3777,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-multiple-10"
+    "screenshot": "lead-multiple-09"
   },
   {
     "wait": 2
@@ -3801,19 +3789,31 @@
     "rope": true
   },
   {
-    "screenshot": "leash-multiple-11"
+    "screenshot": "lead-multiple-10"
+  },
+  {
+    "wait": 2
+  },
+  {
+    "model": "player"
+  },
+  {
+    "rope": true
+  },
+  {
+    "screenshot": "lead-multiple-11"
   },
   {
     "state": true
   },
   {
-    "log": "leashcase:fence"
+    "log": "leadcase:fence"
   },
   {
     "cmd": "setblock 453 150 7 oak_fence"
   },
   {
-    "cmd": "execute as @e[tag=leash_test] run data modify entity @s leash set value [I;453,150,7]"
+    "cmd": "execute as @e[tag=lead_test] run data modify entity @s lead set value [I;453,150,7]"
   },
   {
     "wait": 30
@@ -3828,7 +3828,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-fence-00"
+    "screenshot": "lead-fence-00"
   },
   {
     "wait": 2
@@ -3840,7 +3840,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-fence-01"
+    "screenshot": "lead-fence-01"
   },
   {
     "wait": 2
@@ -3852,7 +3852,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-fence-02"
+    "screenshot": "lead-fence-02"
   },
   {
     "wait": 2
@@ -3864,7 +3864,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-fence-03"
+    "screenshot": "lead-fence-03"
   },
   {
     "wait": 2
@@ -3876,7 +3876,7 @@
     "rope": true
   },
   {
-    "screenshot": "leash-fence-04"
+    "screenshot": "lead-fence-04"
   },
   {
     "wait": 2
@@ -3888,18 +3888,18 @@
     "rope": true
   },
   {
-    "screenshot": "leash-fence-05"
+    "screenshot": "lead-fence-05"
   },
   {
     "state": true
   },
   {
-    "cmd": "kill @e[tag=leash_test]"
+    "cmd": "kill @e[tag=lead_test]"
   },
   {
     "releaseAll": true
   },
   {
-    "log": "leashend"
+    "log": "leadend"
   }
 ]

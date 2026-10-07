@@ -1,4 +1,4 @@
-package strm.emfcompat.animationadditions.leash;
+package strm.emfcompat.animationadditions.lead;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
@@ -20,15 +20,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
-/** An actual player-held leash owns one hand; other interactions can take that hand normally. */
-public final class LeashHold implements InteractionProvider {
-    public static final LeashHold INSTANCE = new LeashHold();
-    public static final String KEY_ENABLED = "leash.enabled";
+/** An actual player-held lead owns one hand; other interactions can take that hand normally. */
+public final class LeadHold implements InteractionProvider {
+    public static final LeadHold INSTANCE = new LeadHold();
+    public static final String KEY_ENABLED = "lead.enabled";
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
     private static final Candidate.Timing TIMING = new Candidate.Timing(.16, .2, .08);
     private static final class State {
-        final LeashMotion motion = new LeashMotion();
-        final LeashStopGesture stop = new LeashStopGesture();
+        final LeadMotion motion = new LeadMotion();
+        final LeadStopGesture stop = new LeadStopGesture();
         final Vector3f palm = new Vector3f(), direction = new Vector3f();
         UUID animal, attachingAnimal;
         Effector attachingHand;
@@ -36,7 +36,7 @@ public final class LeashHold implements InteractionProvider {
         boolean active, grounded, hasPalm;
         AbstractClientPlayer player;
         float effort, stopPull;
-        final LeashStance.State stance = new LeashStance.State();
+        final LeadStance.State stance = new LeadStance.State();
         int count;
         double distance;
         IKFrame frame;
@@ -46,24 +46,24 @@ public final class LeashHold implements InteractionProvider {
         double speed;
         long traceAt;
     }
-    public String id() { return "LeashHold"; }
+    public String id() { return "LeadHold"; }
     public boolean isEnabled() { return EMFCompatConfig.getBoolean(KEY_ENABLED, true); }
     public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Hold animal leads", true,
-                "On", "Hold the real leash in one hand and brace against tension and outward jerks.",
+                "On", "Hold the real lead in one hand and brace against tension and outward jerks.",
                 "Off", "Leave the lead and hand pose to Minecraft.");
     }
 
     public static void attachHand(AbstractClientPlayer player, Entity target, net.minecraft.world.InteractionHand hand) {
-        if (!player.getItemInHand(hand).is(Items.LEAD) || !(target instanceof Leashable leash)
-                || leash.getLeashHolder() == player) return;
+        if (!player.getItemInHand(hand).is(Items.LEAD) || !(target instanceof Leashable lead)
+                || lead.getLeashHolder() == player) return;
         State s = STATES.seen(player.getUUID(), System.nanoTime()).value;
         s.attachingAnimal = target.getUUID();
         boolean right = (player.getMainArm() == HumanoidArm.RIGHT) == (hand == net.minecraft.world.InteractionHand.MAIN_HAND);
         s.attachingHand = right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
     }
 
-    /** Same animal attachment transform as the vanilla leash renderer. */
+    /** Same animal attachment transform as the vanilla lead renderer. */
     static Vec3 anchor(Entity animal, float partial) {
         Vec3 offset = animal.getLeashOffset(partial);
         float yaw = animal instanceof LivingEntity living
@@ -85,7 +85,7 @@ public final class LeashHold implements InteractionProvider {
         Entity chosen = null;
         double farthest = -1;
         for (Entity e : player.level().getEntities(player, player.getBoundingBox().inflate(12),
-                e -> e instanceof Leashable leash && leash.getLeashHolder() == player && e.isAlive())) {
+                e -> e instanceof Leashable lead && lead.getLeashHolder() == player && e.isAlive())) {
             s.count++;
             double distance = e.distanceTo(player);
             // Keep the previous animal through small distance changes instead of flickering between leads.
@@ -133,17 +133,17 @@ public final class LeashHold implements InteractionProvider {
         double walkSpeed = player.getDeltaMovement().horizontalDistance() * 20;
         s.stopPull = s.stop.advance(walkSpeed, s.distance, context.dt(), fresh || warped || !player.onGround());
         float walking = (float) Math.min(1, player.getDeltaMovement().horizontalDistance() * 20 / 3);
-        float trailing = LeashMotion.smooth((s.direction.z + .1f) / .7f);
-        float distance = LeashMotion.smooth((float)(s.distance - 2) / 2);
+        float trailing = LeadMotion.smooth((s.direction.z + .1f) / .7f);
+        float distance = LeadMotion.smooth((float)(s.distance - 2) / 2);
         float wanted = Math.max(s.motion.load, walking * trailing * distance * .4f);
         s.effort += (wanted - s.effort) * Smoothing.follow(context.dt(), .16);
-        Vector3f wantedPalm = LeashPose.grip(s.direction, s.hand == Effector.RIGHT_ARM, s.effort, s.motion.jerk);
+        Vector3f wantedPalm = LeadPose.grip(s.direction, s.hand == Effector.RIGHT_ARM, s.effort, s.motion.jerk);
         wantedPalm.z *= 1 - s.stopPull * .45f;
         wantedPalm.x *= 1 - s.stopPull * .2f;
         wantedPalm.y -= s.stopPull * .5f;
         if (!s.hasPalm) { s.palm.set(wantedPalm); s.hasPalm = true; }
         else s.palm.lerp(wantedPalm, Smoothing.follow(context.dt(), .1));
-        Vector3f aim = LeashPose.angles(LeashPose.swing(s.palm));
+        Vector3f aim = LeadPose.angles(LeadPose.swing(s.palm));
         out.add(Candidate.single(id(), Category.PASSIVE, 30, 1, TIMING, s.hand, new float[]{aim.x, aim.y}).withTarget(s.animal));
         // This grip follows the actual animated shoulder in capture(), not a fixed
         // world contact. Generic world-target correction would undo that distinction.
@@ -165,7 +165,7 @@ public final class LeashHold implements InteractionProvider {
         State s = STATES.fresh(uuid);
         if (s == null || s.player == null) return;
         float owned = s.active && INSTANCE.isEnabled() ? InteractionRuntime.weight(uuid, s.hand, INSTANCE.id()) : 0;
-        LeashStance.apply(s.stance, s.player, s.frame, parts, s.direction, s.effort * owned);
+        LeadStance.apply(s.stance, s.player, s.frame, parts, s.direction, s.effort * owned);
     }
 
     /** Capture the final animated palm, after every torso and contact correction. */
@@ -179,7 +179,7 @@ public final class LeashHold implements InteractionProvider {
             // Shortest swing from a downward arm admits both forward and backward
             // grips without the negative-acos/180-degree-yaw pole flip.
             Quaternionf current = new Quaternionf().rotationZYX(arm.zRot, arm.yRot, arm.xRot);
-            Vector3f angles = LeashPose.angles(current.slerp(LeashPose.swing(s.palm), owned));
+            Vector3f angles = LeadPose.angles(current.slerp(LeadPose.swing(s.palm), owned));
             arm.setRotation(angles.x, angles.y, angles.z);
         }
         Vector3f palm = new Quaternionf().rotationZYX(arm.zRot, arm.yRot, arm.xRot)
@@ -188,8 +188,8 @@ public final class LeashHold implements InteractionProvider {
         long now = System.nanoTime();
         if (strm.emfcompat.animationadditions.DebugLog.trace() && now - s.traceAt > 100_000_000L) {
             s.traceAt = now;
-            org.slf4j.LoggerFactory.getLogger("EMFCompatLeash").info(
-                    "[LeashTrace] count={} distance={} load={} jerk={} effort={} stopPull={} right={} weight={} palmX={} palmY={} palmZ={}",
+            org.slf4j.LoggerFactory.getLogger("EMFCompatLead").info(
+                    "[LeadTrace] count={} distance={} load={} jerk={} effort={} stopPull={} right={} weight={} palmX={} palmY={} palmZ={}",
                     s.count, s.distance, s.motion.load, s.motion.jerk, s.effort, s.stopPull, s.hand == Effector.RIGHT_ARM,
                     InteractionRuntime.weight(uuid, s.hand, INSTANCE.id()), s.drawnPalm.x, s.drawnPalm.y, s.drawnPalm.z);
         }

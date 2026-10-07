@@ -1,10 +1,10 @@
-package strm.emfcompat.animationadditions.leash;
+package strm.emfcompat.animationadditions.lead;
 
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /** Shoulder-relative grip and a pole-free swing: the wrist never aims through the chest. */
-final class LeashPose {
+final class LeadPose {
     static Vector3f grip(Vector3f direction, boolean right, float effort, float jerk) {
         float side = right ? -1 : 1;
         Vector3f rest = new Vector3f(side * .8f, 8, -2);

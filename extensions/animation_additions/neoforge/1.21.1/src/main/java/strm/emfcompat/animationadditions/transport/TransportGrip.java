@@ -146,7 +146,7 @@ public final class TransportGrip implements InteractionProvider {
     private static boolean free(AbstractClientPlayer p, Effector hand) {
         boolean main = (p.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT) == (hand == Effector.RIGHT_ARM);
         return p.getItemInHand(main ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND).isEmpty()
-                && InteractionRuntime.weight(p.getUUID(), hand, "LeashHold") < .05f;
+                && InteractionRuntime.weight(p.getUUID(), hand, "LeadHold") < .05f;
     }
     private static void release(State s, long now) {
         if (s.primary != null) s.releaseUntil = now + 350_000_000L;

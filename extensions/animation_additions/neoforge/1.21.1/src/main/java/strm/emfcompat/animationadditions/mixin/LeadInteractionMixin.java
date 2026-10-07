@@ -10,14 +10,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import strm.emfcompat.animationadditions.leash.LeashHold;
+import strm.emfcompat.animationadditions.lead.LeadHold;
 
 /** Remember the actual attaching hand before survival consumes the last lead. */
 @Mixin(MultiPlayerGameMode.class)
-public class LeashInteractionMixin {
+public class LeadInteractionMixin {
     @Inject(method = "interact", at = @At("HEAD"))
     private void emfcompat$leadHand(Player player, Entity target, InteractionHand hand,
                                    CallbackInfoReturnable<InteractionResult> cir) {
-        if (player instanceof AbstractClientPlayer client) LeashHold.attachHand(client, target, hand);
+        if (player instanceof AbstractClientPlayer client) LeadHold.attachHand(client, target, hand);
     }
 }

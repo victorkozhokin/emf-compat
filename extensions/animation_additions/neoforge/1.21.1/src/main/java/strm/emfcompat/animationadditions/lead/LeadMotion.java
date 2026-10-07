@@ -1,7 +1,7 @@
-package strm.emfcompat.animationadditions.leash;
+package strm.emfcompat.animationadditions.lead;
 
-/** Visual anticipation of vanilla's six-block elastic leash, without changing its physics. */
-final class LeashMotion {
+/** Visual anticipation of vanilla's six-block elastic lead, without changing its physics. */
+final class LeadMotion {
     float load, jerk;
     private float previousSpeed;
     private boolean initialized;
