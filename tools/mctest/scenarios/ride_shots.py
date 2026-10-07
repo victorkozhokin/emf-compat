@@ -1,11 +1,9 @@
 """Four-sided shots in a boat and in a minecart, standing and moving. ride_shots.py <tag> prints the steps."""
 import json, sys
+from ride_common import four_sides
 tag = sys.argv[1] if len(sys.argv) > 1 else "base"
 def shots(name):
-    out = []
-    for ang, lab in ((90, "side"), (180, "front"), (0, "back"), (-90, "other")):
-        out += [{"orbit": [ang, 12, 3.6]}, {"wait": 3}, {"screenshot": f"ride-{tag}-{name}-{lab}"}]
-    return out + [{"orbit": False}]
+    return four_sides(f"ride-{tag}", name, pitch=12)
 s = [{"closeScreen": True}, {"releaseAll": True}, {"cmd": "gamemode creative"}, {"cmd": "time set noon"},
      {"config": {"debug.decisions": True, "lookat.enabled": False, "footgrounding.trace": False, "wallhand.trace": False, "transport.trace": False}},
      {"cmd": "tp @s 450.5 150 7.5 -90 0"}, {"camera": "back"}, {"hideGui": True}, {"wait": 30},

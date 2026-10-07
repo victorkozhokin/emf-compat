@@ -1,12 +1,10 @@
 """A mob as the second rider of a boat the player rows. ride_boat_mob.py <tag> [mob ...] prints the steps."""
 import json, sys
+from ride_common import four_sides
 tag = sys.argv[1] if len(sys.argv) > 1 else "base"
 mobs = sys.argv[2:] or ["villager", "pig", "cow", "wolf"]
 def shots(name):
-    out = []
-    for ang, lab in ((90, "side"), (180, "front"), (0, "back"), (-90, "other")):
-        out += [{"orbit": [ang, 18, 3.6]}, {"wait": 3}, {"screenshot": f"mob-{tag}-{name}-{lab}"}]
-    return out + [{"orbit": [90, 80, 4.0]}, {"wait": 3}, {"screenshot": f"mob-{tag}-{name}-top"}, {"orbit": False}]
+    return four_sides(f"mob-{tag}", name, top=(80, 4.0))
 s = [{"closeScreen": True}, {"releaseAll": True}, {"cmd": "gamemode creative"}, {"cmd": "time set noon"},
      {"config": {"debug.decisions": True, "lookat.enabled": False, "footgrounding.trace": True}},
      {"cmd": "tp @s 450.5 150 7.5 -90 0"}, {"camera": "back"}, {"hideGui": True}, {"wait": 30},

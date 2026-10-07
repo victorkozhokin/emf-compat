@@ -11,21 +11,15 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.Body;
 import strm.emfcompat.animationadditions.interaction.Candidate;
-import strm.emfcompat.animationadditions.interaction.Category;
-import strm.emfcompat.animationadditions.interaction.Effector;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.InteractionContext;
 import strm.emfcompat.animationadditions.interaction.InteractionProvider;
-import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
-import strm.emfcompat.animationadditions.interaction.Skeleton;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
 import strm.emfcompat.animationadditions.motion.Spring;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.ik.IKFrame;
-import strm.emfcompat.core.ik.IKResult;
-import strm.emfcompat.core.ik.OneBoneIK;
 
 import java.util.List;
 import java.util.UUID;
@@ -41,9 +35,7 @@ public final class BoatPassenger implements InteractionProvider {
     public static final BoatPassenger INSTANCE = new BoatPassenger();
     public static final String KEY_ENABLED = "ride.boat.passenger";
 
-    private static final int PRIORITY = 2;
     private static final Candidate.Timing TIMING = new Candidate.Timing(0.2, 0, 0.05);
-    private static final float ARM = Skeleton.ARM_TO_FINGERTIPS;
     private static final float MAX_REACH = 1.7f;
 
     /** Radians: each leg turned out to its side, and raised a little over where the pack has it. */
@@ -103,8 +95,7 @@ public final class BoatPassenger implements InteractionProvider {
         }
         state.riding = true;
         state.weight += (1f - state.weight) * Smoothing.follow(dt, 0.2);
-        // Carried along, a rider has no stride: the game counts one for another player all the same, and the pack bobs to it.
-        player.walkAnimation.setSpeed(0f);
+        Riders.carried(player);
         float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
         IKFrame frame = context.frame();
         // Towards the rower as they lean away: forward is +xRot.
@@ -120,17 +111,7 @@ public final class BoatPassenger implements InteractionProvider {
             grips[hand] = BoatRide.gunwale(state.along, state.laid, hand, boat, side, frame, BoatRide.shoulder(shoulder, -state.pitch.value, 0f), partial, dt);
             state.place[hand].set(Body.model(frame, grips[hand]));
         }
-        IKResult r = OneBoneIK.solveXY(frame, RIGHT_SHOULDER, grips[0], ARM, 0f, 0f);
-        IKResult l = OneBoneIK.solveXY(frame, LEFT_SHOULDER, grips[1], ARM, 0f, 0f);
-        if (r != null && r.reach() > MAX_REACH) r = null;
-        if (l != null && l.reach() > MAX_REACH) l = null;
-        if (r != null) {
-            out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.RIGHT_ARM, new float[]{r.x(), r.y()}));
-        }
-        if (l != null) {
-            out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.LEFT_ARM, new float[]{l.x(), l.y()}));
-        }
-        context.decide(r == null && l == null ? "out-of-reach" : "hold");
+        context.decide(Riders.hold(out, id(), TIMING, frame, grips[0], grips[1], MAX_REACH) ? "hold" : "out-of-reach");
     }
 
     public static TorsoLean.Hint torsoHint(UUID uuid) {
@@ -156,11 +137,7 @@ public final class BoatPassenger implements InteractionProvider {
     public static void grip(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
         if (state == null || !state.riding || !INSTANCE.isEnabled()) return;
-        for (int hand = 0; hand < 2; hand++) {
-            float weight = InteractionRuntime.weight(uuid, hand == 0 ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
-            ModelPart arm = parts.apply(hand == 0 ? "right_arm" : "left_arm");
-            if (arm != null && weight >= 0.02f) state.gap[hand] = BoatRide.settle(arm, state.place[hand], weight);
-        }
+        Riders.grip(uuid, parts, INSTANCE.id(), state.place, state.gap);
         if (strm.emfcompat.animationadditions.DebugLog.trace() && state.trace.due(30_000_000L)) {
             ModelPart body = parts.apply("body"), leg = parts.apply("right_leg"), arm = parts.apply("right_arm");
             org.slf4j.LoggerFactory.getLogger("EMFCompatRide").info("[PassengerTrace] gapR={} gapL={} bodyPitch={} bodyZ={} legYaw={} armPitch={} placeR={} bodyY={} legY={} legPitch={}",

@@ -12,7 +12,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.Candidate;
 import strm.emfcompat.animationadditions.interaction.Category;
 import strm.emfcompat.animationadditions.interaction.Effector;
@@ -23,7 +22,6 @@ import strm.emfcompat.animationadditions.interaction.Smoothing;
 import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
-import strm.emfcompat.core.ik.IKFrame;
 
 import java.util.List;
 import java.util.UUID;
@@ -49,8 +47,6 @@ public final class SignRead implements InteractionProvider {
     private static final double RANGE = 4.0, REST_SECONDS = 0.25;
     /** What the player looks at is found this often, not every frame. */
     private static final long LOOK_EVERY_NANOS = 100_000_000L;
-    /** How far the head turns from the body at most. */
-    private static final float NECK_YAW = (float) Math.toRadians(70), NECK_PITCH = (float) Math.toRadians(60);
     /** Radians: the lean in towards a sign at arm's length; the share of the head's turn the body takes on top of its usual, and its limit. */
     private static final float LEAN = 0.1f, TURN_SHARE = 0.35f, TURN_LIMIT = 0.35f;
 
@@ -96,9 +92,9 @@ public final class SignRead implements InteractionProvider {
         float[] aim = null;
         if (reading) {
             Vec3 board = board(player.level(), state.sign);
-            aim = aim(context.frame(), board);
+            aim = LookAt.aim(context.frame(), board);
             // Behind the shoulder a sign is not read: the look is on it only by the camera's freedom.
-            if (Math.abs(aim[0]) > NECK_YAW || Math.abs(aim[1]) > NECK_PITCH) {
+            if (Math.abs(aim[0]) > LookAt.NECK_YAW || Math.abs(aim[1]) > LookAt.NECK_PITCH) {
                 aim = null;
             } else {
                 state.yaw = aim[0];
@@ -138,12 +134,5 @@ public final class SignRead implements InteractionProvider {
         if (state.getBlock() instanceof StandingSignBlock) return new Vec3(pos.getX() + 0.5, pos.getY() + 0.83, pos.getZ() + 0.5);
         VoxelShape shape = state.getShape(level, pos);
         return shape.isEmpty() ? Vec3.atCenterOf(pos) : shape.bounds().getCenter().add(pos.getX(), pos.getY(), pos.getZ());
-    }
-
-    /** {yaw, pitch} of the head, model space, that points it at {@code point}: model forward is -z, down is +y. */
-    private static float[] aim(IKFrame frame, Vec3 point) {
-        Vector3f head = frame.relativeToJoint(point, new Vector3f(0, 0, 0));
-        head.normalize();
-        return new float[]{(float) Math.atan2(-head.x, -head.z), (float) Math.asin(Math.max(-1f, Math.min(1f, head.y)))};
     }
 }

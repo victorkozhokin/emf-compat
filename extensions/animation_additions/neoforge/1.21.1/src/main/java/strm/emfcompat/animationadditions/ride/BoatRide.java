@@ -1,7 +1,5 @@
 package strm.emfcompat.animationadditions.ride;
 
-import static strm.emfcompat.animationadditions.interaction.Skeleton.LEFT_SHOULDER;
-import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_SHOULDER;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -13,8 +11,6 @@ import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.Body;
 import strm.emfcompat.animationadditions.interaction.Candidate;
 import strm.emfcompat.animationadditions.interaction.Ease;
-import strm.emfcompat.animationadditions.interaction.Category;
-import strm.emfcompat.animationadditions.interaction.Effector;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.InteractionContext;
 import strm.emfcompat.animationadditions.interaction.InteractionProvider;
@@ -25,8 +21,6 @@ import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.ik.IKFrame;
-import strm.emfcompat.core.ik.IKResult;
-import strm.emfcompat.core.ik.OneBoneIK;
 
 import java.util.List;
 import java.util.UUID;
@@ -58,10 +52,7 @@ public final class BoatRide implements InteractionProvider {
     public static final BoatRide INSTANCE = new BoatRide();
     public static final String KEY_ENABLED = "ride.boat";
 
-    /** Below anything a hand is used for: eating in a boat takes the arm. */
-    private static final int PRIORITY = 2;
     private static final Candidate.Timing TIMING = new Candidate.Timing(0.18, 0, 0.03);
-    private static final float ARM = Skeleton.ARM_TO_FINGERTIPS;
     /** As a share of the arm: a handle further than this is let go of. */
     private static final float MAX_REACH = 1.7f;
 
@@ -153,8 +144,7 @@ public final class BoatRide implements InteractionProvider {
 
         state.riding = true;
         double dt = context.dt();
-        // Carried along, a rider has no stride: the game counts one for another player all the same, and the pack bobs to it.
-        player.walkAnimation.setSpeed(0f);
+        Riders.carried(player);
         boolean pulling = false;
         for (int hand = 0; hand < 2; hand++) {
             int side = (hand == 0) == firstRight ? 0 : 1;
@@ -217,17 +207,8 @@ public final class BoatRide implements InteractionProvider {
         state.yaw.update(yaw, SPRING, dt);
         state.roll.update(roll, SPRING, dt);
 
-        IKResult r = OneBoneIK.solveXY(frame, RIGHT_SHOULDER, right, ARM, 0f, 0f);
-        IKResult l = OneBoneIK.solveXY(frame, LEFT_SHOULDER, left, ARM, 0f, 0f);
-        if (r != null && r.reach() > MAX_REACH) r = null;
-        if (l != null && l.reach() > MAX_REACH) l = null;
-        if (r != null) {
-            out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.RIGHT_ARM, new float[]{r.x(), r.y()}));
-        }
-        if (l != null) {
-            out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.LEFT_ARM, new float[]{l.x(), l.y()}));
-        }
-        context.decide(r == null && l == null ? "out-of-reach" : pulling ? "row" : "hold");
+        boolean held = Riders.hold(out, id(), TIMING, frame, right, left, MAX_REACH);
+        context.decide(!held ? "out-of-reach" : pulling ? "row" : "hold");
     }
 
     /** What the stroke asks of the torso; {@code null} out of a boat. */
@@ -290,10 +271,7 @@ public final class BoatRide implements InteractionProvider {
     public static void seat(UUID uuid, java.util.function.Function<String, net.minecraft.client.model.geom.ModelPart> parts) {
         State state = STATES.fresh(uuid);
         if (state == null || !state.riding || !INSTANCE.isEnabled()) return;
-        for (String name : new String[]{"body", "head", "hat", "right_arm", "left_arm", "right_leg", "left_leg"}) {
-            net.minecraft.client.model.geom.ModelPart part = parts.apply(name);
-            if (part != null) part.z += SIT_BACK * state.seated;
-        }
+        Riders.shift(parts, SIT_BACK * state.seated, 0f);
     }
 
     /**
@@ -338,16 +316,13 @@ public final class BoatRide implements InteractionProvider {
     public static void grip(UUID uuid, java.util.function.Function<String, net.minecraft.client.model.geom.ModelPart> parts) {
         State state = STATES.fresh(uuid);
         if (state == null || !state.riding || !INSTANCE.isEnabled()) return;
-        for (int hand = 0; hand < 2; hand++) {
-            Effector effector = hand == 0 ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
-            float weight = strm.emfcompat.animationadditions.interaction.InteractionRuntime.weight(uuid, effector, INSTANCE.id());
-            net.minecraft.client.model.geom.ModelPart arm = parts.apply(hand == 0 ? "right_arm" : "left_arm");
-            if (arm == null || weight < 0.02f) continue;
-            state.gap[hand] = settle(arm, state.handle[hand], weight);
-            state.miss[hand] = Body.tip(arm, GRIP).distance(state.handle[hand]);
-        }
+        Riders.grip(uuid, parts, INSTANCE.id(), state.handle, state.gap);
         if (strm.emfcompat.animationadditions.DebugLog.trace() && state.trace.due(50_000_000L)) {
             net.minecraft.client.model.geom.ModelPart body = parts.apply("body");
+            for (int hand = 0; hand < 2; hand++) {
+                net.minecraft.client.model.geom.ModelPart arm = parts.apply(hand == 0 ? "right_arm" : "left_arm");
+                if (arm != null) state.miss[hand] = Body.tip(arm, GRIP).distance(state.handle[hand]);
+            }
             org.slf4j.LoggerFactory.getLogger("EMFCompatRide").info("[BoatTrace] missR={} missL={} gapR={} gapL={} freeR={} freeL={} pitch={} yaw={} handleR={} asked={} seated={}",
                     state.miss[0], state.miss[1], state.gap[0], state.gap[1], state.free[0], state.free[1],
                     body == null ? 0 : Math.toDegrees(body.xRot), body == null ? 0 : Math.toDegrees(body.yRot), state.handle[0], Math.toDegrees(state.pitch.value), state.seated);

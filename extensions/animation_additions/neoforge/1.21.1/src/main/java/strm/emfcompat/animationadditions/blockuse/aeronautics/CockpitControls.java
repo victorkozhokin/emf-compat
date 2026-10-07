@@ -161,10 +161,9 @@ public final class CockpitControls implements InteractionProvider {
             }
             Vec3 origin = context.frame().jointWorld(new Vector3f());
             Vector3f view = Body.model(context.frame(), origin.add(player.getViewVector(1)));
-            float head = (float) Math.toRadians(CockpitFacing.head((float) Math.toDegrees(CockpitFacing.angle(view.x, view.z)), 0));
-            state.headYaw += IKMath.wrap(head - state.headYaw) * Smoothing.follow(context.dt(), .12);
-            float pitch = (float) Math.atan2(view.y, Math.sqrt(view.x * view.x + view.z * view.z));
-            state.headPitch += IKMath.wrap(pitch - state.headPitch) * Smoothing.follow(context.dt(), .12);
+            float[] look = CockpitFacing.look(view);
+            state.headYaw += IKMath.wrap(look[0] - state.headYaw) * Smoothing.follow(context.dt(), .12);
+            state.headPitch += IKMath.wrap(look[1] - state.headPitch) * Smoothing.follow(context.dt(), .12);
             state.request = request;
             // Refresh the wheel every solve, including while the other hand operates a side control.
             // A stored block-space point follows the craft, but not rotation of the wheel itself.

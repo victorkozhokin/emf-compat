@@ -1,6 +1,5 @@
 package strm.emfcompat.animationadditions.ride;
 
-import static strm.emfcompat.animationadditions.interaction.Skeleton.LEFT_SHOULDER;
 import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_SHOULDER;
 
 import net.minecraft.client.Minecraft;
@@ -11,7 +10,6 @@ import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.Candidate;
-import strm.emfcompat.animationadditions.interaction.Category;
 import strm.emfcompat.animationadditions.interaction.Effector;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.InteractionContext;
@@ -22,8 +20,6 @@ import strm.emfcompat.animationadditions.torso.TorsoLean;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.ik.IKFrame;
-import strm.emfcompat.core.ik.IKResult;
-import strm.emfcompat.core.ik.OneBoneIK;
 
 import java.util.List;
 import java.util.UUID;
@@ -49,9 +45,7 @@ public final class MinecartRide implements InteractionProvider {
     public static final MinecartRide INSTANCE = new MinecartRide();
     public static final String KEY_ENABLED = "ride.minecart", KEY_LEGS = "ride.minecart.legs";
 
-    private static final int PRIORITY = 2;
     private static final Candidate.Timing TIMING = new Candidate.Timing(0.2, 0, 0.05);
-    private static final float ARM = Skeleton.ARM_TO_FINGERTIPS;
     private static final float MAX_REACH = 1.6f;
     /** Model pixels from the shoulder to the middle of the fist: what the last fit brings onto the rim. */
     private static final float FIST = 9.5f;
@@ -149,8 +143,7 @@ public final class MinecartRide implements InteractionProvider {
         }
         state.riding = true;
         state.weight += (1f - state.weight) * Smoothing.follow(dt, 0.2);
-        // Carried along, a rider has no stride: the game counts one for another player all the same, and the pack bobs to it.
-        player.walkAnimation.setSpeed(0f);
+        Riders.carried(player);
         float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
         // The shove on the seat: how the cart's speed changed this tick, blocks a second a second. From where the cart
         // was and is, not from the speed it claims - on a slope, off a drop and onto the ground that is what is felt.
@@ -219,9 +212,9 @@ public final class MinecartRide implements InteractionProvider {
         state.floor = up;
         // Where the rider looks, against the body as it is drawn.
         Vector3f view = strm.emfcompat.animationadditions.interaction.Body.model(frame, origin.add(player.getViewVector(partial)));
-        state.headYaw = (float) Math.toRadians(strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitFacing.head(
-                (float) Math.toDegrees(strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitFacing.angle(view.x, view.z)), 0));
-        state.headPitch = (float) Math.atan2(view.y, Math.sqrt(view.x * view.x + view.z * view.z));
+        float[] look = strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitFacing.look(view);
+        state.headYaw = look[0];
+        state.headPitch = look[1];
         Vec3 base = middle.add(0, LIFT, 0);
         Vec3[] grips = new Vec3[2];
         // The rider is fixed in the cart, so each hand's place on the rim is too: worked out in the cart's own measure -
@@ -242,17 +235,8 @@ public final class MinecartRide implements InteractionProvider {
             grips[hand] = base.add(before.scale(held.x)).add(toRight.scale(held.y)).add(up.scale(held.z));
             state.place[hand].set(strm.emfcompat.animationadditions.interaction.Body.model(frame, grips[hand]));
         }
-        IKResult r = OneBoneIK.solveXY(frame, RIGHT_SHOULDER, grips[0], ARM, 0f, 0f);
-        IKResult l = OneBoneIK.solveXY(frame, LEFT_SHOULDER, grips[1], ARM, 0f, 0f);
-        if (r != null && r.reach() > MAX_REACH) r = null;
-        if (l != null && l.reach() > MAX_REACH) l = null;
-        if (r != null) {
-            out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.RIGHT_ARM, new float[]{r.x(), r.y()}));
-        }
-        if (l != null) {
-            out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.LEFT_ARM, new float[]{l.x(), l.y()}));
-        }
-        context.decide(r == null && l == null ? "out-of-reach" : on == null ? "hold:off-rails" : "hold");
+        boolean held = Riders.hold(out, id(), TIMING, frame, grips[0], grips[1], MAX_REACH);
+        context.decide(!held ? "out-of-reach" : on == null ? "hold:off-rails" : "hold");
     }
 
     /**
@@ -313,14 +297,7 @@ public final class MinecartRide implements InteractionProvider {
         ModelPart r = parts.apply("right_leg"), l = parts.apply("left_leg");
         if (r == null || l == null) return;
         float w = state.weight;
-        // The model faces -z: back is +z.
-        for (String name : new String[]{"body", "head", "hat", "right_arm", "left_arm", "right_leg", "left_leg"}) {
-            ModelPart part = parts.apply(name);
-            if (part == null) continue;
-            part.z += SIT_BACK * w;
-            // Up is -y.
-            part.y -= state.rise * w;
-        }
+        Riders.shift(parts, SIT_BACK * w, state.rise * w);
         // As the game seats a rider: the right leg turned out to the right is +yRot.
         r.xRot += (LEG_PITCH - r.xRot) * w;
         r.yRot += (LEG_SPLAY - r.yRot) * w;
@@ -369,11 +346,7 @@ public final class MinecartRide implements InteractionProvider {
                 hat.xRot = head.xRot;
             }
         }
-        for (int hand = 0; hand < 2; hand++) {
-            float weight = strm.emfcompat.animationadditions.interaction.InteractionRuntime.weight(uuid, hand == 0 ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
-            ModelPart arm = parts.apply(hand == 0 ? "right_arm" : "left_arm");
-            if (arm != null && weight >= 0.02f) state.gap[hand] = BoatRide.settle(arm, state.place[hand], weight);
-        }
+        Riders.grip(uuid, parts, INSTANCE.id(), state.place, state.gap);
         if (strm.emfcompat.animationadditions.DebugLog.trace() && state.trace.due(30_000_000L)) {
             ModelPart body = parts.apply("body");
             org.slf4j.LoggerFactory.getLogger("EMFCompatRide").info("[CartTrace] shove=({} {} {}) off=({} {} {}) pitch={} roll={} rise={} bodyPitch={} bodyRoll={} gapR={} gapL={} heldR=({} {}) heldL=({} {})",

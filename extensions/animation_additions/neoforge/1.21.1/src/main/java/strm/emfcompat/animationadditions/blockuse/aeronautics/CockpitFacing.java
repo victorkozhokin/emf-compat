@@ -16,6 +16,11 @@ public final class CockpitFacing {
     public static float angle(float x, float z) {
         return x * x + z * z < 1e-6f ? 0 : (float) Math.atan2(-x, -z);
     }
+    /** {yaw, pitch} of a head, radians, that looks along {@code view} (model space) from a body turned to its seat: as far round as a neck goes. */
+    public static float[] look(org.joml.Vector3f view) {
+        return new float[]{(float) Math.toRadians(head((float) Math.toDegrees(angle(view.x, view.z)), 0)),
+                (float) Math.atan2(view.y, Math.sqrt(view.x * view.x + view.z * view.z))};
+    }
     public static float head(float original, float bodyTurn) {
         float degrees = original - (float) Math.toDegrees(bodyTurn);
         degrees = (degrees + 180) % 360;

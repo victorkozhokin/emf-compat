@@ -46,8 +46,8 @@ public final class LookAt implements InteractionProvider {
     /** Who to look at is chosen this often, not every frame: the creatures round the player and a line of sight to each. */
     private static final long PICK_EVERY_NANOS = 150_000_000L;
     /** How far the head turns from the body at most. */
-    private static final float NECK_YAW = (float) Math.toRadians(70);
-    private static final float NECK_PITCH = (float) Math.toRadians(60);
+    static final float NECK_YAW = (float) Math.toRadians(70);
+    static final float NECK_PITCH = (float) Math.toRadians(60);
     private LookAt() {
     }
 
@@ -143,8 +143,12 @@ public final class LookAt implements InteractionProvider {
 
     /** {yaw, pitch} of the head, model space, that points it at the target's eyes. */
     private static float[] aim(IKFrame frame, LivingEntity target) {
-        Vec3 eyes = target.getEyePosition();
-        Vector3f head = frame.relativeToJoint(eyes, new Vector3f(0, 0, 0));
+        return aim(frame, target.getEyePosition());
+    }
+
+    /** {yaw, pitch} of the head, model space, that points it at {@code point} in the world. */
+    static float[] aim(IKFrame frame, Vec3 point) {
+        Vector3f head = frame.relativeToJoint(point, new Vector3f(0, 0, 0));
         // Model pixels from the neck pivot; model forward is -z, down is +y.
         head.normalize();
         float yaw = (float) Math.atan2(-head.x, -head.z);
