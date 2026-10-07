@@ -42,7 +42,7 @@ public final class BoatPassenger implements InteractionProvider {
     public static final String KEY_ENABLED = "ride.boat.passenger";
 
     private static final int PRIORITY = 2;
-    private static final Candidate.Timing TIMING = new Candidate.Timing(0.2, 0.2, 0.05);
+    private static final Candidate.Timing TIMING = new Candidate.Timing(0.2, 0, 0.05);
     private static final float ARM = Skeleton.ARM_TO_FINGERTIPS;
     private static final float MAX_REACH = 1.7f;
 
@@ -89,6 +89,11 @@ public final class BoatPassenger implements InteractionProvider {
         State state = STATES.seen(player.getUUID(), context.now()).value;
         double dt = context.dt();
         if (!(player.getVehicle() instanceof Boat boat) || !BoatSeats.inBow(boat, player)) {
+            // Out of the boat the pose is over at once; still in it - the rower has stepped out - it eases off.
+            if (!(player.getVehicle() instanceof Boat)) {
+                if (state.riding) TorsoLean.drop(player.getUUID());
+                state.weight = 0;
+            }
             state.riding = false;
             state.weight += -state.weight * Smoothing.follow(dt, 0.15);
             state.laid[0] = state.laid[1] = false;

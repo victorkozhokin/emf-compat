@@ -60,7 +60,7 @@ public final class BoatRide implements InteractionProvider {
 
     /** Below anything a hand is used for: eating in a boat takes the arm. */
     private static final int PRIORITY = 2;
-    private static final Candidate.Timing TIMING = new Candidate.Timing(0.18, 0.2, 0.03);
+    private static final Candidate.Timing TIMING = new Candidate.Timing(0.18, 0, 0.03);
     private static final float ARM = Skeleton.ARM_TO_FINGERTIPS;
     /** As a share of the arm: a handle further than this is let go of. */
     private static final float MAX_REACH = 1.7f;
@@ -128,6 +128,8 @@ public final class BoatRide implements InteractionProvider {
         if (!(player.getVehicle() instanceof Boat boat) || boat.getFirstPassenger() != player) {
             if (state.riding) {
                 state.riding = false;
+                // Out of the boat the pose is over at once: nothing of it is carried onto the bank.
+                TorsoLean.drop(player.getUUID());
                 state.pitch.set(0);
                 state.yaw.set(0);
                 state.roll.set(0);

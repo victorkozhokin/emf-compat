@@ -159,6 +159,13 @@ public final class TorsoLean {
         state.crouch += ((player.isCrouching() ? 1 : 0) - state.crouch) * k;
     }
 
+    /** Straightens the torso at once, with no easing out of the lean it had: for a pose that ends when its cause does, as on leaving a boat. */
+    public static void drop(UUID uuid) {
+        State state = STATES.fresh(uuid);
+        if (state == null) return;
+        for (int i = 0; i < 3; i++) state.lean[i] = 0;
+    }
+
     private static float clamp(float v) {
         return Math.max(-MOTION_MAX, Math.min(MOTION_MAX, v));
     }

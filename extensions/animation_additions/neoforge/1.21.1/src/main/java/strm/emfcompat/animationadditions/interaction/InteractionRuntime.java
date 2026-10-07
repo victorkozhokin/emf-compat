@@ -183,7 +183,8 @@ public final class InteractionRuntime {
                 slot.weight -= slot.weight * Smoothing.fadeOut(dt, fadeOut / ContactRelease.SPEED);
                 // An item-use pose or another addon must own an occupied arm immediately.
                 boolean clearance = effector.isArm() && strm.emfcompat.animationadditions.wallhand.WallSqueeze.isActive(uuid);
-                if (reserved.contains(effector) || off || clearance) {
+                // A hold given no fade-out is let go of at once: stepping out of a boat, the hands do not trail after the paddles.
+                if (reserved.contains(effector) || off || clearance || fadeOut <= 0) {
                     if (clearance) slot.releaseReason = "clearance";
                     slot.release.cancel();
                     slot.weight = 0;

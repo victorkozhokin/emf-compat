@@ -50,7 +50,7 @@ public final class MinecartRide implements InteractionProvider {
     public static final String KEY_ENABLED = "ride.minecart", KEY_LEGS = "ride.minecart.legs";
 
     private static final int PRIORITY = 2;
-    private static final Candidate.Timing TIMING = new Candidate.Timing(0.2, 0.2, 0.05);
+    private static final Candidate.Timing TIMING = new Candidate.Timing(0.2, 0, 0.05);
     private static final float ARM = Skeleton.ARM_TO_FINGERTIPS;
     private static final float MAX_REACH = 1.6f;
 
@@ -65,8 +65,8 @@ public final class MinecartRide implements InteractionProvider {
 
     /** The legs laid out along the floor, a little apart at the feet; radians. */
     private static final float LEG_PITCH = -1.55f, LEG_SPLAY = 0.14f, LEG_ROLL = 0.04f;
-    /** The rider sits this far back from where the game puts them, model pixels: right against the back wall, so the legs lie out flat with the feet short of the front one. */
-    private static final float SIT_BACK = 6f;
+    /** The rider sits this far back from where the game puts them, model pixels: back by the back wall - not so close that the back is through it as the body is thrown about - so the legs lie out flat with the feet short of the front one. */
+    private static final float SIT_BACK = 4.5f;
 
     /** The body on its seat: how fast it comes back, a second, and how soon it settles (1 would be with no overshoot). */
     private static final double STIFF = 2 * Math.PI * 2.1, DAMP = 0.42;
@@ -80,7 +80,7 @@ public final class MinecartRide implements InteractionProvider {
     private static final float RISE_LIMIT = 3f, RISE = 2f;
     /** Rolling at full speed, blocks a second: the rattle of the joints - pixels up and down, radians side to side. */
     private static final float FULL_SPEED = 8f, RATTLE = 0.45f, RATTLE_ROLL = 0.02f;
-    /** Seconds: the torso follows what it is asked a moment late, so it is asked that much ahead; a hand's place easing along the rim, and the body coming round to the cart's way. */
+    /** Seconds: the torso follows what it is asked a moment late, so it is asked that much ahead; a hand's place easing along the rim, and the body coming round when the cart turns back the way it came. */
     private static final float LEAD = 0.1f;
     private static final double SLIDE_SECONDS = 0.15, FACE_SECONDS = 0.14;
 
@@ -132,8 +132,10 @@ public final class MinecartRide implements InteractionProvider {
         State state = STATES.seen(player.getUUID(), context.now()).value;
         double dt = context.dt();
         if (!(player.getVehicle() instanceof AbstractMinecart cart)) {
+            // Out of the cart the pose is over at once: nothing of it is carried onto the ground.
+            if (state.riding) TorsoLean.drop(player.getUUID());
             state.riding = false;
-            state.weight += -state.weight * Smoothing.follow(dt, 0.15);
+            state.weight = 0;
             state.pitch = state.roll = state.rise = state.pitchRate = state.rollRate = 0;
             state.tick = -1;
             state.moving = false;
@@ -216,10 +218,15 @@ public final class MinecartRide implements InteractionProvider {
         if (state.face == null) state.face = along.scale(player.getViewVector(1f).dot(along) < 0 ? -1 : 1);
         boolean ahead = Math.abs(going) > 0.4 ? going > 0 : state.face.dot(along) >= 0;
         Vec3 way = along.scale(ahead ? 1 : -1);
-        // Turned right about, it comes round by one side instead of through itself.
-        if (state.face.dot(way) < -0.95) state.face = state.face.add(across.scale(0.3)).normalize();
-        state.face = state.face.lerp(way, Smoothing.follow(dt, FACE_SECONDS)).normalize();
-        state.floor = state.floor == null ? up : state.floor.lerp(up, Smoothing.follow(dt, FACE_SECONDS)).normalize();
+        // With the cart at once - round a bend it is the cart that turns, and a body coming after it late would sit askew
+        // in it. Only turned right about does it come round, by one side.
+        if (state.face.dot(way) > 0) {
+            state.face = way;
+        } else {
+            if (state.face.dot(way) < -0.95) state.face = state.face.add(across.scale(0.3)).normalize();
+            state.face = state.face.lerp(way, Smoothing.follow(dt, FACE_SECONDS)).normalize();
+        }
+        state.floor = up;
         // Where the rider looks, against the body as it is drawn.
         Vector3f view = strm.emfcompat.animationadditions.interaction.Body.model(frame, origin.add(player.getViewVector(partial)));
         state.headYaw = (float) Math.toRadians(strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitFacing.head(

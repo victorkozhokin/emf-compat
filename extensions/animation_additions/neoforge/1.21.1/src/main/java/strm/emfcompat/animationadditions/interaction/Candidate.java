@@ -46,7 +46,7 @@ public record Candidate(String source, Category category, int priority, Map<Effe
     /**
      * How a winning candidate shows: seconds to fade in and out (time constants of an
      * exponential approach, the same at any frame rate) and how quickly the aim follows a moving
-     * target, 0 for at once.
+     * target, 0 for at once. A fade-out of 0 lets go at once.
      */
     public record Timing(double fadeIn, double fadeOut, double aimSeconds) {
     }
