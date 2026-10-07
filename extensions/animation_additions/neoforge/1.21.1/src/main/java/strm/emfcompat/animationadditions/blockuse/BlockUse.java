@@ -53,6 +53,10 @@ import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
 import strm.emfcompat.animationadditions.interaction.Body;
 import strm.emfcompat.animationadditions.net.Inputs;
+import strm.emfcompat.animationadditions.blockuse.aeronautics.*;
+import strm.emfcompat.animationadditions.blockuse.create.*;
+import strm.emfcompat.animationadditions.blockuse.supplementaries.*;
+import strm.emfcompat.animationadditions.blockuse.vanilla.*;
 
 /**
  * Using a block by hand - a chiseled bookshelf's slot, and so on ({@link BlockTarget}): looking at

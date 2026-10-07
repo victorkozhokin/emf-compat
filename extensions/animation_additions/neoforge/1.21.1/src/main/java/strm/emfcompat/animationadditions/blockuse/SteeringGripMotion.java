@@ -3,16 +3,16 @@ package strm.emfcompat.animationadditions.blockuse;
 import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** Alternating regrips between six equally spaced rim anchors; at least one hand remains on the rim. */
-final class SteeringGripMotion {
+public final class SteeringGripMotion {
     private static final float SECONDS = .28f;
     private final float[] offsets = new float[2];
     private final float[] centres;
-    SteeringGripMotion() { this(0); }
-    SteeringGripMotion(float upperRight) { centres = new float[]{upperRight, -upperRight}; }
+    public SteeringGripMotion() { this(0); }
+    public SteeringGripMotion(float upperRight) { centres = new float[]{upperRight, -upperRight}; }
     private float angle, previous, elapsed, from, to;
     private boolean initialized;
     private int moving = -1, next;
-    int transfers;
+    public int transfers;
 
     void advance(float radians, float dt) {
         float degrees = (float) Math.toDegrees(radians);
@@ -55,7 +55,7 @@ final class SteeringGripMotion {
         }
     }
 
-    float radians(int hand) {
+    public float radians(int hand) {
         return (float) Math.toRadians(bounded(hand, angle + offsets[hand]));
     }
 
@@ -65,10 +65,10 @@ final class SteeringGripMotion {
         return Math.max(lo, Math.min(hi, phase));
     }
 
-    float lift(int hand) {
+    public float lift(int hand) {
         return hand == moving ? CrankStanceMath.lift(elapsed / SECONDS) / 16 : 0;
     }
 
-    int slot(int hand) { return Math.floorMod(Math.round(offsets[hand] / 60) + (hand == 0 ? 0 : 3), 6); }
-    int moving() { return moving; }
+    public int slot(int hand) { return Math.floorMod(Math.round(offsets[hand] / 60) + (hand == 0 ? 0 : 3), 6); }
+    public int moving() { return moving; }
 }

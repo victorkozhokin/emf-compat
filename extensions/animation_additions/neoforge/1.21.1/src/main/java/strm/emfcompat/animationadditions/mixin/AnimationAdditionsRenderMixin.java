@@ -46,13 +46,13 @@ public class AnimationAdditionsRenderMixin {
             InteractionRuntime.suspend(player.getUUID());
             return;
         }
-        strm.emfcompat.animationadditions.blockuse.CockpitControls.orient(player, stack);
+        strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitControls.orient(player, stack);
         emfcompat$quietSwing(player);
         EjectorLaunch.crouch(player, ((LivingEntityRenderer<?, ?>) (Object) this).getModel(), stack);
         FootGrounding.modelPose(player, stack);
         IKFrame frame = IKFrame.capture(stack.last().pose(),
                 Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
-        strm.emfcompat.animationadditions.blockuse.CockpitControls.frame(player, frame);
+        strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitControls.frame(player, frame);
         MotionRuntime.modelPose(player);
         InteractionRuntime.modelPose(player, frame);
         strm.emfcompat.animationadditions.blockuse.BlockUse.frame(player, frame);

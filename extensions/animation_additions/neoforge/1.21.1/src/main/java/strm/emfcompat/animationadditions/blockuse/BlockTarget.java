@@ -25,7 +25,7 @@ public interface BlockTarget {
      * it also goes across the spot while it does it - a push along a surface.
      */
     record Gesture(Spot spot, Motion motion, Vec3 sweep) {
-        Gesture(Spot spot, Motion motion) {
+        public Gesture(Spot spot, Motion motion) {
             this(spot, motion, null);
         }
     }

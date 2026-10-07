@@ -23,7 +23,7 @@ import java.util.UUID;
  * <p>By the block's class, or one it extends, by name; after every other target, so a block with a
  * box or a gesture of its own has that where it applies and this elsewhere.</p>
  */
-final class Panel implements BlockTarget {
+public final class Panel implements BlockTarget {
 
     private static final String SUPPLEMENTARIES = "net.mehvahdjukaar.supplementaries.common.block.blocks.";
 

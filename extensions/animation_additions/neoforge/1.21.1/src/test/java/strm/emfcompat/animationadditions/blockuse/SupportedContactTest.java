@@ -3,6 +3,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import strm.emfcompat.animationadditions.blockuse.aeronautics.*;
 
 class SupportedContactTest {
     @Test void discontinuousTargetNeverBypassesTheAngularSpeedLimit() {

@@ -30,7 +30,7 @@ import strm.emfcompat.animationadditions.interaction.Body;
  * when the item that came is the one the player held, or when it went with the hand empty. A use
  * that shows in nothing the block holds is still a tap: the arm swings.</p>
  */
-final class ItemRest implements BlockTarget {
+public final class ItemRest implements BlockTarget {
 
     private final String blockClass;
     private final ModAccess held;
@@ -52,7 +52,7 @@ final class ItemRest implements BlockTarget {
     }
 
     /** Where the item goes is the block's top, {@code top} pixels up. */
-    ItemRest(String blockClass, String accessor, double top) {
+    public ItemRest(String blockClass, String accessor, double top) {
         this(blockClass, accessor, top, 0, -1, false);
     }
 

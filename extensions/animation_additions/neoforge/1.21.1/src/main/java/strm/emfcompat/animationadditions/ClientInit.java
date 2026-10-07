@@ -81,7 +81,7 @@ final class ClientInit {
         InteractionRuntime.register(ButtonPress.INSTANCE);
         InteractionRuntime.register(strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.INSTANCE);
         InteractionRuntime.register(BlockUse.INSTANCE);
-        InteractionRuntime.register(strm.emfcompat.animationadditions.blockuse.CockpitControls.INSTANCE);
+        InteractionRuntime.register(strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitControls.INSTANCE);
         InteractionRuntime.register(DoorHold.INSTANCE);
         InteractionRuntime.register(Furniture.INSTANCE);
         InteractionRuntime.register(Mining.INSTANCE);

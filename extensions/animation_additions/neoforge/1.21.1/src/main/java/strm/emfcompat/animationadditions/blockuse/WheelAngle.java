@@ -11,13 +11,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 /** Optional mod access, cached by concrete block entity class; one failure cannot disable another wheel. */
-final class WheelAngle {
+public final class WheelAngle {
     private final String name;
     private final Map<Class<?>, Method> methods = new HashMap<>();
     private final Set<Class<?>> failed = new HashSet<>();
-    WheelAngle(String name) { this.name = name; }
+    public WheelAngle(String name) { this.name = name; }
 
-    Float read(Level level, BlockPos pos) {
+    public Float read(Level level, BlockPos pos) {
         var entity = level.getBlockEntity(pos);
         if (entity == null || failed.contains(entity.getClass())) return null;
         try {

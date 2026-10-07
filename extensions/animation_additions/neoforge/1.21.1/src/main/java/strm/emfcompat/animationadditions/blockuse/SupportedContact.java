@@ -4,7 +4,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /** Temporally coherent fitting for sustained, bilateral surface contacts. */
-final class SupportedContact {
+public final class SupportedContact {
     static Quaternionf fit(Quaternionf previous, Vector3f right, Vector3f left, Vector3f rt, Vector3f lt) {
         Vector3f origin = previous.getEulerAnglesZYX(new Vector3f()), angles = new Vector3f(origin);
         float best = score(angles, origin, right, left, rt, lt);

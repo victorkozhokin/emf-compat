@@ -12,7 +12,7 @@ import strm.emfcompat.animationadditions.interaction.Body;
 import strm.emfcompat.animationadditions.interaction.FrameClock;
 
 /** Shared supported upper-body pose, independent of any table mod or item gesture. */
-final class TableSupport {
+public final class TableSupport {
     static final class State {
         final TableSupportMotion motion = new TableSupportMotion();
         final Quaternionf turn = new Quaternionf();

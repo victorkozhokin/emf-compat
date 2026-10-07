@@ -165,7 +165,7 @@ public final class TorsoLean {
     /** Turns the torso, and carries the head and the arms with it. Called after the pack has animated. */
     public static void apply(UUID uuid, Function<String, ModelPart> parts) {
         // Seated cockpit motion comes from the deck, not the player's free camera yaw.
-        if (strm.emfcompat.animationadditions.blockuse.CockpitControls.active(uuid)) return;
+        if (strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitControls.active(uuid)) return;
         State state = STATES.fresh(uuid);
         if (state == null) return;
         float[] lean = state.lean;

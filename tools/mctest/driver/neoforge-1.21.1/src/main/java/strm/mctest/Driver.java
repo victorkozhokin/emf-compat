@@ -778,7 +778,7 @@ public final class Driver {
         }catch(ClassNotFoundException ignored){}
 
         if(entity==mc.player)try {
-            var cls=Class.forName("strm.emfcompat.animationadditions.blockuse.CockpitControls");
+            var cls=Class.forName("strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitControls");
             out.add("cockpit",new com.google.gson.Gson().toJsonTree(cls.getMethod("snapshot",java.util.UUID.class).invoke(null,entity.getUUID())));
         } catch(ClassNotFoundException ignored) { }
         if(entity==mc.player)try {

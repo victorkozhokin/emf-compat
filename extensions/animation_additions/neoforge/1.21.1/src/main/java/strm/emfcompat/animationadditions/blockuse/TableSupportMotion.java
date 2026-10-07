@@ -1,7 +1,7 @@
 package strm.emfcompat.animationadditions.blockuse;
 
 /** Contact first, then weight; unload while the palm is still held before letting go. */
-final class TableSupportMotion {
+public final class TableSupportMotion {
     float settled, load;
     void advance(float dt, boolean engaged, boolean contact) {
         dt = Math.max(0, Math.min(.1f, dt));

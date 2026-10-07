@@ -4,7 +4,7 @@ import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** Pure stance geometry and angle continuity. */
-final class CrankStanceMath {
+public final class CrankStanceMath {
     static float delta(float previous, float next) {
         float d = (next - previous) % 360;
         return d > 180 ? d - 360 : d < -180 ? d + 360 : d;

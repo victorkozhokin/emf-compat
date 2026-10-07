@@ -13,7 +13,7 @@ import strm.emfcompat.animationadditions.torso.Stride;
 import strm.emfcompat.animationadditions.DebugLog;
 
 /** Small grounded setup steps; rotation transfers weight rather than walking every turn. */
-final class CrankStance {
+public final class CrankStance {
     static final class State {
         AbstractClientPlayer player;
         IKFrame space;

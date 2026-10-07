@@ -177,7 +177,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         Mining.aimArm(uuid, parts, contactBase);
         strm.emfcompat.animationadditions.gesture.Gesture.aimArms(uuid, parts, contactBase);
         strm.emfcompat.animationadditions.pocket.PocketStash.aimArm(uuid, parts);
-        strm.emfcompat.animationadditions.blockuse.CockpitControls.apply(uuid, parts);
+        strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitControls.apply(uuid, parts);
         HandContacts.apply(uuid, parts, contactBase, mainModel);
         strm.emfcompat.animationadditions.buttonpress.HeavyThrottle.aimArms(uuid, parts);
         strm.emfcompat.animationadditions.transport.TransportGrip.aim(uuid, parts);

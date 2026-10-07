@@ -5,20 +5,20 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 
 /** Points on blocks for {@link BlockTarget}s. */
-final class Spots {
+public final class Spots {
 
-    static final Vec3 UP = new Vec3(0, 1, 0);
+    public static final Vec3 UP = new Vec3(0, 1, 0);
 
     private Spots() {
     }
 
     /** A point of the block, pixels, on its top side: the hand comes down onto it. */
-    static BlockTarget.Spot top(BlockPos pos, double x, double y, double z) {
+    public static BlockTarget.Spot top(BlockPos pos, double x, double y, double z) {
         return new BlockTarget.Spot(new Vec3(pos.getX() + x / 16, pos.getY() + y / 16, pos.getZ() + z / 16), UP);
     }
 
     /** The middle of the block's side towards {@code side}, {@code up} blocks over its bottom: the hand comes at it from outside. */
-    static BlockTarget.Spot side(BlockPos pos, Direction side, double up) {
+    public static BlockTarget.Spot side(BlockPos pos, Direction side, double up) {
         Vec3 out = Vec3.atLowerCornerOf(side.getNormal());
         return new BlockTarget.Spot(new Vec3(pos.getX() + 0.5, pos.getY() + up, pos.getZ() + 0.5).add(out.scale(0.5)), out);
     }
@@ -28,7 +28,7 @@ final class Spots {
      * {@code facing} (south 0, west 90, north 180, east 270 degrees clockwise from above), on its
      * top side.
      */
-    static BlockTarget.Spot turned(BlockPos pos, Direction facing, double x, double y, double z) {
+    public static BlockTarget.Spot turned(BlockPos pos, Direction facing, double x, double y, double z) {
         double dx = x - 8, dz = z - 8;
         double rx, rz;
         switch (facing) {

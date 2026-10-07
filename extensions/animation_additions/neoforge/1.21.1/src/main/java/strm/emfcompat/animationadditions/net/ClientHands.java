@@ -14,7 +14,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import strm.emfcompat.animationadditions.blockuse.BlockUse;
-import strm.emfcompat.animationadditions.blockuse.Typewriter;
+import strm.emfcompat.animationadditions.blockuse.aeronautics.Typewriter;
 import strm.emfcompat.animationadditions.buttonpress.ThrottleLever;
 import strm.emfcompat.animationadditions.gesture.AnimalCare;
 import strm.emfcompat.animationadditions.gesture.HandTo;
@@ -155,8 +155,8 @@ public final class ClientHands {
         }
         // A train driven: which contraption and which of its controls only the driver's own game knows.
         int drive = -1;
-        BlockPos drivePos = strm.emfcompat.animationadditions.blockuse.TrainControls.drivenControls(player);
-        Entity train = drivePos == null ? null : strm.emfcompat.animationadditions.blockuse.TrainControls.drivenContraption(player);
+        BlockPos drivePos = strm.emfcompat.animationadditions.blockuse.create.TrainControls.drivenControls(player);
+        Entity train = drivePos == null ? null : strm.emfcompat.animationadditions.blockuse.create.TrainControls.drivenContraption(player);
         if (train != null) {
             flags |= HandsState.DRIVE;
             drive = train.getId();
