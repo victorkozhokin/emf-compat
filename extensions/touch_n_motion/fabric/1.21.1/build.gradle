@@ -11,12 +11,11 @@ base {
 }
 
 loom {
-    splitEnvironmentSourceSets()
-
+    // One source set: the mod has a part for the server (the channels that pass players' hands on,
+    // the seat in a boat's bow), and the rest is kept off a server by where it is called from.
     mods {
         "${mod_id}" {
             sourceSet sourceSets.main
-            sourceSet sourceSets.client
         }
     }
 }
@@ -94,7 +93,6 @@ java {
 }
 
 jar {
-    from sourceSets.client.output
     from("LICENSE") {
         rename { "${it}_${mod_id}" }
     }

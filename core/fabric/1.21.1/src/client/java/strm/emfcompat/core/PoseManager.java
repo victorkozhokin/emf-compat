@@ -39,6 +39,10 @@ public final class PoseManager {
     // attached to the hands by the same amount, keeping them in sync with the arms.
     private static final Map<UUID, Vector3f> bodyFollowDelta = new HashMap<>();
 
+    // While a source holds an exclusive claim on a player, no other source poses them; see
+    // setExclusive. Render thread only, like the rest of this class.
+    private static final Map<UUID, String> exclusive = new HashMap<>();
+
     private static int cleanupCounter = 0;
 
     /**
@@ -60,6 +64,7 @@ public final class PoseManager {
         entitySavedPoses.keySet().retainAll(activeUUIDs);
         entitySavedPosesBySource.keySet().retainAll(activeUUIDs);
         bodyFollowDelta.keySet().retainAll(activeUUIDs);
+        exclusive.keySet().retainAll(activeUUIDs);
         PauseOverride.retainOnly(activeUUIDs);
         PoseInterpolator.retainOnly(activeUUIDs);
         CrouchNormalizer.retainOnly(activeUUIDs);
@@ -67,6 +72,27 @@ public final class PoseManager {
         // Do NOT call retainAll on the inner keySets here: their keys are source
         // names (Strings), not UUIDs, so that would incorrectly wipe all named
         // sources every 200 frames.
+    }
+
+    /**
+     * Claims a player for one source: while the claim stands, {@link #getSavedPoses} hands out that
+     * source's poses and nothing else — every other source, named or default, is dropped.
+     *
+     * <p>For a move that owns the whole body and is drawn by the resource pack rather than by a
+     * saved pose. ParCool's hangs are the case this exists for: the pack draws them from its own
+     * variables, so there is no pose here to outrank an addon with, and an addon posing the arms
+     * would wipe the hang off the model. A claim says "leave this player alone" without the claimer
+     * having to reproduce the pose it is protecting.</p>
+     *
+     * <p>The claimer sets it every frame the move runs and releases it as the move ends.</p>
+     */
+    public static void setExclusive(UUID uuid, String source) {
+        exclusive.put(uuid, source);
+    }
+
+    /** Releases a claim, if this source is the one holding it. */
+    public static void clearExclusive(UUID uuid, String source) {
+        exclusive.remove(uuid, source);
     }
 
     /**
@@ -279,6 +305,13 @@ public final class PoseManager {
         // Global switch: hand out nothing, so every restore site becomes a no-op even if an
         // addon keeps capturing.
         if (!EMFCompatCore.isCompatEnabled()) return null;
+        // One source has claimed the player for the length of a move: everything else is dropped,
+        // including the default source (see setExclusive).
+        String only = exclusive.get(uuid);
+        if (only != null) {
+            Map<String, SavedPoses> claimed = entitySavedPosesBySource.get(uuid);
+            return claimed == null ? null : claimed.get(only);
+        }
         SavedPoses defaultPoses = entitySavedPoses.get(uuid);
         Map<String, SavedPoses> sources = entitySavedPosesBySource.get(uuid);
         if (sources == null || sources.isEmpty()) {
