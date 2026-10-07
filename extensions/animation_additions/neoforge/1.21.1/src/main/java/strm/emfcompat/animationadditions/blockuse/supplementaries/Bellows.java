@@ -18,11 +18,11 @@ import strm.emfcompat.animationadditions.blockuse.*;
 
 /** Supplementaries' actual moving plate. Manual use only; redstone and stepping are not hand actions. */
 public final class Bellows implements BlockTarget {
-    private static final String BLOCK = "net.mehvahdjukaar.supplementaries.common.block.blocks.BellowsBlock";
+    private static final ModBlock BLOCK = ModBlock.family("net.mehvahdjukaar.supplementaries.common.block.blocks.BellowsBlock", "supplementaries:bellows");
     private static final ModAccess HEIGHT = new ModAccess("height"), PREVIOUS = new ModAccess("prevHeight"), MANUAL = new ModAccess("manualPress");
     private static final EntityStates<Press> PRESSES = new EntityStates<>(Press::new);
     private static final class Press {BlockPos pos; boolean swinging; int swing; long until;}
-    @Override public boolean matches(BlockState block) { return ModAccess.is(block.getBlock().getClass(), BLOCK); }
+    @Override public boolean matches(BlockState block) { return BLOCK.is(block); }
     public static float height(Level level, BlockPos pos) {
         Object be = level.getBlockEntity(pos), a = PREVIOUS.read(be), b = HEIGHT.read(be);
         if (!(a instanceof Number previous) || !(b instanceof Number current)) return 0;

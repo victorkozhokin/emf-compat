@@ -33,7 +33,7 @@ import strm.emfcompat.animationadditions.blockuse.*;
  */
 public final class CraftingTable implements BlockTarget {
 
-    private static final String VISUAL_BLOCK = "fuzs.visualworkbench.world.level.block.CraftingTableWithInventoryBlock";
+    private static final ModBlock VISUAL_BLOCK = ModBlock.exact("fuzs.visualworkbench.world.level.block.CraftingTableWithInventoryBlock", "visualworkbench:minecraft/crafting_table");
     private static final int SLOTS = 9;
     /** The slots' height over the top: Visual Workbench's flat items lie at 1.005, its floating ones at ~1.09. */
     private static final double TOP = 1.0;
@@ -57,7 +57,7 @@ public final class CraftingTable implements BlockTarget {
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock() instanceof CraftingTableBlock || block.getBlock().getClass().getName().equals(VISUAL_BLOCK);
+        return block.getBlock() instanceof CraftingTableBlock || VISUAL_BLOCK.is(block);
     }
 
     @Override

@@ -23,7 +23,7 @@ import strm.emfcompat.animationadditions.blockuse.*;
  */
 public final class ItemDrain implements BlockTarget {
 
-    private static final String BLOCK = "com.simibubi.create.content.fluids.drain.ItemDrainBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("com.simibubi.create.content.fluids.drain.ItemDrainBlock", "create:item_drain");
     private static final ModAccess HELD = new ModAccess("getHeldItemStack");
     private static final ModAccess HANDLER = new ModAccess("getPrimaryHandler");
     /** The grate the item lies on, pixels. */
@@ -38,7 +38,7 @@ public final class ItemDrain implements BlockTarget {
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals(BLOCK);
+        return BLOCK.is(block);
     }
 
     @Override

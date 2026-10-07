@@ -29,7 +29,7 @@ import strm.emfcompat.animationadditions.blockuse.*;
  */
 public final class Blackboard implements BlockTarget {
 
-    private static final String BLOCK = "net.mehvahdjukaar.supplementaries.common.block.blocks.BlackboardBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("net.mehvahdjukaar.supplementaries.common.block.blocks.BlackboardBlock", "supplementaries:blackboard");
     private static final ModAccess DATA = new ModAccess("data");
     private static final int SIZE = 16;
     /** The board is this thick, pixels, at the back of its block: its face is this far from the back. */
@@ -58,7 +58,7 @@ public final class Blackboard implements BlockTarget {
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals(BLOCK);
+        return BLOCK.is(block);
     }
 
     @Override

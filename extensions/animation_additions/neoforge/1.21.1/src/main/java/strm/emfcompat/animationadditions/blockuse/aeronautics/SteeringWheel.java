@@ -30,8 +30,9 @@ public final class SteeringWheel implements BlockTarget {
         HumanoidArm main;
         final DebugLog.Pace tracePace = new DebugLog.Pace();
     }
+    private static final ModBlock BLOCK = ModBlock.exact("dev.simulated_team.simulated.content.blocks.steering_wheel.SteeringWheelBlock", "simulated:steering_wheel");
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals("dev.simulated_team.simulated.content.blocks.steering_wheel.SteeringWheelBlock");
+        return BLOCK.is(block);
     }
     public Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit) {
         return grip(player, pos, block, false);

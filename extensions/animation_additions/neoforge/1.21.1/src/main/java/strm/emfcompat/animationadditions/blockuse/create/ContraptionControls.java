@@ -20,7 +20,7 @@ import strm.emfcompat.animationadditions.blockuse.*;
  */
 public final class ContraptionControls implements BlockTarget {
 
-    private static final String BLOCK = "com.simibubi.create.content.contraptions.actors.contraptionControls.ContraptionControlsBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("com.simibubi.create.content.contraptions.actors.contraptionControls.ContraptionControlsBlock", "create:contraption_controls");
     /** The middle of the button's top in the model ({@code contraption_controls/button}, made facing south), pixels. */
     private static final double BUTTON_X = 8, BUTTON_Y = 14.5, BUTTON_Z = 10.3;
 
@@ -32,7 +32,7 @@ public final class ContraptionControls implements BlockTarget {
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals(BLOCK);
+        return BLOCK.is(block);
     }
 
     @Override

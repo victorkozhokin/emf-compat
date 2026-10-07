@@ -14,6 +14,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.lang.reflect.Method;
+import strm.emfcompat.animationadditions.blockuse.ModBlock;
 
 /**
  * Create Aeronautics' physics assembler ({@code simulated}): a lever flicked over and held to
@@ -27,7 +28,7 @@ import java.lang.reflect.Method;
  */
 final class PhysicsAssembler {
 
-    private static final String BLOCK = "dev.simulated_team.simulated.content.blocks.physics_assembler.PhysicsAssemblerBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("dev.simulated_team.simulated.content.blocks.physics_assembler.PhysicsAssemblerBlock", "simulated:physics_assembler");
     private static final String RENDERER = "dev.simulated_team.simulated.content.blocks.physics_assembler.PhysicsAssemblerRenderer";
     private static final String ENTITY = "dev.simulated_team.simulated.content.blocks.physics_assembler.PhysicsAssemblerBlockEntity";
     /** The middle of the knob in the lever's model, blocks; the lever's pivot. */
@@ -42,7 +43,7 @@ final class PhysicsAssembler {
     }
 
     static boolean is(BlockState block) {
-        return block.getBlock().getClass().getName().equals(BLOCK);
+        return BLOCK.is(block);
     }
 
     /** Where the knob is drawn now, world; {@code null} when it cannot be told. */

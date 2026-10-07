@@ -47,7 +47,7 @@ public final class TrainControls implements BlockTarget {
     }
 
     private static final String ENTITY = "com.simibubi.create.content.contraptions.AbstractContraptionEntity";
-    private static final String BLOCK = "com.simibubi.create.content.contraptions.actors.trainControls.ControlsBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("com.simibubi.create.content.contraptions.actors.trainControls.ControlsBlock", "create:controls");
     private static final String HANDLER = "com.simibubi.create.content.contraptions.actors.trainControls.ControlsHandler";
     /** The far end of a lever in its model ({@code controls/train/lever}: a bar x 4..6, y 11..13, z -1..9, turned 45 degrees about x at y 12, z 11), pixels. */
     private static final Vector3f LEVER_END = new Vector3f(5f, 12f, 0f);
@@ -81,7 +81,7 @@ public final class TrainControls implements BlockTarget {
             if (entity == null || entity.isRemoved()) return null;
             Object contraption = getContraption.invoke(entity);
             if (!(((Map<?, ?>) getBlocks.invoke(contraption)).get(driven.controls) instanceof StructureTemplate.StructureBlockInfo info)) return null;
-            if (!info.state().getBlock().getClass().getName().equals(BLOCK)) return null;
+            if (!BLOCK.is(info.state())) return null;
             float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
             float[] angles = angles(contraption, driven.controls, partial);
             Direction facing = info.state().getValue(BlockStateProperties.HORIZONTAL_FACING);
@@ -167,7 +167,7 @@ public final class TrainControls implements BlockTarget {
             Map<?, ?> blocks = (Map<?, ?>) getBlocks.invoke(getContraption.invoke(entity));
             for (Map.Entry<?, ?> block : blocks.entrySet()) {
                 if (!(block.getValue() instanceof StructureTemplate.StructureBlockInfo info)
-                        || !info.state().getBlock().getClass().getName().equals(BLOCK)) continue;
+                        || !BLOCK.is(info.state())) continue;
                 BlockPos pos = (BlockPos) block.getKey();
                 double d = ((Vec3) toGlobal.invoke(entity, Vec3.atCenterOf(pos), 1f)).distanceToSqr(player.position());
                 if (d < distance) {

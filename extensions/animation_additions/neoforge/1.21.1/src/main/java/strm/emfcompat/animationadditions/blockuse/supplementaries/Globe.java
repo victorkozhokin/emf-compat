@@ -22,7 +22,7 @@ import strm.emfcompat.animationadditions.blockuse.*;
  */
 public final class Globe implements BlockTarget {
 
-    private static final String BLOCK = "net.mehvahdjukaar.supplementaries.common.block.blocks.GlobeBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("net.mehvahdjukaar.supplementaries.common.block.blocks.GlobeBlock", "supplementaries:globe", "supplementaries:globe_sepia");
     /** The ball's middle, blocks up; its half; how long the push is across it, blocks. */
     private static final double CENTRE_Y = 9 / 16.0;
     private static final double RADIUS = 4 / 16.0;
@@ -48,7 +48,7 @@ public final class Globe implements BlockTarget {
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals(BLOCK);
+        return BLOCK.is(block);
     }
 
     @Override

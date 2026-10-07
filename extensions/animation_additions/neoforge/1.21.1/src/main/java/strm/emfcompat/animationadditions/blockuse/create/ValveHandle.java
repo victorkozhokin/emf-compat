@@ -17,8 +17,9 @@ import strm.emfcompat.animationadditions.blockuse.*;
 public final class ValveHandle implements BlockTarget {
     private static final EntityStates<RimGrip> GRIPS = new EntityStates<>(RimGrip::new);
     private static final WheelAngle ANGLE = new WheelAngle("getIndependentAngle");
+    private static final ModBlock BLOCK = ModBlock.exact("com.simibubi.create.content.kinetics.crank.ValveHandleBlock", "create:*_valve_handle");
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals("com.simibubi.create.content.kinetics.crank.ValveHandleBlock");
+        return BLOCK.is(block);
     }
     public Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit) {
         return grip(player, pos, block, false);

@@ -15,12 +15,12 @@ import strm.emfcompat.animationadditions.blockuse.*;
  */
 public final class Safe implements BlockTarget {
 
-    private static final String BLOCK = "net.mehvahdjukaar.supplementaries.common.block.blocks.SafeBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("net.mehvahdjukaar.supplementaries.common.block.blocks.SafeBlock", "supplementaries:safe");
     private static final double DOOR = 7 / 16.0;
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals(BLOCK);
+        return BLOCK.is(block);
     }
 
     @Override

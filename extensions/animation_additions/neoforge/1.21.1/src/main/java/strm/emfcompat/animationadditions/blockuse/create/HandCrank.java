@@ -30,7 +30,7 @@ import strm.emfcompat.animationadditions.blockuse.*;
  */
 public final class HandCrank implements BlockTarget {
 
-    private static final String BLOCK = "com.simibubi.create.content.kinetics.crank.HandCrankBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("com.simibubi.create.content.kinetics.crank.HandCrankBlock", "create:hand_crank");
     /** The middle of the grip in the handle's model, pixels; and the point on the axis level with it. */
     private static final Vector3f GRIP = new Vector3f(1f, 8f, 6f);
     private static final Vector3f AXIS = new Vector3f(8f, 8f, 6f);
@@ -40,7 +40,7 @@ public final class HandCrank implements BlockTarget {
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals(BLOCK);
+        return BLOCK.is(block);
     }
 
     @Override

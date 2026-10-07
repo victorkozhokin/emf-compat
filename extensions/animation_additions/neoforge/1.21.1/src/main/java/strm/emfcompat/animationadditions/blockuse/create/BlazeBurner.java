@@ -21,7 +21,7 @@ import strm.emfcompat.animationadditions.blockuse.*;
  */
 public final class BlazeBurner implements BlockTarget {
 
-    private static final String BLOCK = "com.simibubi.create.content.processing.burner.BlazeBurnerBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("com.simibubi.create.content.processing.burner.BlazeBurnerBlock", "create:blaze_burner");
     private static final ModAccess BURN_TIME = new ModAccess("getRemainingBurnTime");
     /** The blaze's head, blocks up; the cage's side, blocks from the middle. */
     private static final double HEAD_Y = 9 / 16.0;
@@ -35,7 +35,7 @@ public final class BlazeBurner implements BlockTarget {
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals(BLOCK);
+        return BLOCK.is(block);
     }
 
     @Override

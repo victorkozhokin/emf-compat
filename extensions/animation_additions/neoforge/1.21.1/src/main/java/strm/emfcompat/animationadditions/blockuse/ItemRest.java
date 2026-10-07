@@ -32,7 +32,7 @@ import strm.emfcompat.animationadditions.interaction.Body;
  */
 public final class ItemRest implements BlockTarget {
 
-    private final String blockClass;
+    private final ModBlock block;
     private final ModAccess held;
     /** The top the item lies on, pixels; negative for the side the block faces. */
     private final double top;
@@ -52,17 +52,17 @@ public final class ItemRest implements BlockTarget {
     }
 
     /** Where the item goes is the block's top, {@code top} pixels up. */
-    public ItemRest(String blockClass, String accessor, double top) {
-        this(blockClass, accessor, top, 0, -1, false);
+    public ItemRest(ModBlock block, String accessor, double top) {
+        this(block, accessor, top, 0, -1, false);
     }
 
-    private ItemRest(String blockClass, String accessor, double top, double inset, double lying, boolean edge) {
-        this(blockClass, accessor, top, inset, lying, edge, DEFAULT_TABLE);
+    private ItemRest(ModBlock block, String accessor, double top, double inset, double lying, boolean edge) {
+        this(block, accessor, top, inset, lying, edge, DEFAULT_TABLE);
     }
 
-    private ItemRest(String blockClass, String accessor, double top, double inset, double lying, boolean edge, TableSurface surface) {
+    private ItemRest(ModBlock block, String accessor, double top, double inset, double lying, boolean edge, TableSurface surface) {
         this.surface = surface;
-        this.blockClass = blockClass;
+        this.block = block;
         this.held = accessor.isEmpty() ? null : new ModAccess(accessor);
         this.top = top;
         this.inset = inset;
@@ -71,32 +71,32 @@ public final class ItemRest implements BlockTarget {
     }
 
     /** Where the item goes is the side the block faces (its {@code facing}). */
-    static ItemRest front(String blockClass, String accessor) {
-        return new ItemRest(blockClass, accessor, -1, 0, -1, false);
+    static ItemRest front(ModBlock block, String accessor) {
+        return new ItemRest(block, accessor, -1, 0, -1, false);
     }
 
     /** {@link #front}, and with the block facing up the hands wait on the edges of its top - a table. */
-    static ItemRest table(String blockClass, String accessor) {
-        return new ItemRest(blockClass, accessor, -1, 0, -1, true);
+    static ItemRest table(ModBlock block, String accessor) {
+        return new ItemRest(block, accessor, -1, 0, -1, true);
     }
 
-    static ItemRest table(String blockClass, String accessor, TableSurface surface) {
-        return new ItemRest(blockClass, accessor, -1, 0, -1, true, surface);
+    static ItemRest table(ModBlock block, String accessor, TableSurface surface) {
+        return new ItemRest(block, accessor, -1, 0, -1, true, surface);
     }
 
     /** Where the item goes is the top: {@code standing} pixels up with the block upright, {@code lying} on its side - an hourglass. */
-    static ItemRest upright(String blockClass, String accessor, double standing, double lying) {
-        return new ItemRest(blockClass, accessor, standing, 0, lying, false);
+    static ItemRest upright(ModBlock block, String accessor, double standing, double lying) {
+        return new ItemRest(block, accessor, standing, 0, lying, false);
     }
 
     /** Where the item goes is {@code inset} pixels in from the side the block faces - a shelf on a wall. */
-    static ItemRest inside(String blockClass, String accessor, double inset) {
-        return new ItemRest(blockClass, accessor, -1, inset, -1, false);
+    static ItemRest inside(ModBlock block, String accessor, double inset) {
+        return new ItemRest(block, accessor, -1, inset, -1, false);
     }
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals(blockClass);
+        return this.block.is(block);
     }
 
     @Override

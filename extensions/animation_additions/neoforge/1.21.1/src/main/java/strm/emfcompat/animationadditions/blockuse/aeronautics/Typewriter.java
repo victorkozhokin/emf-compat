@@ -30,7 +30,7 @@ import strm.emfcompat.animationadditions.blockuse.*;
  */
 public final class Typewriter implements BlockTarget {
 
-    private static final String BLOCK = "dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterBlock", "simulated:linked_typewriter");
     private static final String HANDLER = "dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterInteractionHandler";
     private static final ModAccess PRESSED_KEYS = new ModAccess("getPressedKeys");
     private static final ModAccess USER = new ModAccess("currentUser");
@@ -47,7 +47,7 @@ public final class Typewriter implements BlockTarget {
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals(BLOCK);
+        return BLOCK.is(block);
     }
 
     @Override

@@ -23,6 +23,7 @@ import strm.emfcompat.core.EMFCompatCore;
 
 import java.util.UUID;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.blockuse.ModBlock;
 
 /**
  * Create's weighted ejector under a player. Standing on its lid - it is winding up, or the player
@@ -41,7 +42,7 @@ public final class EjectorLaunch {
     public static final String KEY_ENABLED = "ejector.enabled";
 
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatEjector");
-    private static final String BLOCK = "com.simibubi.create.content.logistics.depot.EjectorBlock";
+    private static final ModBlock BLOCK = ModBlock.family("com.simibubi.create.content.logistics.depot.EjectorBlock", "create:weighted_ejector");
     private static final ModAccess STATE = new ModAccess("getState");
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
     /** A launch seen this long ago still throws the player now leaving the lid, seconds. */
@@ -162,7 +163,7 @@ public final class EjectorLaunch {
     }
 
     private static boolean is(BlockState block) {
-        return ModAccess.is(block.getBlock().getClass(), BLOCK);
+        return BLOCK.is(block);
     }
 
     private static boolean launching(AbstractClientPlayer player, BlockPos lid) {

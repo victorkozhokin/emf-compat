@@ -20,39 +20,44 @@ import java.util.UUID;
  * waits at the point of the block the look is on; the player's arm swung - a use that did
  * something swings it, and every client sees that - the hand taps there.
  *
- * <p>By the block's class, or one it extends, by name; after every other target, so a block with a
+ * <p>By the block's id, or its class or one it extends, by name ({@link ModBlock}); after every other target, so a block with a
  * box or a gesture of its own has that where it applies and this elsewhere.</p>
  */
 public final class Panel implements BlockTarget {
 
     private static final String SUPPLEMENTARIES = "net.mehvahdjukaar.supplementaries.common.block.blocks.";
 
-    private static final List<String> BLOCKS = List.of(
-            "com.simibubi.create.content.kinetics.transmission.sequencer.SequencedGearshiftBlock",
-            "com.simibubi.create.content.redstone.thresholdSwitch.ThresholdSwitchBlock",
-            "com.simibubi.create.content.redstone.displayLink.DisplayLinkBlock",
-            "com.simibubi.create.content.logistics.stockTicker.StockTickerBlock",
-            "com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequesterBlock",
-            "com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock",
-            "com.simibubi.create.content.logistics.packagePort.postbox.PostboxBlock",
-            "com.simibubi.create.content.logistics.funnel.AbstractFunnelBlock",
-            "com.simibubi.create.content.logistics.depot.EjectorBlock",
-            "com.simibubi.create.content.kinetics.mechanicalArm.ArmBlock",
-            "com.simibubi.create.content.trains.station.StationBlock",
-            "com.simibubi.create.content.contraptions.elevator.ElevatorContactBlock",
-            "com.simibubi.create.content.contraptions.bearing.BearingBlock",
-            "dev.simulated_team.simulated.content.blocks.rope.rope_winch.RopeWinchBlock",
-            "dev.simulated_team.simulated.content.blocks.handle.HandleBlock",
-            "dev.simulated_team.simulated.content.blocks.portable_engine.PortableEngineBlock",
-            "dev.eriksonn.aeronautics.content.blocks.hot_air.hot_air_burner.HotAirBurnerBlock",
+    private static final List<ModBlock> BLOCKS = List.of(
+            ModBlock.family("com.simibubi.create.content.kinetics.transmission.sequencer.SequencedGearshiftBlock", "create:sequenced_gearshift"),
+            ModBlock.family("com.simibubi.create.content.redstone.thresholdSwitch.ThresholdSwitchBlock", "create:stockpile_switch"),
+            ModBlock.family("com.simibubi.create.content.redstone.displayLink.DisplayLinkBlock", "create:display_link"),
+            ModBlock.family("com.simibubi.create.content.logistics.stockTicker.StockTickerBlock", "create:stock_ticker"),
+            ModBlock.family("com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequesterBlock", "create:redstone_requester"),
+            ModBlock.family("com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock", "create:factory_gauge"),
+            ModBlock.family("com.simibubi.create.content.logistics.packagePort.postbox.PostboxBlock", "create:*_postbox"),
+            ModBlock.family("com.simibubi.create.content.logistics.funnel.AbstractFunnelBlock", "create:andesite_funnel", "create:brass_funnel", "create:andesite_belt_funnel", "create:brass_belt_funnel"),
+            ModBlock.family("com.simibubi.create.content.logistics.depot.EjectorBlock", "create:weighted_ejector"),
+            ModBlock.family("com.simibubi.create.content.kinetics.mechanicalArm.ArmBlock", "create:mechanical_arm"),
+            ModBlock.family("com.simibubi.create.content.trains.station.StationBlock", "create:track_station"),
+            ModBlock.family("com.simibubi.create.content.contraptions.elevator.ElevatorContactBlock", "create:elevator_contact"),
+            ModBlock.family("com.simibubi.create.content.contraptions.bearing.BearingBlock", "create:mechanical_bearing", "create:clockwork_bearing", "create:windmill_bearing", "aeronautics:propeller_bearing", "aeronautics:gyroscopic_propeller_bearing"),
+            ModBlock.family("dev.simulated_team.simulated.content.blocks.rope.rope_winch.RopeWinchBlock", "simulated:rope_winch"),
+            ModBlock.family("dev.simulated_team.simulated.content.blocks.handle.HandleBlock", "simulated:*_handle"),
+            ModBlock.family("dev.simulated_team.simulated.content.blocks.portable_engine.PortableEngineBlock", "simulated:*_portable_engine"),
+            ModBlock.family("dev.eriksonn.aeronautics.content.blocks.hot_air.hot_air_burner.HotAirBurnerBlock", "aeronautics:adjustable_burner"),
             // Supplementaries: lids, locks, and the rest.
-            SUPPLEMENTARIES + "LunchBoxBlock", SUPPLEMENTARIES + "AbstractPresentBlock",
-            SUPPLEMENTARIES + "CageBlock", SUPPLEMENTARIES + "FaucetBlock",
-            SUPPLEMENTARIES + "SpeakerBlock", SUPPLEMENTARIES + "TurnTableBlock", SUPPLEMENTARIES + "SackBlock",
-            SUPPLEMENTARIES + "CannonBlock", SUPPLEMENTARIES + "PulleyBlock", SUPPLEMENTARIES + "LockBlock",
-            SUPPLEMENTARIES + "DoormatBlock");
+            ModBlock.family(SUPPLEMENTARIES + "LunchBoxBlock", "supplementaries:lunch_basket"),
+            ModBlock.family(SUPPLEMENTARIES + "AbstractPresentBlock", "supplementaries:present", "supplementaries:trapped_present", "supplementaries:present_*", "supplementaries:trapped_present_*"),
+            ModBlock.family(SUPPLEMENTARIES + "CageBlock", "supplementaries:cage"),
+            ModBlock.family(SUPPLEMENTARIES + "FaucetBlock", "supplementaries:faucet"),
+            ModBlock.family(SUPPLEMENTARIES + "SpeakerBlock", "supplementaries:speaker_block"),
+            ModBlock.family(SUPPLEMENTARIES + "TurnTableBlock", "supplementaries:turn_table"),
+            ModBlock.family(SUPPLEMENTARIES + "SackBlock", "supplementaries:sack"),
+            ModBlock.family(SUPPLEMENTARIES + "CannonBlock", "supplementaries:cannon"),
+            ModBlock.family(SUPPLEMENTARIES + "PulleyBlock", "supplementaries:pulley_block"),
+            ModBlock.family(SUPPLEMENTARIES + "LockBlock", "supplementaries:lock_block"),
+            ModBlock.family(SUPPLEMENTARIES + "DoormatBlock", "supplementaries:doormat"));
 
-    private static final Map<Class<?>, Boolean> KNOWN = new HashMap<>();
 
     /** Where the look is on the block, and the arm's swing: a swing begun is a use. */
     private record Seen(BlockState block, boolean swinging, int swingTime, Spot looked) {
@@ -71,10 +76,8 @@ public final class Panel implements BlockTarget {
 
     @Override
     public boolean matches(BlockState block) {
-        return KNOWN.computeIfAbsent(block.getBlock().getClass(), type -> {
-            for (String name : BLOCKS) if (ModAccess.is(type, name)) return true;
-            return false;
-        });
+        for (ModBlock each : BLOCKS) if (each.is(block)) return true;
+        return false;
     }
 
     @Override

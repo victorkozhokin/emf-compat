@@ -13,6 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import strm.emfcompat.animationadditions.blockuse.ModAccess;
 
 import java.lang.reflect.Method;
+import strm.emfcompat.animationadditions.blockuse.ModBlock;
 
 /**
  * Where the lid of Create's weighted ejector is drawn. The block's collision is the shut lid, but
@@ -25,7 +26,7 @@ import java.lang.reflect.Method;
  */
 public final class EjectorLid {
 
-    private static final String BLOCK = "com.simibubi.create.content.logistics.depot.EjectorBlock";
+    private static final ModBlock BLOCK = ModBlock.family("com.simibubi.create.content.logistics.depot.EjectorBlock", "create:weighted_ejector");
     private static final double HINGE_IN = 0.75 / 16, HINGE_UP = 11.25 / 16, TOP_OVER_HINGE = 1.75 / 16;
     /** The plate, along itself from the hinge, blocks. */
     private static final double PLATE_FROM = 0.25 / 16, PLATE_TO = 14.25 / 16;
@@ -58,7 +59,7 @@ public final class EjectorLid {
     /** The world y of the lid's top over a spot of the ejector at {@code pos}; NaN when it is no ejector, its lid is shut or not over the spot. */
     private static double topAt(Level level, BlockPos pos, double x, double z) {
         BlockState block = level.getBlockState(pos);
-        if (FAILURES.off() || !ModAccess.is(block.getBlock().getClass(), BLOCK) || !block.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) return Double.NaN;
+        if (FAILURES.off() || !BLOCK.is(block) || !block.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) return Double.NaN;
         double angle = progress(level, pos) * OPEN;
         if (angle < 1e-3) return Double.NaN;
         Direction facing = block.getValue(BlockStateProperties.HORIZONTAL_FACING);

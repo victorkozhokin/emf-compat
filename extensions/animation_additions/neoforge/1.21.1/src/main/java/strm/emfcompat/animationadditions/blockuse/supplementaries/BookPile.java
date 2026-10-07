@@ -15,13 +15,13 @@ import strm.emfcompat.animationadditions.blockuse.*;
  */
 public final class BookPile implements BlockTarget {
 
-    private static final String BLOCKS = "net.mehvahdjukaar.supplementaries.common.block.blocks.BookPile";
+    private static final ModBlock BLOCKS = ModBlock.named("net.mehvahdjukaar.supplementaries.common.block.blocks.BookPile", "supplementaries:book_pile", "supplementaries:book_pile_horizontal");
     /** A book lying flat is this thick, pixels. */
     private static final double BOOK = 4;
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().startsWith(BLOCKS);
+        return BLOCKS.is(block);
     }
 
     @Override

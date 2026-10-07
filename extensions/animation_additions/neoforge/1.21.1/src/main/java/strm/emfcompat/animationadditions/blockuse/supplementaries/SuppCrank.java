@@ -21,12 +21,12 @@ import strm.emfcompat.animationadditions.blockuse.*;
  */
 public final class SuppCrank implements BlockTarget {
 
-    private static final String BLOCK = "net.mehvahdjukaar.supplementaries.common.block.blocks.CrankBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("net.mehvahdjukaar.supplementaries.common.block.blocks.CrankBlock", "supplementaries:crank");
     private static final float ARM = 7f, DEPTH = 12f;
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals(BLOCK);
+        return BLOCK.is(block);
     }
 
     @Override

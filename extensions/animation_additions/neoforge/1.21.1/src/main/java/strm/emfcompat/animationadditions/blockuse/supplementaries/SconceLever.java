@@ -19,13 +19,13 @@ import strm.emfcompat.animationadditions.blockuse.*;
  */
 public final class SconceLever implements BlockTarget {
 
-    private static final String BLOCK = "net.mehvahdjukaar.supplementaries.common.block.blocks.SconceLeverBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("net.mehvahdjukaar.supplementaries.common.block.blocks.SconceLeverBlock", "supplementaries:sconce_lever");
     private static final double GRIP_Y = 10.5, GRIP_Z = 10, PIVOT_Y = 7, PIVOT_Z = 12;
     private static final double TIP = Math.toRadians(-22.5);
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals(BLOCK);
+        return BLOCK.is(block);
     }
 
     @Override

@@ -15,7 +15,7 @@ import strm.emfcompat.animationadditions.blockuse.*;
  */
 public final class Basin implements BlockTarget {
 
-    private static final String BLOCK = "com.simibubi.create.content.processing.basin.BasinBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("com.simibubi.create.content.processing.basin.BasinBlock", "create:basin");
     private static final ModAccess INPUT = new ModAccess("getInputInventory");
     private static final ModAccess OUTPUT = new ModAccess("getOutputInventory");
     /** Inside, under the rim, pixels. */
@@ -27,7 +27,7 @@ public final class Basin implements BlockTarget {
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals(BLOCK);
+        return BLOCK.is(block);
     }
 
     @Override

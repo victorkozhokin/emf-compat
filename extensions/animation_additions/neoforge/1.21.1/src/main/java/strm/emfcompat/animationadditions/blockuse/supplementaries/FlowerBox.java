@@ -25,7 +25,7 @@ import strm.emfcompat.animationadditions.blockuse.*;
  */
 public final class FlowerBox implements BlockTarget {
 
-    private static final String BLOCK = "net.mehvahdjukaar.supplementaries.common.block.blocks.FlowerBoxBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("net.mehvahdjukaar.supplementaries.common.block.blocks.FlowerBoxBlock", "supplementaries:flower_box");
     private static final double TOP = 6 / 16.0, BACK = 5 / 16.0;
 
     /** The three plants, and what the player held. */
@@ -34,7 +34,7 @@ public final class FlowerBox implements BlockTarget {
 
     @Override
     public boolean matches(BlockState block) {
-        return block.getBlock().getClass().getName().equals(BLOCK);
+        return BLOCK.is(block);
     }
 
     @Override

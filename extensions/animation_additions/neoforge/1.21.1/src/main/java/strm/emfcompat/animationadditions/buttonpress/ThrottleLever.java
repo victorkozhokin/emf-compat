@@ -11,6 +11,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 import java.lang.reflect.Method;
+import strm.emfcompat.animationadditions.blockuse.ModBlock;
 
 /**
  * Create Aeronautics' throttle lever ({@code simulated}): a lever the player holds and drags, its
@@ -23,7 +24,7 @@ import java.lang.reflect.Method;
  */
 public final class ThrottleLever {
 
-    private static final String BLOCK = "dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverBlock";
+    private static final ModBlock BLOCK = ModBlock.exact("dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverBlock", "simulated:throttle_lever");
     private static final String RENDERER = "dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverRenderer";
     private static final String ENTITY = "dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverBlockEntity";
     /** The middle of the knob in the handle's model, blocks. */
@@ -37,7 +38,7 @@ public final class ThrottleLever {
     }
 
     public static boolean is(BlockState block) {
-        return block.getBlock().getClass().getName().equals(BLOCK);
+        return BLOCK.is(block);
     }
 
     /** Where the knob is drawn now, world; {@code null} when it cannot be told. */
