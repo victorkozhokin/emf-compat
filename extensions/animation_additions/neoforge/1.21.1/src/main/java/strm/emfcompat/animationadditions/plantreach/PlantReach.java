@@ -30,10 +30,12 @@ import java.util.Map;
 
 
 /**
- * Hands brushing plants: standing in or walking through grass, ferns, flowers, crops and the like,
- * each hand reaches for the top of a plant on its side, the way a hand trails over a wheat field.
+ * Hands brushing plants: standing in or walking through a field of crops, each hand reaches for
+ * the top of a plant on its side, the way a hand trails over a wheat field. Only crops, unless set
+ * to all plants - grass, ferns and flowers are underfoot everywhere, and the hands were at them
+ * all the time.
  *
- * <p>Plants are bushes ({@link BushBlock}: grass, tall grass, ferns, flowers, crops, saplings, berry
+ * <p>All plants are bushes ({@link BushBlock}: grass, tall grass, ferns, flowers, crops, saplings, berry
  * bushes, mushrooms). Each arm is aimed with {@link OneBoneIK} at the point on the top of the
  * plant nearest to where its hand hangs - or as high as the arm reaches, for a plant taller than
  * that - on its side and not behind, so the hand follows the plants as they come closer and fall
@@ -51,7 +53,7 @@ public final class PlantReach implements InteractionProvider {
     private static final int PRIORITY = 10;
     private static final Candidate.Timing TIMING = new Candidate.Timing(0.15, 0.2, 0.08);
 
-    public static final String KEY_ENABLED = "plantreach.enabled";
+    public static final String KEY_ENABLED = "plantreach.enabled", KEY_ALL = "plantreach.all";
 
     /** From the shoulder pivot to the palm, in pixels. */
     private static final float ARM = Skeleton.ARM_TO_PALM;
@@ -70,9 +72,12 @@ public final class PlantReach implements InteractionProvider {
     }
 
     public static void register(ConfigRegistry.Group config) {
-        config.addBoolean(KEY_ENABLED, "Hands brush plants", true,
-                "On", "In grass, crops or flowers, the hands reach for the plants beside you.",
+        config.addBoolean(KEY_ENABLED, "Hands brush crops", true,
+                "On", "Walking through a field of crops, the hands trail over them.",
                 "Off", "Leave the arms to EMF.");
+        config.addChild(KEY_ENABLED, KEY_ALL, "React to all plants", false,
+                "On", "The hands reach for any plant beside you: grass, ferns, flowers, saplings and mushrooms as well as crops.",
+                "Off", "Only crops: wheat, carrots, potatoes, beetroot and the like.");
     }
 
     @Override
@@ -112,6 +117,12 @@ public final class PlantReach implements InteractionProvider {
             else strm.emfcompat.animationadditions.interaction.HandContacts.forget(context, id(), Effector.LEFT_ARM);
             out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 0.5f, TIMING, Effector.LEFT_ARM, left.aim));
         }
+        if (strm.emfcompat.animationadditions.DebugLog.trace() && selection.pace.due(500_000_000L)) {
+            BlockPos in = BlockPos.containing(player.getX(), player.getY() + .3, player.getZ());
+            Vec3 from = context.frame().jointWorld(new Vector3f(RIGHT_SHOULDER)), hanging = context.frame().jointWorld(new Vector3f(RIGHT_SHOULDER).add(0, ARM, 0));
+            org.slf4j.LoggerFactory.getLogger("EMFCompatPlants").info("[PlantTrace] plants={} in={} inField={} box={} shoulder={} hanging={} arm={} right={} left={}",
+                    plants.size(), in.toShortString(), plants.containsKey(in), plants.get(in), from, hanging, from.distanceTo(hanging), right != null, left != null);
+        }
         context.decide((right != null ? "R" : "-") + (left != null ? "L" : "-"));
     }
 
@@ -127,6 +138,7 @@ public final class PlantReach implements InteractionProvider {
      */
     private static final class Selection {
         Vec3 right, left;
+        final strm.emfcompat.animationadditions.DebugLog.Pace pace = new strm.emfcompat.animationadditions.DebugLog.Pace();
         /** The plants round the player and where their tops are, looked up when the player changes block or this grows stale. */
         private final Map<BlockPos, AABB> plants = new HashMap<>();
         private BlockPos centre;
@@ -139,15 +151,21 @@ public final class PlantReach implements InteractionProvider {
             lookedAt = now;
             plants.clear();
             Level level = player.level();
+            boolean all = EMFCompatConfig.getBoolean(KEY_ALL, false);
             // Two blocks each way: a hand hangs up to a block from the body's middle and looks a block round itself.
             for (BlockPos pos : BlockPos.betweenClosed(here.offset(-2, -2, -2), here.offset(2, 2, 2))) {
                 BlockState state = level.getBlockState(pos);
-                if (!(state.getBlock() instanceof BushBlock)) continue;
+                if (!(state.getBlock() instanceof BushBlock) || !all && !crop(state)) continue;
                 VoxelShape shape = state.getShape(level, pos);
                 if (!shape.isEmpty()) plants.put(pos.immutable(), shape.bounds().move(pos));
             }
             return plants;
         }
+    }
+
+    /** A crop: what is sown and reaped in a field. By its kind, and by the game's own list of crops, which a mod's crop is put on. */
+    private static boolean crop(BlockState state) {
+        return state.getBlock() instanceof net.minecraft.world.level.block.CropBlock || state.is(net.minecraft.tags.BlockTags.CROPS);
     }
 
     /** A plant broken or grown shows in the hands within this. */
