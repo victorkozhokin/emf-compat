@@ -10,7 +10,7 @@ def shots(name):
 s = [{"closeScreen": True}, {"releaseAll": True}, {"cmd": "gamemode creative"}, {"cmd": "time set noon"},
      {"config": {"debug.decisions": True, "lookat.enabled": False, "footgrounding.trace": True}},
      {"cmd": "tp @s 450.5 150 7.5 -90 0"}, {"camera": "back"}, {"hideGui": True}, {"wait": 30},
-     {"cmd": "kill @e[type=#minecraft:boat,distance=..40]"}, {"cmd": "kill @e[type=chest_boat,distance=..60]"},
+     {"cmd": "kill @e[type=boat,distance=..60]"}, {"cmd": "kill @e[type=chest_boat,distance=..60]"},
      {"cmd": "fill 440 150 3 462 154 12 air"}, {"cmd": "fill 440 148 3 462 149 12 smooth_stone"},
      {"cmd": "fill 444 149 5 458 149 9 water"}, {"wait": 10},
      {"cmd": "summon chest_boat 447.5 150 7.5 {Type:\"%s\",Rotation:[-90f,0f]}" % wood}, {"wait": 10},

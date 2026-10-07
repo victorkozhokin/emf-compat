@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 
 /**
- * Where the second of two players in a boat sits. The one who rows leans far back with each
+ * Where the second rider of a boat a player rows sits. The one who rows leans far back with each
  * stroke, into the place the game gives a passenger; so the passenger sits in the bow instead,
  * facing the rower. This is the rule for it, the same on a server and on a client - no client
  * class is named here, the server runs it too.
@@ -47,11 +47,11 @@ public final class BoatSeats {
         return riders.size() >= 2 && riders.get(0) == rider && inBow(boat, riders.get(1));
     }
 
-    /** Whether {@code passenger} is the second of two players in {@code boat}, and so sits in the bow. */
+    /** Whether {@code passenger} is the second rider of a {@code boat} a player rows, and so sits in the bow: another player, or a mob taken along. */
     public static boolean inBow(Boat boat, Entity passenger) {
         List<Entity> riders = boat.getPassengers();
         if (riders.size() < 2 || riders.get(1) != passenger) return false;
-        if (!(passenger instanceof Player) || !(riders.get(0) instanceof Player)) return false;
+        if (!(riders.get(0) instanceof Player)) return false;
         return !boat.level().isClientSide || client.getAsBoolean();
     }
 
