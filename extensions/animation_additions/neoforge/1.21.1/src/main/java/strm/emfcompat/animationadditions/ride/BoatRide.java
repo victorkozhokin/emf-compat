@@ -63,7 +63,7 @@ public final class BoatRide implements InteractionProvider {
     /** Radians: the lean into a full push, over what the handles themselves ask. */
     private static final float HAUL = 0.05f;
     /** Model pixels: how far back the rower sits from where the game seats them, the torso from waist to shoulder, the arm to the middle of the fist, half the shoulders' width. */
-    private static final float SIT_BACK = 3f, TORSO = 10f, GRIP = 9.5f, HALF_SHOULDERS = 5f;
+    private static final float SIT_BACK = 3f, TORSO = Riders.TORSO, GRIP = Riders.FIST, HALF_SHOULDERS = 5f;
     /** Model pixels: as far as a shoulder gives to bring its fist home. */
     private static final float SHRUG = 2.5f;
     /** Radians: as far back as the rower leans, and as far as the chest turns. */
@@ -238,13 +238,12 @@ public final class BoatRide implements InteractionProvider {
         return (low + high) * 0.5f;
     }
 
-    /** Where a shoulder is with the torso leant back by {@code lean} and the rider sat {@code back} pixels back: the waist is at y 12, back is +z. */
     static Vector3f shoulder(float side, float lean, float back) {
-        return new Vector3f(side, Skeleton.WAIST.y - TORSO * Mth.cos(lean), back + TORSO * Mth.sin(lean));
+        return Riders.shoulder(side, lean, back);
     }
 
     /** Brings a fist onto its place: the arm turned onto it from where the shoulder is, and what is left taken up at the shoulder. */
-    static float settle(net.minecraft.client.model.geom.ModelPart arm, Vector3f at, float weight) {
+    public static float settle(net.minecraft.client.model.geom.ModelPart arm, Vector3f at, float weight) {
         strm.emfcompat.animationadditions.interaction.ArmAim.towards(arm, at, weight, true);
         Vector3f left = new Vector3f(at).sub(Body.tip(arm, GRIP));
         float gap = left.length();

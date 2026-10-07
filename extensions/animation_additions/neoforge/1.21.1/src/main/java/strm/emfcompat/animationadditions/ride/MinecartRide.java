@@ -47,8 +47,7 @@ public final class MinecartRide implements InteractionProvider {
 
     private static final Candidate.Timing TIMING = new Candidate.Timing(0.2, 0, 0.05);
     private static final float MAX_REACH = 1.6f;
-    /** Model pixels from the shoulder to the middle of the fist: what the last fit brings onto the rim. */
-    private static final float FIST = 9.5f;
+    private static final float FIST = Riders.FIST;
 
     /** Blocks: the middle line of the rim from the cart's middle, along it and across. */
     private static final double RIM_ALONG = 9.0 / 16, RIM_ACROSS = 7.0 / 16;

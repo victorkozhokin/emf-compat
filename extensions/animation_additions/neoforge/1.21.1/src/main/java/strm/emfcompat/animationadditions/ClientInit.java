@@ -44,6 +44,7 @@ final class ClientInit {
         TorsoLean.register(movement);
         PoseInertia.register(movement);
         WallHand.register(surroundings);
+        strm.emfcompat.animationadditions.wallhand.FenceLean.register(surroundings);
         WallSqueeze.register(surroundings, debug);
         PlantReach.register(surroundings);
         LookAt.register(surroundings);
@@ -80,6 +81,7 @@ final class ClientInit {
         strm.emfcompat.animationadditions.compat.ParCoolActivity.register(movement, debug);
         // Order is only the log's order; who wins is the arbiter's call.
         InteractionRuntime.register(WallHand.INSTANCE);
+        InteractionRuntime.register(strm.emfcompat.animationadditions.wallhand.FenceLean.INSTANCE);
         InteractionRuntime.register(PlantReach.INSTANCE);
         InteractionRuntime.register(LookAt.INSTANCE);
         InteractionRuntime.register(strm.emfcompat.animationadditions.lookat.SignRead.INSTANCE);
