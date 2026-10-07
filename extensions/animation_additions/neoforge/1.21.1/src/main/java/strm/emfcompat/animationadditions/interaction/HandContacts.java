@@ -84,7 +84,7 @@ public final class HandContacts {
             float w = InteractionRuntime.weight(uuid, entry.getKey().hand, source);
             Vec3 world = entry.getValue().world();
             if (world == null || w < .001f) continue;
-            side += frame.relativeToJoint(world, new Vector3f()).x * w;
+            side += Body.model(frame, world).x * w;
             total += w;
         }
         if (total < .001f) return null;
@@ -111,8 +111,7 @@ public final class HandContacts {
         strm.emfcompat.animationadditions.torso.BraceSteps.apply(state.feet, state.player, InteractionRuntime.frame(uuid), parts,
                 new Vector3f(-pose.spread(), 0, pose.forward() * .5f), new Vector3f(pose.spread(), 0, -pose.forward() * .5f),
                 weight, 0, LOGGER, "ContactStance");
-        if (state.player.onGround() && !state.player.isPassenger()
-                && state.player.getDeltaMovement().horizontalDistanceSqr() < .0004)
+        if (Body.planted(state.player))
             strm.emfcompat.animationadditions.torso.PelvisFollow.shift(parts, pose.side(), pose.forward());
     }
 
@@ -124,8 +123,7 @@ public final class HandContacts {
                 || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         float weight = 0;
         Key chosen = null;
-        boolean still = state.player.onGround() && !state.player.isPassenger()
-                && state.player.getDeltaMovement().horizontalDistanceSqr() < .0004;
+        boolean still = Body.planted(state.player);
         if (still) for (var entry : state.targets.entrySet()) {
             Key key = entry.getKey();
             if (!key.source.equals("DoorHold") && !key.source.equals("Furniture")) continue;
@@ -134,12 +132,12 @@ public final class HandContacts {
         }
         Vector3f other = null;
         if (chosen != null) {
-            state.lastReach.set(frame.relativeToJoint(state.targets.get(chosen).world(), new Vector3f()));
+            state.lastReach.set(Body.model(frame, state.targets.get(chosen).world()));
             state.rightReach = chosen.hand == Effector.RIGHT_ARM;
             Key opposite = new Key(chosen.source, state.rightReach ? Effector.LEFT_ARM : Effector.RIGHT_ARM);
             Anchor anchor = state.targets.get(opposite);
             if (anchor != null && anchor.world() != null && InteractionRuntime.weight(uuid, opposite.hand, opposite.source) > .1f)
-                other = frame.relativeToJoint(anchor.world(), new Vector3f());
+                other = Body.model(frame, anchor.world());
         }
         state.reach.angleLimit = (float) Math.toRadians(state.player.isCrouching() ? 5 : 10);
         if (weight > .001f || state.reach.active())
@@ -155,7 +153,7 @@ public final class HandContacts {
         state.targets.forEach((key, anchor) -> {
             Vec3 world = anchor.world();
             if (world == null || InteractionRuntime.weight(uuid, key.hand, key.source) < .001f) return;
-            Vector3f p = frame.relativeToJoint(world, new Vector3f());
+            Vector3f p = Body.model(frame, world);
             float[] drawn = state.drawnTargets.get(key);
             out.put(key.source+":"+key.hand, drawn != null ? drawn : new float[]{p.x, p.y, p.z,
                     key.source.equals("PlantReach") || key.source.equals("WallHand") ? Skeleton.ARM_TO_PALM : Skeleton.ARM_TO_FINGERTIPS});
@@ -172,13 +170,13 @@ public final class HandContacts {
         state.targets.forEach((key, anchor) -> {
             Vec3 world = anchor.world();
             if (world == null) return;
-            Vector3f point = frame.relativeToJoint(world, new Vector3f());
+            Vector3f point = Body.model(frame, world);
             float w = InteractionRuntime.weight(uuid, key.hand, key.source);
             ModelPart arm = parts.apply(key.hand.part);
             if (w < 1e-3f || arm == null) return;
             if (anchor.normal != null && key.source.equals("WallHand")) {
                 Vec3 normal = anchor.space.refresh().directionToWorld(anchor.normal);
-                Vector3f modelNormal = frame.relativeToJoint(world.add(normal), new Vector3f()).sub(point).normalize();
+                Vector3f modelNormal = Body.model(frame, world.add(normal)).sub(point).normalize();
                 Vector3f fitted = PlaneContact.fit(new Vector3f(arm.x, arm.y, arm.z), point, modelNormal, Skeleton.ARM_TO_PALM);
                 if (fitted != null) {
                     long now = System.nanoTime();
@@ -202,7 +200,7 @@ public final class HandContacts {
                     var edge = strm.emfcompat.animationadditions.plantreach.CanopyContact.edge(
                             shoulder.x, shoulder.y, shoulder.z, length,
                             box.minX, box.maxX, box.minY, Math.min(shoulder.y - .25, box.maxY - .05), box.minZ, box.maxZ);
-                    if (edge != null) point = frame.relativeToJoint(new Vec3(edge.x(), edge.y(), edge.z()), new Vector3f());
+                    if (edge != null) point = Body.model(frame, new Vec3(edge.x(), edge.y(), edge.z()));
                 }
             }
             if (mainModel) state.drawnTargets.put(key, new float[]{point.x, point.y, point.z,

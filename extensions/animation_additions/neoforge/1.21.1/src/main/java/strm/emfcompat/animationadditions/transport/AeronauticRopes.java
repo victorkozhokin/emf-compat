@@ -11,6 +11,7 @@ import strm.emfcompat.animationadditions.interaction.SubLevels;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** Optional Simulated physical strands: bounds first, then nearby segments, never block traversal. */
 final class AeronauticRopes {
@@ -66,7 +67,7 @@ final class AeronauticRopes {
                 double fraction = RopePoseMath.fraction(a, b, wanted);
                 Vector3d point = new Vector3d(a).lerp(b, fraction);
                 Vec3 world = new Vec3(point.x, point.y, point.z);
-                Vector3f model = frame.relativeToJoint(world, new Vector3f());
+                Vector3f model = Body.model(frame, world);
                 if (world.y < player.getY() + .7 || !RopePoseMath.reachable(model, shoulder, right)) continue;
                 double distance = point.distance(wanted);
                 if (distance < score && SupportSearch.clear(player, from, world, spaces)) {

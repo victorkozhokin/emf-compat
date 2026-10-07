@@ -4,13 +4,13 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.entity.HumanoidArm;
 import strm.emfcompat.animationadditions.interaction.SubLevels;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** All Create valve colours share this block class and the same octagonal rim geometry. */
 final class ValveHandle implements BlockTarget {
@@ -61,7 +61,7 @@ final class ValveHandle implements BlockTarget {
             state.at = now;
             state.frame = frame;
         }
-        boolean rightHand = (player.getMainArm() == HumanoidArm.RIGHT) != support;
+        boolean rightHand = Body.right(player, !support);
         int hand = rightHand ? 0 : 1;
         positive = rightHand ? state.positive : !state.positive;
         Vec3 out = Vec3.atLowerCornerOf(facing.getNormal());

@@ -6,7 +6,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -24,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /**
  * Create's train controls while a player drives with them: both hands are on the two levers and go
@@ -90,7 +90,7 @@ public final class TrainControls implements BlockTarget {
             Vec3 look = player.getLookAngle();
             Vec3 right = new Vec3(-look.z, 0, look.x);
             boolean firstIsRight = first.subtract(second).dot(right) >= 0;
-            boolean mainIsFirst = (player.getMainArm() == HumanoidArm.RIGHT) == firstIsRight;
+            boolean mainIsFirst = Body.right(player, firstIsRight);
             return new Grips(new Spot(mainIsFirst ? first : second, Spots.UP), new Spot(mainIsFirst ? second : first, Spots.UP));
         } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
             FAILURES.failed(e);

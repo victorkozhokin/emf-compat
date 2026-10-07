@@ -5,7 +5,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
 import strm.emfcompat.animationadditions.DebugLog;
@@ -15,6 +14,7 @@ import traben.entity_model_features.models.animation.state.EMFState;
 
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** Sequential short brace steps on broad level support; walking keeps the pack's stride. */
 public final class BraceSteps {
@@ -40,8 +40,7 @@ public final class BraceSteps {
         if (frame == null) return;
         ModelPart[] legs = {parts.apply("right_leg"), parts.apply("left_leg")};
         if (legs[0] == null || legs[1] == null) return;
-        boolean still = player.onGround() && !player.isPassenger()
-                && player.getDeltaMovement().horizontalDistanceSqr() < .0004;
+        boolean still = Body.planted(player);
         float counter = EMFState.getFrameCounter();
         if (counter != s.frame) {
             long now = System.nanoTime();
@@ -92,8 +91,7 @@ public final class BraceSteps {
 
 
     private static boolean safe(AbstractClientPlayer player, IKFrame frame, ModelPart leg, Vector3f from, Vector3f to) {
-        Vector3f sole = new Quaternionf().rotationZYX(leg.zRot, leg.yRot, leg.xRot)
-            .transform(new Vector3f(0, 12 * leg.yScale, 0)).add(leg.x, leg.y, leg.z);
+        Vector3f sole = Body.tip(leg, 12);
         double height = Double.NaN;
         for (float t : new float[]{0, .5f, 1}) {
             Vec3 point = frame.jointWorld(new Vector3f(sole).add(new Vector3f(from).lerp(to, t)));

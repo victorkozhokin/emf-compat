@@ -3,13 +3,13 @@ package strm.emfcompat.animationadditions.blockuse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.inventory.CartographyTableMenu;
 import net.minecraft.world.level.block.CartographyTableBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import strm.emfcompat.animationadditions.interaction.SubLevels;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /**
  * A cartography table: looked at, the other hand holds the map down on the top, and the main hand
@@ -57,7 +57,7 @@ final class CartographyTable implements BlockTarget {
         toPlayer = toPlayer.lengthSqr() < 1e-6 ? new Vec3(0, 0, 1) : toPlayer.normalize();
         // The player's right, facing the table: the main hand's side.
         Vec3 right = new Vec3(toPlayer.z, 0, -toPlayer.x);
-        boolean positive = (player.getMainArm() == HumanoidArm.RIGHT) != support;
+        boolean positive = Body.right(player, !support);
         Vec3 point = new Vec3(pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5)
                 .add(right.scale(positive ? side : -side)).add(toPlayer.scale(near));
         return new Spot(point, Spots.UP);

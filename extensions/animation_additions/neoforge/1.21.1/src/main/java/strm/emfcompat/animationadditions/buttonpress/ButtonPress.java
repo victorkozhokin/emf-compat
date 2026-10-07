@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /**
  * Pressing a button or throwing a lever with the body: the right hand goes to a button or a
@@ -467,7 +468,7 @@ public final class ButtonPress implements InteractionProvider {
      */
     private static Hand hand(AbstractClientPlayer player, IKFrame frame, BlockPos pos, BlockState block) {
         Vec3 point = grip(player, pos, block);
-        Vector3f model = frame.relativeToJoint(point, new Vector3f());
+        Vector3f model = Body.model(frame, point);
         Vector3f shoulder = RIGHT_SHOULDER;
         // A lever or a button on a wall is followed from further off (see LEVER_REACH); on a
         // floor or a ceiling, a button only in reach.

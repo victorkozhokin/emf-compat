@@ -9,6 +9,7 @@ import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** Shared supported upper-body pose, independent of any table mod or item gesture. */
 final class TableSupport {
@@ -33,8 +34,7 @@ final class TableSupport {
         var rl = parts.apply("right_leg");
         var ll = parts.apply("left_leg");
         if (r == null || l == null || rl == null || ll == null) return;
-        boolean safe = player != null && player.onGround() && !player.isPassenger()
-                && player.getDeltaMovement().horizontalDistanceSqr() < .0004
+        boolean safe = player != null && Body.planted(player)
                 && (press > 0 || support.y > (right ? l : r).y + 1);
         float frame = EMFState.getFrameCounter();
         if (s.frame != frame) {
@@ -105,7 +105,7 @@ final class TableSupport {
         s.snapshot.put("headOverlapPixels", HeadClearance.overlap(min, max, s.obstacleMin, s.obstacleMax));
     }
     private static Vector3f sole(ModelPart p) {
-        return new Quaternionf().rotationZYX(p.zRot, p.yRot, p.xRot).transform(new Vector3f(0, 12 * p.yScale, 0)).add(p.x, p.y, p.z);
+        return Body.tip(p, 12);
     }
     static void capture(State s, Function<String, ModelPart> parts, boolean right, Vector3f main, Vector3f support) {
         if (s.snapshot.isEmpty()) return;
@@ -113,7 +113,7 @@ final class TableSupport {
             var p = parts.apply(hand ? "right_arm" : "left_arm");
             if (p == null) continue;
             var target = hand == right ? main : support;
-            var palm = new Quaternionf().rotationZYX(p.zRot, p.yRot, p.xRot).transform(new Vector3f(0, 11 * p.yScale, 0)).add(p.x, p.y, p.z);
+            var palm = Body.tip(p, 11);
             float gap = palm.distance(target) / 16;
             s.snapshot.put(hand ? "rightGap" : "leftGap", gap);
             if (hand != right) s.supportGap = gap;

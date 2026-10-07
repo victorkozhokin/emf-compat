@@ -15,6 +15,7 @@ import strm.emfcompat.core.ik.IKFrame;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** Automatic nearest free-hand contact while standing on a moving Sable deck. */
 public final class TransportGrip implements InteractionProvider {
@@ -87,7 +88,7 @@ public final class TransportGrip implements InteractionProvider {
         if (s.motion.warped) { release(s, context.now()); context.decide("off:warp"); return; }
         Vector3d acceleration = s.motion.acceleration;
         Vec3 base = p.position(), end = base.add(acceleration.x, 0, acceleration.z);
-        Vector3f force = context.frame().relativeToJoint(end, new Vector3f()).sub(context.frame().relativeToJoint(base, new Vector3f())).div(16);
+        Vector3f force = Body.model(context.frame(), end).sub(Body.model(context.frame(), base)).div(16);
         float wanted = BraceMath.load((float) acceleration.length());
         s.load += (wanted - s.load) * Smoothing.follow(context.dt(), .16);
         if (force.lengthSquared() > 1e-6) force.normalize();
@@ -193,9 +194,9 @@ public final class TransportGrip implements InteractionProvider {
             if (s.reach.active()) LowReach.apply(parts, s.hand == Effector.RIGHT_ARM, s.lastTarget, 0, s.reach);
             return;
         }
-        Vector3f point = s.frame.relativeToJoint(s.primary.world(), new Vector3f());
+        Vector3f point = Body.model(s.frame, s.primary.world());
         s.lastTarget.set(point);
-        Vector3f other = s.helper && s.other != null ? s.frame.relativeToJoint(s.other.world(), new Vector3f()) : null;
+        Vector3f other = s.helper && s.other != null ? Body.model(s.frame, s.other.world()) : null;
         s.reach.angleLimit = (float) Math.toRadians(12 + 6 * s.ropeBlend);
         s.reach.followSeconds = .16;
         s.reach.weightShift = (s.hand == Effector.RIGHT_ARM ? -.45f : .45f) * s.ropeBlend;
@@ -221,14 +222,13 @@ public final class TransportGrip implements InteractionProvider {
         if (arm == null) return 1;
         float owned = InteractionRuntime.weight(uuid, hand, INSTANCE.id());
         if (owned < .001) return 1;
-        Vector3f point = s.frame.relativeToJoint(c.world(), new Vector3f());
+        Vector3f point = Body.model(s.frame, c.world());
         Vector3f direction = new Vector3f(point).sub(arm.x, arm.y, arm.z);
         if (direction.lengthSquared() < 1e-5) return 1;
         Quaternionf wanted = new Quaternionf().rotationTo(new Vector3f(0, 1, 0), direction.normalize());
         Vector3f angles = new Quaternionf().rotationZYX(arm.zRot, arm.yRot, arm.xRot).slerp(wanted, owned).getEulerAnglesZYX(new Vector3f());
         arm.setRotation(angles.x, angles.y, angles.z);
-        Vector3f palm = new Quaternionf().rotationZYX(arm.zRot, arm.yRot, arm.xRot)
-                .transform(new Vector3f(0, 11 * arm.yScale, 0)).add(arm.x, arm.y, arm.z);
+        Vector3f palm = Body.tip(arm, 11);
         return (float) s.frame.jointWorld(palm).distanceTo(c.world());
     }
 }

@@ -28,6 +28,7 @@ import strm.emfcompat.core.ik.IKResult;
 import strm.emfcompat.core.ik.OneBoneIK;
 
 import java.util.List;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /**
  * Hands on doors: coming up to a door, shut or open, the hand on each leaf's side goes to its
@@ -108,7 +109,7 @@ public final class DoorHold implements InteractionProvider {
                 if (Math.abs(at.x - (pos.getX() + 0.5)) > DOORWAY || Math.abs(at.z - (pos.getZ() + 0.5)) > DOORWAY) continue;
                 Vec3 grip = space.toWorld(doorGrip(player.level(), at, pos.immutable(), block));
                 if (!Visibility.visible(player, pos, grip)) continue;
-                boolean isRight = frame.relativeToJoint(grip, new Vector3f()).x < 0;
+                boolean isRight = Body.model(frame, grip).x < 0;
                 Vector3f shoulder = isRight ? RIGHT_SHOULDER : LEFT_SHOULDER;
                 if (frame.relativeToJoint(grip, shoulder).z > MAX_BEHIND) continue;
                 IKResult aim = OneBoneIK.solveXY(frame, shoulder, grip, ARM, 0f, 0f);

@@ -16,6 +16,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.SubLevels;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** Aeronautics' bundled Simulated steering wheel: six rim anchors and alternating regrips follow its rendered angle. */
 final class SteeringWheel implements BlockTarget {
@@ -76,7 +77,7 @@ final class SteeringWheel implements BlockTarget {
             state.at = now;
             state.frame = frame;
         }
-        boolean rightHand = (player.getMainArm() == HumanoidArm.RIGHT) != support;
+        boolean rightHand = Body.right(player, !support);
         int hand = rightHand ? 0 : 1;
         boolean positive = rightHand ? state.positive : !state.positive;
         Vec3 out = Vec3.atLowerCornerOf(facing.getNormal());

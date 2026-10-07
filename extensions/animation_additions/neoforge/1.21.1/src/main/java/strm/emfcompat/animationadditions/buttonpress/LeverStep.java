@@ -5,13 +5,13 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.torso.PelvisFollow;
 import strm.emfcompat.core.ik.IKFrame;
 import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** One short support step on the click; the other sole stays planted. */
 final class LeverStep {
@@ -29,8 +29,7 @@ final class LeverStep {
         this.player = player;
         this.space = space;
         this.holding = holding;
-        this.eligible = player.onGround() && !player.isPassenger()
-                && player.getDeltaMovement().horizontalDistanceSqr() < .0004;
+        this.eligible = Body.planted(player);
         this.grip.set(grip);
         this.press = press;
     }
@@ -74,8 +73,7 @@ final class LeverStep {
     private void begin(Vector3f wanted) { start.set(offset); end.set(wanted); progress = 0; }
 
     private boolean safe(ModelPart leg, Vector3f from, Vector3f to) {
-        Vector3f sole = new Quaternionf().rotationZYX(leg.zRot, leg.yRot, leg.xRot)
-                .transform(new Vector3f(0, 12 * leg.yScale, 0)).add(leg.x, leg.y, leg.z);
+        Vector3f sole = Body.tip(leg, 12);
         double height = Double.NaN;
         for (float t : new float[]{0, .5f, 1}) {
             Vec3 point = space.jointWorld(new Vector3f(sole).add(new Vector3f(from).lerp(to, t)));

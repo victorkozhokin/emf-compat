@@ -23,6 +23,7 @@ import strm.emfcompat.core.EMFCompatCore;
 
 import java.util.UUID;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /**
  * The torso follows the rest a little: it turns part of the way after the head (a look at a
@@ -265,8 +266,7 @@ public final class TorsoLean {
     }
 
     private static Vector3f sole(ModelPart leg) {
-        return new Quaternionf().rotationZYX(leg.zRot, leg.yRot, leg.xRot)
-                .transform(new Vector3f(0, 12 * leg.yScale, 0)).add(leg.x, leg.y, leg.z);
+        return Body.tip(leg, 12);
     }
 
     /** Moves a part's pivot round the waist by {@code turn}, shifts it, and adds the turn to it. */

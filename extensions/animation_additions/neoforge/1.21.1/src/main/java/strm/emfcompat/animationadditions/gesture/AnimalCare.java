@@ -3,7 +3,6 @@ package strm.emfcompat.animationadditions.gesture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.util.Mth;
@@ -21,6 +20,7 @@ import strm.emfcompat.animationadditions.interaction.InteractionContext;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.animationadditions.interaction.Ease;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /**
  * Feeding an animal, milking it, shearing it. With the food, the bucket or the shears in hand and
@@ -78,7 +78,7 @@ public final class AnimalCare extends Gesture {
         Play play = INSTANCE.trigger(player, kind, animal.position());
         if (play.kind != kind) return;
         play.entity = animal.getId();
-        play.right = (player.getMainArm() == HumanoidArm.RIGHT) == mainHand;
+        play.right = Body.right(player, mainHand);
     }
 
     /** No further from the animal than this, blocks, for a hand to be put out to it at all. */
@@ -130,7 +130,7 @@ public final class AnimalCare extends Gesture {
                 play.kind = kind;
                 play.entity = target.getId();
                 play.point = target.position();
-                play.right = (player.getMainArm() == HumanoidArm.RIGHT) == (hand == InteractionHand.MAIN_HAND);
+                play.right = Body.right(player, hand);
             }
             return true;
         }
@@ -164,7 +164,7 @@ public final class AnimalCare extends Gesture {
         if (!INSTANCE.isEnabled() || gap(player, animal) > NEAR || !INSTANCE.defer(player, kind, animal.position(), click)) return false;
         Play play = INSTANCE.play(player);
         play.entity = animal.getId();
-        play.right = (player.getMainArm() == HumanoidArm.RIGHT) == mainHand;
+        play.right = Body.right(player, mainHand);
         return true;
     }
 

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** A held Throttle receives phased visual effort; cockpit and item use retain their hands. */
 public final class HeavyThrottle implements InteractionProvider {
@@ -69,8 +70,8 @@ public final class HeavyThrottle implements InteractionProvider {
             return;
         }
         Vec3 knob = grips[0].add(grips[1]).scale(.5);
-        Vector3f a = context.frame().relativeToJoint(SubLevels.toWorld(player.level(), pos, grips[0]), new Vector3f());
-        Vector3f b = context.frame().relativeToJoint(SubLevels.toWorld(player.level(), pos, grips[1]), new Vector3f());
+        Vector3f a = Body.model(context.frame(), SubLevels.toWorld(player.level(), pos, grips[0]));
+        Vector3f b = Body.model(context.frame(), SubLevels.toWorld(player.level(), pos, grips[1]));
         s.right.set(a.x <= b.x ? a : b);
         s.left.set(a.x <= b.x ? b : a);
         s.centre.set(s.right).add(s.left).mul(.5f);
@@ -89,7 +90,7 @@ public final class HeavyThrottle implements InteractionProvider {
         } else if (s.previousKnob != null && signal != s.signal) {
             Vec3 delta = knob.subtract(s.previousKnob).scale(Math.signum(signal - s.signal));
             if (delta.lengthSqr() > 1e-8) {
-                Vector3f tip = context.frame().relativeToJoint(SubLevels.toWorld(player.level(), pos, knob.add(delta)), new Vector3f());
+                Vector3f tip = Body.model(context.frame(), SubLevels.toWorld(player.level(), pos, knob.add(delta)));
                 Vector3f axis = tip.sub(s.centre);
                 axis.y = 0;
                 if (axis.lengthSquared() > 1e-5) s.axis.lerp(axis.normalize(), Smoothing.follow(context.dt(), .1));
@@ -202,7 +203,6 @@ public final class HeavyThrottle implements InteractionProvider {
     }
     private static float gap(ModelPart arm, Vector3f point) {
         if (arm == null) return Float.POSITIVE_INFINITY;
-        return new org.joml.Quaternionf().rotationZYX(arm.zRot, arm.yRot, arm.xRot)
-            .transform(new Vector3f(0, 11 * arm.yScale, 0)).add(arm.x, arm.y, arm.z).distance(point) / 16;
+        return Body.tip(arm, 11).distance(point) / 16;
     }
 }

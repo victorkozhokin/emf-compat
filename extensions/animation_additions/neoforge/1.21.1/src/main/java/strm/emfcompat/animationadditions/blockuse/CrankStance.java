@@ -5,7 +5,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.emfcompat.core.ik.IKFrame;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
@@ -13,6 +12,7 @@ import strm.emfcompat.animationadditions.torso.PelvisFollow;
 import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** Small grounded setup steps; rotation transfers weight rather than walking every turn. */
 final class CrankStance {
@@ -33,7 +33,7 @@ final class CrankStance {
     static void observe(State s, AbstractClientPlayer player, IKFrame space, Float angle) {
         s.player = player;
         s.space = space;
-        s.eligible = player.onGround() && !player.isPassenger() && player.getDeltaMovement().horizontalDistanceSqr() < .0004;
+        s.eligible = Body.planted(player);
         boolean moved = angle != null && s.angle != null && Math.abs(CrankStanceMath.delta(s.angle, angle)) > .05f;
         if (moved) { s.direction = CrankStanceMath.delta(s.angle, angle) > 0 ? 1 : -1; s.motionAt = System.nanoTime(); }
         s.turning = s.eligible && angle != null && System.nanoTime() - s.motionAt < 150_000_000L;
@@ -98,8 +98,7 @@ final class CrankStance {
     }
 
     private static boolean safe(State s, ModelPart leg, Vector3f from, Vector3f to) {
-        Vector3f sole = new Quaternionf().rotationZYX(leg.zRot, leg.yRot, leg.xRot)
-                .transform(new Vector3f(0, 12 * leg.yScale, 0)).add(leg.x, leg.y, leg.z);
+        Vector3f sole = Body.tip(leg, 12);
         double supportY = Double.NaN;
         // Entire short path and a small sole footprint need nearly level collision support.
         for (float t : new float[]{0, .5f, 1}) {

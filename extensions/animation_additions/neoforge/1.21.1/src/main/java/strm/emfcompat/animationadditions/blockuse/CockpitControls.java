@@ -16,6 +16,7 @@ import strm.emfcompat.core.ik.OneBoneIK;
 import strm.emfcompat.core.ik.IKMath;
 import java.util.*;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** Seated wheel / side throttle handovers. The seat supports the pelvis and seated thigh volume. */
 public final class CockpitControls implements InteractionProvider {
@@ -148,7 +149,7 @@ public final class CockpitControls implements InteractionProvider {
             if (knob != null) knob = SubLevels.toWorld(player.level(), requested, knob);
             int request = -1;
             if (knob != null && knob.distanceTo(centre) < 2.5 && (state.held || Visibility.visible(player, requested, knob))) {
-                Vector3f model = context.frame().relativeToJoint(knob, new Vector3f());
+                Vector3f model = Body.model(context.frame(), knob);
                 request = knob.subtract(player.position()).dot(SubLevels.at(player.level(), state.wheel).directionToWorld(state.right)) >= 0 ? 0 : 1;
                 if (new Vector3f(model).sub(SHOULDERS[request]).length() > (state.held ? 24 : 22)) request = -1;
                 if (request >= 0 && (state.motion.working() < 0 || state.motion.working() != request
@@ -159,7 +160,7 @@ public final class CockpitControls implements InteractionProvider {
                 }
             }
             Vec3 origin = context.frame().jointWorld(new Vector3f());
-            Vector3f view = context.frame().relativeToJoint(origin.add(player.getViewVector(1)), new Vector3f());
+            Vector3f view = Body.model(context.frame(), origin.add(player.getViewVector(1)));
             float head = (float) Math.toRadians(CockpitFacing.head((float) Math.toDegrees(CockpitFacing.angle(view.x, view.z)), 0));
             state.headYaw += IKMath.wrap(head - state.headYaw) * Smoothing.follow(context.dt(), .12);
             float pitch = (float) Math.atan2(view.y, Math.sqrt(view.x * view.x + view.z * view.z));
@@ -184,7 +185,7 @@ public final class CockpitControls implements InteractionProvider {
             state.transport.sample(player.tickCount, new org.joml.Vector3d(worldReference.x, worldReference.y, worldReference.z));
             var a = state.transport.acceleration;
             Vec3 originPoint = context.frame().jointWorld(new Vector3f());
-            Vector3f force = context.frame().relativeToJoint(originPoint.add(a.x, 0, a.z), new Vector3f()).div(16);
+            Vector3f force = Body.model(context.frame(), originPoint.add(a.x, 0, a.z)).div(16);
             Vector3f reaction = new Vector3f(Math.max(-.14f, Math.min(.14f, force.z * .025f)), 0, Math.max(-.14f, Math.min(.14f, -force.x * .025f)));
             if (state.transport.warped) { reaction.zero(); state.pelvisLocal = null; }
             state.inertia.lerp(reaction, Smoothing.follow(context.dt(), .2));
@@ -192,7 +193,7 @@ public final class CockpitControls implements InteractionProvider {
             Map<Effector, float[]> aims = new EnumMap<>(Effector.class);
             for (int hand = 0; hand < 2; hand++) {
                 Vec3 rim = SubLevels.toWorld(player.level(), state.wheel, state.rim[hand].point());
-                Vector3f target = context.frame().relativeToJoint(rim, new Vector3f());
+                Vector3f target = Body.model(context.frame(), rim);
                 float mix = state.motion.mix(hand);
                 if (mix > 0 && state.throttle[hand] != null) {
                     BlockPos control = state.throttle[hand];
@@ -203,7 +204,7 @@ public final class CockpitControls implements InteractionProvider {
                     if (local != null) {
                         // Smooth key/knob motion in the block's own space, never behind a moving craft.
                         state.controlLocal[hand] = state.controlLocal[hand] == null ? local : state.controlLocal[hand].lerp(local, Smoothing.follow(context.dt(), .06));
-                        state.lever[hand].set(context.frame().relativeToJoint(SubLevels.toWorld(player.level(), control, state.controlLocal[hand]), new Vector3f()));
+                        state.lever[hand].set(Body.model(context.frame(), SubLevels.toWorld(player.level(), control, state.controlLocal[hand])));
                     }
                     target.lerp(state.lever[hand], mix);
                     wantedLean.y += (hand == 0 ? 1 : -1) * (float) Math.toRadians(10) * mix;
@@ -268,8 +269,8 @@ public final class CockpitControls implements InteractionProvider {
         Vec3 direction = centre.subtract(seatWorld(player));
         var space = SubLevels.at(player.level(), state.wheel);
         Vec3 up = space.directionToWorld(new Vec3(0, 1, 0));
-        Vector3f local = frame.relativeToJoint(origin.add(direction), new Vector3f());
-        Vector3f normal = frame.relativeToJoint(origin.add(up), new Vector3f());
+        Vector3f local = Body.model(frame, origin.add(direction));
+        Vector3f normal = Body.model(frame, origin.add(up));
         stack.mulPose(CockpitFacing.orientation(local, normal));
         return CockpitFacing.angle(local.x, local.z);
     }
@@ -291,8 +292,8 @@ public final class CockpitControls implements InteractionProvider {
         s.frame = frame;
         if (s.craft != null) s.craft = s.craft.refresh();
         if (s.craft != null && s.shown) for (int hand = 0; hand < 2; hand++) {
-            if (s.gripLocal[hand] != null) s.grips[hand].set(frame.relativeToJoint(s.craft.toWorld(s.gripLocal[hand]), new Vector3f()));
-            if (s.reachLocal[hand] != null) s.reachGrips[hand].set(frame.relativeToJoint(s.craft.toWorld(s.reachLocal[hand]), new Vector3f()));
+            if (s.gripLocal[hand] != null) s.grips[hand].set(Body.model(frame, s.craft.toWorld(s.gripLocal[hand])));
+            if (s.reachLocal[hand] != null) s.reachGrips[hand].set(Body.model(frame, s.craft.toWorld(s.reachLocal[hand])));
         }
     }
 
@@ -336,7 +337,7 @@ public final class CockpitControls implements InteractionProvider {
                 }
                 hip = new Vec3(hip.x, state.seatHeight, hip.z);
             }
-            Vector3f anchor = state.frame.relativeToJoint(state.craft.toWorld(hip), new Vector3f());
+            Vector3f anchor = Body.model(state.frame, state.craft.toWorld(hip));
             // Smooth only a change of seat height in deck coordinates. Render-frame compensation
             // must follow the actual moving seat immediately, otherwise the thighs lag through it.
             Vector3f delta = new Vector3f(anchor).sub(waist);
@@ -426,7 +427,7 @@ public final class CockpitControls implements InteractionProvider {
             arm.xRot += IKMath.wrap(pitch - arm.xRot) * weight;
             arm.yRot += IKMath.wrap(yaw - arm.yRot) * weight;
             arm.zRot *= 1 - weight;
-            Vector3f palm = new Quaternionf().rotationZYX(arm.zRot, arm.yRot, arm.xRot).transform(new Vector3f(0, 11 * arm.yScale, 0)).add(arm.x, arm.y, arm.z);
+            Vector3f palm = Body.tip(arm, 11);
             float gap = palm.distance(state.grips[hand]) / 16;
             if (hand == 0) state.rightGap = gap;
             else state.leftGap = gap;
@@ -463,9 +464,9 @@ public final class CockpitControls implements InteractionProvider {
         state.snapshot.put("request", state.request);
         Vec3 origin = state.frame.jointWorld(new Vector3f());
         Vec3 wheel = SubLevels.toWorld(state.player.level(), state.wheel, WHEEL.swayCentre(state.player.level(), state.wheel, state.player.level().getBlockState(state.wheel)));
-        Vector3f forward = state.frame.relativeToJoint(origin.add(wheel.subtract(seatWorld(state.player))), new Vector3f());
+        Vector3f forward = Body.model(state.frame, origin.add(wheel.subtract(seatWorld(state.player))));
         state.snapshot.put("facingErrorDegrees", Math.toDegrees(Math.atan2(forward.x, -forward.z)));
-        Vector3f up = state.frame.relativeToJoint(origin.add(state.craft.directionToWorld(new Vec3(0, 1, 0))), new Vector3f()).normalize();
+        Vector3f up = Body.model(state.frame, origin.add(state.craft.directionToWorld(new Vec3(0, 1, 0)))).normalize();
         state.snapshot.put("deckUpErrorDegrees", Math.toDegrees(Math.acos(Math.max(-1, Math.min(1, -up.y)))));
     }
     /** Render-frame measurements: targets and palms are sampled together, without stale trace pairing. */

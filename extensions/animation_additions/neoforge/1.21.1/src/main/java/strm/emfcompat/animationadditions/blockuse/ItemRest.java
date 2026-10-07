@@ -4,7 +4,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -13,6 +12,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.IItemHandler;
 import strm.emfcompat.animationadditions.interaction.SubLevels;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /**
  * A block of a mod's that items are put on or into by hand and taken back - Create's depot,
@@ -116,7 +116,7 @@ final class ItemRest implements BlockTarget {
     private Spot edge(AbstractClientPlayer player, BlockPos pos, BlockState block, boolean main) {
         if (!edge || facing(block) != Direction.UP) return null;
         Vec3 local = SubLevels.at(player.level(), pos).tickToLocal(player.position()).subtract(Vec3.atLowerCornerOf(pos));
-        boolean right = (player.getMainArm() == HumanoidArm.RIGHT) == main;
+        boolean right = Body.right(player, main);
         var p = surface.contact(local.x, local.z, right);
         return new Spot(new Vec3(p.x(), p.y(), p.z()).add(Vec3.atLowerCornerOf(pos)), Spots.UP);
     }

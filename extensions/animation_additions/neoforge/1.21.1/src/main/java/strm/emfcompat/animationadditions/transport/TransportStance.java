@@ -4,7 +4,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
 import strm.emfcompat.animationadditions.torso.PelvisFollow;
@@ -13,6 +12,7 @@ import strm.emfcompat.core.ik.IKFrame;
 import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** One brace step at a time on the same deck; no extra gait over FA walking. */
 final class TransportStance {
@@ -104,8 +104,7 @@ final class TransportStance {
                                 ModelPart leg, Vector3f from, Vector3f to) {
         if (!deck.space().valid()) return false;
         var space = deck.space().refresh();
-        Vector3f sole = new Quaternionf().rotationZYX(leg.zRot, leg.yRot, leg.xRot)
-                .transform(new Vector3f(0, 12 * leg.yScale, 0)).add(leg.x, leg.y, leg.z);
+        Vector3f sole = Body.tip(leg, 12);
         for (float t : new float[]{0, .5f, 1}) for (float x : new float[]{-.09f, 0, .09f}) for (float z : new float[]{-.09f, 0, .09f}) {
             var point = frame.jointWorld(new Vector3f(sole).add(new Vector3f(from).lerp(to, t))).add(x, 0, z);
             var hit = player.level().clip(new ClipContext(space.toLocal(point.add(0, .3, 0)), space.toLocal(point.add(0, -.3, 0)),

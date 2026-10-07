@@ -4,7 +4,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
 import strm.emfcompat.animationadditions.torso.PelvisFollow;
@@ -12,6 +11,7 @@ import strm.emfcompat.core.ik.IKFrame;
 import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** Short alternating stance adjustments; moving feet follow the existing walking phase. */
 final class WallStance {
@@ -105,8 +105,7 @@ final class WallStance {
         }
     }
     private static Vector3f sole(ModelPart leg) {
-        return new Quaternionf().rotationZYX(leg.zRot, leg.yRot, leg.xRot)
-                .transform(new Vector3f(0, 12 * leg.yScale, 0)).add(leg.x, leg.y, leg.z);
+        return Body.tip(leg, 12);
     }
     private static boolean safe(AbstractClientPlayer player, IKFrame frame, ModelPart leg, Vector3f from, Vector3f to) {
         Vector3f sole = sole(leg);

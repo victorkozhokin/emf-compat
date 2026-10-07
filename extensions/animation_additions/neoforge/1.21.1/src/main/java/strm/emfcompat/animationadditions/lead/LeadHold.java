@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** An actual player-held lead owns one hand; other interactions can take that hand normally. */
 public final class LeadHold implements InteractionProvider {
@@ -60,7 +61,7 @@ public final class LeadHold implements InteractionProvider {
                 || lead.getLeashHolder() == player) return;
         State s = STATES.seen(player.getUUID(), System.nanoTime()).value;
         s.attachingAnimal = target.getUUID();
-        boolean right = (player.getMainArm() == HumanoidArm.RIGHT) == (hand == net.minecraft.world.InteractionHand.MAIN_HAND);
+        boolean right = Body.right(player, hand);
         s.attachingHand = right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
     }
 
@@ -183,8 +184,7 @@ public final class LeadHold implements InteractionProvider {
             Vector3f angles = LeadPose.angles(current.slerp(LeadPose.swing(s.palm), owned));
             arm.setRotation(angles.x, angles.y, angles.z);
         }
-        Vector3f palm = new Quaternionf().rotationZYX(arm.zRot, arm.yRot, arm.xRot)
-                .transform(new Vector3f(0, 11 * arm.yScale, 0)).add(arm.x, arm.y, arm.z);
+        Vector3f palm = Body.tip(arm, 11);
         s.drawnPalm = s.frame.jointWorld(palm);
         long now = System.nanoTime();
         if (strm.emfcompat.animationadditions.DebugLog.trace() && now - s.traceAt > 100_000_000L) {

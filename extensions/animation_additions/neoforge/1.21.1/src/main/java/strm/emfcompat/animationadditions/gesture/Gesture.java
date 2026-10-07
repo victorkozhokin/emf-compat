@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /**
  * A short authored gesture that follows something the player really did: it is set off, waits
@@ -380,7 +381,7 @@ public abstract class Gesture implements InteractionProvider {
 
     /** A world point in model pixels this frame. */
     protected static Vector3f model(Play play, Vec3 world) {
-        return play.frame.relativeToJoint(world, new Vector3f());
+        return Body.model(play.frame, world);
     }
 
     /** The same, but out at once: fast off the mark and easing into place, for what must not lag behind its cause. */
@@ -504,7 +505,7 @@ public abstract class Gesture implements InteractionProvider {
             if (length > 1e-3f) {
                 float pitch = (float) Math.asin(Math.max(-1f, Math.min(1f, pose.look.y / length)));
                 float yaw = (float) Math.atan2(-pose.look.x, -pose.look.z);
-                float nowPitch = (float) Math.toRadians(player.getXRot()), nowYaw = (float) Math.toRadians(Mth.wrapDegrees(player.yHeadRot - player.yBodyRot));
+                float nowPitch = (float) Math.toRadians(player.getXRot()), nowYaw = Body.headYaw(player);
                 float[] add = pose.head == null ? new float[2] : pose.head;
                 pose.head = new float[]{add[0] + (pitch - nowPitch) * amount, add[1] + Mth.wrapDegrees((float) Math.toDegrees(yaw - nowYaw)) * (float) (Math.PI / 180) * amount};
             }
@@ -520,7 +521,7 @@ public abstract class Gesture implements InteractionProvider {
         if (l != null) aims.put(Effector.LEFT_ARM, l);
         if (pose.head != null) {
             // The head leaves from where it looks and comes back to it, whatever the camera does meanwhile.
-            float yaw = (float) Math.toRadians(Mth.wrapDegrees(player.yHeadRot - player.yBodyRot));
+            float yaw = Body.headYaw(player);
             aims.put(Effector.HEAD, new float[]{(float) Math.toRadians(player.getXRot()) + pose.head[0],
                     Math.max(-NECK, Math.min(NECK, yaw + pose.head[1]))});
         }
@@ -678,8 +679,7 @@ public abstract class Gesture implements InteractionProvider {
                 BraceSteps.apply(play.stance, play.player, play.frame, parts, apart ? pose.rightFoot : HOME,
                         apart ? pose.leftFoot : HOME, held, 0, LOGGER, gesture.id());
             if (!play.playing || shown < 1e-3f) continue;
-            if (stance && play.player.onGround() && !play.player.isPassenger()
-                    && play.player.getDeltaMovement().horizontalDistanceSqr() < .0004)
+            if (stance && Body.planted(play.player))
                 strm.emfcompat.animationadditions.torso.PelvisFollow.shift(parts, pose.weightSide * shown, pose.weightForward * shown);
             leg(parts.apply("right_leg"), pose.rightLeg, shown);
             leg(parts.apply("left_leg"), pose.leftLeg, shown);
@@ -708,8 +708,7 @@ public abstract class Gesture implements InteractionProvider {
             Pose pose = play.pose;
             float weight = 0;
             Vector3f other = null;
-            if (play.playing && play.shows && !pose.onBody && on(KEY_FIT) && play.player.onGround() && !play.player.isPassenger()
-                    && play.player.getDeltaMovement().horizontalDistanceSqr() < .0004) {
+            if (play.playing && play.shows && !pose.onBody && on(KEY_FIT) && Body.planted(play.player)) {
                 float r = pose.rightAt == null ? 0 : Math.min(1, pose.rightReach), l = pose.leftAt == null ? 0 : Math.min(1, pose.leftReach);
                 // The hand further out leads; it gives the lead up only to one clearly further.
                 if (play.fitRight ? l > r + .15f : r > l + .15f) play.fitRight = !play.fitRight;

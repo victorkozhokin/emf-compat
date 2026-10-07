@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /**
  * Using a block by hand - a chiseled bookshelf's slot, and so on ({@link BlockTarget}): looking at
@@ -280,7 +281,7 @@ public final class BlockUse implements InteractionProvider {
                 double along = Ease.smooth(t) - 0.5;
                 point = point.add(space.directionToWorld(state.gesture.sweep()).scale(along));
             }
-            Vector3f model = frame.relativeToJoint(point, new Vector3f());
+            Vector3f model = Body.model(frame, point);
             // The hand that holds what is used.
             boolean right = player.getMainArm() == HumanoidArm.RIGHT;
             Vector3f shoulder = right ? RIGHT_SHOULDER : LEFT_SHOULDER;
@@ -301,12 +302,12 @@ public final class BlockUse implements InteractionProvider {
             Vec3 centre = state.target == null || state.pos == null ? null
                     : state.target.swayCentre(player.level(), state.pos, player.level().getBlockState(state.pos));
             if (centre != null) centre = space.toWorld(centre);
-            Vector3f postureTarget = centre == null ? model : frame.relativeToJoint(centre.add(0, 7 / 16.0, 0), new Vector3f());
+            Vector3f postureTarget = centre == null ? model : Body.model(frame, centre.add(0, 7 / 16.0, 0));
             state.overhead = postureTarget.y < shoulder.y;
             state.groundReach = player.onGround() && !seated
                     && state.target != null && state.target.reachPose()
                     && (!state.crouching || (wheel(state) && centre != null
-                    ? frame.relativeToJoint(centre, new Vector3f()).y : model.y) > shoulder.y + 4);
+                    ? Body.model(frame, centre).y : model.y) > shoulder.y + 4);
             if (state.target != null && state.target.reachPose() && state.crouching && !seated) {
                 standUp = ReachEnvelope.upright(postureTarget.x - shoulder.x,
                         postureTarget.y - shoulder.y, postureTarget.z - shoulder.z, ARM);
@@ -319,10 +320,10 @@ public final class BlockUse implements InteractionProvider {
                 state.grip.lerp(model, Smoothing.follow(context.dt(), held != null ? HELD_GRIP_SECONDS : GRIP_SECONDS));
             }
             state.right = right;
-            if (centre != null) sway(state, new Vector3f(model).sub(frame.relativeToJoint(centre, new Vector3f())));
+            if (centre != null) sway(state, new Vector3f(model).sub(Body.model(frame, centre)));
             if (state.target != null && state.target.balancesReach() && !seated && EMFCompatConfig.getBoolean(ButtonPress.KEY_STRETCH, true)) {
                 // Past the arm's length the whole body reaches, as for a lever.
-                Vector3f reachTarget = centre == null ? model : frame.relativeToJoint(centre, new Vector3f());
+                Vector3f reachTarget = centre == null ? model : Body.model(frame, centre);
                 stretchTarget = ReachPose.weight(new Vector3f(reachTarget).sub(shoulder).length() / ARM) * (1f - standUp);
                 if (!state.groundReach) ReachPose.lean(reachTarget, stretchTarget, state.lean);
                 // The pack already folds the crouching torso: do not add another full floor reach.
@@ -341,7 +342,7 @@ public final class BlockUse implements InteractionProvider {
                     context.decide("support-out-of-reach");
                     return;
                 }
-                Vector3f otherModel = frame.relativeToJoint(otherPoint, new Vector3f());
+                Vector3f otherModel = Body.model(frame, otherPoint);
                 // As the main hand: straight onto a grip that goes round (a wheel), followed otherwise.
                 if (centre != null || fresh || !supported) state.supportGrip.set(otherModel);
                 else state.supportGrip.lerp(otherModel, Smoothing.follow(context.dt(), held != null ? HELD_GRIP_SECONDS : GRIP_SECONDS));
@@ -634,14 +635,14 @@ public final class BlockUse implements InteractionProvider {
         s.bellows.obstacleMin = new Vector3f(Float.POSITIVE_INFINITY);
         s.bellows.obstacleMax = new Vector3f(Float.NEGATIVE_INFINITY);
         for (int x = 0; x <= 1; x++) for (int y = 0; y <= 1; y++) for (int z = 0; z <= 1; z++) {
-            var corner = frame.relativeToJoint(space.toWorld(new Vec3(s.pos.getX() + x, s.pos.getY() + y, s.pos.getZ() + z)), new Vector3f());
+            var corner = Body.model(frame, space.toWorld(new Vec3(s.pos.getX() + x, s.pos.getY() + y, s.pos.getZ() + z)));
             s.bellows.obstacleMin.min(corner);
             s.bellows.obstacleMax.max(corner);
         }
         var main = Bellows.contact(player, s.pos, block, true);
         var other = Bellows.contact(player, s.pos, block, false);
-        s.grip.set(frame.relativeToJoint(space.toWorld(main.point().add(main.out().scale(.5 / 16))), new Vector3f()));
-        s.supportGrip.set(frame.relativeToJoint(space.toWorld(other.point().add(other.out().scale(.5 / 16))), new Vector3f()));
+        s.grip.set(Body.model(frame, space.toWorld(main.point().add(main.out().scale(.5 / 16)))));
+        s.supportGrip.set(Body.model(frame, space.toWorld(other.point().add(other.out().scale(.5 / 16)))));
     }
     public static Map<String, Object> bellowsSnapshot(UUID uuid) {
         State s = STATES.fresh(uuid);

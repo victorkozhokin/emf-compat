@@ -13,6 +13,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.SubLevels;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** Supplementaries' actual moving plate. Manual use only; redstone and stepping are not hand actions. */
 final class Bellows implements BlockTarget {
@@ -38,7 +39,7 @@ final class Bellows implements BlockTarget {
         Quaternionf turn = turn(block);
         Vec3 local = SubLevels.at(player.level(), pos).tickToLocal(player.position()).subtract(Vec3.atCenterOf(pos));
         Vector3f projected = new Quaternionf(turn).conjugate().transform(new Vector3f((float) local.x, (float) local.y, (float) local.z));
-        boolean right = (player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT) == main;
+        boolean right = Body.right(player, main);
         var surface = new TableSurface(0, 1, 0, 1, 1 + height(player.level(), pos), 3 / 16.0);
         var point = surface.contact(projected.x + .5, projected.z + .5, right);
         var at = turn.transform(new Vector3f((float) point.x() - .5f, (float) point.y() - .5f, (float) point.z() - .5f));

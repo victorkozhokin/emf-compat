@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import strm.emfcompat.animationadditions.interaction.Ease;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /**
  * Putting on armour and Curios accessories: when a piece appears in a slot - however it got
@@ -225,8 +226,7 @@ public final class ArmorDon extends Gesture {
                 out.apart = phase > .035f && phase < .87f;
                 out.rightFoot = new Vector3f(-.8f, 0, 0);
                 out.leftFoot = new Vector3f(.8f, 0, 0);
-                boolean planted = play.player.onGround() && !play.player.isPassenger()
-                        && play.player.getDeltaMovement().horizontalDistanceSqr() < .0004;
+                boolean planted = Body.planted(play.player);
                 // Crouch keeps both soles; no lift if the small forward sweep meets a block.
                 if (planted && !play.player.isCrouching() && legRoom(play))
                     out.leftLeg = new float[]{-.52f * l, inspect.turnLeft(), .05f * l};

@@ -2,13 +2,13 @@ package strm.emfcompat.animationadditions.blockuse;
 
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.level.block.EnchantingTableBlock;
 import net.minecraft.world.level.block.entity.EnchantingTableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import strm.emfcompat.animationadditions.interaction.SubLevels;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /**
  * An enchanting table: looked at, both hands go to the sides of the book over it. The book turns
@@ -47,7 +47,7 @@ final class EnchantingTable implements BlockTarget {
         Vec3 reader = reader(player, pos);
         // The reader's right: the main hand's side.
         Vec3 right = new Vec3(reader.z, 0, -reader.x);
-        boolean positive = (player.getMainArm() == HumanoidArm.RIGHT) != support;
+        boolean positive = Body.right(player, !support);
         Vec3 point = new Vec3(pos.getX() + 0.5, pos.getY() + BOOK_Y, pos.getZ() + 0.5)
                 .add(right.scale(positive ? PAGE : -PAGE)).add(reader.scale(NEAR));
         return new Spot(point, Spots.UP);

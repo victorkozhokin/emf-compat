@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /**
  * Mining: while a player breaks a block with a tool - a pickaxe, an axe, a shovel, a hoe - the main
@@ -213,7 +214,7 @@ public final class Mining implements InteractionProvider {
         state.space = space;
         state.point = state.point.lerp(state.aimed, Smoothing.follow(context.dt(), POINT_SECONDS));
         // Where it is on the model this frame: the player may walk or turn meanwhile.
-        state.hit.set(frame.relativeToJoint(state.space.refresh().toWorld(state.point), new Vector3f()));
+        state.hit.set(Body.model(frame, state.space.refresh().toWorld(state.point)));
         // A swing ending drops the value to nothing as well: only one that goes on is a new blow.
         if (state.active && player.swinging && phase < state.phase - NEW_SWING) {
             // Another of the three, never the same twice running.
@@ -369,8 +370,7 @@ public final class Mining implements InteractionProvider {
         if (arm == null) return;
         float weight = 0;
         Vector3f target = new Vector3f(state.hit);
-        boolean still = state.player.onGround() && !state.player.isPassenger()
-                && state.player.getDeltaMovement().horizontalDistanceSqr() < .0004;
+        boolean still = Body.planted(state.player);
         if (state.active && still) {
             Vector3f to = new Vector3f(state.hit).sub(arm.x, arm.y, arm.z);
             float reach = (float) Math.hypot(state.tool.tipY(), state.tool.tipZ()), distance = to.length();

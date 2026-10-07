@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /**
  * Some time after the last of a run of pick-ups the player puts it all away: one look down at the
@@ -143,7 +144,7 @@ public final class PocketStash implements InteractionProvider {
         aims.put(Effector.RIGHT_ARM, new float[]{arm[0], arm[1]});
         // The head leaves from where it looks and comes back to it, whatever the camera does meanwhile.
         float[] head = PocketMotion.head(s.phase);
-        float yaw = (float) Math.toRadians(net.minecraft.util.Mth.wrapDegrees(player.yHeadRot - player.yBodyRot));
+        float yaw = Body.headYaw(player);
         aims.put(Effector.HEAD, new float[]{(float) Math.toRadians(player.getXRot()) + head[0],
                 Math.max(-NECK, Math.min(NECK, yaw + head[1]))});
         out.add(Candidate.of(id(), Category.PASSIVE, 20, 1f, TIMING, aims));

@@ -10,6 +10,7 @@ import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.SubLevels;
 import strm.emfcompat.core.ik.IKFrame;
 import java.util.List;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /** Short local rays. Collision surfaces, or continuous slender outline-only supports. */
 final class SupportSearch {
@@ -60,7 +61,7 @@ final class SupportSearch {
                 Vec3 point = space.toWorld(hit.getLocation());
                 if (point.y < player.getY() + .6) continue;
                 eligible++;
-                Vector3f model = frame.relativeToJoint(point, new Vector3f());
+                Vector3f model = Body.model(frame, point);
                 if (!BraceMath.reachable(model, shoulder, right, false)) continue;
                 reachable++;
                 double d = Math.abs(model.distance(shoulder) - 11) + (model.z > 2 ? 2 : 0) + (outline ? -.25 : 0);
@@ -102,7 +103,7 @@ final class SupportSearch {
         if (c == null || !c.space.valid()) return false;
         if (c.rope != null) {
             Vector3f shoulder = new Vector3f(right ? -5 : 5, 2, 0);
-            Vector3f target = frame.relativeToJoint(c.world(), new Vector3f());
+            Vector3f target = Body.model(frame, c.world());
             boolean exists = c.rope.valid(), reachable = RopePoseMath.reachable(target, shoulder, right);
             boolean unobstructed = exists && reachable && clear(player, frame.jointWorld(shoulder), c.world(), SubLevels.around(player.level(), player.getBoundingBox().inflate(1.2)));
             if (!unobstructed && strm.emfcompat.core.EMFCompatConfig.getBoolean(TransportGrip.KEY_TRACE, false))
@@ -114,7 +115,7 @@ final class SupportSearch {
         if (state.isAir() || state.canBeReplaced() || c.outline && !continuous(player, c.block)) return false;
         Vector3f shoulder = new Vector3f(right ? -5 : 5, 2, 0);
         Vec3 end = space.toWorld(c.point), from = frame.jointWorld(shoulder);
-        if (!BraceMath.reachable(frame.relativeToJoint(end, new Vector3f()), shoulder, right, true)) return false;
+        if (!BraceMath.reachable(Body.model(frame, end), shoulder, right, true)) return false;
         // Extend just inside the retained face; the first hit must still be this block.
         Vec3 to = c.point.subtract(c.normal.scale(.015));
         var hit = player.level().clip(new ClipContext(space.toLocal(from), to, c.outline ? ClipContext.Block.OUTLINE : ClipContext.Block.COLLIDER,

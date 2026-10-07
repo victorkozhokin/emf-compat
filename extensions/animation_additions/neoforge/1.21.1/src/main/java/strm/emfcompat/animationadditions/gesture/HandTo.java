@@ -3,7 +3,6 @@ package strm.emfcompat.animationadditions.gesture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -21,6 +20,7 @@ import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.InteractionContext;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
+import strm.emfcompat.animationadditions.interaction.Body;
 
 /**
  * One hand to a point and back, the body bending to it, held out towards the point already while
@@ -53,13 +53,13 @@ public final class HandTo extends Gesture {
     public static void done(AbstractClientPlayer player, int kind, Vec3 point, boolean mainHand) {
         if (!EMFCompatConfig.getBoolean(kind == STAND ? KEY_STAND : KEY_SEEDS, true)) return;
         Play play = INSTANCE.trigger(player, kind, point);
-        play.right = (player.getMainArm() == HumanoidArm.RIGHT) == mainHand;
+        play.right = Body.right(player, mainHand);
     }
 
     /** The click is held back until the hand is at the point; {@code false}: let it through now. */
     public static boolean hold(AbstractClientPlayer player, int kind, Vec3 point, boolean mainHand, Runnable click) {
         if (!EMFCompatConfig.getBoolean(kind == STAND ? KEY_STAND : KEY_SEEDS, true) || !INSTANCE.defer(player, kind, point, click)) return false;
-        INSTANCE.play(player).right = (player.getMainArm() == HumanoidArm.RIGHT) == mainHand;
+        INSTANCE.play(player).right = Body.right(player, mainHand);
         return true;
     }
 
@@ -112,7 +112,7 @@ public final class HandTo extends Gesture {
                 if (player != mc.player) play.notes = kind == SEED ? ((BlockHitResult) sight).getBlockPos().above() : null;
                 play.kind = kind;
                 play.point = point;
-                play.right = (player.getMainArm() == HumanoidArm.RIGHT) == (hand == InteractionHand.MAIN_HAND);
+                play.right = Body.right(player, hand);
             }
             return true;
         }
