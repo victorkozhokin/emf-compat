@@ -371,6 +371,13 @@ public final class Fright implements InteractionProvider {
                 hat.xRot = head.xRot;
             }
         }
+        if (state.grounded && pose.crouch() > 0f) {
+            // The small crouch before the hop: everything above the legs comes down onto them, as in a sneak - there are no knees to bend.
+            for (String name : new String[]{"head", "hat", "body", "right_arm", "left_arm"}) {
+                ModelPart part = parts.apply(name);
+                if (part != null) part.y += pose.crouch();
+            }
+        }
         if (state.grounded && pose.hop() > 0f) {
             for (String name : new String[]{"head", "hat", "body", "right_arm", "left_arm", "right_leg", "left_leg"}) {
                 ModelPart part = parts.apply(name);

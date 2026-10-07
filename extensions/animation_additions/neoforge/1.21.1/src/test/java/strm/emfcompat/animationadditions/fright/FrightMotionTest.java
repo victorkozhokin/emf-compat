@@ -71,6 +71,10 @@ class FrightMotionTest {
         // First the body gathers: still on the ground, bent forward, the arms drawn back.
         FrightMotion.Pose gathered = FrightMotion.pose(FrightMotion.MEDIUM, FrightMotion.gather(FrightMotion.MEDIUM), 0f, 0f, -1f);
         assertEquals(0f, gathered.hop(), 1e-6f);
+        // ... and down in a small crouch, which is gone by the top of the hop.
+        assertTrue(gathered.crouch() > 0.9f);
+        assertEquals(0f, FrightMotion.pose(FrightMotion.MEDIUM, top, 0f, 0f, -1f).crouch(), 1e-4f);
+        assertEquals(0f, FrightMotion.pose(FrightMotion.LIGHT, 0.1f, 0f, 0f, -1f).crouch(), 1e-6f);
         assertTrue(gathered.bow() > 0.08f && gathered.armsUp() < FrightMotion.pose(FrightMotion.MEDIUM, 0.6f, 1f, 0f, -1f).armsUp());
     }
 }
