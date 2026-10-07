@@ -173,8 +173,9 @@ public final class FenceLean implements InteractionProvider {
         if (state == null || state.player == null || !INSTANCE.isEnabled()) return;
         if (state.leaning < 0.05f && state.stance.resting()) return;
         boolean apart = state.held;
+        // Home again by a step each, as they went out, not by a slide: the effort is kept up and the steps go to where the pack has the feet.
         BraceSteps.apply(state.stance, state.player, state.frame, parts, apart ? RIGHT_FOOT : HOME, apart ? LEFT_FOOT : HOME,
-                state.leaning, 0f, LOGGER, "FenceStance");
+                1f, 0f, LOGGER, "FenceStance");
         PelvisFollow.shift(parts, 0f, HIPS_BACK * state.leaning);
     }
 

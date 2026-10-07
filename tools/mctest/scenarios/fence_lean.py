@@ -18,5 +18,9 @@ for name, x, z, yaw in (("fence", 447.5, 41.07, 0), ("wall", 454.5, 41.07, 0), (
 # stepping back from the fence: how soon the hands are off it
 s += [{"cmd": "tp @s 447.5 160 41.07 0 10"}, {"look": [0, 10]}, {"wait": 40}, {"log": "lean leave"}, {"hold": "back"}]
 for i in range(8): s += [{"wait": 1}, MODEL]
-s += [{"release": "back"}, {"log": "lean end"}, {"hideGui": False}, {"cmd": "gamemode creative"}]
+s += [{"release": "back"}, {"wait": 20}]
+# looking away without a step: the feet must come home by a step each ([FenceStance] step 0/1), not by a slide
+s += [{"config": {"footgrounding.trace": True}}, {"cmd": "tp @s 447.5 160 41.07 0 10"}, {"look": [0, 10]}, {"wait": 50}, {"log": "lean look away"}, {"look": [75, 10]}, {"wait": 40},
+      {"log": "lean looked away"}, {"config": {"footgrounding.trace": False}}]
+s += [{"log": "lean end"}, {"hideGui": False}, {"cmd": "gamemode creative"}]
 print(json.dumps(s))

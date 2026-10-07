@@ -140,6 +140,7 @@ Open the in-game config screen (Mods → EMF Compat Core → Config) and pick th
 | ↳ Read signs | Looking at a sign close by, the head settles on it and the body leans in. |
 | ↳ Turn the body in steps | A creature too far round for the neck is turned to with the body, the feet stepping round. |
 | Hold animal leads | The hand and the body follow the lead. |
+| Fright at sounds | A frightening sound near by: a shudder with the shoulders drawn up; a worse one adds a jump, a ducked head and a look round at it. Sculk, warden, creaking, creeper's fuse, explosions and thunder each have a switch. |
 | Pocket what was picked up | One gesture after a run of pickups. |
 
 **Blocks & controls**

@@ -1,0 +1,306 @@
+package strm.emfcompat.animationadditions.fright;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import strm.emfcompat.animationadditions.DebugLog;
+import strm.emfcompat.animationadditions.interaction.Body;
+import strm.emfcompat.animationadditions.interaction.Candidate;
+import strm.emfcompat.animationadditions.interaction.Effector;
+import strm.emfcompat.animationadditions.interaction.EntityStates;
+import strm.emfcompat.animationadditions.interaction.InteractionContext;
+import strm.emfcompat.animationadditions.interaction.InteractionProvider;
+import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
+import strm.emfcompat.animationadditions.torso.TorsoLean;
+import strm.emfcompat.core.ConfigRegistry;
+import strm.emfcompat.core.EMFCompatConfig;
+import strm.emfcompat.core.ik.IKMath;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Function;
+
+/**
+ * Fright at a sound: sculk, the warden, the creaking, a creeper's fuse, an explosion, thunder. The
+ * client hears the sound and where it is; every player it draws near enough takes fright - a start,
+ * a scare or a terror by what it was and how near ({@link FrightMotion}).
+ *
+ * <p>Nothing is taken from what the player is doing: the fright is added over the pose as it is -
+ * a shudder of the torso, the shoulders up, the head - and the hands stay with their work. It runs
+ * out to nothing by itself.</p>
+ */
+public final class Fright implements InteractionProvider {
+
+    public static final Fright INSTANCE = new Fright();
+    public static final String KEY_ENABLED = "fright.enabled";
+    public static final String KEY_SCULK = "fright.sculk", KEY_WARDEN = "fright.warden", KEY_CREAKING = "fright.creaking",
+            KEY_CREEPER = "fright.creeper", KEY_EXPLOSION = "fright.explosions", KEY_THUNDER = "fright.thunder", KEY_USED = "fright.getUsedTo";
+    private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatFright");
+
+    /** Seconds: a sound no worse than the last is not jumped at again this soon; each fright counts against the next for this long. */
+    private static final double AGAIN_SECONDS = 3.0, NERVE_SECONDS = 20.0;
+    /** A sound is heard for this long: a player first drawn a moment after it still takes fright. */
+    private static final long HEARD_NANOS = 250_000_000L;
+    /** Seconds the torso's lean runs behind what it is asked: the shudder is asked for that much ahead. */
+    private static final float LEAN_LAG = 0.12f;
+    /** Radians: how far round to the sound the head goes, and the share of it the torso takes. Pixels: the shoulder on the sound's side up more, the head down between the shoulders by this share of the shrug. */
+    private static final float ROUND_LIMIT = 1.25f, ROUND_TORSO = 0.28f, SHOULDER_OVER = 0.8f, HEAD_SINK = 0.3f;
+
+    /** What frightens, by the sound's name: the setting it falls under, how bad it is close by, and how far "close by" is, blocks. */
+    private record Kind(String key, String sound, int level, double near) {
+    }
+
+    /** By the start of the sound's path, the first match; the creaking's are by name, for versions that have it. */
+    private static final Kind[] KINDS = {
+            new Kind(KEY_SCULK, "block.sculk_shrieker.shriek", FrightMotion.STRONG, 10),
+            new Kind(KEY_SCULK, "block.sculk_sensor.clicking_stop", 0, 0),
+            new Kind(KEY_SCULK, "block.sculk_sensor.clicking", FrightMotion.LIGHT, 6),
+            new Kind(KEY_WARDEN, "entity.warden.sonic_boom", FrightMotion.STRONG, 14),
+            new Kind(KEY_WARDEN, "entity.warden.roar", FrightMotion.STRONG, 14),
+            new Kind(KEY_WARDEN, "entity.warden.emerge", FrightMotion.STRONG, 10),
+            new Kind(KEY_WARDEN, "entity.warden.nearby_closest", FrightMotion.MEDIUM, 12),
+            new Kind(KEY_WARDEN, "entity.warden.listening_angry", FrightMotion.MEDIUM, 8),
+            new Kind(KEY_CREAKING, "entity.creaking.activate", FrightMotion.MEDIUM, 8),
+            new Kind(KEY_CREAKING, "entity.creaking.unfreeze", FrightMotion.MEDIUM, 8),
+            new Kind(KEY_CREAKING, "entity.creaking.attack", FrightMotion.MEDIUM, 6),
+            new Kind(KEY_CREAKING, "entity.creaking.step", FrightMotion.LIGHT, 5),
+            new Kind(KEY_CREAKING, "block.creaking_heart.spawn", FrightMotion.LIGHT, 8),
+            new Kind(KEY_CREAKING, "block.creaking_heart.hurt", FrightMotion.LIGHT, 6),
+            new Kind(KEY_CREEPER, "entity.creeper.primed", FrightMotion.MEDIUM, 5),
+            new Kind(KEY_EXPLOSION, "entity.generic.explode", FrightMotion.STRONG, 10),
+            new Kind(KEY_EXPLOSION, "entity.dragon_fireball.explode", FrightMotion.STRONG, 10),
+            new Kind(KEY_THUNDER, "entity.lightning_bolt.impact", FrightMotion.STRONG, 16),
+            new Kind(KEY_THUNDER, "entity.lightning_bolt.thunder", FrightMotion.STRONG, 16),
+    };
+
+    /** A sound heard: what, where, when, and its number in the order heard. */
+    private record Heard(Kind kind, Vec3 at, long nanos, long number) {
+    }
+
+    private static final Deque<Heard> HEARD = new ArrayDeque<>();
+    private static long heardCount;
+    private static boolean listening;
+
+    private static final class State {
+        int level;
+        long since, lastAt, number;
+        /** Frights lately, fading: the more, the less the next one is. */
+        float nerve;
+        Vec3 source;
+        /** The way round to the sound, radians, against the body as drawn (to the right above zero). */
+        float yaw;
+        boolean grounded, wary;
+        float sx, sz;
+        AbstractClientPlayer player;
+        strm.emfcompat.core.ik.IKFrame frame;
+        final strm.emfcompat.animationadditions.torso.BraceSteps.State feet = new strm.emfcompat.animationadditions.torso.BraceSteps.State();
+        FrightMotion.Pose pose = FrightMotion.Pose.NONE, ahead = FrightMotion.Pose.NONE;
+        final DebugLog.Pace trace = new DebugLog.Pace();
+    }
+
+    private static final EntityStates<State> STATES = new EntityStates<>(State::new);
+
+    private Fright() {
+    }
+
+    public static void register(ConfigRegistry.Group config) {
+        config.addBoolean(KEY_ENABLED, "Fright at sounds", true,
+                "On", "A frightening sound near by makes the character shudder and draw the shoulders up; a worse one makes them jump, duck and look round at it.",
+                "Off", "Sounds are not reacted to.");
+        config.addChild(KEY_ENABLED, KEY_SCULK, "Sculk", true, "On", "A sculk sensor going off startles; a shrieker frightens.", "Off", "Sculk sounds are not reacted to.");
+        config.addChild(KEY_ENABLED, KEY_WARDEN, "Warden", true, "On", "The warden coming up, its roar and its sonic boom frighten.", "Off", "The warden's sounds are not reacted to.");
+        config.addChild(KEY_ENABLED, KEY_CREAKING, "Creaking", true, "On", "A creaking coming alive near by frightens (on versions that have it).", "Off", "The creaking's sounds are not reacted to.");
+        config.addChild(KEY_ENABLED, KEY_CREEPER, "Creeper's fuse", true, "On", "A creeper starting to hiss near by frightens.", "Off", "A creeper's hiss is not reacted to.");
+        config.addChild(KEY_ENABLED, KEY_EXPLOSION, "Explosions", true, "On", "An explosion near by frightens.", "Off", "Explosions are not reacted to.");
+        config.addChild(KEY_ENABLED, KEY_THUNDER, "Thunder", true, "On", "Lightning striking near by frightens.", "Off", "Thunder is not reacted to.");
+        config.addChild(KEY_ENABLED, KEY_USED, "Get used to it", true, "On", "Frightened again and again, each fright is taken more lightly for a while.", "Off", "Every sound frightens as much as the first.");
+    }
+
+    @Override
+    public String id() {
+        return "Fright";
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
+    }
+
+    /** The game's sounds, as they are played: the ones that frighten are kept for a moment for every player drawn. */
+    private static void listen() {
+        if (listening) return;
+        listening = true;
+        Minecraft.getInstance().getSoundManager().addListener((sound, accessor, range) -> heard(sound));
+    }
+
+    private static void heard(SoundInstance sound) {
+        if (sound == null || sound.isRelative() || !INSTANCE.isEnabled()) return;
+        String name = sound.getLocation().getPath();
+        for (Kind kind : KINDS) {
+            if (!name.startsWith(kind.sound)) continue;
+            if (kind.level > 0 && EMFCompatConfig.getBoolean(kind.key, true)) {
+                synchronized (HEARD) {
+                    HEARD.addLast(new Heard(kind, new Vec3(sound.getX(), sound.getY(), sound.getZ()), System.nanoTime(), ++heardCount));
+                    while (HEARD.size() > 16) HEARD.removeFirst();
+                }
+            }
+            return;
+        }
+    }
+
+    /** How bad a sound is at this distance: as bad as it gets within its near range, a step less to twice that, another to four times. */
+    private static int level(Kind kind, double distance) {
+        int band = distance <= kind.near ? 0 : distance <= kind.near * 2 ? 1 : distance <= kind.near * 4 ? 2 : 3;
+        return Math.max(0, kind.level - band);
+    }
+
+    @Override
+    public void collect(InteractionContext context, List<Candidate> out) {
+        listen();
+        AbstractClientPlayer player = context.player();
+        long now = context.now();
+        State state = STATES.seen(player.getUUID(), now).value;
+        state.grounded = player.onGround() && !player.isPassenger();
+        state.player = player;
+        state.frame = context.frame();
+        state.nerve *= (float) Math.exp(-context.dt() / NERVE_SECONDS);
+        boolean able = !player.isSleeping() && !player.isSwimming() && !player.isFallFlying()
+                && (player.getPose() == Pose.STANDING || player.getPose() == Pose.CROUCHING);
+
+        Heard worst = null;
+        int worstLevel = 0;
+        synchronized (HEARD) {
+            long real = System.nanoTime();
+            for (Heard heard : HEARD) {
+                if (heard.number <= state.number) continue;
+                state.number = heard.number;
+                if (real - heard.nanos > HEARD_NANOS) continue;
+                int level = level(heard.kind, heard.at.distanceTo(player.getEyePosition()));
+                if (level > worstLevel) {
+                    worst = heard;
+                    worstLevel = level;
+                }
+            }
+        }
+        if (worst != null && able) {
+            // Jumpy already, the next one is taken more lightly.
+            int level = worstLevel - (EMFCompatConfig.getBoolean(KEY_USED, true) ? (int) (state.nerve / 2f) : 0);
+            boolean soon = (now - state.lastAt) / 1e9 < AGAIN_SECONDS;
+            if (level > 0 && (!soon || level > state.level)) {
+                state.level = level;
+                state.since = state.lastAt = now;
+                state.source = worst.at;
+                state.nerve += 1f;
+                if (DebugLog.decisions()) LOGGER.info("[Fright] {} {} level={} at {}", player.getName().getString(), worst.kind.sound, level,
+                        Math.round(worst.at.distanceTo(player.getEyePosition()) * 10) / 10.0);
+            }
+        }
+        float in = (float) ((now - state.since) / 1e9);
+        if (state.level > 0 && (!able || in >= FrightMotion.seconds(state.level))) state.level = 0;
+        if (state.level == 0) {
+            state.pose = state.ahead = FrightMotion.Pose.NONE;
+            state.wary = false;
+            context.decide("calm");
+            return;
+        }
+        // Which way the sound is, level, against the body as it is drawn (forward is -z, the right is -x).
+        Vector3f to = Body.model(context.frame(), state.source);
+        state.yaw = to.x * to.x + to.z * to.z < 16f ? 0f : Mth.clamp((float) Math.atan2(-to.x, -to.z), -ROUND_LIMIT, ROUND_LIMIT);
+        float flat = (float) Math.sqrt(to.x * to.x + to.z * to.z);
+        state.sx = flat < 4f ? 0f : to.x / flat;
+        state.sz = flat < 4f ? -1f : to.z / flat;
+        state.wary = FrightMotion.wary(state.level, in) && Body.planted(player);
+        state.pose = FrightMotion.pose(state.level, in);
+        state.ahead = FrightMotion.pose(state.level, in + LEAN_LAG);
+        context.decide(state.level == FrightMotion.STRONG ? "terror" : state.level == FrightMotion.MEDIUM ? "scare" : "start");
+    }
+
+    /** The bow for the torso - asked for as it will be when the lean has caught up - and, in a terror, its share of the turn to the sound. The shudder is too quick for the lean: {@link #apply} lays it on directly. */
+    public static TorsoLean.Hint torsoHint(UUID uuid) {
+        State state = STATES.fresh(uuid);
+        if (state == null || state.level == 0 || !INSTANCE.isEnabled()) return null;
+        FrightMotion.Pose pose = state.ahead;
+        // The torso goes a little with the head's look to the sides.
+        return TorsoLean.Hint.turn(pose.bow(), state.yaw * ROUND_TORSO * pose.round() + pose.glance() * 0.35f, 0f);
+    }
+
+    private static final Vector3f HOME = new Vector3f();
+
+    /** The feet, before the torso: set back from the sound in a wary stand by a step each, and home by a step each - never a slide. */
+    public static void support(UUID uuid, Function<String, ModelPart> parts) {
+        State state = STATES.fresh(uuid);
+        if (state == null || state.player == null || !INSTANCE.isEnabled()) return;
+        if (!state.wary && state.feet.resting()) return;
+        strm.emfcompat.animationadditions.torso.BraceSteps.apply(state.feet, state.player, state.frame, parts,
+                state.wary ? FrightMotion.foot(state.level, true, state.sx, state.sz) : HOME,
+                state.wary ? FrightMotion.foot(state.level, false, state.sx, state.sz) : HOME,
+                1f, 0f, LOGGER, "FrightStance");
+    }
+
+    /**
+     * Over everything else, last: the shoulders up, the arms a little off the body where nothing
+     * else has them, the head, and the jump. Added to the pose as it is - nothing is taken.
+     */
+    public static void apply(UUID uuid, Function<String, ModelPart> parts) {
+        State state = STATES.fresh(uuid);
+        if (state == null || state.level == 0 || !INSTANCE.isEnabled()) return;
+        FrightMotion.Pose pose = state.pose;
+        ModelPart head = parts.apply("head"), hat = parts.apply("hat"), body = parts.apply("body");
+        // The shudder: the torso twisted at the waist, the shoulders going round with it, the head and the legs left still.
+        float cos = Mth.cos(pose.yaw()), sin = Mth.sin(pose.yaw());
+        if (body != null) {
+            body.yRot += pose.yaw();
+            body.zRot += pose.roll();
+        }
+        for (boolean right : new boolean[]{true, false}) {
+            ModelPart arm = parts.apply(right ? "right_arm" : "left_arm");
+            if (arm == null) continue;
+            // The shoulder on the sound's side comes up further: the look round is from under it.
+            boolean towards = right ? state.yaw > 0.2f : state.yaw < -0.2f;
+            arm.y -= pose.shrug() + (towards ? SHOULDER_OVER * pose.round() : 0f);
+            float x = arm.x, z = arm.z;
+            arm.x = x * cos + z * sin;
+            arm.z = -x * sin + z * cos;
+            arm.yRot += pose.yaw();
+            // A hand at work is left on it.
+            if (InteractionRuntime.aim(uuid, right ? Effector.RIGHT_ARM : Effector.LEFT_ARM) != null) continue;
+            arm.xRot += -pose.armsUp() + (right ? pose.tremble() : -pose.tremble());
+            // Out from the body is +zRot for the right arm and -zRot for the left.
+            // Both to the same side: +zRot takes either hand to the right.
+            arm.zRot += (right ? 1f : -1f) * pose.armsOut() + pose.sway();
+        }
+        if (head != null) {
+            head.y += HEAD_SINK * pose.shrug();
+            if (InteractionRuntime.aim(uuid, Effector.HEAD) == null) {
+                float round = Mth.clamp(state.yaw * (1f - ROUND_TORSO), -1.2f, 1.2f);
+                head.yRot += pose.glance() + IKMath.wrap(round - head.yRot) * pose.round();
+                head.xRot += pose.duck();
+            }
+            if (hat != null) {
+                hat.y = head.y;
+                hat.yRot = head.yRot;
+                hat.xRot = head.xRot;
+            }
+        }
+        if (state.grounded && pose.hop() > 0f) {
+            for (String name : new String[]{"head", "hat", "body", "right_arm", "left_arm", "right_leg", "left_leg"}) {
+                ModelPart part = parts.apply(name);
+                if (part != null) part.y -= pose.hop();
+            }
+        }
+        if (DebugLog.trace() && state.trace.due(40_000_000L)) {
+            LOGGER.info("[FrightTrace] level={} shrug={} hop={} round={} bodyYaw={} headYaw={} headPitch={}", state.level, Math.round(pose.shrug() * 10) / 10f,
+                    Math.round(pose.hop() * 10) / 10f, Math.round(pose.round() * 100) / 100f, body == null ? 0 : Math.round(Math.toDegrees(body.yRot)),
+                    head == null ? 0 : Math.round(Math.toDegrees(head.yRot)), head == null ? 0 : Math.round(Math.toDegrees(head.xRot)));
+        }
+    }
+}
