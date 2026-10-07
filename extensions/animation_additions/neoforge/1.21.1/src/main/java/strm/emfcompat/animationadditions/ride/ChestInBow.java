@@ -22,8 +22,8 @@ public final class ChestInBow {
 
     public static final String KEY_ENABLED = "ride.boat.chest";
 
-    /** Boat model pixels: the chest's side, and where its face towards the rower is - in a boat it ends just inside the bow's board, on a raft at the deck's end. */
-    private static final float CHEST = 12f, NEAR = 3.5f, RAFT_NEAR = 2.5f;
+    /** Boat model pixels: the chest's side, and where its face towards the rower is - in a boat it ends at the bow's board, on a raft at the deck's end. */
+    private static final float CHEST = 12f, NEAR = 4.5f, RAFT_NEAR = 2.5f;
 
     private ChestInBow() {
     }
@@ -43,7 +43,7 @@ public final class ChestInBow {
         // The model's own order: ..., the two paddles, the chest's bottom, lid and lock.
         if (n < 5) return;
         boolean moved = BoatSeats.chestInBow(boat);
-        float aft = moved ? (float) (BoatSeats.AFT * 16) : 0f;
+        float aft = moved ? (float) (BoatSeats.aft(boat) * 16) : 0f;
         for (int i = n - 5; i < n - 3; i++) {
             ModelPart paddle = parts.get(i);
             paddle.x = paddle.getInitialPose().x - aft;

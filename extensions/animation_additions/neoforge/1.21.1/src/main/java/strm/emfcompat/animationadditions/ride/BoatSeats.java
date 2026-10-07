@@ -30,7 +30,7 @@ public final class BoatSeats {
     public static BooleanSupplier client = () -> true;
 
     /** Blocks behind the boat's middle: where the one who rows a boat with a chest sits, the chest being in the bow. The paddles are as far aft. */
-    public static final double AFT = 6.0 / 16;
+    private static final double AFT = 4.0 / 16, RAFT_AFT = 6.0 / 16;
     /** On a client: whether a boat's chest is drawn in the bow, and its rower so seated. */
     public static BooleanSupplier chestClient = () -> true;
 
@@ -55,7 +55,12 @@ public final class BoatSeats {
         return !boat.level().isClientSide || client.getAsBoolean();
     }
 
-    /** Whether {@code boat} has a chest and that chest is in the bow: its rider then sits aft ({@link #AFT}). */
+    /** Blocks aft of the middle that the rider of {@code boat}, a boat with its chest in the bow, sits: in a boat as far as leaves the back clear of the stern's board, on a raft - it has none - further. */
+    public static double aft(Boat boat) {
+        return boat.getVariant().isRaft() ? RAFT_AFT : AFT;
+    }
+
+    /** Whether {@code boat} has a chest and that chest is in the bow: its rider then sits aft ({@link #aft}). */
     public static boolean chestInBow(Boat boat) {
         return boat instanceof ChestBoat && (!boat.level().isClientSide || chestClient.getAsBoolean());
     }

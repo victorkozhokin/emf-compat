@@ -20,7 +20,7 @@ public abstract class BoatSeatMixin {
     private void emfcompat$bowSeat(Entity entity, EntityDimensions dimensions, float scale, CallbackInfoReturnable<Vec3> cir) {
         Boat boat = (Boat) (Object) this;
         if (BoatSeats.chestInBow(boat)) {
-            cir.setReturnValue(new Vec3(0.0, cir.getReturnValue().y, -BoatSeats.AFT).yRot(-boat.getYRot() * Mth.DEG_TO_RAD));
+            cir.setReturnValue(new Vec3(0.0, cir.getReturnValue().y, -BoatSeats.aft(boat)).yRot(-boat.getYRot() * Mth.DEG_TO_RAD));
             return;
         }
         if (BoatSeats.rowsWithBow(boat, entity)) {

@@ -366,7 +366,7 @@ public final class BoatRide implements InteractionProvider {
         float pivotY = boat.getVariant() == Boat.Type.BAMBOO ? RAFT_PIVOT_Y : PIVOT_Y;
         // The part: its own turn (ZYX, as ModelPart applies it), then its pivot; side 1 starts turned half round.
         return world(boat, new Quaternionf().rotationZYX(PADDLE_ROLL, yaw, pitch).transform(new Vector3f(HANDLE))
-                .add(BoatSeats.chestInBow(boat) ? PIVOT_X - (float) (BoatSeats.AFT * 16) : PIVOT_X, pivotY, side == 0 ? PIVOT_Z : -PIVOT_Z), partial);
+                .add(BoatSeats.chestInBow(boat) ? PIVOT_X - (float) (BoatSeats.aft(boat) * 16) : PIVOT_X, pivotY, side == 0 ? PIVOT_Z : -PIVOT_Z), partial);
     }
 
     /** A point of the boat's model, pixels, in the world as the boat's renderer draws it: up 0.375, turned to the boat's yaw, flipped, a quarter turn. */
