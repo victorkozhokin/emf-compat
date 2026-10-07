@@ -56,7 +56,7 @@ public final class Fishing implements InteractionProvider {
 
     private static final Candidate.Timing TIMING = new Candidate.Timing(0.06, 0.07, 0.02);
     /** Seconds: the pose follows its shape through springs of this half-life; a bite this long ago still makes the haul a heave. */
-    private static final double SPRING = 0.035, FRESH_BITE = 1.5;
+    private static final double SPRING = 0.016, FRESH_BITE = 1.5;
     /** Radians: as far as the rod is turned after the float, and the share of the float's bearing it takes. */
     private static final float BEARING_LIMIT = 0.45f, BEARING_SHARE = 0.6f;
     /** Model pixels from where the pack has the soles (back is +z, the right is -x): the foot on the rod's side back, the other forward. */
@@ -64,6 +64,8 @@ public final class Fishing implements InteractionProvider {
             BACK_LEFT = new Vector3f(0.6f, 0f, 2.4f), FRONT_RIGHT = new Vector3f(-0.3f, 0f, -1.6f), HOME = new Vector3f();
     /** Model pixels down the rod arm from its shoulder: where the second hand takes the rod, just under the first. */
     private static final float SECOND_HAND = 8.5f;
+    /** Seconds the torso is asked ahead by. */
+    private static final float LEAD = 0.09f;
     /** The rod's tip against the arm that holds it, model pixels in the arm's own space (y runs down the arm, -z before it). */
     private static final Vector3f TIP = new Vector3f(0f, 8.5f, -12f);
 
@@ -72,10 +74,10 @@ public final class Fishing implements InteractionProvider {
     private static final class State {
         Phase phase = Phase.NONE;
         long since, bitten;
-        boolean hadHook, hooked, right, standing;
+        boolean hadHook, hooked, right, standing, swung, awaited;
         FishingMotion.Pose from = FishingMotion.WAIT;
-        final Spring armPitch = new Spring(), armIn = new Spring(), torsoPitch = new Spring(), torsoTurn = new Spring(),
-                hips = new Spring(), helper = new Spring(), bearing = new Spring();
+        final Spring armPitch = new Spring(), armIn = new Spring(), torsoPitch = new Spring(), torsoTurn = new Spring(), torsoRoll = new Spring(),
+                hips = new Spring(), helper = new Spring(), bearing = new Spring(), freePitch = new Spring(), freeOut = new Spring();
         float shown;
         AbstractClientPlayer player;
         IKFrame frame;
@@ -126,17 +128,27 @@ public final class Fishing implements InteractionProvider {
         boolean biting = hook != null && ((FishingHookAccessor) hook).emfcompat$biting();
         if (biting) state.bitten = now;
         float in = (float) ((now - state.since) / 1e9);
+        // One's own cast begins with the click, not with the float the server sends back a tick or two later.
+        var mc = net.minecraft.client.Minecraft.getInstance();
+        boolean clicked = player == mc.player && player.swinging && !state.swung && mc.options.keyUse.isDown();
+        state.swung = player.swinging;
         if (!able) {
             state.phase = Phase.NONE;
-        } else if (hook != null && !state.hadHook) {
+        } else if (clicked && hook == null && state.phase == Phase.NONE) {
             enter(state, Phase.CAST, now);
+            state.awaited = true;
+        } else if (hook != null && !state.hadHook) {
+            if (state.phase != Phase.CAST) enter(state, Phase.CAST, now);
+            state.awaited = false;
         } else if (hook == null && state.hadHook) {
             // The line brought in: a heave if something was on it a moment ago.
             state.hooked = (now - state.bitten) / 1e9 < FRESH_BITE;
             state.from = shown(state);
             enter(state, Phase.HAUL, now);
         } else if (state.phase == Phase.CAST && in >= FishingMotion.CAST) {
-            enter(state, Phase.WAIT, now);
+            // A click that cast nothing - the rod swung at the air - is over with the swing.
+            if (hook == null) state.phase = Phase.NONE;
+            else enter(state, Phase.WAIT, now);
         } else if (state.phase == Phase.WAIT && biting) {
             enter(state, Phase.BITE, now);
         } else if (state.phase == Phase.BITE && !biting) {
@@ -168,12 +180,18 @@ public final class Fishing implements InteractionProvider {
             Vector3f at = Body.model(context.frame(), hook.position());
             bearing = Mth.clamp((float) Math.atan2(-at.x, -at.z) * BEARING_SHARE, -BEARING_LIMIT, BEARING_LIMIT);
         }
+        // The torso is carried after the rod hand, over what the phase asks of it.
+        float[] follow = FishingMotion.follow(pose.armPitch(), pose.armIn(), pose.helper());
+        // The springs only join one phase to the next; the shape is the motion's own.
         state.armPitch.update(pose.armPitch(), SPRING, dt);
         state.armIn.update(pose.armIn(), SPRING, dt);
-        state.torsoPitch.update(pose.torsoPitch(), SPRING, dt);
-        state.torsoTurn.update(pose.torsoTurn(), SPRING, dt);
+        state.torsoPitch.update(pose.torsoPitch() + follow[0], SPRING, dt);
+        state.torsoTurn.update(pose.torsoTurn() + follow[1], SPRING, dt);
+        state.torsoRoll.update(pose.torsoRoll() + follow[2], SPRING, dt);
         state.hips.update(pose.hips(), SPRING * 2, dt);
         state.helper.update(pose.helper(), SPRING, dt);
+        state.freePitch.update(pose.freePitch(), SPRING * 2, dt);
+        state.freeOut.update(pose.freeOut(), SPRING * 2, dt);
         state.bearing.update(bearing, 0.1, dt);
         state.shown += (1f - state.shown) * (float) Math.min(1.0, dt / 0.1);
 
@@ -187,6 +205,10 @@ public final class Fishing implements InteractionProvider {
             // Roughly at the rod; the last fit puts the fist on it.
             float[] second = {state.armPitch.value + 0.2f, -side * 0.8f + state.bearing.value};
             out.add(Candidate.single(id(), Category.ACTIVE, 10, 1f, TIMING, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, second).withQuietSwing(true));
+        } else {
+            // The free arm, a little off the body and swung against the rod's: out from the body is the other way from in.
+            float[] free = {state.freePitch.value, side * state.freeOut.value};
+            out.add(Candidate.single(id(), Category.ACTIVE, 9, 1f, TIMING, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, free));
         }
         context.decide(state.phase == Phase.HAUL ? state.hooked ? "haul" : "lift" : state.phase.name().toLowerCase());
     }
@@ -197,8 +219,10 @@ public final class Fishing implements InteractionProvider {
     }
 
     private static FishingMotion.Pose shown(State state) {
-        return new FishingMotion.Pose(state.armPitch.value, state.armIn.value, state.torsoPitch.value, state.torsoTurn.value,
-                state.hips.value, state.helper.value);
+        // As asked of the phase, without what the torso was carried by: that is worked out again from the arm.
+        float[] follow = FishingMotion.follow(state.armPitch.value, state.armIn.value, state.helper.value);
+        return new FishingMotion.Pose(state.armPitch.value, state.armIn.value, state.torsoPitch.value - follow[0], state.torsoTurn.value - follow[1],
+                state.torsoRoll.value - follow[2], state.hips.value, state.helper.value, state.freePitch.value, state.freeOut.value);
     }
 
     /** What fishing asks of the torso; {@code null} with no line out. */
@@ -206,7 +230,11 @@ public final class Fishing implements InteractionProvider {
         State state = STATES.fresh(uuid);
         if (state == null || state.shown < 1e-3f || !INSTANCE.isEnabled()) return null;
         // Taking the right shoulder back is +yRot.
-        return TorsoLean.Hint.turn(state.torsoPitch.value * state.shown, (state.right ? 1f : -1f) * state.torsoTurn.value * state.shown, 0f);
+        float side = state.right ? 1f : -1f;
+        // Read a little ahead: the torso follows what it is asked a moment late, and a throw is over in a moment.
+        return TorsoLean.Hint.turn((state.torsoPitch.value + state.torsoPitch.velocity * LEAD) * state.shown,
+                side * (state.torsoTurn.value + state.torsoTurn.velocity * LEAD + state.bearing.value * 0.5f * side) * state.shown,
+                side * (state.torsoRoll.value + state.torsoRoll.velocity * LEAD) * state.shown);
     }
 
     /** The feet, before the torso: the foot on the rod's side set back, the other forward - a step each - and the hips over one or the other as the weight goes. */
