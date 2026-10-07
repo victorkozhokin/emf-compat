@@ -27,8 +27,8 @@ public final class FishingMotion {
     public record Aim(Vector3f point, double quick, float weight, boolean twoHands, float freeSwing) {
     }
 
-    /** Out over the water, a little further than the arm: the body is just drawn after it. */
-    private static final Vector3f WAIT = new Vector3f(-5.5f, 8.5f, -9.6f);
+    /** Out over the water, further than the arm: the body leans a little forward after it. */
+    private static final Vector3f WAIT = new Vector3f(-5.5f, 8.5f, -11.4f);
     /** Straight up over the shoulder - not behind it, where a straight arm would have to turn right round - with the weight thrown back under it. */
     private static final Vector3f WOUND = new Vector3f(-6.5f, -9.5f, -0.5f);
     /** Flung out low before the body, well past arm's length. */
@@ -36,9 +36,9 @@ public final class FishingMotion {
     /** Before the middle, both hands on it, the rod pulled down and away. */
     private static final Vector3f BITE = new Vector3f(-1.5f, 9f, -11.5f);
     /** Down and forward for an instant before the heave. */
-    private static final Vector3f GATHERED = new Vector3f(-1.5f, 11.5f, -13f);
-    /** Heaved up over the head, the weight thrown back. */
-    private static final Vector3f HAULED = new Vector3f(-3f, -9f, -1f);
+    private static final Vector3f GATHERED = new Vector3f(-1.5f, 10.5f, -12f);
+    /** Heaved up to the chest's height before the body, off to the rod's side - clear of the head and the face - the weight thrown back. */
+    private static final Vector3f HAULED = new Vector3f(-5.5f, 1.5f, -8.5f);
     /** Raised in one hand, nothing on it. */
     private static final Vector3f LIFTED = new Vector3f(-5.5f, -3.5f, -5f);
 
@@ -55,7 +55,7 @@ public final class FishingMotion {
     /** Waiting, {@code seconds} into it: breath, the tip riding, the weight drifting from foot to foot. */
     public static Aim waiting(float seconds) {
         float breath = (float) Math.sin(seconds * 1.7), drift = (float) Math.sin(seconds * 0.45 + 1), tip = (float) Math.sin(seconds * 2.9 + 0.5);
-        return new Aim(new Vector3f(WAIT).add(0.35f * drift, 0.45f * breath + 0.25f * tip, 0.3f * breath), 0.12, -0.9f + 0.9f * drift, false, 0.05f * breath);
+        return new Aim(new Vector3f(WAIT).add(0.35f * drift, 0.45f * breath + 0.25f * tip, 0.3f * breath), 0.12, 0.7f + 0.8f * drift, false, 0.05f * breath);
     }
 
     /** {@code seconds} into a bite: the rod snatched down and away, then worked against the pull. */
@@ -68,10 +68,10 @@ public final class FishingMotion {
     /** {@code seconds} into bringing the line in: a heave after a bite ({@code hooked}), a lift without. */
     public static Aim haul(float seconds, boolean hooked) {
         if (!hooked) return new Aim(new Vector3f(LIFTED), 0.07, -0.8f, false, -0.3f);
-        if (seconds < GATHER) return new Aim(new Vector3f(GATHERED), 0.03, 2.6f, true, 0f);
+        if (seconds < GATHER) return new Aim(new Vector3f(GATHERED), 0.035, 2.0f, true, 0f);
         // Staggering back a little under what comes up, then steadied.
         float stagger = (float) Math.exp(-(seconds - GATHER) * 5);
-        return new Aim(new Vector3f(HAULED), 0.045, -3.4f * stagger - 0.8f, seconds < HAUL * 0.7f, 0f);
+        return new Aim(new Vector3f(HAULED), 0.06, -2.2f * stagger - 0.6f, seconds < HAUL * 0.7f, 0f);
     }
 
     /** {@code point}, given for a rod in the right hand, for the hand it is in. */
