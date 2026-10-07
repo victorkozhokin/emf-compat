@@ -106,3 +106,22 @@ publishing {
         }
     }
 }
+
+// A test run of the game from the build, driven by tools/mctest's driver (tools/tnm_port/devrun.py):
+// there is no Modrinth profile for this loader and version to launch. Only with -PmctestRun=<run dir>.
+if (project.hasProperty('mctestRun')) {
+    dependencies {
+        modLocalRuntime "maven.modrinth:entity-model-features:${emf_version}-fabric-${emf_mc_version}"
+        modLocalRuntime "maven.modrinth:entitytexturefeatures:${etf_version}-fabric-${emf_mc_version}"
+        modLocalRuntime files(rootProject.file("tools/mctest/driver/fabric-1.21.1/build/libs/mctest_driver-fabric-1.21.1-1.0.0.jar"))
+    }
+    loom {
+        runs {
+            client {
+                runDir = project.projectDir.toPath().relativize(file(project.property('mctestRun')).toPath()).toString()
+                vmArg "-Dmctest=1"
+                programArgs "--quickPlaySingleplayer", (project.findProperty('mctestWorld') ?: 'test'), "--width", "1280", "--height", "720", "--username", "Dev"
+            }
+        }
+    }
+}

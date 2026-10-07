@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "strm.mctest.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "CameraMixin",
+    "ScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "BotListenerMixin"
+  ]
+}

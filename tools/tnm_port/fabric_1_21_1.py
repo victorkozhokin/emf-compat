@@ -28,7 +28,41 @@ def patch(rel, pairs):
     wr(p, s)
 
 
-shutil.rmtree(DST, ignore_errors=True)
+shutil.rmtree(os.path.join(DST, "java"), ignore_errors=True)
+wr(os.path.join(DST, "resources/fabric.mod.json"), '''{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": ["${mod_authors}"],
+  "contact": {},
+  "license": "${mod_license}",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "strm.touchnmotion.TouchNMotionMod"
+    ],
+    "client": [
+      "strm.touchnmotion.TouchNMotionClient"
+    ],
+    "modmenu": [
+      "strm.touchnmotion.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "touch_n_motion.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": ">=${minecraft_version}",
+    "entity_model_features": ">=${emf_version}",
+    "emf_compat_core": ">=2.2.0"
+  }
+}
+''')
 shutil.rmtree("extensions/touch_n_motion/fabric/1.21.1/src/client", ignore_errors=True)
 shutil.copytree(os.path.join(SRC, "java"), os.path.join(DST, "java"))
 wr(os.path.join(DST, "resources/touch_n_motion.mixins.json"),
