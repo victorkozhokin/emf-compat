@@ -105,6 +105,10 @@ public final class PlantReach implements InteractionProvider {
         // Nothing growing within reach - by far the usual case - costs nothing more.
         Reach right = plants.isEmpty() ? null : reach(player, plants, context.frame(), RIGHT_SHOULDER, -1f, selection.right);
         Reach left = plants.isEmpty() ? null : reach(player, plants, context.frame(), LEFT_SHOULDER, 1f, selection.left);
+        // Walking by the very edge of a field a plant is in reach for a frame or two and out again: the hand is not
+        // sent out for those, and not called back for as short a gap.
+        right = selection.steady[0].of(right, context.dt());
+        left = selection.steady[1].of(left, context.dt());
         selection.right = right == null ? null : right.point;
         selection.left = left == null ? null : left.point;
         if (right != null) {
@@ -117,11 +121,19 @@ public final class PlantReach implements InteractionProvider {
             else strm.emfcompat.animationadditions.interaction.HandContacts.forget(context, id(), Effector.LEFT_ARM);
             out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 0.5f, TIMING, Effector.LEFT_ARM, left.aim));
         }
-        if (strm.emfcompat.animationadditions.DebugLog.trace() && selection.pace.due(500_000_000L)) {
+        if (strm.emfcompat.animationadditions.DebugLog.trace() && !plants.isEmpty() && selection.pace.due(500_000_000L)) {
             BlockPos in = BlockPos.containing(player.getX(), player.getY() + .3, player.getZ());
             Vec3 from = context.frame().jointWorld(new Vector3f(RIGHT_SHOULDER)), hanging = context.frame().jointWorld(new Vector3f(RIGHT_SHOULDER).add(0, ARM, 0));
             org.slf4j.LoggerFactory.getLogger("EMFCompatPlants").info("[PlantTrace] plants={} in={} inField={} box={} shoulder={} hanging={} arm={} right={} left={}",
                     plants.size(), in.toShortString(), plants.containsKey(in), plants.get(in), from, hanging, from.distanceTo(hanging), right != null, left != null);
+        }
+        if (strm.emfcompat.animationadditions.DebugLog.trace() && !plants.isEmpty()) {
+            org.slf4j.LoggerFactory.getLogger("EMFCompatPlants").info("[PlantPoint] at=({} {}) R={} L={} aimR={} aimL={}",
+                    String.format("%.3f", player.getX()), String.format("%.3f", player.getZ()),
+                    right == null ? "-" : String.format("%.3f %.3f %.3f", right.point.x, right.point.y, right.point.z),
+                    left == null ? "-" : String.format("%.3f %.3f %.3f", left.point.x, left.point.y, left.point.z),
+                    right == null ? "-" : String.format("%.3f %.3f", right.aim[0], right.aim[1]),
+                    left == null ? "-" : String.format("%.3f %.3f", left.aim[0], left.aim[1]));
         }
         context.decide((right != null ? "R" : "-") + (left != null ? "L" : "-"));
     }
@@ -138,6 +150,7 @@ public final class PlantReach implements InteractionProvider {
      */
     private static final class Selection {
         Vec3 right, left;
+        final Steady[] steady = {new Steady(), new Steady()};
         final strm.emfcompat.animationadditions.DebugLog.Pace pace = new strm.emfcompat.animationadditions.DebugLog.Pace();
         /** The plants round the player and where their tops are, looked up when the player changes block or this grows stale. */
         private final Map<BlockPos, AABB> plants = new HashMap<>();
@@ -168,6 +181,35 @@ public final class PlantReach implements InteractionProvider {
         return state.getBlock() instanceof net.minecraft.world.level.block.CropBlock || state.is(net.minecraft.tags.BlockTags.CROPS);
     }
 
+    /** Seconds: a plant has to be in reach this long before the hand goes out to it, and out of reach this long before the hand is let fall. */
+    private static final double DWELL_SECONDS = 0.12, LINGER_SECONDS = 0.25;
+
+    /** One hand's reach, steadied: taken up only once it has lasted, and kept through a short gap as it last was against the body. */
+    private static final class Steady {
+        private Reach last;
+        private double lasted, gone;
+        private boolean out;
+
+        Reach of(Reach now, double dt) {
+            if (now != null) {
+                lasted += dt;
+                gone = 0;
+                last = now;
+            } else {
+                gone += dt;
+                if (!out) lasted = 0;
+            }
+            if (!out && lasted >= DWELL_SECONDS) out = true;
+            if (out && gone > LINGER_SECONDS) {
+                out = false;
+                lasted = 0;
+                last = null;
+            }
+            // Through a gap the arm's own aim is kept - against the body, so the hand goes on with the walker - and no plant is leant on.
+            return !out ? null : now != null ? now : new Reach(last.aim, last.point, null);
+        }
+    }
+
     /** A plant broken or grown shows in the hands within this. */
     private static final long STALE_NANOS = 250_000_000L;
     private record Reach(float[] aim, Vec3 point, AABB box) {}
@@ -195,7 +237,11 @@ public final class PlantReach implements InteractionProvider {
         // There the hand goes to the nearest top beside the body, as it always did, and the
         // runtime's own smoothing carries it; the edge is for walking along the outside of a row.
         // (A little above the soles: farmland is lower than a block, and the crop is in the block over it.)
-        if (plants.containsKey(BlockPos.containing(player.getX(), player.getY() + .3, player.getZ()))) {
+        // (A field of crops is not such a place: its top is one surface, and the hand lies on it out to the side the
+        // same within the field as beside it - there is no break as the walker steps in or out.)
+        BlockPos standing = BlockPos.containing(player.getX(), player.getY() + .3, player.getZ());
+        AABB under = plants.get(standing);
+        if (under != null && !fills(standing, under)) {
             Vec3 point = nearestInField(player, plants, from, hanging, centre, side, ahead, lowest, highest);
             if (point == null || point.distanceTo(from) > arm) return null;
             IKResult result = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
@@ -222,6 +268,10 @@ public final class PlantReach implements InteractionProvider {
         for (BlockPos pos : BlockPos.betweenClosed(feet.offset(-1, -1, -1), feet.offset(1, 1, 1))) {
             AABB box = plants.get(pos);
             if (box == null) continue;
+            // A field is one top, not a block of it after another: taken plant by plant, the hand's place stuck at
+            // each seam between two of them and now and then was thrown ahead to the next.
+            boolean whole = fills(pos, box);
+            box = field(plants, pos, box);
             // The point of the plant's top nearest the hand, no higher than the arm can bring it.
             double y = Math.min(highest, box.maxY - INTO_TOP);
             if (y < lowest || y < box.minY) continue;
@@ -231,8 +281,25 @@ public final class PlantReach implements InteractionProvider {
             // Fixing canopy height first instead made the hand orbit each plant and trail behind.
             var edge = CanopyContact.edge(from.x, from.y, from.z, from.distanceTo(hanging),
                     box.minX, box.maxX, box.minY, Math.min(highest, box.maxY - INTO_TOP), box.minZ, box.maxZ);
-            List<CanopyContact.Point> contacts;
-            if (edge != null) {
+            List<CanopyContact.Point> contacts = List.of();
+            // A field's top is one surface: the hand lies on it an arm's length out to the side, and slides in over it
+            // as the walker comes nearer. Its rim was the rule here once, and left a strip beside the field - the
+            // shoulder all but over the rim - where the rim's place was under the body and the hand had nowhere to go.
+            if (whole) {
+                double reach = from.distanceTo(hanging), flat = reach * reach - (from.y - y) * (from.y - y);
+                if (flat >= 0) {
+                    double px = from.x + side.x * Math.sqrt(flat), pz = from.z + side.z * Math.sqrt(flat);
+                    if (px > box.minX && px < box.maxX && pz > box.minZ && pz < box.maxZ) contacts = List.of(new CanopyContact.Point(px, pz));
+                }
+            }
+            if (whole && contacts.isEmpty()) {
+                // Past the field's end or too far from it there is no such place, and its rim is no stand-in for one:
+                // the hand is let fall, not swung round to the corner.
+                continue;
+            }
+            if (!contacts.isEmpty()) {
+                // Straight out to the side, on the top.
+            } else if (edge != null) {
                 y = edge.y();
                 contacts = List.of(new CanopyContact.Point(edge.x(), edge.z()));
             } else contacts = CanopyContact.points(from.x, from.z, from.y - y, from.distanceTo(hanging),
@@ -248,6 +315,41 @@ public final class PlantReach implements InteractionProvider {
             }
         }
         return best;
+    }
+
+    /** Blocks each way a field's top is followed from a plant; the hand looks no further. */
+    private static final int FIELD_REACH = 3;
+
+    /**
+     * The top of the field the plant at {@code pos} is part of: its own box grown over the plants
+     * next to it that fill their blocks side to side and stand as high - first along one way, then
+     * the other for as long as the whole strip is plants. A plant that does not fill its block
+     * (a tuft of grass, a flower) is left as it is.
+     */
+    private static AABB field(Map<BlockPos, AABB> plants, BlockPos pos, AABB box) {
+        if (!fills(pos, box)) return box;
+        int minZ = pos.getZ(), maxZ = pos.getZ(), minX = pos.getX(), maxX = pos.getX();
+        while (pos.getZ() - minZ < FIELD_REACH && same(plants, new BlockPos(pos.getX(), pos.getY(), minZ - 1), box)) minZ--;
+        while (maxZ - pos.getZ() < FIELD_REACH && same(plants, new BlockPos(pos.getX(), pos.getY(), maxZ + 1), box)) maxZ++;
+        while (pos.getX() - minX < FIELD_REACH && strip(plants, minX - 1, pos.getY(), minZ, maxZ, box)) minX--;
+        while (maxX - pos.getX() < FIELD_REACH && strip(plants, maxX + 1, pos.getY(), minZ, maxZ, box)) maxX++;
+        return new AABB(minX, box.minY, minZ, maxX + 1, box.maxY, maxZ + 1);
+    }
+
+    private static boolean strip(Map<BlockPos, AABB> plants, int x, int y, int minZ, int maxZ, AABB like) {
+        for (int z = minZ; z <= maxZ; z++) {
+            if (!same(plants, new BlockPos(x, y, z), like)) return false;
+        }
+        return true;
+    }
+
+    private static boolean same(Map<BlockPos, AABB> plants, BlockPos pos, AABB like) {
+        AABB box = plants.get(pos);
+        return box != null && fills(pos, box) && Math.abs(box.maxY - like.maxY) < 0.07;
+    }
+
+    private static boolean fills(BlockPos pos, AABB box) {
+        return box.minX <= pos.getX() + 1e-3 && box.maxX >= pos.getX() + 1 - 1e-3 && box.minZ <= pos.getZ() + 1e-3 && box.maxZ >= pos.getZ() + 1 - 1e-3;
     }
 
     /** In a field: the point on a plant's top nearest to where the hand hangs, beside the body. */
