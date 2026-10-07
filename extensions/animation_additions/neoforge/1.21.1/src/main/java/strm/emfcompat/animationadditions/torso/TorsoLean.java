@@ -133,7 +133,8 @@ public final class TorsoLean {
                 target[3] += hint.shift;
                 target[4] += hint.headStaysOut;
             }
-            if (EMFCompatConfig.getBoolean(KEY_MOTION, true)) {
+            // Carried by a boat or a cart the body's motion is the vehicle's, and the ride answers for it itself.
+            if (EMFCompatConfig.getBoolean(KEY_MOTION, true) && !player.isPassenger()) {
                 MotionRuntime.Motion m = MotionRuntime.get(uuid);
                 // Speeding up forwards is +xRot (forwards); a turn to the right leans right, +zRot.
                 target[0] += clamp(m.accelForward() * ACCEL_PITCH);

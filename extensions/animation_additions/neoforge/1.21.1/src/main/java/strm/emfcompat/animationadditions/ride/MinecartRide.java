@@ -53,15 +53,13 @@ public final class MinecartRide implements InteractionProvider {
     private static final Candidate.Timing TIMING = new Candidate.Timing(0.2, 0, 0.05);
     private static final float ARM = Skeleton.ARM_TO_FINGERTIPS;
     private static final float MAX_REACH = 1.6f;
+    /** Model pixels from the shoulder to the middle of the fist: what the last fit brings onto the rim. */
+    private static final float FIST = 9.5f;
 
     /** Blocks: the middle line of the rim from the cart's middle, along it and across. */
     private static final double RIM_ALONG = 9.0 / 16, RIM_ACROSS = 7.0 / 16;
     /** The renderer lifts the cart this much, then its rim's top is this far up the cart's own upright. */
     private static final double LIFT = 0.375, RIM_OVER = 5.0 / 16 + 0.03;
-    /** Which side a hand is of: right is -x. */
-    private static final float WANT_OUT = 3f;
-    /** Places tried round the rim; a multiple of four. */
-    private static final int RIM_POINTS = 64;
 
     /** The legs laid out along the floor, a little apart at the feet; radians. */
     private static final float LEG_PITCH = -1.55f, LEG_SPLAY = 0.14f, LEG_ROLL = 0.04f;
@@ -76,18 +74,20 @@ public final class MinecartRide implements InteractionProvider {
     private static final double EVEN = 0.3;
     /** Radians of lean for a block the body is left behind, and as far as it leans; the bow over the knees for a block it is driven down, and its limit. */
     private static final float GIVE = 2.2f, GIVE_LIMIT = 0.34f, BOW = 3.2f, BOW_LIMIT = 0.4f;
+    /** Radians: as far as it leans back and to a side - no further than keeps it inside the cart's walls. */
+    private static final float BACK_LIMIT = 0.13f, SIDE_LIMIT = 0.2f;
     /** Model pixels: as far as the body comes up off the seat, and how many for each it is thrown up. */
     private static final float RISE_LIMIT = 3f, RISE = 2f;
     /** Rolling at full speed, blocks a second: the rattle of the joints - pixels up and down, radians side to side. */
     private static final float FULL_SPEED = 8f, RATTLE = 0.45f, RATTLE_ROLL = 0.02f;
-    /** Seconds: the torso follows what it is asked a moment late, so it is asked that much ahead; a hand's place easing along the rim, and the body coming round when the cart turns back the way it came. */
+    /** Seconds: the torso follows what it is asked a moment late, so it is asked that much ahead; and the body coming round when the cart turns back the way it came. */
     private static final float LEAD = 0.1f;
-    private static final double SLIDE_SECONDS = 0.15, FACE_SECONDS = 0.14;
+    private static final double FACE_SECONDS = 0.14;
 
     private static final class State {
         float weight, pitch, roll, rise, pitchRate, rollRate;
         int tick = -1;
-        Vec3 at = Vec3.ZERO, speed = Vec3.ZERO, shove = Vec3.ZERO;
+        Vec3 at = Vec3.ZERO, speed = Vec3.ZERO, shove = Vec3.ZERO, went = Vec3.ZERO;
         /** The body against its seat, blocks and blocks a second: forward, to the right, up. */
         final double[] off = new double[3], rate = new double[3];
         double rolled;
@@ -95,7 +95,8 @@ public final class MinecartRide implements InteractionProvider {
         /** The way the rider faces and the cart's floor's upright, in the world; and the head against the body, radians. */
         Vec3 face, floor;
         float headYaw, headPitch;
-        /** Each hand's place on the rim: along the cart, across it and up it, blocks; and in the model. */
+        double shoulderUp;
+        /** Each hand's place on the rim: before the rider, to their right and up the cart, blocks; and in the model. */
         final Vec3[] held = new Vec3[2];
         final Vector3f[] place = {new Vector3f(), new Vector3f()};
         final float[] gap = new float[2];
@@ -140,6 +141,7 @@ public final class MinecartRide implements InteractionProvider {
             state.tick = -1;
             state.moving = false;
             state.face = state.floor = null;
+            state.shoulderUp = 0;
             state.held[0] = state.held[1] = null;
             for (int i = 0; i < 3; i++) state.off[i] = state.rate[i] = 0;
             context.decide("off");
@@ -160,6 +162,7 @@ public final class MinecartRide implements InteractionProvider {
             // The game moves a cart on a client in catches, towards where the server last said it was: its speed tick by
             // tick is ragged, and is evened out over a few ticks before its change is taken.
             Vec3 raw = next ? at.subtract(state.at).scale(20.0 / ticks) : Vec3.ZERO;
+            state.went = raw;
             Vec3 speed = next && state.moving ? state.speed.lerp(raw, 1.0 - Math.pow(1.0 - EVEN, ticks)) : raw;
             state.shove = next && state.moving ? speed.subtract(state.speed).scale(20.0 / ticks) : Vec3.ZERO;
             state.moving = next;
@@ -189,35 +192,22 @@ public final class MinecartRide implements InteractionProvider {
         float rattle = (float) Math.min(1.0, rolling / FULL_SPEED);
         // Left behind is back (-xRot) and, pushed to the right, a lean to the left (-zRot); driven down into the seat it bows forward.
         float down = (float) Math.max(0.0, -state.off[2]);
-        state.pitch = soft((float) state.off[0] * GIVE, GIVE_LIMIT) + soft(down * BOW, BOW_LIMIT);
+        // Back less far than forward: behind the rider is the cart's wall.
+        float give = (float) state.off[0] * GIVE;
+        state.pitch = soft(give, give < 0 ? BACK_LIMIT : GIVE_LIMIT) + soft(down * BOW, BOW_LIMIT);
         state.pitchRate = (float) state.rate[0] * GIVE - (state.off[2] < 0 ? (float) state.rate[2] * BOW : 0f);
-        state.roll = soft((float) state.off[1] * GIVE, GIVE_LIMIT) + rattle * RATTLE_ROLL * (float) Math.sin(state.rolled * Math.PI / 2 + 1);
+        state.roll = soft((float) state.off[1] * GIVE, SIDE_LIMIT) + rattle * RATTLE_ROLL * (float) Math.sin(state.rolled * Math.PI / 2 + 1);
         state.rollRate = (float) state.rate[1] * GIVE;
         state.rise = soft((float) Math.max(0.0, state.off[2]) * 16f / Skeleton.SCALE * RISE, RISE_LIMIT)
                 + rattle * RATTLE * (float) Math.sin(state.rolled * Math.PI);
 
-        // As MinecartRenderer places the cart: on the rails under it, lying along them, tilted with a slope.
-        Vec3 middle = cart.getPosition(partial);
-        double yaw = Math.toRadians(Mth.rotLerp(partial, cart.yRotO, cart.getYRot()));
-        Vec3 along = new Vec3(Math.cos(yaw), 0, Math.sin(yaw));
-        Vec3 on = cart.getPos(middle.x, middle.y, middle.z);
-        if (on != null) {
-            Vec3 ahead = cart.getPosOffs(middle.x, middle.y, middle.z, 0.3), behind = cart.getPosOffs(middle.x, middle.y, middle.z, -0.3);
-            if (ahead == null) ahead = on;
-            if (behind == null) behind = on;
-            Vec3 lie = behind.subtract(ahead);
-            if (lie.lengthSqr() > 1e-8) along = lie.normalize();
-            middle = new Vec3(on.x, (ahead.y + behind.y) / 2, on.z);
-        }
-        Vec3 across = new Vec3(-along.z, 0, along.x).normalize();
-        Vec3 up = along.cross(across);
-        if (up.y < 0) up = up.scale(-1);
+        Drawn drawn = Drawn.of(cart, partial);
+        Vec3 middle = drawn.middle, along = drawn.along, across = drawn.across, up = drawn.up;
+        Vec3 on = drawn.onRails ? middle : null;
         // The rider sits along the cart, facing the way it goes - at rest the way it last went, and to begin with the
         // end of it they look to - and upright to its floor; round a bend and onto a slope the body comes with the cart.
-        double going = state.speed.dot(along);
         if (state.face == null) state.face = along.scale(player.getViewVector(1f).dot(along) < 0 ? -1 : 1);
-        boolean ahead = Math.abs(going) > 0.4 ? going > 0 : state.face.dot(along) >= 0;
-        Vec3 way = along.scale(ahead ? 1 : -1);
+        Vec3 way = way(state, along);
         // With the cart at once - round a bend it is the cart that turns, and a body coming after it late would sit askew
         // in it. Only turned right about does it come round, by one side.
         if (state.face.dot(way) > 0) {
@@ -234,15 +224,22 @@ public final class MinecartRide implements InteractionProvider {
         state.headPitch = (float) Math.atan2(view.y, Math.sqrt(view.x * view.x + view.z * view.z));
         Vec3 base = middle.add(0, LIFT, 0);
         Vec3[] grips = new Vec3[2];
+        // The rider is fixed in the cart, so each hand's place on the rim is too: worked out in the cart's own measure -
+        // along it, across it, up it - from where the shoulder sits, and not looked for in the world, where the cart
+        // turning under a body drawn a frame behind it would send the hands hunting round the rim.
+        double px = Skeleton.SCALE / 16.0, reach = FIST * px;
+        // Measured the rider's way: before them, to their right, up the cart. Not the rails' way - which end of a rail
+        // is "ahead" changes from one bend to the next, and a place kept in that measure would cross the cart each time.
+        Vec3 before = state.face, toRight = state.face.cross(up).normalize();
+        double shoulderUp = frame.jointWorld(new Vector3f(0f, RIGHT_SHOULDER.y, SIT_BACK)).subtract(base).dot(up);
+        state.shoulderUp = state.shoulderUp == 0 ? shoulderUp : state.shoulderUp + (shoulderUp - state.shoulderUp) * Smoothing.follow(dt, 0.3);
+        double wide = RIM_ACROSS - Math.abs(RIGHT_SHOULDER.x) * px, drop = state.shoulderUp - RIM_OVER;
+        // As far before the shoulder along the side's rim as an arm reaches; an arm too short for the rim, straight out to it.
+        double far = Math.min(-SIT_BACK * px + Math.sqrt(Math.max(0, reach * reach - wide * wide - drop * drop)), RIM_ALONG - 1.5 / 16);
         for (int hand = 0; hand < 2; hand++) {
-            // Looked for from where the shoulder is sitting still, so the hold does not wander as the body is thrown about.
-            Vector3f shoulder = new Vector3f(hand == 0 ? RIGHT_SHOULDER : LEFT_SHOULDER).add(0f, 0f, SIT_BACK);
-            Vec3 found = rim(frame, shoulder, hand == 0 ? -WANT_OUT : WANT_OUT, middle, along, across, up).subtract(base);
-            Vec3 local = new Vec3(found.dot(along), found.dot(across), found.dot(up));
-            // The rider turning, the hold goes round the rim after them; eased, and from one side to the next straight across the corner.
-            state.held[hand] = state.held[hand] == null ? local : state.held[hand].lerp(local, Smoothing.follow(dt, SLIDE_SECONDS));
+            state.held[hand] = new Vec3(far, (hand == 0 ? 1 : -1) * RIM_ACROSS, RIM_OVER);
             Vec3 held = state.held[hand];
-            grips[hand] = base.add(along.scale(held.x)).add(across.scale(held.y)).add(up.scale(held.z));
+            grips[hand] = base.add(before.scale(held.x)).add(toRight.scale(held.y)).add(up.scale(held.z));
             state.place[hand].set(strm.emfcompat.animationadditions.interaction.Body.model(frame, grips[hand]));
         }
         IKResult r = OneBoneIK.solveXY(frame, RIGHT_SHOULDER, grips[0], ARM, 0f, 0f);
@@ -258,46 +255,55 @@ public final class MinecartRide implements InteractionProvider {
         context.decide(r == null && l == null ? "out-of-reach" : on == null ? "hold:off-rails" : "hold");
     }
 
-    /** {@code value}, but never past {@code limit} either way: the nearer the limit the less it gives. */
-    private static float soft(float value, float limit) {
-        return limit * (float) Math.tanh(value / limit);
+    /**
+     * The cart as the game draws it this frame, which is not where the cart is: on rails it is drawn on the rail of
+     * the block it is in, lying along that rail and tilted with a slope - on a client, between the server's word of
+     * it, a cart cuts across the inside of a bend, and is drawn up to half a block from itself. Off rails it is drawn
+     * where it is, turned as it is turned.
+     */
+    private record Drawn(Vec3 middle, Vec3 along, Vec3 across, Vec3 up, boolean onRails) {
+        static Drawn of(AbstractMinecart cart, float partial) {
+            Vec3 middle = cart.getPosition(partial);
+            double yaw = Math.toRadians(Mth.rotLerp(partial, cart.yRotO, cart.getYRot()));
+            Vec3 along = new Vec3(Math.cos(yaw), 0, Math.sin(yaw));
+            Vec3 on = cart.getPos(middle.x, middle.y, middle.z);
+            if (on != null) {
+                Vec3 ahead = cart.getPosOffs(middle.x, middle.y, middle.z, 0.3), behind = cart.getPosOffs(middle.x, middle.y, middle.z, -0.3);
+                if (ahead == null) ahead = on;
+                if (behind == null) behind = on;
+                Vec3 lie = behind.subtract(ahead);
+                if (lie.lengthSqr() > 1e-8) along = lie.normalize();
+                middle = new Vec3(on.x, (ahead.y + behind.y) / 2, on.z);
+            }
+            Vec3 across = new Vec3(-along.z, 0, along.x).normalize();
+            Vec3 up = along.cross(across);
+            if (up.y < 0) up = up.scale(-1);
+            return new Drawn(middle, along, across, up, on != null);
+        }
     }
 
     /**
-     * Where on the rim this hand takes hold: the place on its middle line an arm's length from the
-     * shoulder - an arm does not shorten, and a hand laid on the rim right beside the body would be
-     * through the wall - on the hand's own side and before the rider rather than behind.
+     * Which way along the cart the rider faces: the way they already face, carried on along the rails as they bend;
+     * turned about only when the cart itself is plainly going backwards - by where it went this tick, not by its
+     * evened-out speed, which through two bends one after the other still points the old way.
      */
-    private static Vec3 rim(IKFrame frame, Vector3f shoulder, float out, Vec3 middle, Vec3 along, Vec3 across, Vec3 up) {
-        Vec3 from = frame.jointWorld(new Vector3f(shoulder));
-        double length = Skeleton.ARM_TO_PALM * Skeleton.SCALE / 16;
-        Vec3 best = null;
-        double bestScore = Double.MAX_VALUE;
-        for (int i = 0; i < RIM_POINTS; i++) {
-            // Round the rectangle: the two sides, then the two ends.
-            double t = (i % (RIM_POINTS / 4)) / (double) (RIM_POINTS / 4) * 2 - 1;
-            int edge = i / (RIM_POINTS / 4);
-            double u = edge < 2 ? t * RIM_ALONG : (edge == 2 ? RIM_ALONG : -RIM_ALONG);
-            double v = edge < 2 ? (edge == 0 ? RIM_ACROSS : -RIM_ACROSS) : t * RIM_ACROSS;
-            Vec3 point = middle.add(along.scale(u)).add(across.scale(v)).add(0, LIFT, 0).add(up.scale(RIM_OVER));
-            Vector3f model = strm.emfcompat.animationadditions.interaction.Body.model(frame, point);
-            // The model's right is -x, its front -z: a hand keeps to its side and before the body.
-            float wrongSide = Math.max(0f, out < 0 ? model.x + 3f : 3f - model.x);
-            float behind = Math.max(0f, model.z - 1f);
-            double score = Math.abs(point.distanceTo(from) - length) * 16 + wrongSide * 0.6 + behind * 0.8;
-            if (score < bestScore) {
-                bestScore = score;
-                best = point;
-            }
-        }
-        return best;
+    private static Vec3 way(State state, Vec3 along) {
+        Vec3 way = along.scale(state.face.dot(along) >= 0 ? 1 : -1);
+        return state.went.dot(way) < -0.5 ? way.scale(-1) : way;
+    }
+
+    /** {@code value}, but never past {@code limit} either way: the nearer the limit the less it gives. */
+    private static float soft(float value, float limit) {
+        return limit * (float) Math.tanh(value / limit);
     }
 
     /** What the ride asks of the torso; {@code null} out of a cart. */
     public static TorsoLean.Hint torsoHint(UUID uuid) {
         State state = STATES.fresh(uuid);
         if (state == null || !state.riding || !INSTANCE.isEnabled()) return null;
-        return TorsoLean.Hint.turn(state.pitch + state.pitchRate * LEAD, 0f, state.roll + state.rollRate * LEAD);
+        // Asked a little ahead, but never past what keeps the body inside the cart.
+        return TorsoLean.Hint.turn(Mth.clamp(state.pitch + state.pitchRate * LEAD, -BACK_LIMIT, GIVE_LIMIT + BOW_LIMIT), 0f,
+                Mth.clamp(state.roll + state.rollRate * LEAD, -SIDE_LIMIT, SIDE_LIMIT));
     }
 
     /** The legs, drawn up into the cart; before anything that works from where they are. */
@@ -330,13 +336,21 @@ public final class MinecartRide implements InteractionProvider {
      */
     public static void orient(AbstractClientPlayer player, com.mojang.blaze3d.vertex.PoseStack stack) {
         State state = STATES.fresh(player.getUUID());
-        if (state == null || !state.riding || state.face == null || state.floor == null || !INSTANCE.isEnabled()
-                || !(player.getVehicle() instanceof AbstractMinecart)
+        if (state == null || !state.riding || state.face == null || !INSTANCE.isEnabled()
+                || !(player.getVehicle() instanceof AbstractMinecart cart)
                 || !strm.emfcompat.core.EMFCompatCore.isCompatEnabled() || strm.emfcompat.core.EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) return;
+        float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        // Worked out for this very frame, as the cart's own drawing is: a frame late, a bend would show the rider askew.
+        Drawn drawn = Drawn.of(cart, partial);
+        Vec3 way = way(state, drawn.along);
+        Vec3 face = state.face.dot(way) > 0 ? way : state.face;
         IKFrame frame = IKFrame.capture(stack.last().pose(), Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
         Vec3 origin = frame.jointWorld(new Vector3f());
-        Vector3f toward = strm.emfcompat.animationadditions.interaction.Body.model(frame, origin.add(state.face));
-        Vector3f normal = strm.emfcompat.animationadditions.interaction.Body.model(frame, origin.add(state.floor));
+        // Into the cart as it is drawn: the rider is carried where the cart is, the cart drawn on its rail.
+        Vector3f moved = strm.emfcompat.animationadditions.interaction.Body.model(frame, origin.add(drawn.middle.subtract(cart.getPosition(partial))));
+        stack.translate(moved.x / 16f, moved.y / 16f, moved.z / 16f);
+        Vector3f toward = strm.emfcompat.animationadditions.interaction.Body.model(frame, origin.add(face));
+        Vector3f normal = strm.emfcompat.animationadditions.interaction.Body.model(frame, origin.add(drawn.up));
         stack.mulPose(strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitFacing.orientation(toward, normal));
     }
 
@@ -362,10 +376,12 @@ public final class MinecartRide implements InteractionProvider {
         }
         if (strm.emfcompat.animationadditions.DebugLog.trace() && state.trace.due(30_000_000L)) {
             ModelPart body = parts.apply("body");
-            org.slf4j.LoggerFactory.getLogger("EMFCompatRide").info("[CartTrace] shove=({} {} {}) off=({} {} {}) pitch={} roll={} rise={} bodyPitch={} bodyRoll={} gapR={} gapL={}",
+            org.slf4j.LoggerFactory.getLogger("EMFCompatRide").info("[CartTrace] shove=({} {} {}) off=({} {} {}) pitch={} roll={} rise={} bodyPitch={} bodyRoll={} gapR={} gapL={} heldR=({} {}) heldL=({} {})",
                     r2(state.shove.x), r2(state.shove.y), r2(state.shove.z), r2(state.off[0] * 16), r2(state.off[1] * 16), r2(state.off[2] * 16),
                     r2(Math.toDegrees(state.pitch)), r2(Math.toDegrees(state.roll)), r2(state.rise),
-                    body == null ? 0 : r2(Math.toDegrees(body.xRot)), body == null ? 0 : r2(Math.toDegrees(body.zRot)), r2(state.gap[0]), r2(state.gap[1]));
+                    body == null ? 0 : r2(Math.toDegrees(body.xRot)), body == null ? 0 : r2(Math.toDegrees(body.zRot)), r2(state.gap[0]), r2(state.gap[1]),
+                    state.held[0] == null ? 0 : r2(state.held[0].x * 16), state.held[0] == null ? 0 : r2(state.held[0].y * 16),
+                    state.held[1] == null ? 0 : r2(state.held[1].x * 16), state.held[1] == null ? 0 : r2(state.held[1].y * 16));
         }
     }
 
