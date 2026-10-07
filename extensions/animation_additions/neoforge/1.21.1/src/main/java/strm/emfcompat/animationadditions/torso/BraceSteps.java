@@ -2,32 +2,25 @@ package strm.emfcompat.animationadditions.torso;
 
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
 import strm.emfcompat.animationadditions.DebugLog;
-import strm.emfcompat.animationadditions.interaction.Smoothing;
 import strm.emfcompat.core.ik.IKFrame;
-import traben.entity_model_features.models.animation.state.EMFState;
 
 import java.util.function.Function;
-import strm.emfcompat.animationadditions.interaction.Ease;
 import strm.emfcompat.animationadditions.interaction.Body;
+import strm.emfcompat.animationadditions.interaction.FrameClock;
 
 /** Sequential short brace steps on broad level support; walking keeps the pack's stride. */
 public final class BraceSteps {
     public static class State {
-        final Vector3f[] feet = {new Vector3f(), new Vector3f()};
-        final Vector3f start = new Vector3f(), end = new Vector3f();
-        int stepping = -1;
-        float progress, frame = -1;
-        long at, traceAt;
+        final Stride stride = new Stride();
+        final FrameClock clock = new FrameClock();
+        long traceAt;
 
         /** Both feet back under the pack's pose and no step under way: nothing to draw. */
         public boolean resting() {
-            return stepping < 0 && feet[0].lengthSquared() < 1e-4f && feet[1].lengthSquared() < 1e-4f;
+            return stride.stepping < 0 && stride.feet[0].lengthSquared() < 1e-4f && stride.feet[1].lengthSquared() < 1e-4f;
         }
     }
 
@@ -41,71 +34,43 @@ public final class BraceSteps {
         ModelPart[] legs = {parts.apply("right_leg"), parts.apply("left_leg")};
         if (legs[0] == null || legs[1] == null) return;
         boolean still = Body.planted(player);
-        float counter = EMFState.getFrameCounter();
-        if (counter != s.frame) {
-            long now = System.nanoTime();
-            double dt = s.at == 0 ? 0 : Math.min(.1, (now - s.at) * 1e-9);
-            s.at = now;
-            s.frame = counter;
-            if (!still || effort < .05f) {
-                s.stepping = -1;
-                for (Vector3f foot : s.feet) foot.mul(1 - Smoothing.follow(dt, .12));
-            } else {
+        Stride stride = s.stride;
+        double dt = s.clock.tick();
+        if (dt >= 0) {
+            if (!still || effort < .05f) stride.settle(dt, .12);
+            else {
                 // A teleport or changed support must not reuse the stance from a
                 // previous broad floor on a fence or over empty space.
-                for (int i = 0; i < 2; i++) if (s.feet[i].lengthSquared() > .001f
-                        && !safe(player, frame, legs[i], new Vector3f(), s.feet[i])) {
-                    s.feet[i].zero();
-                    if (s.stepping == i) s.stepping = -1;
+                for (int i = 0; i < 2; i++) if (stride.feet[i].lengthSquared() > .001f
+                        && !Stride.level(player, frame, legs[i], new Vector3f(), stride.feet[i])) {
+                    stride.feet[i].zero();
+                    if (stride.stepping == i) stride.stepping = -1;
                 }
-                if (s.stepping < 0) for (int i = 0; i < 2; i++) {
+                if (stride.stepping < 0) for (int i = 0; i < 2; i++) {
                     Vector3f target = i == 0 ? right : left;
-                    if (target.distanceSquared(s.feet[i]) > .09f && safe(player, frame, legs[i], s.feet[i], target)) {
-                        s.stepping = i;
-                        s.start.set(s.feet[i]);
-                        s.end.set(target);
-                        s.progress = 0;
+                    if (target.distanceSquared(stride.feet[i]) > .09f
+                            && Stride.level(player, frame, legs[i], stride.feet[i], target)) {
+                        stride.begin(i, target);
                         break;
                     }
                 }
-                if (s.stepping >= 0) {
-                    if (!safe(player, frame, legs[s.stepping], s.start, s.end)) s.stepping = -1;
-                    else {
-                        s.progress = Math.min(1, s.progress + (float) dt / .32f);
-                        s.feet[s.stepping].set(s.start).lerp(s.end, Ease.smooth(s.progress));
-                        if (s.progress >= 1) s.stepping = -1;
-                    }
+                if (stride.stepping >= 0) {
+                    if (!Stride.level(player, frame, legs[stride.stepping], stride.start, stride.end)) stride.stepping = -1;
+                    else stride.advance(dt, .32f);
                 }
             }
         }
-        Vector3f r = new Vector3f(s.feet[0]), l = new Vector3f(s.feet[1]);
-        if (s.stepping >= 0)(s.stepping == 0 ? r : l).y -= (float) Math.sin(Math.PI * s.progress) * .45f;
+        Vector3f[] soles = stride.drawn(.45f);
+        Vector3f r = soles[0], l = soles[1];
         if (!player.onGround() || player.isPassenger()) twist = 0;
         PelvisFollow.step(parts, r, l, -twist, twist);
         if (DebugLog.trace() && System.nanoTime() - s.traceAt > 100_000_000L) {
             s.traceAt = System.nanoTime();
             trace.info("[{}] still={} effort={} step={} progress={} right={} left={}",
-                label, still, effort, s.stepping, s.progress, r, l);
+                label, still, effort, stride.stepping, stride.progress, r, l);
         }
     }
 
-
-    private static boolean safe(AbstractClientPlayer player, IKFrame frame, ModelPart leg, Vector3f from, Vector3f to) {
-        Vector3f sole = Body.tip(leg, 12);
-        double height = Double.NaN;
-        for (float t : new float[]{0, .5f, 1}) {
-            Vec3 point = frame.jointWorld(new Vector3f(sole).add(new Vector3f(from).lerp(to, t)));
-            for (double x : new double[]{-.1, 0, .1}) for (double z : new double[]{-.1, 0, .1}) {
-                Vec3 p = point.add(x, 0, z);
-                var hit = player.level().clip(new ClipContext(p.add(0, .3, 0), p.add(0, -.3, 0),
-                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
-                if (hit.getType() != HitResult.Type.BLOCK || Math.abs(hit.getLocation().y - point.y) > .16) return false;
-                if (Double.isNaN(height)) height = hit.getLocation().y;
-                else if (Math.abs(hit.getLocation().y - height) > .04) return false;
-            }
-        }
-        return true;
-    }
 
     private BraceSteps() {
     }

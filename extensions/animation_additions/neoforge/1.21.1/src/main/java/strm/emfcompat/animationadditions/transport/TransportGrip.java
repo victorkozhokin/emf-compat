@@ -213,7 +213,7 @@ public final class TransportGrip implements InteractionProvider {
             org.slf4j.LoggerFactory.getLogger("EMFCompatTransport").info(
                 "[TransportTrace] speed={} relative={} load={} owned={} gap={} helper={} helperGap={} step={} right={} left={} local={} world={} rope={} lift={}",
                 s.motion.speed, s.relativeSpeed, s.load, ownership(uuid, s), s.gap, s.helper, s.helperGap,
-                s.stance.step, s.stance.feet[0], s.stance.feet[1], s.primary.point(), s.primary.world(), s.primary.rope() != null, s.stance.ropeLift);
+                s.stance.stride.stepping, s.stance.stride.feet[0], s.stance.stride.feet[1], s.primary.point(), s.primary.world(), s.primary.rope() != null, s.stance.ropeLift);
         }
     }
     private static float aimOne(UUID uuid, State s, Effector hand, SupportSearch.Contact c, Function<String, ModelPart> parts) {

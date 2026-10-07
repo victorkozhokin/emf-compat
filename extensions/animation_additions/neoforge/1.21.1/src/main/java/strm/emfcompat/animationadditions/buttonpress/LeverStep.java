@@ -2,24 +2,23 @@ package strm.emfcompat.animationadditions.buttonpress;
 
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.torso.PelvisFollow;
 import strm.emfcompat.core.ik.IKFrame;
-import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
 import strm.emfcompat.animationadditions.interaction.Body;
+import strm.emfcompat.animationadditions.interaction.FrameClock;
+import strm.emfcompat.animationadditions.torso.Stride;
 
 /** One short support step on the click; the other sole stays planted. */
 final class LeverStep {
     AbstractClientPlayer player;
     IKFrame space;
     boolean eligible, holding;
-    long press, consumed, at;
-    float frame = -1, progress = 1;
+    long press, consumed;
+    final FrameClock clock = new FrameClock();
+    float progress = 1;
     int foot;
     float stride = 1, duration = .24f, height = .35f;
     final Vector3f grip = new Vector3f(), offset = new Vector3f();
@@ -38,12 +37,8 @@ final class LeverStep {
         if (player == null || space == null) return;
         ModelPart[] legs = {parts.apply("right_leg"), parts.apply("left_leg")};
         if (legs[0] == null || legs[1] == null) return;
-        float current = EMFState.getFrameCounter();
-        if (current != frame) {
-            long now = System.nanoTime();
-            float dt = at == 0 ? 0 : Math.min(.1f, (now - at) * 1e-9f);
-            at = now;
-            frame = current;
+        float dt = (float) clock.tick();
+        if (dt >= 0) {
             if (!eligible) { offset.zero(); start.zero(); end.zero(); progress = 1; consumed = press; }
             else {
                 if (holding && owned > .5f && press > 0 && press != consumed) {
@@ -73,19 +68,6 @@ final class LeverStep {
     private void begin(Vector3f wanted) { start.set(offset); end.set(wanted); progress = 0; }
 
     private boolean safe(ModelPart leg, Vector3f from, Vector3f to) {
-        Vector3f sole = Body.tip(leg, 12);
-        double height = Double.NaN;
-        for (float t : new float[]{0, .5f, 1}) {
-            Vec3 point = space.jointWorld(new Vector3f(sole).add(new Vector3f(from).lerp(to, t)));
-            for (double x : new double[]{-.10, 0, .10}) for (double z : new double[]{-.10, 0, .10}) {
-                Vec3 p = point.add(x, 0, z);
-                var hit = player.level().clip(new ClipContext(p.add(0, .3, 0), p.add(0, -.3, 0),
-                        ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
-                if (hit.getType() != HitResult.Type.BLOCK || Math.abs(hit.getLocation().y - point.y) > .16) return false;
-                if (Double.isNaN(height)) height = hit.getLocation().y;
-                else if (Math.abs(hit.getLocation().y - height) > .04) return false;
-            }
-        }
-        return true;
+        return Stride.level(player, space, leg, from, to);
     }
 }
