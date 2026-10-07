@@ -978,7 +978,13 @@ public final class Driver {
     private static void config(JsonObject values) throws ReflectiveOperationException {
         Method set = Class.forName(CORE + "EMFCompatConfig").getMethod("setBoolean", String.class, boolean.class);
         for (Map.Entry<String, JsonElement> e : values.entrySet()) {
-            set.invoke(null, e.getKey(), e.getValue().getAsBoolean());
+            // A number is a stepped value (an idle time, a variant), anything else an on/off option.
+            if (e.getValue().isJsonPrimitive() && e.getValue().getAsJsonPrimitive().isNumber()) {
+                Class.forName(CORE + "EMFCompatConfig").getMethod("setNumber", String.class, double.class)
+                        .invoke(null, e.getKey(), e.getValue().getAsDouble());
+            } else {
+                set.invoke(null, e.getKey(), e.getValue().getAsBoolean());
+            }
         }
     }
 

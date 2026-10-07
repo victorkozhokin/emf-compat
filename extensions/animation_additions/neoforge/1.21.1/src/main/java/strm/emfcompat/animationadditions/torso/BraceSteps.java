@@ -18,6 +18,18 @@ public final class BraceSteps {
         final FrameClock clock = new FrameClock();
         final DebugLog.Pace tracePace = new DebugLog.Pace();
 
+        /** Where the two soles are between them, model pixels from where the pack has them: what the body has to go with. */
+        public Vector3f mean() {
+            return new Vector3f(stride.feet[0]).add(stride.feet[1]).mul(.5f);
+        }
+
+        /** Puts both soles down where they are given at once - landed there from a hop - with no step under way. */
+        public void place(Vector3f right, Vector3f left) {
+            stride.stepping = -1;
+            stride.feet[0].set(right);
+            stride.feet[1].set(left);
+        }
+
         /** Both feet back under the pack's pose and no step under way: nothing to draw. */
         public boolean resting() {
             return stride.stepping < 0 && stride.feet[0].lengthSquared() < 1e-4f && stride.feet[1].lengthSquared() < 1e-4f;
