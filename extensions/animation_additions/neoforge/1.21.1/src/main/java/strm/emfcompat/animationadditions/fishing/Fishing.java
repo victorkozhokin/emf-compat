@@ -169,6 +169,7 @@ public final class Fishing implements InteractionProvider {
             enter(state, Phase.WAIT, now);
         }
         state.hadHook = hook != null && able;
+        state.standing = Body.planted(player);
         if (state.phase == Phase.NONE) {
             state.shown += -state.shown * Smoothing.follow(dt, RELEASE_SECONDS);
             state.weight += -state.weight * Smoothing.follow(dt, RELEASE_SECONDS);
@@ -182,7 +183,6 @@ public final class Fishing implements InteractionProvider {
             return;
         }
         state.right = Body.right(player, hand);
-        state.standing = Body.planted(player);
         in = (float) ((now - state.since) / 1e9);
         FishingMotion.Aim aim = switch (state.phase) {
             case CAST -> FishingMotion.cast(in);
@@ -267,7 +267,9 @@ public final class Fishing implements InteractionProvider {
         boolean apart = state.phase != Phase.NONE && state.standing;
         BraceSteps.apply(state.feet, state.player, state.frame, parts,
                 apart ? FishingMotion.foot(state.stance, true, state.right) : HOME, apart ? FishingMotion.foot(state.stance, false, state.right) : HOME,
-                apart ? state.shown : 0f, 0f, LOGGER, "FishingStance");
+                // Back under the body the way they left it - a step each, not a slide: with no effort the steps' own
+                // helper lets the soles drift home, which showed as the stance collapsing at the end of the haul.
+                apart ? state.shown : state.standing ? 1f : 0f, 0f, LOGGER, "FishingStance");
     }
 
     /**
