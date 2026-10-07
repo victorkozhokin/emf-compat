@@ -48,6 +48,7 @@ public class AnimationAdditionsRenderMixin {
         }
         strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitControls.orient(player, stack);
         strm.emfcompat.animationadditions.ride.MinecartRide.orient(player, stack);
+        strm.emfcompat.animationadditions.wallhand.FenceLean.orient(player, stack);
         emfcompat$quietSwing(player);
         EjectorLaunch.crouch(player, ((LivingEntityRenderer<?, ?>) (Object) this).getModel(), stack);
         FootGrounding.modelPose(player, stack);

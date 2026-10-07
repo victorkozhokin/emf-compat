@@ -7,6 +7,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.FenceBlock;
@@ -18,9 +19,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.Body;
 import strm.emfcompat.animationadditions.interaction.Candidate;
+import strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitFacing;
+import strm.emfcompat.animationadditions.interaction.Effector;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
 import strm.emfcompat.animationadditions.interaction.InteractionContext;
 import strm.emfcompat.animationadditions.interaction.InteractionProvider;
+import strm.emfcompat.animationadditions.interaction.InteractionRuntime;
 import strm.emfcompat.animationadditions.interaction.Skeleton;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
 import strm.emfcompat.animationadditions.ride.Riders;
@@ -61,6 +65,8 @@ public final class FenceLean implements InteractionProvider {
     private static final double NEAREST = 0.3, FURTHEST = 0.62;
     /** The fence is before the player within this of square on; cosine. */
     private static final double SQUARE = Math.cos(Math.toRadians(35));
+    /** Leaning, the player looks round as far as this to either side of the fence and stays on it; cosine. 65 degrees: a view of 130. */
+    private static final double LOOK_ROUND = Math.cos(Math.toRadians(65));
     /** Blocks: the palm over the top it lies on, and as far out to its side as a hand is laid. */
     private static final double OVER_TOP = 0.03, WIDEST = 0.6;
     /** Model pixels from where the pack has the soles (back is +z, the right is -x): the right foot stays all but under the body, the left is set back; and the hips' way back. */
@@ -77,7 +83,7 @@ public final class FenceLean implements InteractionProvider {
     private static final class State {
         Rail rail;
         long lookedAt, restingSince;
-        float leaning;
+        float leaning, square, headYaw, headPitch;
         boolean held;
         final Vector3f[] place = {new Vector3f(), new Vector3f()};
         final float[] gap = new float[2];
@@ -116,14 +122,18 @@ public final class FenceLean implements InteractionProvider {
                 && !player.isSleeping();
         if (now - state.lookedAt >= LOOK_EVERY_NANOS) {
             state.lookedAt = now;
-            state.rail = still ? rail(player) : null;
+            // Once at the fence the player may look round a good way without leaving it; to come to it they face it.
+            state.rail = !still ? null : state.rail != null && kept(player, state.rail) ? state.rail : rail(player);
         }
         if (!still || state.rail == null) state.restingSince = now;
-        if (still && state.rail != null) {
-            // Square on to the fence: the hands are laid from the shoulders, and a body askew would lay them askew.
-            float square = (float) Math.toDegrees(Math.atan2(-state.rail.towards.x, state.rail.towards.z));
-            player.yBodyRot += net.minecraft.util.Mth.wrapDegrees(square - player.yBodyRot) * Smoothing.follow(context.dt(), 0.15);
-            player.yBodyRotO = player.yBodyRot;
+        // Square on to the fence, coming on as the player settles at it and off as they leave ({@link #orient}).
+        state.square += ((still && state.rail != null ? 1f : 0f) - state.square) * Smoothing.follow(context.dt(), 0.15);
+        if (state.square > 1e-3f) {
+            // The body is turned to the fence; the head still looks where the player does, as far as a neck turns.
+            Vec3 origin = context.frame().jointWorld(new Vector3f());
+            float[] look = CockpitFacing.look(Body.model(context.frame(), origin.add(player.getViewVector(1f))));
+            state.headYaw = look[0];
+            state.headPitch = look[1];
         }
         state.player = player;
         state.frame = context.frame();
@@ -138,6 +148,12 @@ public final class FenceLean implements InteractionProvider {
             state.leaning = 0;
         }
         context.decide(state.held ? "lean" : !still ? "off:moving" : state.rail == null ? "none" : lean ? "no-place" : "resting");
+    }
+
+    /** Whether the player is drawn square to a fence: settling at it, leaning on it or coming away. */
+    public static boolean squared(UUID uuid) {
+        State state = STATES.fresh(uuid);
+        return state != null && state.square > 1e-3f && INSTANCE.isEnabled();
     }
 
     /** What the lean asks of the torso; {@code null} away from a fence. */
@@ -165,13 +181,37 @@ public final class FenceLean implements InteractionProvider {
     /** The last word on the hands: each fist kept on its place on the fence's top. */
     public static void grip(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
-        if (state == null || !state.held || !INSTANCE.isEnabled()) return;
-        Riders.grip(uuid, parts, INSTANCE.id(), state.place, state.gap);
+        if (state == null || !INSTANCE.isEnabled()) return;
+        ModelPart head = parts.apply("head"), hat = parts.apply("hat");
+        if (state.square > 1e-3f && head != null && InteractionRuntime.aim(uuid, Effector.HEAD) == null) {
+            head.yRot += Mth.wrapDegrees((float) Math.toDegrees(state.headYaw - head.yRot)) * Mth.DEG_TO_RAD * state.square;
+            head.xRot += (state.headPitch - head.xRot) * state.square;
+            if (hat != null) {
+                hat.yRot = head.yRot;
+                hat.xRot = head.xRot;
+            }
+        }
+        if (state.held) Riders.grip(uuid, parts, INSTANCE.id(), state.place, state.gap);
+    }
+
+    /**
+     * Turns only the drawn model square on to the fence it leans on: the hands are laid from the
+     * shoulders, and a body askew would lay them askew. The game's own facing is left alone - it
+     * turns the body after the head tick by tick, and set from here it would shake.
+     */
+    public static void orient(AbstractClientPlayer player, com.mojang.blaze3d.vertex.PoseStack stack) {
+        State state = STATES.fresh(player.getUUID());
+        if (state == null || state.square < 1e-3f || state.rail == null || !INSTANCE.isEnabled()
+                || !strm.emfcompat.core.EMFCompatCore.isCompatEnabled() || strm.emfcompat.core.EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) return;
+        IKFrame frame = IKFrame.capture(stack.last().pose(), net.minecraft.client.Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
+        Vec3 origin = frame.jointWorld(new Vector3f());
+        Vector3f toward = Body.model(frame, origin.add(state.rail.towards)), up = Body.model(frame, origin.add(0, 1, 0));
+        stack.mulPose(new org.joml.Quaternionf().slerp(CockpitFacing.orientation(toward, up), state.square));
     }
 
     /** The fence the player stands up against, square on to it; {@code null} when there is none. */
     private static Rail rail(AbstractClientPlayer player) {
-        // By where the player looks: the body is often a good way round from that, standing still, and is brought square
+        // By where the player looks: the body is often a good way round from that, standing still, and is drawn square
         // to the fence as the lean begins.
         double yaw = Math.toRadians(player.getYRot());
         Vec3 facing = new Vec3(-Math.sin(yaw), 0, Math.cos(yaw));
@@ -187,6 +227,14 @@ public final class FenceLean implements InteractionProvider {
         double off = on.subtract(feet).dot(towards);
         if (off < NEAREST || off > FURTHEST) return null;
         return new Rail(on, new Vec3(-towards.z, 0, towards.x), towards, top(level, pos, block));
+    }
+
+    /** Whether the player is still at {@code rail}: as near it as to lean, and looking no further from it than {@link #LOOK_ROUND}. */
+    private static boolean kept(AbstractClientPlayer player, Rail rail) {
+        double yaw = Math.toRadians(player.getYRot());
+        if (new Vec3(-Math.sin(yaw), 0, Math.cos(yaw)).dot(rail.towards) < LOOK_ROUND) return false;
+        double off = rail.on.subtract(player.position()).dot(rail.towards);
+        return off >= NEAREST && off <= FURTHEST && leanable(player.level().getBlockState(BlockPos.containing(rail.on.x, rail.top - 0.5, rail.on.z)));
     }
 
     private static boolean leanable(BlockState block) {
