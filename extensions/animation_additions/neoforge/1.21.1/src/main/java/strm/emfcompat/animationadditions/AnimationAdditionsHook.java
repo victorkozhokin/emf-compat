@@ -143,6 +143,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         if (player) PoseInertia.apply(uuid, parts, EMFState.getFrameCounter());
         FootGrounding.apply(uuid, parts);
         strm.emfcompat.animationadditions.ride.MinecartRide.legs(uuid, parts);
+        strm.emfcompat.animationadditions.ride.BoatRide.seat(uuid, parts);
         EjectorLaunch.apply(uuid, parts);
         WallSqueeze.apply(uuid, parts);
         var supportBase = InteractionRuntime.beginSupport(uuid, parts);

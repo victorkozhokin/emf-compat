@@ -40,6 +40,12 @@ import java.util.UUID;
  * Rowing on one side only that hand moves, the chest turns after it and the body leans over the
  * oar that is loaded. A passenger is left as the pack has them.
  *
+ * <p>A paddle's handle is only a few pixels from where the rower's shoulder would be sitting
+ * upright - much nearer than an arm is long - so the rower sits a little back and leans back from
+ * the waist by as much as puts each shoulder an arm's length from its handle: far back with the
+ * handles home at the body, nearly upright with them driven out. That lean is the stroke's swing;
+ * one shoulder needing to be further back than the other is the chest's turn.</p>
+ *
  * <p>How heavy a stroke is is read off the paddle itself: how fast its handle is driven out, and
  * how deep its blade is at that moment. The torso is carried by springs, so it gathers and gives
  * up its swing instead of following the handles point for point.</p>
@@ -63,14 +69,18 @@ public final class BoatRide implements InteractionProvider {
     private static final float PIVOT_X = 3f, PIVOT_Y = -5f, RAFT_PIVOT_Y = -4f, PIVOT_Z = 9f, PADDLE_ROLL = 0.19634955f;
     private static final Vector3f HANDLE = new Vector3f(0f, 1f, -4f);
 
-    /** Radians: the swing with the handles out and back, the set of the back while rowing, and the lean into a full push. */
-    private static final float REACH = 0.17f, HUNCH = 0.04f, HAUL = 0.11f;
-    /** Radians: the chest's turn after a hand all the way out, and the lean over an oar pushed alone. */
-    private static final float TWIST = 0.24f, HEEL = 0.08f;
+    /** Radians: the lean into a full push, over what the handles themselves ask. */
+    private static final float HAUL = 0.05f;
+    /** Model pixels: how far back the rower sits from where the game seats them, the torso from waist to shoulder, the arm to the middle of the fist, half the shoulders' width. */
+    private static final float SIT_BACK = 3f, TORSO = 10f, GRIP = 9.5f, HALF_SHOULDERS = 5f;
+    /** Radians: as far back as the rower leans, and as far as the chest turns. */
+    private static final float LEAN_LIMIT = 1.0f, TURN_LIMIT = 0.45f;
+    /** Radians: the lean over an oar pushed alone. */
+    private static final float HEEL = 0.08f;
     /** A handle driven out this fast, pixels a second, is a full push. */
     private static final float FULL_PULL = 28f;
     /** Seconds: a side's rowing coming on and off, the load on it, the springs' half-life, and how far ahead they are read. */
-    private static final double ACTIVE_SECONDS = 0.22, LOAD_SECONDS = 0.06, SPRING = 0.075, LEAD = 0.09;
+    private static final double ACTIVE_SECONDS = 0.22, LOAD_SECONDS = 0.06, SPRING = 0.04, LEAD = 0.12;
 
     private static final class State {
         /** For the right hand and the left: how far it is rowing, how far out its handle is (-1..1), the load on it, and where the handle was. */
@@ -78,6 +88,8 @@ public final class BoatRide implements InteractionProvider {
         final boolean[] seen = new boolean[2];
         final Spring pitch = new Spring(), yaw = new Spring(), roll = new Spring();
         boolean riding;
+        float seated;
+        final Vector3f[] handle = {new Vector3f(), new Vector3f()};
     }
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
@@ -115,6 +127,7 @@ public final class BoatRide implements InteractionProvider {
                     state.rowing[i] = state.load[i] = 0;
                     state.seen[i] = false;
                 }
+                state.seated = 0;
             }
             context.decide(player.getVehicle() instanceof Boat ? "passenger" : "off");
             return;
@@ -152,13 +165,18 @@ public final class BoatRide implements InteractionProvider {
             float load = active ? Mth.clamp(back / FULL_PULL, 0f, 1f) * (0.25f + 0.75f * deep) : 0f;
             state.load[hand] += (load - state.load[hand]) * Smoothing.follow(dt, LOAD_SECONDS);
         }
-        float right0 = state.out[0] * state.rowing[0], left0 = state.out[1] * state.rowing[1];
+        state.seated += (1f - state.seated) * Smoothing.follow(dt, 0.25);
+        state.handle[0].set(rightAt);
+        state.handle[1].set(leftAt);
         float both = Math.max(state.rowing[0], state.rowing[1]);
         float load = (state.load[0] + state.load[1]) * 0.5f;
-        // Forward is +xRot: out with the handles and into the push, back as they come home. One oar alone swings the body half as far.
-        float pitch = both * HUNCH + (right0 + left0) * 0.5f * REACH + load * 2f * HAUL * (0.5f + 0.5f * Math.min(state.rowing[0], state.rowing[1]));
-        // The right hand out turns the chest to the left, +yRot; a loaded oar on the right leans the body over it, +zRot.
-        float yaw = (right0 - left0) * 0.5f * TWIST;
+        // How far back each shoulder has to be for its hand to lie on its handle.
+        float leanRight = lean(rightAt, -HALF_SHOULDERS), leanLeft = lean(leftAt, HALF_SHOULDERS);
+        // Back is -xRot. Both shoulders share the lean; what one needs over the other is the chest's turn:
+        // the right shoulder further back is the chest turned to the right, -yRot.
+        float pitch = -(leanRight + leanLeft) * 0.5f + load * 2f * HAUL * both;
+        float apart = TORSO * (Mth.sin(leanRight) - Mth.sin(leanLeft));
+        float yaw = Mth.clamp(-(float) Math.asin(Mth.clamp(apart / (2f * HALF_SHOULDERS), -1f, 1f)), -TURN_LIMIT, TURN_LIMIT);
         float roll = (state.load[0] - state.load[1]) * HEEL;
         state.pitch.update(pitch, SPRING, dt);
         state.yaw.update(yaw, SPRING, dt);
@@ -187,6 +205,39 @@ public final class BoatRide implements InteractionProvider {
         float lead = (float) LEAD;
         return TorsoLean.Hint.turn(state.pitch.value + state.pitch.velocity * lead, state.yaw.value + state.yaw.velocity * lead,
                 state.roll.value + state.roll.velocity * lead);
+    }
+
+    /**
+     * How far back from upright, radians, the torso leans from the waist for the shoulder at
+     * {@code side} (model x) to be an arm's length from {@code handle}: the shoulder goes back and
+     * down as the lean grows, so the distance only grows with it and is found by halving.
+     */
+    private static float lean(Vector3f handle, float side) {
+        float low = 0f, high = LEAN_LIMIT;
+        if (reach(handle, side, high) < GRIP) return high;
+        if (reach(handle, side, low) > GRIP) return low;
+        for (int i = 0; i < 14; i++) {
+            float mid = (low + high) * 0.5f;
+            if (reach(handle, side, mid) < GRIP) low = mid;
+            else high = mid;
+        }
+        return (low + high) * 0.5f;
+    }
+
+    /** From the shoulder to the handle with the torso leant back by {@code lean}: the waist is at y 12, back is +z. */
+    private static float reach(Vector3f handle, float side, float lean) {
+        float y = Skeleton.WAIST.y - TORSO * Mth.cos(lean), z = SIT_BACK + TORSO * Mth.sin(lean);
+        return (float) Math.sqrt((handle.x - side) * (handle.x - side) + (handle.y - y) * (handle.y - y) + (handle.z - z) * (handle.z - z));
+    }
+
+    /** The rower, seated a little back; before anything that works from where the parts are. */
+    public static void seat(UUID uuid, java.util.function.Function<String, net.minecraft.client.model.geom.ModelPart> parts) {
+        State state = STATES.fresh(uuid);
+        if (state == null || !state.riding || !INSTANCE.isEnabled()) return;
+        for (String name : new String[]{"body", "head", "hat", "right_arm", "left_arm", "right_leg", "left_leg"}) {
+            net.minecraft.client.model.geom.ModelPart part = parts.apply(name);
+            if (part != null) part.z += SIT_BACK * state.seated;
+        }
     }
 
     /** The handle of paddle {@code side} (0 or 1, as the boat counts them) in the world, as the boat is drawn. */
