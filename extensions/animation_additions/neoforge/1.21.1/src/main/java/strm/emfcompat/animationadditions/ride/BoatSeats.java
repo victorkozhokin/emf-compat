@@ -3,6 +3,7 @@ package strm.emfcompat.animationadditions.ride;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.ChestBoat;
 
 import java.util.List;
 import java.util.function.BooleanSupplier;
@@ -28,6 +29,11 @@ public final class BoatSeats {
     /** On a client: whether the passenger is drawn in the bow. Set by the client's set-up; a server has no say to ask. */
     public static BooleanSupplier client = () -> true;
 
+    /** Blocks behind the boat's middle: where the one who rows a boat with a chest sits, the chest being in the bow. The paddles are as far aft. */
+    public static final double AFT = 6.0 / 16;
+    /** On a client: whether a boat's chest is drawn in the bow, and its rower so seated. */
+    public static BooleanSupplier chestClient = () -> true;
+
     private BoatSeats() {
     }
 
@@ -47,5 +53,10 @@ public final class BoatSeats {
         if (riders.size() < 2 || riders.get(1) != passenger) return false;
         if (!(passenger instanceof Player) || !(riders.get(0) instanceof Player)) return false;
         return !boat.level().isClientSide || client.getAsBoolean();
+    }
+
+    /** Whether {@code boat} has a chest and that chest is in the bow: its rider then sits aft ({@link #AFT}). */
+    public static boolean chestInBow(Boat boat) {
+        return boat instanceof ChestBoat && (!boat.level().isClientSide || chestClient.getAsBoolean());
     }
 }

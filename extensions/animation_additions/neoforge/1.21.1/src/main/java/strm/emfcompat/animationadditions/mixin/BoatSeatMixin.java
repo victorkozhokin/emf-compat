@@ -12,13 +12,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import strm.emfcompat.animationadditions.ride.BoatSeats;
 
-/** The second of two players in a boat sits in the bow and faces the rower ({@link BoatSeats}); on both sides. */
+/** The second of two players in a boat sits in the bow and faces the rower, and the rider of a boat with a chest sits aft ({@link BoatSeats}); on both sides. */
 @Mixin(Boat.class)
 public abstract class BoatSeatMixin {
 
     @Inject(method = "getPassengerAttachmentPoint", at = @At("RETURN"), cancellable = true)
     private void emfcompat$bowSeat(Entity entity, EntityDimensions dimensions, float scale, CallbackInfoReturnable<Vec3> cir) {
         Boat boat = (Boat) (Object) this;
+        if (BoatSeats.chestInBow(boat)) {
+            cir.setReturnValue(new Vec3(0.0, cir.getReturnValue().y, -BoatSeats.AFT).yRot(-boat.getYRot() * Mth.DEG_TO_RAD));
+            return;
+        }
         if (BoatSeats.rowsWithBow(boat, entity)) {
             cir.setReturnValue(new Vec3(0.0, cir.getReturnValue().y, 0.0));
             return;

@@ -22,8 +22,9 @@ public class EMFCompat {
 
     public static boolean shouldPauseForAnimation(BasicAnimation anim) {
         if (anim == null) return false;
-        return anim instanceof BoatAnimation
-                || anim instanceof HorseAnimation
+        // Animation Additions rows a boat itself: its rowing is over the pack's pose, not over this one.
+        if (anim instanceof BoatAnimation) return !rowedElsewhere();
+        return anim instanceof HorseAnimation
                 || anim instanceof EatDrinkAnimation
                 || anim instanceof HugAnimation
                 || anim instanceof ItemSwapAnimation
@@ -33,6 +34,12 @@ public class EMFCompat {
                 || anim instanceof NarutoRunningAnimation
                 || anim instanceof BurningAnimation
                 || anim instanceof FreezingAnimation;
+    }
+
+    private static boolean rowedElsewhere() {
+        return net.neoforged.fml.ModList.get().isLoaded("emf_compat_animation_additions")
+                && strm.emfcompat.core.EMFCompatConfig.getBoolean("animationadditions.enabled", true)
+                && strm.emfcompat.core.EMFCompatConfig.getBoolean("ride.boat", true);
     }
 
     public static void init() {

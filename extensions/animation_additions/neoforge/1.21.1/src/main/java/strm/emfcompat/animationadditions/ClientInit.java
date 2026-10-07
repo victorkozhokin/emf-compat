@@ -70,6 +70,11 @@ final class ClientInit {
                 || strm.emfcompat.core.EMFCompatCore.isCompatEnabled() && strm.emfcompat.core.EMFCompatConfig.getBoolean(EMFCompatAnimationAdditionsMod.KEY_ENABLED, true)
                 && strm.emfcompat.core.EMFCompatConfig.getBoolean(strm.emfcompat.animationadditions.ride.BoatRide.KEY_ENABLED, true)
                 && strm.emfcompat.core.EMFCompatConfig.getBoolean(strm.emfcompat.animationadditions.ride.BoatPassenger.KEY_ENABLED, true);
+        strm.emfcompat.animationadditions.ride.ChestInBow.register(riding);
+        strm.emfcompat.animationadditions.ride.BoatSeats.chestClient = () -> strm.emfcompat.animationadditions.net.ClientHands.connected()
+                || strm.emfcompat.core.EMFCompatCore.isCompatEnabled() && strm.emfcompat.core.EMFCompatConfig.getBoolean(EMFCompatAnimationAdditionsMod.KEY_ENABLED, true)
+                && strm.emfcompat.core.EMFCompatConfig.getBoolean(strm.emfcompat.animationadditions.ride.BoatRide.KEY_ENABLED, true)
+                && strm.emfcompat.core.EMFCompatConfig.getBoolean(strm.emfcompat.animationadditions.ride.ChestInBow.KEY_ENABLED, true);
         strm.emfcompat.animationadditions.ride.MinecartRide.register(riding);
         strm.emfcompat.animationadditions.transport.TransportGrip.register(riding, debug);
         DebugLog.register(debug);
