@@ -184,6 +184,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         strm.emfcompat.animationadditions.buttonpress.aeronautics.HeavyThrottle.aimArms(uuid, parts);
         strm.emfcompat.animationadditions.transport.TransportGrip.aim(uuid, parts);
         strm.emfcompat.animationadditions.lead.LeadHold.capture(uuid, parts);
+        strm.emfcompat.animationadditions.ride.BoatRide.grip(uuid, parts);
         InteractionRuntime.finishHands(uuid, parts, contactBase, EMFState.getFrameCounter(), mainModel);
     }
 }
