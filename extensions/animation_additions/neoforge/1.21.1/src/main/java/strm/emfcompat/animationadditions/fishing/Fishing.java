@@ -192,7 +192,7 @@ public final class Fishing implements InteractionProvider {
             case EASE -> FishingMotion.ease(in, state.hooked);
             default -> FishingMotion.waiting(in);
         };
-        state.turn += (aim.turn() - state.turn) * Smoothing.follow(dt, 0.14);
+        state.turn += (aim.turn() - state.turn) * Smoothing.follow(dt, state.phase == Phase.EASE ? 0.22 : 0.14);
         state.forward += (aim.forward() - state.forward) * Smoothing.follow(dt, 0.3);
         state.aside += (aim.aside() - state.aside) * Smoothing.follow(dt, 0.3);
         state.stance = aim.stance();
@@ -219,7 +219,7 @@ public final class Fishing implements InteractionProvider {
         state.y.update(wanted.y, aim.quick(), dt);
         state.z.update(wanted.z, aim.quick(), dt);
         state.point.set(state.x.value, state.y.value, state.z.value);
-        state.weight += (aim.weight() - state.weight) * Smoothing.follow(dt, WEIGHT_SECONDS);
+        state.weight += (aim.weight() - state.weight) * Smoothing.follow(dt, state.phase == Phase.EASE ? WEIGHT_SECONDS * 2 : WEIGHT_SECONDS);
         state.freeSwing += (aim.freeSwing() - state.freeSwing) * Smoothing.follow(dt, 0.09);
         state.twoHands = aim.twoHands();
         state.shown += (1f - state.shown) * Smoothing.follow(dt, 0.08);
@@ -283,7 +283,8 @@ public final class Fishing implements InteractionProvider {
         float owned = state.phase == Phase.NONE ? 0f
                 : InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
         if (owned < 1e-3f && !state.reach.active()) return;
-        state.reach.followSeconds = BODY_SECONDS;
+        // Easing down, the body is in no hurry at all.
+        state.reach.followSeconds = state.phase == Phase.EASE ? BODY_SECONDS * 1.6 : BODY_SECONDS;
         state.reach.angleLimit = (float) Math.toRadians(34);
         // Forward is -z.
         state.reach.weightForward = state.standing ? -state.weight : 0f;

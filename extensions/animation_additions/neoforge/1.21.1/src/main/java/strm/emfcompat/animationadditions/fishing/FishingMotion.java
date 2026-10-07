@@ -99,21 +99,20 @@ public final class FishingMotion {
     }
 
     /** Seconds: the easing down after the line is in - after a catch, and after a lift with nothing on it. */
-    public static final float EASE = 0.7f, EASE_EMPTY = 0.4f;
-    /** The rod let down before the body, low and loose, on its own side. */
-    private static final Vector3f EASED = new Vector3f(-6f, 7.5f, -5.5f);
+    public static final float EASE = 0.95f, EASE_EMPTY = 0.65f;
+    /** All but where the hand hangs with a rod in it: from here, giving the pose up shows nothing. */
+    private static final Vector3f RESTED = new Vector3f(-6f, 10.3f, -2.5f);
 
     /**
-     * {@code seconds} into easing down once the line is in: the rod let down before the body, the
-     * turn given back, the feet brought in a step - with a catch, a breath's pause over it first,
-     * the body still a little back and the head down to it. From here the hands' own fade is short
-     * enough not to show.
+     * {@code seconds} into easing down once the line is in. One unhurried move and no stops in it:
+     * the rod sinks from where the haul left it to where the hand hangs, and the turn, the weight
+     * and the wide stance are given back along the same curve.
      */
     public static Aim ease(float seconds, boolean hooked) {
-        if (!hooked) return new Aim(new Vector3f(EASED), 0.1, 0f, false, 0f, 0f, 0f, 0f, 0);
-        float held = seconds < EASE * 0.35f ? 1f : Math.max(0f, 1f - (seconds - EASE * 0.35f) / (EASE * 0.4f));
-        // Half the sweep kept while the catch is looked at, then squared up.
-        return new Aim(new Vector3f(EASED).add(1.5f * held, -2.5f * held, -1.5f * held), 0.11, -0.7f * held, false, 0f, SWEEP * 0.45f * held, 0.06f * held, 0f, held > 0.5f ? 1 : 0);
+        float done = seconds / ((hooked ? EASE : EASE_EMPTY) * 0.85f);
+        done = done >= 1f ? 1f : done <= 0f ? 0f : done * done * (3f - 2f * done);
+        Vector3f point = new Vector3f(hooked ? HAULED : LIFTED).lerp(RESTED, done);
+        return new Aim(point, 0.16, (hooked ? -0.6f : -0.3f) * (1f - done), false, 0f, SWEEP * (1f - done), 0f, 0f, done < 0.45f ? 2 : done < 0.8f ? 1 : 0);
     }
 
     /** {@code point}, given for a rod in the right hand, for the hand it is in. */
