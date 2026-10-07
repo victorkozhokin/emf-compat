@@ -298,6 +298,25 @@ metadata, and a copy of `Driver.java`. `mctest.py` finds it by the folder name
 
 ## Traps worth remembering
 
+- **The `model` step reads the one player model every player is drawn with.** With a bot in view
+  it returns whichever player was drawn last - on 07.10 a "passenger leaning back 56°" was the bot
+  rowing beside it. For a player's own numbers put a trace in the feature (`[BoatTrace]`,
+  `[PassengerTrace]`, behind `footgrounding.trace`) and read the log.
+- **A held attack only mines while the game has the mouse.** `Minecraft.continueAttack` asks for
+  a grabbed mouse; in a window that never had the focus `{"hold": "attack"}` swings once and the
+  mining gesture never starts. Two launches of `mining-body.json` gave no `mine:` decisions on
+  07.10 and the next nine did, on every commit - a missing `mine:` is not a regression by itself.
+- **A world keeps what the last script left.** A forgotten armour stand by the lead pad started the
+  hand-to-stand gesture all through `atlas-lead.json`; `gamemode creative` left on makes blocks
+  break at once. Clear what a script adds and put the game mode back.
+- **Commands run before the chunks are there say "That position is not loaded".** Teleport and
+  wait a second or two before `fill` / `setblock`.
+- **Boats are `minecraft:boat` with `{Type:"oak"}`** on 1.21.1 (`oak_boat` is a later version's);
+  `ride <player> mount <boat>` seats in order - the first in rows.
+- **zsh does not split `M="python3 tools/mctest/mctest.py"`** into a command and its argument: use
+  a function, `M(){ python3 tools/mctest/mctest.py "$@"; }`.
+- **A tool call is cut off after ten minutes**: a long run is started detached (`nohup ... &`) and
+  its output file read later.
 - **Left click on a block in reach is mining, not attacking.** Better Combat plays nothing and
   vanilla just swings. Check `state.target`; aim up (`{"look": [180, -60]}`) or clear the area
   (`fill ~-5 ~ ~-5 ~5 ~3 ~5 air`). Crouching lowers the eyes onto grass.
@@ -336,6 +355,28 @@ metadata, and a copy of `Driver.java`. `mctest.py` finds it by the folder name
   The sandbox is written with `1` (system messages only) and screenshots are taken with `hideGui`.
 - **`server.py` is a stdio server.** Running it by hand without a client just hangs waiting on stdin.
 - The game may be closed by hand at any time; `mc_steps` then answers `game exited` with a log tail.
+
+## The whole suite (07.10.2026)
+
+`suite/suite.py <label>` launches the game three times (ATLAS, world `test`, the ParCool course), runs
+every step-file scenario - 44 of them, about 27 thousand steps, 25 minutes - and keeps each one's
+results and the three logs in `build/suite/<label>`. `suite/cmp.py <before> <after>` compares the
+decision lines of two runs scenario by scenario; `suite/verify.py <label>` runs the verifiers that
+take the results as they are (lead, lever pose, wall stance, wheel stance, throttle effort).
+
+To compare with an older commit: `rm -rf` the addon's `src`, `git checkout <commit> -- <src>`, build
+with `-x test`, start the suite, then `git checkout HEAD -- <src>` and `git reset -q HEAD -- extensions`
+at once - the jar in the sandbox is the old one for as long as nothing is rebuilt.
+
+Reading a comparison: a run at a higher frame rate logs more in-between states (a hand over a block
+for one frame after a teleport), so a few lines a scenario differ on the same code; a difference that
+is the same in twenty scenarios is the frame rate, one that is a whole gesture is real or is the world.
+The lead verifier (case `fence`) and the lever verifier (case `side`) failed the same way on the build
+before the refactor and after it.
+
+Rides: `scenarios/ride_boat.py` (rowing, the model sampled every tick; `ride_boat_report.py` gives
+the ranges and the biggest step), `ride_boat_desync.py` (paddles out of step), `ride_boat_passenger.py`
+(a bot in the bow), `ride_shots.py` (boat and minecart from four sides).
 
 ## Experimental foot IK regression (29.09)
 
