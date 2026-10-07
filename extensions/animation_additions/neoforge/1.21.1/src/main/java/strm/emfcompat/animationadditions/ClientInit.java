@@ -63,6 +63,8 @@ final class ClientInit {
         Mining.register(blocks);
         EjectorLaunch.register(blocks);
         HorseSync.register(riding, modEventBus);
+        strm.emfcompat.animationadditions.ride.BoatRide.register(riding);
+        strm.emfcompat.animationadditions.ride.MinecartRide.register(riding);
         strm.emfcompat.animationadditions.transport.TransportGrip.register(riding, debug);
         DebugLog.register(debug);
         strm.emfcompat.animationadditions.compat.ParCoolActivity.register(movement, debug);
@@ -85,6 +87,8 @@ final class ClientInit {
         InteractionRuntime.register(DoorHold.INSTANCE);
         InteractionRuntime.register(Furniture.INSTANCE);
         InteractionRuntime.register(Mining.INSTANCE);
+        InteractionRuntime.register(strm.emfcompat.animationadditions.ride.BoatRide.INSTANCE);
+        InteractionRuntime.register(strm.emfcompat.animationadditions.ride.MinecartRide.INSTANCE);
         AnimationAdditionsHook.register();
         // Leaving a world drops every feature's per-entity state with it.
         NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut event) -> EntityStates.clearAll());
