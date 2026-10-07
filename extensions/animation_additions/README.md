@@ -5,7 +5,7 @@
 
 A mod, client-side with an optional server part, that adds animations of its own on top of an **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player model: feet that stand on the ground they are on, hands that go to the thing you use, and a body that takes part in what the hands do.
 
-Made for and tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**. The pack keeps its own walk, idle motion and expressions; this addon only adds to them. Other player animation packs may give different results.
+Made for and tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**. The pack keeps its own walk and idle motion, and the face keeps the expressions of **[Just Expressions](https://modrinth.com/resourcepack/just-expressions)**, the add-on for it; this addon only adds to them. Other player animation packs may give different results.
 
 ## Features
 
@@ -18,8 +18,9 @@ Made for and tested with **[Fresh Animations: Player Extension](https://modrinth
 
 **Hands and surroundings**
 
-- A hand rests on a wall you stand beside, and brushes through grass, crops and flowers.
-- A glance at a creature nearby while standing still.
+- A hand rests on a wall you stand beside, and brushes through the crops you walk by.
+- Stood up against a fence, the hands go on its top and the body leans on them.
+- Standing idle, a look at a creature nearby - the body stepping round to it when it is far to the side - and signs are read.
 - Leading an animal, the hand follows the lead and the body leans against the pull.
 - After picking things up, one gesture puts them away in a back pocket — not one per item.
 
@@ -37,11 +38,14 @@ Made for and tested with **[Fresh Animations: Player Extension](https://modrinth
 - Looking through an open chest, barrel or shulker box, the hands working when something is moved.
 - Putting on armour: a helmet pushed down with one hand, a chestplate settled with both, leggings and boots looked over. Curios accessories go to where they are worn.
 - Shaking off water, powder snow and mud.
+- Fishing: the cast, the wait, the bite and the haul.
+- Fright at a sudden sound - sculk, a warden, a creeper's hiss, an explosion, thunder: a shudder and a step back, the hands on guard.
 - These show on other players too.
 
 **Riding and transport**
 
 - You rise and fall with an animated horse instead of sinking into the saddle, with an optional riding pose.
+- Rowing a boat with the hands on the oars; a passenger in the bow; riding a minecart with the hands on its sides.
 - On moving transport the hands brace against what is near.
 
 ## Everything it does
@@ -53,7 +57,8 @@ Made for and tested with **[Fresh Animations: Player Extension](https://modrinth
 |  | Torso lean and inertia | The torso goes with your motion and with the hands; poses settle with weight. |
 |  | Narrow passages | The body turns to fit the gap. |
 | **Surroundings** | Hand on the wall | A hand rests on the wall beside you. |
-|  | Plants | Hands brush through grass, crops and flowers. |
+|  | Plants | Hands brush through crops as you walk by or through them; grass and flowers as an option. |
+|  | Leaning on a fence | Stood up against a fence or a wall, the hands go on its top and the body leans on them. |
 |  | Look at things | Standing idle, a look at a creature nearby, the body stepping round if it is far to the side; signs are read. |
 |  | Animal leads | The hand follows the lead, the body leans against the pull. |
 |  | Pocket | One gesture after a run of pickups puts them away. |
@@ -71,6 +76,8 @@ Made for and tested with **[Fresh Animations: Player Extension](https://modrinth
 |  | Putting on armour | Helmet, chestplate, leggings and boots — each its own way. |
 |  | Curios accessories | Put on where they are worn. |
 |  | Shaking off | After water, powder snow and mud. |
+|  | Fishing | The cast, the wait, the bite and the haul, each with the whole body. |
+|  | Fright | A frightening sound near by: a shudder and a step back from it, a hop back from a worse one, the hands on guard and a look at where it came from. |
 |  | Other players | All of these show on other players too. |
 | **Machines** | Cranks and valves | Turned with the whole body: feet, hips, torso and hands. |
 |  | Steering wheel | Held hand over hand, one hand always on the rim. |
@@ -78,6 +85,8 @@ Made for and tested with **[Fresh Animations: Player Extension](https://modrinth
 |  | Weighted ejector | Bracing on the lid, the launch, the flight. |
 | **Transport** | Moving transport | Hands brace on what is near; a rope held at the edge. |
 |  | Horses | You stay on the saddle of an animated horse; optional riding pose. |
+|  | Boats | The hands on the oars and the body in the stroke; a passenger sits in the bow facing the rower; a chest boat keeps its chest in the bow. |
+|  | Minecarts | Sat against the back, the hands on the sides, the body thrown about by the bends and the drops. |
 |  | Sable sub-levels | Contacts follow a ship under way. |
 
 ## Blocks you can interact with
@@ -103,6 +112,7 @@ Everything below is optional — the matching animations turn on when the mod is
 | **[Supplementaries](https://modrinth.com/mod/supplementaries)** | Crank, bellows, faucet, globe, jars, pedestals, shelves and other blocks used by hand. |
 | **[Curios](https://modrinth.com/mod/curios)** | Putting on accessories: ring and bracelet, necklace, belt, back and head pieces. |
 | **[ParCool](https://modrinth.com/mod/parcool)** | Nothing of its own: the addon stands down in ParCool's hanging, climbing, vaulting, rolling and diving moves, and goes on working in a fast run. |
+| **[Enchanted Fishing Line](https://modrinth.com/mod/enchanted-fishing-line)** | The line starts at the rod's tip as the fishing pose has it. |
 
 Contacts follow a moving Sable sub-level, so they hold on a ship under way. Interactions on Create contraptions are not covered, apart from driving controls.
 
@@ -111,6 +121,8 @@ Contacts follow a moving Sable sub-level, so they hold on a ship under way. Inte
 The addon works on the client alone, on any server: what other players do is then guessed from what the game shows of them — where they look, the swing of an arm, the block that changed.
 
 Put the same jar on a **NeoForge server** as well and nothing is guessed. Each player's game tells the server what its hands are at — the buttons held, the block or the creature under the crosshair (a ship's blocks included), the control held on to, the key typed, the click the game accepted — and the server passes it on to the players nearby. Turning a crank, holding a wheel or a throttle, typing, mining, feeding an animal then look to others as they do to you.
+
+A boat's second rider is seated in the bow by the server when it has the addon, so hits and the view are from there; without it each client draws them there by itself.
 
 The server does nothing else with it: no world or gameplay change, nothing stored. Players without the addon can join such a server, and players with it can join servers without it.
 
@@ -133,14 +145,14 @@ Open the in-game config screen (Mods → EMF Compat Core → Config) and pick th
 |---|---|
 | Hand on the wall | A hand rests on a wall beside you. |
 | Keep out of walls | The body turns to fit a narrow passage. |
-| Hands brush plants | Hands go through the plants you walk in. |
+| Lean on a fence | Stood up against a fence, a wall or a shut gate, looking at it: the hands on its top, the body leaning on them. |
+| Hands brush crops | Hands go through the crops you walk by or through. Under it: **React to all plants** - grass, flowers and the rest too. |
 | Look at things nearby | Standing idle, the head turns to a creature near you and eases back when you do anything. |
 | ↳ Idle time before looking | How long you stand still first: 1–30 s, 5 by default. |
 | ↳ Players / Villagers and traders / Animals / Monsters | Which creatures are looked at. Monsters are off by default. |
 | ↳ Read signs | Looking at a sign close by, the head settles on it and the body leans in. |
 | ↳ Turn the body in steps | A creature too far round for the neck is turned to with the body, the feet stepping round. |
 | Hold animal leads | The hand and the body follow the lead. |
-| Fright at sounds | A frightening sound near by: a shudder with the shoulders drawn up; a worse one adds a jump, a ducked head and a look round at it. Sculk, warden, creaking, creeper's fuse, explosions and thunder each have a switch. |
 | Pocket what was picked up | One gesture after a run of pickups. |
 
 **Blocks & controls**
@@ -165,6 +177,8 @@ Open the in-game config screen (Mods → EMF Compat Core → Config) and pick th
 | Look through open containers | Under it: **Hands answer what is moved**. |
 | Put on armour and accessories | Under it: **Helmet**, **Chestplate**, **Leggings and boots**, **Accessories**. |
 | Shake off water, snow and mud | Under it: **After water**, **After powder snow**, **After mud**. |
+| Fishing | The cast, the wait, the bite and the haul. Under it: **Line from the rod's tip** - with Enchanted Fishing Line the line starts at the tip of the rod. |
+| Fright at sounds | A shudder, a step or a hop back from the sound, the hands on guard, a look at where it came from - by how bad and how near it is. Under it: **Sculk**, **Warden**, **Creaking**, **Creeper's fuse**, **Explosions**, **Thunder**, and **Get used to it** - frightened again and again, each fright is taken more lightly. |
 | Hand out before the click | The hand is held out as soon as you aim at the thing with the right item. |
 | Other players' gestures | Shows these gestures on other players as well. |
 | Lean in until the hand is there | The torso and hips shift so the hand lands on what it reaches for. |
@@ -180,6 +194,8 @@ Open the in-game config screen (Mods → EMF Compat Core → Config) and pick th
 |---|---|
 | Horse sync | Keeps you on the saddle of an animated horse. Under it: **Riding animation**. |
 | Brace on moving transport | Hands hold on to what is near while the vehicle moves. |
+| Row a boat | The hands on the oars, the body in the stroke. Under it: **Passenger in the bow** - a second rider sits in the bow facing the rower; **Chest in the bow** - a chest boat's chest is drawn in the bow, the rower aft. |
+| Ride in a minecart | The hands on the sides, the body thrown about by the ride. Under it: **Legs inside the cart**. |
 
 **Debug** holds logging switches; leave them off for normal play.
 
