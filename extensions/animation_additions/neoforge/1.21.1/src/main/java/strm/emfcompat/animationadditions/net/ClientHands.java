@@ -51,7 +51,7 @@ public final class ClientHands {
     }
 
     /** Whether the server we are on passes these on at all. */
-    private static boolean connected() {
+    public static boolean connected() {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
         return connection != null && connection.hasChannel(HandsState.TYPE);
     }

@@ -3,7 +3,9 @@
   "minVersion": "0.8",
   "package": "strm.emfcompat.animationadditions.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "mixins": [
+    "BoatSeatMixin"
+  ],
   "client": [
     "horsesync.AbstractHorseRendererAccessor",
     "horsesync.PlayerModelMixin",

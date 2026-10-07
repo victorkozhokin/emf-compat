@@ -144,6 +144,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         FootGrounding.apply(uuid, parts);
         strm.emfcompat.animationadditions.ride.MinecartRide.legs(uuid, parts);
         strm.emfcompat.animationadditions.ride.BoatRide.seat(uuid, parts);
+        strm.emfcompat.animationadditions.ride.BoatPassenger.legs(uuid, parts);
         EjectorLaunch.apply(uuid, parts);
         WallSqueeze.apply(uuid, parts);
         var supportBase = InteractionRuntime.beginSupport(uuid, parts);
@@ -185,6 +186,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         strm.emfcompat.animationadditions.transport.TransportGrip.aim(uuid, parts);
         strm.emfcompat.animationadditions.lead.LeadHold.capture(uuid, parts);
         strm.emfcompat.animationadditions.ride.BoatRide.grip(uuid, parts);
+        strm.emfcompat.animationadditions.ride.BoatPassenger.grip(uuid, parts);
         InteractionRuntime.finishHands(uuid, parts, contactBase, EMFState.getFrameCounter(), mainModel);
     }
 }

@@ -112,6 +112,8 @@ public final class MinecartRide implements InteractionProvider {
         }
         state.riding = true;
         state.weight += (1f - state.weight) * Smoothing.follow(dt, 0.2);
+        // Carried along, a rider has no stride: the game counts one for another player all the same, and the pack bobs to it.
+        player.walkAnimation.setSpeed(0f);
         float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
 
         // What the cart's speed gained this tick, blocks a second a second, eased over a few ticks.

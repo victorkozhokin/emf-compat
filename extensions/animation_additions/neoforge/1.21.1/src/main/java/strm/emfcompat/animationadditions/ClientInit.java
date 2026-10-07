@@ -64,6 +64,12 @@ final class ClientInit {
         EjectorLaunch.register(blocks);
         HorseSync.register(riding, modEventBus);
         strm.emfcompat.animationadditions.ride.BoatRide.register(riding);
+        strm.emfcompat.animationadditions.ride.BoatPassenger.register(riding);
+        // In the bow as the server has it, when the server has the addon; else as this client is set.
+        strm.emfcompat.animationadditions.ride.BoatSeats.client = () -> strm.emfcompat.animationadditions.net.ClientHands.connected()
+                || strm.emfcompat.core.EMFCompatCore.isCompatEnabled() && strm.emfcompat.core.EMFCompatConfig.getBoolean(EMFCompatAnimationAdditionsMod.KEY_ENABLED, true)
+                && strm.emfcompat.core.EMFCompatConfig.getBoolean(strm.emfcompat.animationadditions.ride.BoatRide.KEY_ENABLED, true)
+                && strm.emfcompat.core.EMFCompatConfig.getBoolean(strm.emfcompat.animationadditions.ride.BoatPassenger.KEY_ENABLED, true);
         strm.emfcompat.animationadditions.ride.MinecartRide.register(riding);
         strm.emfcompat.animationadditions.transport.TransportGrip.register(riding, debug);
         DebugLog.register(debug);
@@ -88,6 +94,7 @@ final class ClientInit {
         InteractionRuntime.register(Furniture.INSTANCE);
         InteractionRuntime.register(Mining.INSTANCE);
         InteractionRuntime.register(strm.emfcompat.animationadditions.ride.BoatRide.INSTANCE);
+        InteractionRuntime.register(strm.emfcompat.animationadditions.ride.BoatPassenger.INSTANCE);
         InteractionRuntime.register(strm.emfcompat.animationadditions.ride.MinecartRide.INSTANCE);
         AnimationAdditionsHook.register();
         // Leaving a world drops every feature's per-entity state with it.

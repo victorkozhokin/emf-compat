@@ -16,7 +16,6 @@ import strm.emfcompat.animationadditions.interaction.Ease;
 import strm.emfcompat.animationadditions.interaction.Category;
 import strm.emfcompat.animationadditions.interaction.Effector;
 import strm.emfcompat.animationadditions.interaction.EntityStates;
-import strm.emfcompat.animationadditions.interaction.HandContacts;
 import strm.emfcompat.animationadditions.interaction.InteractionContext;
 import strm.emfcompat.animationadditions.interaction.InteractionProvider;
 import strm.emfcompat.animationadditions.interaction.Skeleton;
@@ -152,6 +151,8 @@ public final class BoatRide implements InteractionProvider {
 
         state.riding = true;
         double dt = context.dt();
+        // Carried along, a rider has no stride: the game counts one for another player all the same, and the pack bobs to it.
+        player.walkAnimation.setSpeed(0f);
         boolean pulling = false;
         for (int hand = 0; hand < 2; hand++) {
             int side = (hand == 0) == firstRight ? 0 : 1;
@@ -187,7 +188,7 @@ public final class BoatRide implements InteractionProvider {
                 continue;
             }
             int side = (hand == 0) == firstRight ? 0 : 1;
-            Vec3 rest = gunwale(state, hand, boat, side, frame, hand == 0 ? -HALF_SHOULDERS : HALF_SHOULDERS, leaning, partial, dt);
+            Vec3 rest = gunwale(state.along, state.resting, hand, boat, side, frame, shoulder(hand == 0 ? -HALF_SHOULDERS : HALF_SHOULDERS, leaning, SIT_BACK), partial, dt);
             if (hand == 0) {
                 right = right.lerp(rest, free);
                 rightAt = Body.model(frame, right);
@@ -219,11 +220,9 @@ public final class BoatRide implements InteractionProvider {
         if (r != null && r.reach() > MAX_REACH) r = null;
         if (l != null && l.reach() > MAX_REACH) l = null;
         if (r != null) {
-            HandContacts.remember(context, id(), Effector.RIGHT_ARM, right);
             out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.RIGHT_ARM, new float[]{r.x(), r.y()}));
         }
         if (l != null) {
-            HandContacts.remember(context, id(), Effector.LEFT_ARM, left);
             out.add(Candidate.single(id(), Category.PASSIVE, PRIORITY, 1f, TIMING, Effector.LEFT_ARM, new float[]{l.x(), l.y()}));
         }
         context.decide(r == null && l == null ? "out-of-reach" : pulling ? "row" : "hold");
@@ -256,6 +255,29 @@ public final class BoatRide implements InteractionProvider {
         return (low + high) * 0.5f;
     }
 
+    /** Where a shoulder is with the torso leant back by {@code lean} and the rider sat {@code back} pixels back: the waist is at y 12, back is +z. */
+    static Vector3f shoulder(float side, float lean, float back) {
+        return new Vector3f(side, Skeleton.WAIST.y - TORSO * Mth.cos(lean), back + TORSO * Mth.sin(lean));
+    }
+
+    /** Brings a fist onto its place: the arm turned onto it from where the shoulder is, and what is left taken up at the shoulder. */
+    static float settle(net.minecraft.client.model.geom.ModelPart arm, Vector3f at, float weight) {
+        strm.emfcompat.animationadditions.interaction.ArmAim.towards(arm, at, weight, true);
+        Vector3f left = new Vector3f(at).sub(Body.tip(arm, GRIP));
+        float gap = left.length();
+        if (gap > SHRUG) left.normalize(SHRUG);
+        arm.x += left.x * weight;
+        arm.y += left.y * weight;
+        arm.z += left.z * weight;
+        return gap;
+    }
+
+    /** How far the one who rows {@code boat} leans back now, radians; 0 with nobody rowing. */
+    static float rowerLean(Boat boat) {
+        State state = boat.getFirstPassenger() == null ? null : STATES.fresh(boat.getFirstPassenger().getUUID());
+        return state == null || !state.riding ? 0f : -state.pitch.value;
+    }
+
     /** From the shoulder to the handle with the torso leant back by {@code lean}: the waist is at y 12, back is +z. */
     private static float reach(Vector3f handle, float side, float lean) {
         float y = Skeleton.WAIST.y - TORSO * Mth.cos(lean), z = SIT_BACK + TORSO * Mth.sin(lean);
@@ -274,9 +296,9 @@ public final class BoatRide implements InteractionProvider {
 
     /**
      * Where on the gunwale of paddle {@code side}'s side a hand rests: the place along its top an
-     * arm's length from that shoulder as the torso leans now, before the body rather than behind it.
+     * arm's length from the shoulder at {@code centre} (model pixels), before the body rather than behind it.
      */
-    private static Vec3 gunwale(State state, int hand, Boat boat, int side, IKFrame frame, float shoulder, float lean, float partial, double dt) {
+    static Vec3 gunwale(float[] slid, boolean[] laid, int hand, Boat boat, int side, IKFrame frame, Vector3f centre, float partial, double dt) {
         float z0 = side == 0 ? GUNWALE_Z : -GUNWALE_Z;
         Vec3 from = world(boat, new Vector3f(-GUNWALE_HALF, GUNWALE_Y, z0), partial), to = world(boat, new Vector3f(GUNWALE_HALF, GUNWALE_Y, z0), partial);
         Vector3f a = Body.model(frame, from), b = Body.model(frame, to);
@@ -291,7 +313,6 @@ public final class BoatRide implements InteractionProvider {
         }
         // Where the sphere of an arm's length round the shoulder cuts the plank's top: solved, not searched, so the
         // place moves as evenly as the shoulder does. Of the two cuts the one before the body.
-        Vector3f centre = new Vector3f(shoulder, Skeleton.WAIST.y - TORSO * Mth.cos(lean), SIT_BACK + TORSO * Mth.sin(lean));
         Vector3f along = new Vector3f(b).sub(a), off = new Vector3f(a).sub(centre);
         float qa = along.lengthSquared(), qb = 2f * off.dot(along), qc = off.lengthSquared() - GRIP * GRIP;
         float found = qb * qb - 4f * qa * qc;
@@ -299,12 +320,12 @@ public final class BoatRide implements InteractionProvider {
         float t = found < 0f ? -qb / (2f * qa) : (-qb - (float) Math.sqrt(found)) / (2f * qa);
         t = Mth.clamp(t, 0f, 1f);
         // The hand slides along the plank after the body; eased, so that what little the shoulder shakes does not show in it.
-        if (!state.resting[hand]) {
-            state.along[hand] = t;
-            state.resting[hand] = true;
+        if (!laid[hand]) {
+            slid[hand] = t;
+            laid[hand] = true;
         }
-        state.along[hand] += (t - state.along[hand]) * Smoothing.follow(dt, SLIDE_SECONDS);
-        return from.lerp(to, state.along[hand]);
+        slid[hand] += (t - slid[hand]) * Smoothing.follow(dt, SLIDE_SECONDS);
+        return from.lerp(to, slid[hand]);
     }
 
     /**
@@ -320,20 +341,14 @@ public final class BoatRide implements InteractionProvider {
             float weight = strm.emfcompat.animationadditions.interaction.InteractionRuntime.weight(uuid, effector, INSTANCE.id());
             net.minecraft.client.model.geom.ModelPart arm = parts.apply(hand == 0 ? "right_arm" : "left_arm");
             if (arm == null || weight < 0.02f) continue;
-            strm.emfcompat.animationadditions.interaction.ArmAim.towards(arm, state.handle[hand], weight, true);
-            Vector3f left = new Vector3f(state.handle[hand]).sub(Body.tip(arm, GRIP));
-            state.gap[hand] = left.length();
-            if (left.length() > SHRUG) left.normalize(SHRUG);
-            arm.x += left.x * weight;
-            arm.y += left.y * weight;
-            arm.z += left.z * weight;
+            state.gap[hand] = settle(arm, state.handle[hand], weight);
             state.miss[hand] = Body.tip(arm, GRIP).distance(state.handle[hand]);
         }
         if (strm.emfcompat.animationadditions.DebugLog.trace() && state.trace.due(50_000_000L)) {
             net.minecraft.client.model.geom.ModelPart body = parts.apply("body");
-            org.slf4j.LoggerFactory.getLogger("EMFCompatRide").info("[BoatTrace] missR={} missL={} gapR={} gapL={} freeR={} freeL={} pitch={} yaw={}",
+            org.slf4j.LoggerFactory.getLogger("EMFCompatRide").info("[BoatTrace] missR={} missL={} gapR={} gapL={} freeR={} freeL={} pitch={} yaw={} handleR={} asked={} seated={}",
                     state.miss[0], state.miss[1], state.gap[0], state.gap[1], state.free[0], state.free[1],
-                    body == null ? 0 : Math.toDegrees(body.xRot), body == null ? 0 : Math.toDegrees(body.yRot));
+                    body == null ? 0 : Math.toDegrees(body.xRot), body == null ? 0 : Math.toDegrees(body.yRot), state.handle[0], Math.toDegrees(state.pitch.value), state.seated);
         }
     }
 
