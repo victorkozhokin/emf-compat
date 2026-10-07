@@ -148,9 +148,12 @@ public final class ContainerSearch extends Gesture {
      */
     public static boolean free(AbstractClientPlayer player, BlockPos pos) {
         Boolean menu = menu(player);
-        if (menu != null) return menu;
+        if (Boolean.TRUE.equals(menu)) return true;
         Claim claim = CLAIMS.get(pos);
-        return claim == null || claim.owner.equals(player.getUUID()) || System.nanoTime() - claim.at >= CLAIM_NANOS;
+        boolean claimed = claim != null && System.nanoTime() - claim.at < CLAIM_NANOS;
+        // The screen just shut: the lid comes down under the hands that held it, and under no others.
+        if (menu != null) return claimed && claim.owner.equals(player.getUUID());
+        return !claimed || claim.owner.equals(player.getUUID());
     }
 
     private static BlockPos looked(AbstractClientPlayer player) {
