@@ -80,7 +80,7 @@ public final class BlockUse implements InteractionProvider {
             new Composter(), new FlowerPot(), new RespawnAnchor(), new NoteBlock(), new Repeater(), new Comparator(),
             new DaylightDetector(), new Cake(), new Barrel(), new Candle(), new ValveHandle(), new SteeringWheel(),
             new CraftingTable(), new Stonecutter(), new Bell(), new FenceGate(), new Cauldron(), new Beehive(),
-            new CandleCake(), new Tnt(), new Crafter(), new EnchantingTable(), new CartographyTable(),
+            new CandleCake(), new Tnt(), new Crafter(), new EnchantingTable(), new CartographyTable(), new BrewingStand(),
             new ItemRest(ModBlock.exact("com.simibubi.create.content.logistics.depot.DepotBlock", "create:depot"), "getHeldItem", 13),
             new ItemDrain(), new Basin(), new BlazeBurner(), new ContraptionControls(),
             ItemRest.front(ModBlock.exact("com.simibubi.create.content.kinetics.crafter.MechanicalCrafterBlock", "create:mechanical_crafter"), "getInventory"),

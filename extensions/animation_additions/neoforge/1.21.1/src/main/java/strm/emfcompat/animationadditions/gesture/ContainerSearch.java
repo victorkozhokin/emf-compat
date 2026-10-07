@@ -9,6 +9,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
 import net.minecraft.world.level.block.entity.LidBlockEntity;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -165,7 +166,8 @@ public final class ContainerSearch extends Gesture {
     private static boolean opened(AbstractClientPlayer player, BlockPos pos) {
         Level level = player.level();
         BlockEntity entity = level.getBlockEntity(pos);
-        if (entity == null) return false;
+        // A brewing stand's hands are on its bottles (BlockUse), not rummaging in it.
+        if (entity == null || entity instanceof BrewingStandBlockEntity) return false;
         Minecraft mc = Minecraft.getInstance();
         // This player's own: the screen is the word on it, also for what has no lid to watch.
         if (player == mc.player && Boolean.TRUE.equals(menu(player)) && entity instanceof BaseContainerBlockEntity) return true;

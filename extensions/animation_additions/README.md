@@ -82,7 +82,7 @@ Made for and tested with **[Fresh Animations: Player Extension](https://modrinth
 
 ## Blocks you can interact with
 
-**Vanilla:** buttons, levers, doors, fence gates, chests, barrels, lectern, chiseled bookshelf, jukebox, note block, composter, cauldron, beehive and bee nest, respawn anchor, cake, candles and candle cake, flower pot, repeater, comparator, daylight detector, enchanting table, cartography table, crafting table, stonecutter, crafter, vault, bell, TNT, campfire.
+**Vanilla:** buttons, levers, doors, fence gates, chests, barrels, lectern, chiseled bookshelf, jukebox, note block, composter, cauldron, beehive and bee nest, respawn anchor, cake, candles and candle cake, flower pot, repeater, comparator, daylight detector, enchanting table, cartography table, brewing stand, crafting table, stonecutter, crafter, vault, bell, TNT, campfire.
 
 **Create:** hand crank, valve handles, weighted ejector, train controls, contraption controls, factory gauge, content observer, track station, depot, basin, item drain, blaze burner, mechanical arm, deployer, mechanical crafter, package frogport, packager and repackager, postbox, rotation speed controller, sequenced gearshift, stockpile switch, display link, redstone link, elevator contact, stock ticker, redstone requester, funnels, smart chute, creative motor, mechanical bearing.
 
