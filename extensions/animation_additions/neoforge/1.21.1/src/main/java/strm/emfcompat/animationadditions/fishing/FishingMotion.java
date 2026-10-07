@@ -98,23 +98,6 @@ public final class FishingMotion {
         return new Aim(new Vector3f(HAULED), 0.06, -2.2f * stagger - 0.6f, seconds < HAUL * 0.7f, 0f, SWEEP, 0f, 0f, 2);
     }
 
-    /** Seconds: the easing down after the line is in - after a catch, and after a lift with nothing on it. */
-    public static final float EASE = 0.95f, EASE_EMPTY = 0.65f;
-    /** All but where the hand hangs with a rod in it: from here, giving the pose up shows nothing. */
-    private static final Vector3f RESTED = new Vector3f(-6f, 10.3f, -2.5f);
-
-    /**
-     * {@code seconds} into easing down once the line is in. One unhurried move and no stops in it:
-     * the rod sinks from where the haul left it to where the hand hangs, and the turn, the weight
-     * and the wide stance are given back along the same curve.
-     */
-    public static Aim ease(float seconds, boolean hooked) {
-        float done = seconds / ((hooked ? EASE : EASE_EMPTY) * 0.85f);
-        done = done >= 1f ? 1f : done <= 0f ? 0f : done * done * (3f - 2f * done);
-        Vector3f point = new Vector3f(hooked ? HAULED : LIFTED).lerp(RESTED, done);
-        return new Aim(point, 0.16, (hooked ? -0.6f : -0.3f) * (1f - done), false, 0f, SWEEP * (1f - done), 0f, 0f, done < 0.45f ? 2 : done < 0.8f ? 1 : 0);
-    }
-
     /** {@code point}, given for a rod in the right hand, for the hand it is in. */
     public static Vector3f sided(Vector3f point, boolean right) {
         return right ? point : point.mul(-1f, 1f, 1f);

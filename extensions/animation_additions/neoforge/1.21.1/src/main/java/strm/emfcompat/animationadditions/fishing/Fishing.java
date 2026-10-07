@@ -45,8 +45,7 @@ import java.util.function.Function;
  * The click (or the float appearing, for another player) is the cast; while the float rides the
  * water the rod is held out over it; the server's word of a bite brings the second hand to the
  * rod and the weight forward; the float gone is the line brought in - heaved with both hands
- * after a bite, lifted in one without - and then the rod let down before the body, a pause over
- * the catch if there is one, before the pose is given up.
+ * after a bite, lifted in one without - and then let go of slowly, into standing.
  *
  * <p>Built as the heavy throttle is: what is driven is the place of the rod hand
  * ({@link FishingMotion}), quick, on a spring; the body is then fitted to that place after the
@@ -63,7 +62,10 @@ public final class Fishing implements InteractionProvider {
     public static final String KEY_ENABLED = "fishing.enabled", KEY_LINE = "fishing.lineOnTip";
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatFishing");
 
-    private static final Candidate.Timing TIMING = new Candidate.Timing(0.08, 0.07, 0.02);
+    /** The fade-out is long - the runtime lets a hand go over some six of these - so that the haul runs out into standing instead of stopping. */
+    private static final Candidate.Timing TIMING = new Candidate.Timing(0.08, 0.15, 0.02);
+    /** Seconds: the body, the turn and the weight coming back to standing once the pose is given up. */
+    private static final double RELEASE_SECONDS = 0.32;
     /** Seconds: a bite this long ago still makes the haul a heave; the body's coming after the hand; the weight's going over. */
     private static final double FRESH_BITE = 1.5, BODY_SECONDS = 0.17, WEIGHT_SECONDS = 0.13;
     /** Model pixels the rod hand is carried to the side after the float, for a float square off to that side. */
@@ -76,7 +78,7 @@ public final class Fishing implements InteractionProvider {
     /** The rod's tip against the arm that holds it, model pixels in the arm's own space (y runs down the arm, -z before it). */
     private static final Vector3f TIP = new Vector3f(0f, 8.5f, -12f);
 
-    private enum Phase { NONE, CAST, WAIT, BITE, HAUL, EASE }
+    private enum Phase { NONE, CAST, WAIT, BITE, HAUL }
 
     private static final class State {
         Phase phase = Phase.NONE;
@@ -144,7 +146,7 @@ public final class Fishing implements InteractionProvider {
         state.swung = player.swinging;
         if (!able) {
             state.phase = Phase.NONE;
-        } else if (clicked && hook == null && (state.phase == Phase.NONE || state.phase == Phase.EASE)) {
+        } else if (clicked && hook == null && state.phase == Phase.NONE) {
             enter(state, Phase.CAST, now);
         } else if (hook != null && !state.hadHook) {
             if (state.phase != Phase.CAST) enter(state, Phase.CAST, now);
@@ -161,9 +163,6 @@ public final class Fishing implements InteractionProvider {
         } else if (state.phase == Phase.BITE && !biting) {
             enter(state, Phase.WAIT, now);
         } else if (state.phase == Phase.HAUL && in >= (state.hooked ? FishingMotion.HAUL : FishingMotion.LIFT)) {
-            // Not straight back to standing: the rod is let down first.
-            enter(state, Phase.EASE, now);
-        } else if (state.phase == Phase.EASE && in >= (state.hooked ? FishingMotion.EASE : FishingMotion.EASE_EMPTY)) {
             state.phase = Phase.NONE;
         } else if (state.phase == Phase.NONE && hook != null) {
             // Come upon with the line already out: another player's, or one's own after a ride.
@@ -171,10 +170,10 @@ public final class Fishing implements InteractionProvider {
         }
         state.hadHook = hook != null && able;
         if (state.phase == Phase.NONE) {
-            state.shown += -state.shown * Smoothing.follow(dt, 0.1);
-            state.weight += -state.weight * Smoothing.follow(dt, WEIGHT_SECONDS);
+            state.shown += -state.shown * Smoothing.follow(dt, RELEASE_SECONDS);
+            state.weight += -state.weight * Smoothing.follow(dt, RELEASE_SECONDS);
             state.freeSwing += -state.freeSwing * Smoothing.follow(dt, 0.12);
-            state.turn += -state.turn * Smoothing.follow(dt, 0.2);
+            state.turn += -state.turn * Smoothing.follow(dt, RELEASE_SECONDS);
             state.forward += -state.forward * Smoothing.follow(dt, 0.2);
             state.aside += -state.aside * Smoothing.follow(dt, 0.2);
             state.twoHands = false;
@@ -189,10 +188,9 @@ public final class Fishing implements InteractionProvider {
             case CAST -> FishingMotion.cast(in);
             case BITE -> FishingMotion.bite(in);
             case HAUL -> FishingMotion.haul(in, state.hooked);
-            case EASE -> FishingMotion.ease(in, state.hooked);
             default -> FishingMotion.waiting(in);
         };
-        state.turn += (aim.turn() - state.turn) * Smoothing.follow(dt, state.phase == Phase.EASE ? 0.22 : 0.14);
+        state.turn += (aim.turn() - state.turn) * Smoothing.follow(dt, 0.14);
         state.forward += (aim.forward() - state.forward) * Smoothing.follow(dt, 0.3);
         state.aside += (aim.aside() - state.aside) * Smoothing.follow(dt, 0.3);
         state.stance = aim.stance();
@@ -219,7 +217,7 @@ public final class Fishing implements InteractionProvider {
         state.y.update(wanted.y, aim.quick(), dt);
         state.z.update(wanted.z, aim.quick(), dt);
         state.point.set(state.x.value, state.y.value, state.z.value);
-        state.weight += (aim.weight() - state.weight) * Smoothing.follow(dt, state.phase == Phase.EASE ? WEIGHT_SECONDS * 2 : WEIGHT_SECONDS);
+        state.weight += (aim.weight() - state.weight) * Smoothing.follow(dt, WEIGHT_SECONDS);
         state.freeSwing += (aim.freeSwing() - state.freeSwing) * Smoothing.follow(dt, 0.09);
         state.twoHands = aim.twoHands();
         state.shown += (1f - state.shown) * Smoothing.follow(dt, 0.08);
@@ -283,8 +281,8 @@ public final class Fishing implements InteractionProvider {
         float owned = state.phase == Phase.NONE ? 0f
                 : InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
         if (owned < 1e-3f && !state.reach.active()) return;
-        // Easing down, the body is in no hurry at all.
-        state.reach.followSeconds = state.phase == Phase.EASE ? BODY_SECONDS * 1.6 : BODY_SECONDS;
+        // Given up, the pose is let go of slowly: the body comes back to standing in its own time.
+        state.reach.followSeconds = state.phase == Phase.NONE ? RELEASE_SECONDS : BODY_SECONDS;
         state.reach.angleLimit = (float) Math.toRadians(34);
         // Forward is -z.
         state.reach.weightForward = state.standing ? -state.weight : 0f;
