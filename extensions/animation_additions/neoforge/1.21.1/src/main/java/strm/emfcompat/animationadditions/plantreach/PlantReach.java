@@ -51,7 +51,8 @@ public final class PlantReach implements InteractionProvider {
 
     public static final PlantReach INSTANCE = new PlantReach();
     private static final int PRIORITY = 10;
-    private static final Candidate.Timing TIMING = new Candidate.Timing(0.15, 0.2, 0.08);
+    /** The fade-out is short: the runtime lets a hand go over six of these, and past a field's end the hand hung in the air for a second. */
+    private static final Candidate.Timing TIMING = new Candidate.Timing(0.15, 0.06, 0.08);
 
     public static final String KEY_ENABLED = "plantreach.enabled", KEY_ALL = "plantreach.all";
 
@@ -182,7 +183,7 @@ public final class PlantReach implements InteractionProvider {
     }
 
     /** Seconds: a plant has to be in reach this long before the hand goes out to it, and out of reach this long before the hand is let fall. */
-    private static final double DWELL_SECONDS = 0.12, LINGER_SECONDS = 0.25;
+    private static final double DWELL_SECONDS = 0.12, LINGER_SECONDS = 0.1;
 
     /** One hand's reach, steadied: taken up only once it has lasted, and kept through a short gap as it last was against the body. */
     private static final class Steady {
@@ -311,7 +312,10 @@ public final class PlantReach implements InteractionProvider {
                 if (point.subtract(centre).dot(side) < ACROSS || point.subtract(from).dot(ahead) < -BEHIND) continue;
                 double distance = point.distanceTo(hanging);
                 if (previous != null) distance += point.distanceTo(previous) * .05;
-                if (distance < bestDistance) { best = new Surface(point, box); bestDistance = distance; }
+                // A hand trailing over a field leans on nothing: no contact is kept for it, so no stance is taken for it and
+                // the arm is not shifted at the shoulder to meet a point - both showed, the arm off the body and the body
+                // changing its stand in a frame as the second hand came onto the field.
+                if (distance < bestDistance) { best = new Surface(point, whole ? null : box); bestDistance = distance; }
             }
         }
         return best;
