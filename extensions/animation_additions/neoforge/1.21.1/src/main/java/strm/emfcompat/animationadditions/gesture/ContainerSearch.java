@@ -24,8 +24,12 @@ import strm.emfcompat.animationadditions.interaction.Ease;
  * Looking through a container: while a chest, a barrel or a shulker box the player faces stands
  * open, one hand rests on its near edge and the other goes in and moves about, dipping now and
  * then; the body leans over it. It lasts as long as the container is open, and ends with both
- * hands drawn back. Whose container it is cannot be read from the game - it is the open one a
- * player looks at from within reach; for this player, the one whose screen is up.
+ * hands drawn back.
+ *
+ * <p>Whose container it is: the player whose game has its screen up - our own, or another's as
+ * their game tells it. Of a player whose game tells nothing (a server without the addon) it is a
+ * guess: the open container under their crosshair, and only for the first of them to be seen at
+ * it - an open chest belongs to that one until it shuts, and nobody else near reaches for it.</p>
  */
 public final class ContainerSearch extends Gesture {
     public static final ContainerSearch INSTANCE = new ContainerSearch();
@@ -33,11 +37,21 @@ public final class ContainerSearch extends Gesture {
     private static final long LOOK_EVERY_NANOS = 250_000_000L;
     private static final double REACH = 4.5;
     private static final float HOLD = .5f;
+    /** A guessed user's eyes may leave the container this long before the hands do. */
+    private static final long AWAY_NANOS = 750_000_000L;
+    /** A claim not renewed for this long is dropped. */
+    private static final long CLAIM_NANOS = 1_500_000_000L;
+
+    /** Who is at an open container, and whether their own game said so. */
+    private record Claim(java.util.UUID owner, boolean told, long at) {
+    }
+
+    private static final java.util.Map<BlockPos, Claim> CLAIMS = new java.util.HashMap<>();
 
     private static final class Open {
         BlockPos pos;
         boolean open;
-        long lookedAt, actedAt;
+        long lookedAt, actedAt, seenAt;
         /** For another player: how many slot actions their game had counted when last looked. */
         int heardActions = -1;
         java.util.List<net.minecraft.world.item.ItemStack> contents;
@@ -71,11 +85,16 @@ public final class ContainerSearch extends Gesture {
         if (now - open.lookedAt < LOOK_EVERY_NANOS) return;
         open.lookedAt = now;
         AbstractClientPlayer player = context.player();
-        BlockPos pos = looked(player);
-        if (pos != null && !opened(player, pos)) pos = null;
-        // The one it started with is kept while it stays open, wherever the eyes wander inside it.
+        Boolean menu = menu(player);
+        BlockPos pos = Boolean.FALSE.equals(menu) ? null : looked(player);
+        if (pos != null && (!opened(player, pos) || !claim(player, pos, menu != null, now))) pos = null;
+        if (pos != null) open.seenAt = now;
+        // The one it started with is kept while it stays open: with its screen up wherever the eyes
+        // wander inside it, on a guess only for a glance away.
         if (open.pos != null && play.playing && pos == null && opened(player, open.pos)
-                && player.getEyePosition().distanceTo(Vec3.atCenterOf(open.pos)) < REACH + 1) pos = open.pos;
+                && (menu != null ? menu : now - open.seenAt < AWAY_NANOS)
+                && player.getEyePosition().distanceTo(Vec3.atCenterOf(open.pos)) < REACH + 1
+                && claim(player, open.pos, menu != null, now)) pos = open.pos;
         open.open = pos != null;
         if (pos == null) return;
         if (!pos.equals(open.pos)) { open.contents = null; open.actedAt = 0; }
@@ -100,6 +119,42 @@ public final class ContainerSearch extends Gesture {
         }
     }
 
+    /**
+     * Whether the player has a container's screen up: as our own game or theirs says, or
+     * {@code null} where theirs says nothing.
+     */
+    private static Boolean menu(AbstractClientPlayer player) {
+        Minecraft mc = Minecraft.getInstance();
+        if (player == mc.player)
+            return mc.screen instanceof AbstractContainerScreen<?> screen && screen.getMenu() != player.inventoryMenu;
+        var told = strm.emfcompat.animationadditions.net.ClientHands.of(player);
+        return told == null ? null : told.menu() != 0;
+    }
+
+    /**
+     * Takes the open container for this player, or says it is another's. What a player's own game
+     * told outranks a guess; a guess holds against other guesses until the container shuts.
+     */
+    private static boolean claim(AbstractClientPlayer player, BlockPos pos, boolean told, long now) {
+        Claim claim = CLAIMS.get(pos);
+        if (claim != null && !claim.owner.equals(player.getUUID()) && now - claim.at < CLAIM_NANOS
+                && (claim.told || !told)) return told && claim.told;
+        if (CLAIMS.size() > 256) CLAIMS.clear();
+        CLAIMS.put(pos.immutable(), new Claim(player.getUUID(), told, now));
+        return true;
+    }
+
+    /**
+     * Whether an open container is this player's to have hands on: theirs by {@link #claim}, or
+     * nobody's yet. For what else reaches for a chest - the hands on its lid.
+     */
+    public static boolean free(AbstractClientPlayer player, BlockPos pos) {
+        Boolean menu = menu(player);
+        if (menu != null) return menu;
+        Claim claim = CLAIMS.get(pos);
+        return claim == null || claim.owner.equals(player.getUUID()) || System.nanoTime() - claim.at >= CLAIM_NANOS;
+    }
+
     private static BlockPos looked(AbstractClientPlayer player) {
         Minecraft mc = Minecraft.getInstance();
         HitResult hit = strm.emfcompat.animationadditions.net.Inputs.sight(player, REACH, 1f);
@@ -112,7 +167,7 @@ public final class ContainerSearch extends Gesture {
         if (entity == null) return false;
         Minecraft mc = Minecraft.getInstance();
         // This player's own: the screen is the word on it, also for what has no lid to watch.
-        if (player == mc.player && mc.screen instanceof AbstractContainerScreen<?> && entity instanceof BaseContainerBlockEntity) return true;
+        if (player == mc.player && Boolean.TRUE.equals(menu(player)) && entity instanceof BaseContainerBlockEntity) return true;
         if (entity instanceof ShulkerBoxBlockEntity shulker) return shulker.getProgress(1f) > .05f;
         if (entity instanceof LidBlockEntity lid) return lid.getOpenNess(1f) > .05f;
         BlockState state = level.getBlockState(pos);

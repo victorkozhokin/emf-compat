@@ -106,7 +106,8 @@ public final class ClientHands {
             flags |= HandsState.TYPING;
             key = Typewriter.pressedKey(player);
         }
-        if (mc.screen instanceof AbstractContainerScreen<?> screen) {
+        // A container opened in the world; the player's own inventory is not one.
+        if (mc.screen instanceof AbstractContainerScreen<?> screen && screen.getMenu() != player.inventoryMenu) {
             menu = 1;
             long hash = 1;
             for (Slot slot : screen.getMenu().slots)

@@ -163,7 +163,7 @@ public final class Furniture implements InteractionProvider {
                 if (middle.distanceTo(at) > RANGE + 0.5) continue;
                 double dot = middle.subtract(eye).normalize().dot(view);
                 if (dot <= bestDot) continue;
-                Grips grips = chest ? chest(at, view, level, pos.immutable(), block) : lectern(at, view, pos.immutable(), block);
+                Grips grips = chest ? chest(player, at, view, level, pos.immutable(), block) : lectern(at, view, pos.immutable(), block);
                 if (grips == null) continue;
                 if (!Visibility.visible(player, pos, space.toWorld(middle))) continue;
                 best = new Grips(grips.what, space.toWorld(grips.right), space.toWorld(grips.left), grips.reach, space, new strm.emfcompat.animationadditions.interaction.ContactTarget(space, pos, block.getBlock()));
@@ -185,7 +185,7 @@ public final class Furniture implements InteractionProvider {
     }
 
     /** The hands on the front edge of the lid, gone up with it as far as it is open. */
-    private static Grips chest(Vec3 at, Vec3 view, Level level, BlockPos pos, BlockState block) {
+    private static Grips chest(AbstractClientPlayer player, Vec3 at, Vec3 view, Level level, BlockPos pos, BlockState block) {
         Direction facing = block.getValue(block.getBlock() instanceof ChestBlock ? ChestBlock.FACING : EnderChestBlock.FACING);
         Vec3 front = Vec3.atLowerCornerOf(facing.getNormal());
         Vec3 middle = new Vec3(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
@@ -202,6 +202,8 @@ public final class Furniture implements InteractionProvider {
             float f = 1f - lid.getOpenNess(Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
             open = 1f - f * f * f;
         }
+        // Open, it is in somebody's hands already: only theirs go to it.
+        if (open > 0.05f && !strm.emfcompat.animationadditions.gesture.ContainerSearch.free(player, pos)) return null;
         double angle = open * Math.PI / 2;
         double forward = LID_DEPTH * Math.cos(angle) - LID_EDGE_UP * Math.sin(angle);
         double up = LID_DEPTH * Math.sin(angle) + LID_EDGE_UP * Math.cos(angle);
