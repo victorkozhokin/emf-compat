@@ -31,9 +31,15 @@ final class CartographyTable implements BlockTarget {
     }
 
     @Override
+    public boolean menu() {
+        return true;
+    }
+
+    @Override
     public Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit) {
         double side = DRAW_SIDE, near = DRAW_NEAR;
-        if (player == Minecraft.getInstance().player && player.containerMenu instanceof CartographyTableMenu) {
+        if (player == Minecraft.getInstance().player ? player.containerMenu instanceof CartographyTableMenu
+                : strm.emfcompat.animationadditions.net.Inputs.menuAt(player, pos)) {
             double t = System.nanoTime() / 1e9 * STROKE_SPEED;
             side += Math.sin(t) * STROKE_SIDE;
             near += Math.sin(t * 1.7) * STROKE_NEAR;

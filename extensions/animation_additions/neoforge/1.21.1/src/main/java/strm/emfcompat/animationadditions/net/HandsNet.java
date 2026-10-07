@@ -29,7 +29,7 @@ public final class HandsNet {
     }
 
     public static void register(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("1").optional();
+        PayloadRegistrar registrar = event.registrar("2").optional();
         registrar.playBidirectional(HandsState.TYPE, HandsState.CODEC,
                 new DirectionalPayloadHandler<>((state, context) -> ClientHands.receive(state),
                         (state, context) -> {

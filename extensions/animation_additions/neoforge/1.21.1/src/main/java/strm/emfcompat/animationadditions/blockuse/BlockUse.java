@@ -52,6 +52,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
 import strm.emfcompat.animationadditions.interaction.Body;
+import strm.emfcompat.animationadditions.net.Inputs;
 
 /**
  * Using a block by hand - a chiseled bookshelf's slot, and so on ({@link BlockTarget}): looking at
@@ -148,6 +149,8 @@ public final class BlockUse implements InteractionProvider {
         /** The block looked at, as it was last seen, and its target. */
         BlockPos pos;
         Object last;
+        /** For another player at the block's screen: how many slot actions their game had counted; -1 unknown. */
+        int menuActions = -1;
         BlockTarget target;
         BlockTarget.Gesture gesture;
         long gestureAt;
@@ -218,14 +221,31 @@ public final class BlockUse implements InteractionProvider {
             if (state.pos != null) {
                 BlockState block = player.level().getBlockState(state.pos);
                 Object seen = state.target.matches(block) ? state.target.snapshot(player, player.level(), state.pos, block) : block;
+                // What changes in a block's own screen is the doing of whoever has it up, not of everyone looking on.
+                Boolean menu = state.target.menu() ? Inputs.menu(player) : null;
+                BlockPos menuPos = menu == null ? null : Inputs.menuPos(player);
+                boolean theirs = menu == null || menu && (menuPos == null || menuPos.equals(state.pos));
                 if (!seen.equals(state.last)) {
-                    BlockTarget.Gesture gesture = state.target.changed(state.pos, state.last, seen);
+                    BlockTarget.Gesture gesture = theirs ? state.target.changed(state.pos, state.last, seen) : null;
                     if (gesture != null) {
                         state.gesture = gesture;
                         state.gestureAt = now;
                     }
                     state.last = seen;
                 }
+                // Another player's screen shows nothing here but that something was moved in it: the hand goes down once.
+                int moved = menu != null && menu && theirs && player != Minecraft.getInstance().player ? Inputs.menuActions(player) : -1;
+                if (moved >= 0 && state.menuActions >= 0 && moved != state.menuActions && state.gesture == null && state.target.matches(block)) {
+                    BlockTarget.Spot at = state.target.hover(player, state.pos, block,
+                            new BlockHitResult(Vec3.atCenterOf(state.pos), net.minecraft.core.Direction.UP, state.pos, false));
+                    if (at != null) {
+                        state.gesture = new BlockTarget.Gesture(at, BlockTarget.Motion.PUT);
+                        state.gestureAt = now;
+                    }
+                }
+                state.menuActions = moved;
+            } else {
+                state.menuActions = -1;
             }
             double t = state.gesture == null ? 1 : (now - state.gestureAt) / 1e9 / GESTURE_SECONDS;
             if (t >= 1) state.gesture = null;
@@ -438,7 +458,7 @@ public final class BlockUse implements InteractionProvider {
     /** The spot under the look on a block a hand uses, keeping the block to watch it change; {@code null} when none. */
     private static BlockTarget.Spot look(AbstractClientPlayer player, State state) {
         if (state.pos != null && state.target != null && state.target.quietsSwing()
-                && strm.emfcompat.animationadditions.net.Inputs.useHeld(player)) {
+                && Inputs.useHeld(player)) {
             BlockState kept = player.level().getBlockState(state.pos);
             if (state.target.matches(kept)) {
                 Vec3 local = state.target.swayCentre(player.level(), state.pos, kept);
@@ -461,7 +481,15 @@ public final class BlockUse implements InteractionProvider {
         }
         // Our own player: the game's crosshair target, the block a click uses. Sable's sub-levels
         // (Aeronautics' craft) are in it, but not in a plain pick; others' is the pick.
-        HitResult hit = strm.emfcompat.animationadditions.net.Inputs.sight(player, RANGE, 1f);
+        HitResult hit = Inputs.sight(player, RANGE, 1f);
+        // At a block's own screen the hands are on that block, wherever the look has gone since.
+        BlockPos menuPos = Inputs.menuPos(player);
+        if (menuPos != null && !(hit instanceof BlockHitResult looked && looked.getBlockPos().equals(menuPos))) {
+            BlockTarget[] screened = targetsOf(player.level().getBlockState(menuPos));
+            if (screened.length > 0 && screened[0].menu()
+                    && SubLevels.toWorld(player.level(), menuPos, Vec3.atCenterOf(menuPos)).distanceTo(player.getEyePosition()) <= RANGE + 1)
+                hit = new BlockHitResult(Vec3.atCenterOf(menuPos), Direction.UP, menuPos, false);
+        }
         if (!(hit instanceof BlockHitResult blockHit) || hit.getType() != HitResult.Type.BLOCK) {
             state.pos = null;
             return null;

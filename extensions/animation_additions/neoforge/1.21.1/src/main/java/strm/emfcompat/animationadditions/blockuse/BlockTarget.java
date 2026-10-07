@@ -64,6 +64,14 @@ public interface BlockTarget {
         return false;
     }
 
+    /**
+     * Whether using the block is done in a screen of its own - a crafting table, a stonecutter. The
+     * hands of a player known to have that screen up stay on it, and what changes in it is theirs.
+     */
+    default boolean menu() {
+        return false;
+    }
+
     /** Whether the body reaches with the hand past the arm's length, as for a lever ({@code ReachPose}). */
     default boolean reachPose() {
         return false;

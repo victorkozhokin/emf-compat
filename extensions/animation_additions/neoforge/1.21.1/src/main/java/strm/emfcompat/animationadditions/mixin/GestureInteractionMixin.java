@@ -72,6 +72,12 @@ public class GestureInteractionMixin {
                 () -> Gesture.replay(() -> game.useItemOn(player, hand, result)))) cir.setReturnValue(InteractionResult.CONSUME);
     }
 
+    /** A block's use the game accepted: the screen that follows is that block's. */
+    @Inject(method = "useItemOn", at = @At("RETURN"))
+    private void emfcompat$usedBlock(LocalPlayer player, InteractionHand hand, BlockHitResult result, CallbackInfoReturnable<InteractionResult> cir) {
+        if (cir.getReturnValue().consumesAction()) strm.emfcompat.animationadditions.net.ClientHands.used(result.getBlockPos());
+    }
+
     @Inject(method = "interact", at = @At("HEAD"))
     private void emfcompat$before(Player player, Entity target, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
         emfcompat$used = player.getItemInHand(hand).copy();

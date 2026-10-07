@@ -40,6 +40,12 @@ public final class ClientHands {
     private static HandsState sent = HandsState.NOTHING;
     private static int sentAgo, actions;
     private static long slotsHash;
+    /** The block our last accepted click used and when, game time; the block whose screen is up, {@code null} with none or not a block's. */
+    private static BlockPos used, menuPos;
+    private static long usedAt;
+    private static boolean menuUp;
+    /** A screen that comes up this soon after a block was used, ticks, is that block's. */
+    private static final int OPENED_TICKS = 20;
 
     private ClientHands() {
     }
@@ -50,10 +56,38 @@ public final class ClientHands {
         return connection != null && connection.hasChannel(HandsState.TYPE);
     }
 
+    /** Our own game accepted a use of this block: a screen that follows is its. */
+    public static void used(BlockPos pos) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
+        used = pos.immutable();
+        usedAt = mc.level.getGameTime();
+    }
+
+    /** Whether our own player has a container's screen up - one opened in the world, not their own inventory. */
+    public static boolean ownMenu() {
+        Minecraft mc = Minecraft.getInstance();
+        return mc.player != null && mc.screen instanceof AbstractContainerScreen<?> screen && screen.getMenu() != mc.player.inventoryMenu;
+    }
+
+    /** The block whose screen our own player has up; {@code null} with none, or one no block opened. */
+    public static BlockPos ownMenuPos() {
+        return ownMenu() ? menuPos : null;
+    }
+
+    private static void watchMenu(Minecraft mc) {
+        boolean up = ownMenu();
+        if (up && !menuUp)
+            menuPos = used != null && mc.level != null && mc.level.getGameTime() - usedAt <= OPENED_TICKS ? used : null;
+        if (!up) menuPos = null;
+        menuUp = up;
+    }
+
     /** Once a client tick: our own state, sent when it has changed or is due again. */
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
+        if (player != null) watchMenu(mc);
         if (player == null || !connected()) {
             sent = HandsState.NOTHING;
             return;
@@ -107,7 +141,7 @@ public final class ClientHands {
             key = Typewriter.pressedKey(player);
         }
         // A container opened in the world; the player's own inventory is not one.
-        if (mc.screen instanceof AbstractContainerScreen<?> screen && screen.getMenu() != player.inventoryMenu) {
+        if (ownMenu() && mc.screen instanceof AbstractContainerScreen<?> screen) {
             menu = 1;
             long hash = 1;
             for (Slot slot : screen.getMenu().slots)
@@ -129,12 +163,12 @@ public final class ClientHands {
         } else {
             drivePos = null;
         }
-        return new HandsState(0, flags, block, face, x, y, z, entity, throttle, typing, key, menu, actions, drive, drivePos);
+        return new HandsState(0, flags, block, face, x, y, z, entity, throttle, typing, key, menu, actions, drive, drivePos, menu == 0 ? null : menuPos);
     }
 
     /** {@code all}: everything; else everything but where on the same block the crosshair is. */
     private static boolean same(HandsState a, HandsState b, boolean all) {
-        if (a.flags() != b.flags() || a.entity() != b.entity() || a.key() != b.key() || a.drive() != b.drive() || a.menu() != b.menu() || a.actions() != b.actions()
+        if (a.flags() != b.flags() || a.entity() != b.entity() || a.key() != b.key() || a.drive() != b.drive() || a.menu() != b.menu() || !java.util.Objects.equals(a.menuPos(), b.menuPos()) || a.actions() != b.actions()
                 || !java.util.Objects.equals(a.block(), b.block()) || !java.util.Objects.equals(a.throttle(), b.throttle())
                 || !java.util.Objects.equals(a.typing(), b.typing())) return false;
         // The spot looked at on one and the same block is the only thing that waits its turn.

@@ -30,6 +30,11 @@ final class Stonecutter implements BlockTarget {
     }
 
     @Override
+    public boolean menu() {
+        return true;
+    }
+
+    @Override
     public Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit) {
         return Spots.top(pos, 8, SAW_TOP, 8);
     }

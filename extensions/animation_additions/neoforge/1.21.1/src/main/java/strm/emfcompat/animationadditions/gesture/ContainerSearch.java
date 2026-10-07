@@ -86,7 +86,9 @@ public final class ContainerSearch extends Gesture {
         open.lookedAt = now;
         AbstractClientPlayer player = context.player();
         Boolean menu = menu(player);
-        BlockPos pos = Boolean.FALSE.equals(menu) ? null : looked(player);
+        // The block the screen is of when that is known; else the one under the crosshair.
+        BlockPos pos = Boolean.FALSE.equals(menu) ? null : strm.emfcompat.animationadditions.net.Inputs.menuPos(player);
+        if (pos == null && !Boolean.FALSE.equals(menu)) pos = looked(player);
         if (pos != null && (!opened(player, pos) || !claim(player, pos, menu != null, now))) pos = null;
         if (pos != null) open.seenAt = now;
         // The one it started with is kept while it stays open: with its screen up wherever the eyes
@@ -124,11 +126,7 @@ public final class ContainerSearch extends Gesture {
      * {@code null} where theirs says nothing.
      */
     private static Boolean menu(AbstractClientPlayer player) {
-        Minecraft mc = Minecraft.getInstance();
-        if (player == mc.player)
-            return mc.screen instanceof AbstractContainerScreen<?> screen && screen.getMenu() != player.inventoryMenu;
-        var told = strm.emfcompat.animationadditions.net.ClientHands.of(player);
-        return told == null ? null : told.menu() != 0;
+        return strm.emfcompat.animationadditions.net.Inputs.menu(player);
     }
 
     /**

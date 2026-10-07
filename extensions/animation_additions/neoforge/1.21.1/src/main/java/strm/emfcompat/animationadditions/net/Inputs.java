@@ -89,6 +89,28 @@ public final class Inputs {
     }
 
     /** How many times another player has moved something in the container they have open; -1 when not known. */
+    /**
+     * Whether the player has a container's screen up: as our own game or theirs says, or
+     * {@code null} where theirs says nothing.
+     */
+    public static Boolean menu(AbstractClientPlayer player) {
+        if (player == Minecraft.getInstance().player) return ClientHands.ownMenu();
+        HandsState told = ClientHands.of(player);
+        return told == null ? null : told.menu() != 0;
+    }
+
+    /** The block whose screen the player has up; {@code null} when none, not a block's, or not known. */
+    public static BlockPos menuPos(AbstractClientPlayer player) {
+        if (player == Minecraft.getInstance().player) return ClientHands.ownMenuPos();
+        HandsState told = ClientHands.of(player);
+        return told == null || told.menu() == 0 ? null : told.menuPos();
+    }
+
+    /** Whether the player is known to be at this block's screen. */
+    public static boolean menuAt(AbstractClientPlayer player, BlockPos pos) {
+        return pos.equals(menuPos(player));
+    }
+
     public static int menuActions(AbstractClientPlayer player) {
         HandsState told = ClientHands.of(player);
         return told == null || told.menu() == 0 ? -1 : told.actions();

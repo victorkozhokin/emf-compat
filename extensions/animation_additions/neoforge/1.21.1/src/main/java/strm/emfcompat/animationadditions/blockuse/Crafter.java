@@ -48,6 +48,11 @@ final class Crafter implements BlockTarget {
     }
 
     @Override
+    public boolean menu() {
+        return true;
+    }
+
+    @Override
     public Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit) {
         return cell(pos, block, 4);
     }
