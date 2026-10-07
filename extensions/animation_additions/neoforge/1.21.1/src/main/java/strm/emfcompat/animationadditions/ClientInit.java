@@ -48,7 +48,6 @@ final class ClientInit {
         WallSqueeze.register(surroundings, debug);
         PlantReach.register(surroundings);
         LookAt.register(surroundings);
-        strm.emfcompat.animationadditions.lookat.SignRead.register(surroundings);
         strm.emfcompat.animationadditions.lead.LeadHold.register(surroundings);
         strm.emfcompat.animationadditions.pocket.PocketStash.register(surroundings);
         strm.emfcompat.animationadditions.gesture.AnimalCare.register(gestures);
@@ -86,7 +85,6 @@ final class ClientInit {
         InteractionRuntime.register(strm.emfcompat.animationadditions.fishing.Fishing.INSTANCE);
         InteractionRuntime.register(PlantReach.INSTANCE);
         InteractionRuntime.register(LookAt.INSTANCE);
-        InteractionRuntime.register(strm.emfcompat.animationadditions.lookat.SignRead.INSTANCE);
         InteractionRuntime.register(strm.emfcompat.animationadditions.lead.LeadHold.INSTANCE);
         InteractionRuntime.register(strm.emfcompat.animationadditions.pocket.PocketStash.INSTANCE);
         InteractionRuntime.register(strm.emfcompat.animationadditions.gesture.AnimalCare.INSTANCE);

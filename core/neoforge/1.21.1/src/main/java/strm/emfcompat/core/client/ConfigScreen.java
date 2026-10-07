@@ -143,6 +143,9 @@ public class ConfigScreen extends Screen {
     private void resetSection(ConfigRegistry.Section section) {
         for (ConfigRegistry.BooleanOption opt : section.booleans) {
             EMFCompatConfig.setBoolean(opt.key, opt.defaultValue);
+            if (opt instanceof ConfigRegistry.ChoiceOption choice) {
+                EMFCompatConfig.setNumber(choice.key, choice.defaultNumber);
+            }
         }
         rebuildWidgets();
     }
@@ -256,6 +259,11 @@ public class ConfigScreen extends Screen {
             int valueWidth = 36;
             for (ConfigRegistry.BooleanOption opt : section.booleans) {
                 valueWidth = Math.max(valueWidth, Math.max(font.width(opt.onText), font.width(opt.offText)) + 12);
+                if (opt instanceof ConfigRegistry.ChoiceOption choice) {
+                    for (String text : choice.texts) {
+                        valueWidth = Math.max(valueWidth, font.width(text) + 12);
+                    }
+                }
             }
             List<RowEntry> entries = new ArrayList<>();
             for (ConfigRows.Row row : ConfigRows.build(section, g -> isCollapsed(section, g))) {
@@ -336,13 +344,14 @@ public class ConfigScreen extends Screen {
     private final class OptionEntry extends RowEntry {
         private final ConfigRegistry.Section section;
         private final ConfigRows.Row row;
-        private final CycleButton<Boolean> button;
+        private final CycleButton<?> button;
 
         OptionEntry(ConfigRegistry.Section section, ConfigRows.Row row, int valueWidth) {
             this.section = section;
             this.row = row;
             ConfigRegistry.BooleanOption opt = row.option;
-            this.button = CycleButton.<Boolean>builder(v -> Component.literal(v ? opt.onText : opt.offText))
+            this.button = opt instanceof ConfigRegistry.ChoiceOption choice ? stepped(choice, valueWidth)
+                    : CycleButton.<Boolean>builder(v -> Component.literal(v ? opt.onText : opt.offText))
                     .withValues(Boolean.TRUE, Boolean.FALSE)
                     .displayOnlyValue()
                     // Raw: show what each option is actually set to, even when the global
@@ -350,6 +359,20 @@ public class ConfigScreen extends Screen {
                     .withInitialValue(EMFCompatConfig.getBooleanRaw(opt.key, opt.defaultValue))
                     .create(0, 0, valueWidth, ROW_HEIGHT, Component.literal(opt.label),
                             (btn, value) -> EMFCompatConfig.setBoolean(opt.key, value));
+        }
+
+        /** A button that steps through a {@link ConfigRegistry.ChoiceOption}'s values. */
+        private static CycleButton<Integer> stepped(ConfigRegistry.ChoiceOption choice, int valueWidth) {
+            List<Integer> steps = new ArrayList<>();
+            for (int i = 0; i < choice.values.length; i++) {
+                steps.add(i);
+            }
+            return CycleButton.<Integer>builder(i -> Component.literal(choice.texts[i]))
+                    .withValues(steps)
+                    .displayOnlyValue()
+                    .withInitialValue(choice.indexOf(EMFCompatConfig.getNumber(choice.key, choice.defaultNumber)))
+                    .create(0, 0, valueWidth, ROW_HEIGHT, Component.literal(choice.label),
+                            (btn, i) -> EMFCompatConfig.setNumber(choice.key, choice.values[i]));
         }
 
         @Override

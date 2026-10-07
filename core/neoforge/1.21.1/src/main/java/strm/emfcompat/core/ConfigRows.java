@@ -113,6 +113,9 @@ public final class ConfigRows {
 
     /** Whether the option is stored as something other than its default. */
     public static boolean modified(ConfigRegistry.BooleanOption opt, Values values) {
+        if (opt instanceof ConfigRegistry.ChoiceOption choice) {
+            return choice.indexOf(EMFCompatConfig.getNumber(choice.key, choice.defaultNumber)) != choice.indexOf(choice.defaultNumber);
+        }
         return values.raw(opt.key, opt.defaultValue) != opt.defaultValue;
     }
 

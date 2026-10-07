@@ -26,4 +26,38 @@ public final class WholeBody {
         }
         return false;
     }
+
+    private static final strm.emfcompat.animationadditions.blockuse.ModFailures SEAT =
+            new strm.emfcompat.animationadditions.blockuse.ModFailures("Take a Seat");
+    private static java.lang.reflect.Method layer, active;
+    private static Object sitLayer;
+    private static boolean looked;
+
+    /**
+     * Sat down with Take a Seat: its pose is put back over the whole body but the head after the
+     * pack has animated, so whatever this addon moves the body by is undone - and a head carried
+     * along with the body is left behind, off the neck. Only the head's own turn is added then.
+     */
+    public static boolean seated(AbstractClientPlayer player) {
+        if (SEAT.off()) return false;
+        try {
+            if (!looked) {
+                looked = true;
+                if (!net.neoforged.fml.ModList.get().isLoaded("takeaseat")) return false;
+                sitLayer = Class.forName("com.takeaseat.client.TakeASeatClient").getField("SIT_LAYER").get(null);
+                layer = Class.forName("com.zigythebird.playeranim.api.PlayerAnimationAccess")
+                        .getMethod("getPlayerAnimationLayer", AbstractClientPlayer.class, net.minecraft.resources.ResourceLocation.class);
+                active = layer.getReturnType().getMethod("isActive");
+            }
+            if (active == null) return false;
+            Object animation = layer.invoke(null, player, sitLayer);
+            return animation != null && (Boolean) active.invoke(animation);
+        } catch (ClassNotFoundException | NoSuchMethodException | NoSuchFieldException e) {
+            active = null;
+            return false;
+        } catch (Throwable t) {
+            SEAT.failed(t);
+            return false;
+        }
+    }
 }

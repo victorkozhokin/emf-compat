@@ -132,6 +132,10 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
                 && entity.emfEntity() instanceof net.minecraft.client.player.AbstractClientPlayer p ? p : null;
         if (client != null && (strm.emfcompat.animationadditions.compat.ParCoolActivity.active(client)
                 || strm.emfcompat.animationadditions.compat.WholeBody.held(client))) return;
+        if (client != null && strm.emfcompat.animationadditions.compat.WholeBody.seated(client)) {
+            strm.emfcompat.animationadditions.lookat.LookAt.apply(uuid, parts);
+            return;
+        }
         float[] before = client != null && mainModel ? strm.emfcompat.animationadditions.compat.ParCoolActivity.before(parts) : null;
         applyAllParts(uuid, parts, player, mainModel);
         if (before != null) strm.emfcompat.animationadditions.compat.ParCoolActivity.after(client, parts, before);
@@ -155,6 +159,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         strm.emfcompat.animationadditions.pocket.PocketStash.support(uuid, parts);
         strm.emfcompat.animationadditions.wallhand.FenceLean.support(uuid, parts);
         strm.emfcompat.animationadditions.fishing.Fishing.support(uuid, parts);
+        strm.emfcompat.animationadditions.lookat.LookAt.support(uuid, parts);
         Mining.support(uuid, parts);
         strm.emfcompat.animationadditions.gesture.Gesture.support(uuid, parts);
         strm.emfcompat.animationadditions.compat.CombatBody.support(uuid, parts);
@@ -174,6 +179,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         strm.emfcompat.animationadditions.fishing.Fishing.reach(uuid, parts);
         InteractionRuntime.finishSupport(uuid, parts, supportBase, EMFState.getFrameCounter(), mainModel);
         var contactBase = InteractionRuntime.beginHands(uuid, parts);
+        strm.emfcompat.animationadditions.lookat.LookAt.apply(uuid, parts);
         InteractionRuntime.apply(uuid, parts);
         // The hands on the walls of a narrow gap, from where the turned torso has put the shoulders.
         WallSqueeze.aimArms(uuid, parts);

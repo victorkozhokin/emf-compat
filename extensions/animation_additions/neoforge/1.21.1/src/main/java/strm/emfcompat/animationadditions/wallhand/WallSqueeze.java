@@ -156,7 +156,7 @@ public final class WallSqueeze {
                 && !strm.emfcompat.animationadditions.compat.ParCoolActivity.fastRun(player)
                 // Leaning on a fence the body is drawn square to it whatever way the game has it facing: taken by
                 // the game's facing the fence is a wall brushed past, and the torso was turned from it.
-                && !FenceLean.squared(uuid);
+                && !FenceLean.squared(uuid) && !strm.emfcompat.animationadditions.lookat.LookAt.turned(uuid);
         float squeezed = 0f, upRight = 0f, upLeft = 0f;
         boolean turned = false;
         boolean rightWall = false, leftWall = false;

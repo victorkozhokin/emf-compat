@@ -54,7 +54,7 @@ Made for and tested with **[Fresh Animations: Player Extension](https://modrinth
 |  | Narrow passages | The body turns to fit the gap. |
 | **Surroundings** | Hand on the wall | A hand rests on the wall beside you. |
 |  | Plants | Hands brush through grass, crops and flowers. |
-|  | Look at creatures | A glance at a creature nearby while idle. |
+|  | Look at things | Standing idle, a look at a creature nearby, the body stepping round if it is far to the side; signs are read. |
 |  | Animal leads | The hand follows the lead, the body leans against the pull. |
 |  | Pocket | One gesture after a run of pickups puts them away. |
 | **Blocks** | Buttons and levers | Pressed at their real height — standing, crouched or seated. |
@@ -134,7 +134,11 @@ Open the in-game config screen (Mods → EMF Compat Core → Config) and pick th
 | Hand on the wall | A hand rests on a wall beside you. |
 | Keep out of walls | The body turns to fit a narrow passage. |
 | Hands brush plants | Hands go through the plants you walk in. |
-| Look at nearby creatures | A glance at a creature near you while idle. |
+| Look at things nearby | Standing idle, the head turns to a creature near you and eases back when you do anything. |
+| ↳ Idle time before looking | How long you stand still first: 1–30 s, 5 by default. |
+| ↳ Players / Villagers and traders / Animals / Monsters | Which creatures are looked at. Monsters are off by default. |
+| ↳ Read signs | Looking at a sign close by, the head settles on it and the body leans in. |
+| ↳ Turn the body in steps | A creature too far round for the neck is turned to with the body, the feet stepping round. |
 | Hold animal leads | The hand and the body follow the lead. |
 | Pocket what was picked up | One gesture after a run of pickups. |
 
