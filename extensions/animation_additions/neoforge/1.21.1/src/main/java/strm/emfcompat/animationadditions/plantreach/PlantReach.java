@@ -142,6 +142,9 @@ public final class PlantReach implements InteractionProvider {
     private static String ineligible(AbstractClientPlayer player) {
         if (player.isPassenger() || player.isSleeping() || player.isInWaterOrBubble()) return "off:state";
         if (player.getPose() != Pose.STANDING && player.getPose() != Pose.CROUCHING) return "off:pose";
+        // Nobody runs with their hands trailed out: the arms pump, and held out to the side of a body bent into its
+        // run they looked torn off it.
+        if (player.isSprinting()) return "off:run";
         return null;
     }
 
@@ -287,7 +290,11 @@ public final class PlantReach implements InteractionProvider {
             // as the walker comes nearer. Its rim was the rule here once, and left a strip beside the field - the
             // shoulder all but over the rim - where the rim's place was under the body and the hand had nowhere to go.
             if (whole) {
-                double reach = from.distanceTo(hanging), flat = reach * reach - (from.y - y) * (from.y - y);
+                // No further out than a hand trailed through the ears is held: on the very top of ripe wheat the arms
+                // stood out from the body like wings. The hand goes that much into the crop instead.
+                double reach = from.distanceTo(hanging);
+                y = Math.max(box.minY, Math.min(y, from.y - reach * Math.cos(SPREAD)));
+                double flat = reach * reach - (from.y - y) * (from.y - y);
                 if (flat >= 0) {
                     double px = from.x + side.x * Math.sqrt(flat), pz = from.z + side.z * Math.sqrt(flat);
                     if (px > box.minX && px < box.maxX && pz > box.minZ && pz < box.maxZ) contacts = List.of(new CanopyContact.Point(px, pz));
@@ -320,6 +327,9 @@ public final class PlantReach implements InteractionProvider {
         }
         return best;
     }
+
+    /** Radians: as far from hanging as an arm is held out over a field. */
+    private static final double SPREAD = Math.toRadians(32);
 
     /** Blocks each way a field's top is followed from a plant; the hand looks no further. */
     private static final int FIELD_REACH = 3;
