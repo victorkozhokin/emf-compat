@@ -98,6 +98,24 @@ public final class FishingMotion {
         return new Aim(new Vector3f(HAULED), 0.06, -2.2f * stagger - 0.6f, seconds < HAUL * 0.7f, 0f, SWEEP, 0f, 0f, 2);
     }
 
+    /** Seconds: the easing down after the line is in - after a catch, and after a lift with nothing on it. */
+    public static final float EASE = 0.7f, EASE_EMPTY = 0.4f;
+    /** The rod let down before the body, low and loose, on its own side. */
+    private static final Vector3f EASED = new Vector3f(-6f, 7.5f, -5.5f);
+
+    /**
+     * {@code seconds} into easing down once the line is in: the rod let down before the body, the
+     * turn given back, the feet brought in a step - with a catch, a breath's pause over it first,
+     * the body still a little back and the head down to it. From here the hands' own fade is short
+     * enough not to show.
+     */
+    public static Aim ease(float seconds, boolean hooked) {
+        if (!hooked) return new Aim(new Vector3f(EASED), 0.1, 0f, false, 0f, 0f, 0f, 0f, 0);
+        float held = seconds < EASE * 0.35f ? 1f : Math.max(0f, 1f - (seconds - EASE * 0.35f) / (EASE * 0.4f));
+        // Half the sweep kept while the catch is looked at, then squared up.
+        return new Aim(new Vector3f(EASED).add(1.5f * held, -2.5f * held, -1.5f * held), 0.11, -0.7f * held, false, 0f, SWEEP * 0.45f * held, 0.06f * held, 0f, held > 0.5f ? 1 : 0);
+    }
+
     /** {@code point}, given for a rod in the right hand, for the hand it is in. */
     public static Vector3f sided(Vector3f point, boolean right) {
         return right ? point : point.mul(-1f, 1f, 1f);

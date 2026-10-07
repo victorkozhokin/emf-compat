@@ -45,7 +45,8 @@ import java.util.function.Function;
  * The click (or the float appearing, for another player) is the cast; while the float rides the
  * water the rod is held out over it; the server's word of a bite brings the second hand to the
  * rod and the weight forward; the float gone is the line brought in - heaved with both hands
- * after a bite, lifted in one without.
+ * after a bite, lifted in one without - and then the rod let down before the body, a pause over
+ * the catch if there is one, before the pose is given up.
  *
  * <p>Built as the heavy throttle is: what is driven is the place of the rod hand
  * ({@link FishingMotion}), quick, on a spring; the body is then fitted to that place after the
@@ -75,7 +76,7 @@ public final class Fishing implements InteractionProvider {
     /** The rod's tip against the arm that holds it, model pixels in the arm's own space (y runs down the arm, -z before it). */
     private static final Vector3f TIP = new Vector3f(0f, 8.5f, -12f);
 
-    private enum Phase { NONE, CAST, WAIT, BITE, HAUL }
+    private enum Phase { NONE, CAST, WAIT, BITE, HAUL, EASE }
 
     private static final class State {
         Phase phase = Phase.NONE;
@@ -143,7 +144,7 @@ public final class Fishing implements InteractionProvider {
         state.swung = player.swinging;
         if (!able) {
             state.phase = Phase.NONE;
-        } else if (clicked && hook == null && state.phase == Phase.NONE) {
+        } else if (clicked && hook == null && (state.phase == Phase.NONE || state.phase == Phase.EASE)) {
             enter(state, Phase.CAST, now);
         } else if (hook != null && !state.hadHook) {
             if (state.phase != Phase.CAST) enter(state, Phase.CAST, now);
@@ -160,6 +161,9 @@ public final class Fishing implements InteractionProvider {
         } else if (state.phase == Phase.BITE && !biting) {
             enter(state, Phase.WAIT, now);
         } else if (state.phase == Phase.HAUL && in >= (state.hooked ? FishingMotion.HAUL : FishingMotion.LIFT)) {
+            // Not straight back to standing: the rod is let down first.
+            enter(state, Phase.EASE, now);
+        } else if (state.phase == Phase.EASE && in >= (state.hooked ? FishingMotion.EASE : FishingMotion.EASE_EMPTY)) {
             state.phase = Phase.NONE;
         } else if (state.phase == Phase.NONE && hook != null) {
             // Come upon with the line already out: another player's, or one's own after a ride.
@@ -185,6 +189,7 @@ public final class Fishing implements InteractionProvider {
             case CAST -> FishingMotion.cast(in);
             case BITE -> FishingMotion.bite(in);
             case HAUL -> FishingMotion.haul(in, state.hooked);
+            case EASE -> FishingMotion.ease(in, state.hooked);
             default -> FishingMotion.waiting(in);
         };
         state.turn += (aim.turn() - state.turn) * Smoothing.follow(dt, 0.14);
