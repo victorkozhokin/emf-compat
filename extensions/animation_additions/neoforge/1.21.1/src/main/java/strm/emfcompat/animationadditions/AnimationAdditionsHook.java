@@ -187,6 +187,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         strm.emfcompat.animationadditions.lead.LeadHold.capture(uuid, parts);
         strm.emfcompat.animationadditions.ride.BoatRide.grip(uuid, parts);
         strm.emfcompat.animationadditions.ride.BoatPassenger.grip(uuid, parts);
+        strm.emfcompat.animationadditions.ride.MinecartRide.grip(uuid, parts);
         InteractionRuntime.finishHands(uuid, parts, contactBase, EMFState.getFrameCounter(), mainModel);
     }
 }
