@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.InteractionContext;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;

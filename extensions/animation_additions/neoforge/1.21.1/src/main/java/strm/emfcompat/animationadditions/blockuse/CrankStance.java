@@ -10,6 +10,7 @@ import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Body;
 import strm.emfcompat.animationadditions.interaction.FrameClock;
 import strm.emfcompat.animationadditions.torso.Stride;
+import strm.emfcompat.animationadditions.DebugLog;
 
 /** Small grounded setup steps; rotation transfers weight rather than walking every turn. */
 final class CrankStance {
@@ -20,7 +21,8 @@ final class CrankStance {
         int direction;
         boolean eligible, turning;
         float activity, load;
-        long motionAt, loggedAt;
+        long motionAt;
+        final DebugLog.Pace tracePace = new DebugLog.Pace();
         final Stride stride = new Stride();
         final FrameClock clock = new FrameClock();
     }
@@ -73,9 +75,8 @@ final class CrankStance {
         Vector3f r = soles[0], l = soles[1];
         float twist = (float) Math.toRadians(4) * s.activity;
         PelvisFollow.step(parts, r, l, -twist, twist);
-        if (strm.emfcompat.animationadditions.DebugLog.trace()
-                && System.nanoTime() - s.loggedAt > 100_000_000L) {
-            s.loggedAt = System.nanoTime();
+        if (DebugLog.trace()
+                && s.tracePace.due(100_000_000L)) {
             org.slf4j.LoggerFactory.getLogger("EMFCompatBlockUse").info(
                     "[StanceTrace] turning={} direction={} activity={} step={} progress={} right={} left={} load={}",
                     s.turning, s.direction, s.activity, stride.stepping, stride.progress, r, l, s.load);

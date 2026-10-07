@@ -10,13 +10,14 @@ import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.FrameClock;
 import strm.emfcompat.animationadditions.torso.Stride;
+import strm.emfcompat.animationadditions.DebugLog;
 
 /** Short alternating stance adjustments; moving feet follow the existing walking phase. */
 final class WallStance {
     final Stride stride = new Stride();
     final FrameClock clock = new FrameClock();
     float turn;
-    long traceAt;
+    final DebugLog.Pace tracePace = new DebugLog.Pace();
     private strm.emfcompat.animationadditions.torso.ClearanceOffset hipOffset = new strm.emfcompat.animationadditions.torso.ClearanceOffset();
 
     void reset() { stride.clear(); turn = 0; hipOffset = new strm.emfcompat.animationadditions.torso.ClearanceOffset(); }
@@ -81,8 +82,7 @@ final class WallStance {
         // to the chest. Only this stance's additive hip displacement is filtered.
         Stride.carry(parts, hipOffset.sample(counter, System.nanoTime(), achieved).sub(achieved));
         if (strm.emfcompat.core.EMFCompatConfig.getBoolean(WallSqueeze.KEY_TRACE, false)
-                && System.nanoTime() - traceAt > 100_000_000L) {
-            traceAt = System.nanoTime();
+                && tracePace.due(100_000_000L)) {
             org.slf4j.LoggerFactory.getLogger("EMFCompatWallStance").info(
                     "[WallStance] moving={} turn={} step={} progress={} support={} right={} left={}",
                     moving, turn, stride.stepping, stride.progress, support, r, l);

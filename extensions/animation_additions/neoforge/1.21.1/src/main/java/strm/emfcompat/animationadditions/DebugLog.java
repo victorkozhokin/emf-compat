@@ -38,4 +38,17 @@ public final class DebugLog {
     public static boolean trace() {
         return EMFCompatConfig.getBoolean(KEY_TRACE, false);
     }
+
+    /** Lets a trace line through only every so often, so a line a frame does not flood the log. */
+    public static final class Pace {
+        private long at;
+
+        /** Whether {@code nanos} have gone by since the last line let through; asking counts as writing it. */
+        public boolean due(long nanos) {
+            long now = System.nanoTime();
+            if (now - at <= nanos) return false;
+            at = now;
+            return true;
+        }
+    }
 }

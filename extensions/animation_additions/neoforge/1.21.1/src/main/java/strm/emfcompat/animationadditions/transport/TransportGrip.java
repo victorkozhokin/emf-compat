@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Body;
+import strm.emfcompat.animationadditions.DebugLog;
 
 /** Automatic nearest free-hand contact while standing on a moving Sable deck. */
 public final class TransportGrip implements InteractionProvider {
@@ -38,7 +39,8 @@ public final class TransportGrip implements InteractionProvider {
         SupportSearch.Contact primary, other;
         Effector hand = Effector.RIGHT_ARM;
         float gap = 1, helperGap = 1;
-        long searchAt, releaseUntil, helperAt, traceAt;
+        long searchAt, releaseUntil, helperAt;
+        final DebugLog.Pace tracePace = new DebugLog.Pace();
         TransportMotion motion = new TransportMotion();
         TransportStance stance = new TransportStance();
         final LowReach.State reach = new LowReach.State();
@@ -119,8 +121,7 @@ public final class TransportGrip implements InteractionProvider {
             }
         }
         if (s.primary == null) {
-            if (EMFCompatConfig.getBoolean(KEY_TRACE, false) && context.now() - s.traceAt > 500_000_000L) {
-                s.traceAt = context.now();
+            if (EMFCompatConfig.getBoolean(KEY_TRACE, false) && s.tracePace.due(500_000_000L)) {
                 org.slf4j.LoggerFactory.getLogger("EMFCompatTransport").info(
                     "[TransportSearch] speed={} load={} deck={} shoulder={}", s.motion.speed, s.load, s.deck.local(),
                     s.frame.jointWorld(new Vector3f(-5, 2, 0)));
@@ -208,8 +209,7 @@ public final class TransportGrip implements InteractionProvider {
         if (s == null || s.frame == null || !s.active) return;
         s.gap = aimOne(uuid, s, s.hand, s.primary, parts);
         if (s.helper) s.helperGap = aimOne(uuid, s, s.hand == Effector.RIGHT_ARM ? Effector.LEFT_ARM : Effector.RIGHT_ARM, s.other, parts);
-        if (EMFCompatConfig.getBoolean(KEY_TRACE, false) && System.nanoTime() - s.traceAt > 100_000_000L) {
-            s.traceAt = System.nanoTime();
+        if (EMFCompatConfig.getBoolean(KEY_TRACE, false) && s.tracePace.due(100_000_000L)) {
             org.slf4j.LoggerFactory.getLogger("EMFCompatTransport").info(
                 "[TransportTrace] speed={} relative={} load={} owned={} gap={} helper={} helperGap={} step={} right={} left={} local={} world={} rope={} lift={}",
                 s.motion.speed, s.relativeSpeed, s.load, ownership(uuid, s), s.gap, s.helper, s.helperGap,

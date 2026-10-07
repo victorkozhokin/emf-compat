@@ -5,20 +5,18 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.torso.PelvisFollow;
-import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Body;
+import strm.emfcompat.animationadditions.interaction.FrameClock;
 
 /** Shared supported upper-body pose, independent of any table mod or item gesture. */
 final class TableSupport {
     static final class State {
         final TableSupportMotion motion = new TableSupportMotion();
         final Quaternionf turn = new Quaternionf();
-        float frame = Float.NaN;
-        long at, fitAt;
-        float fitFrame = Float.NaN;
+        final FrameClock clock = new FrameClock(), fitClock = new FrameClock();
         float supportGap = Float.POSITIVE_INFINITY;
         Vector3f obstacleMin, obstacleMax;
         final Map<String, Object> snapshot = new LinkedHashMap<>();
@@ -36,12 +34,8 @@ final class TableSupport {
         if (r == null || l == null || rl == null || ll == null) return;
         boolean safe = player != null && Body.planted(player)
                 && (press > 0 || support.y > (right ? l : r).y + 1);
-        float frame = EMFState.getFrameCounter();
-        if (s.frame != frame) {
-            long now = System.nanoTime();
-            float dt = s.at == 0 ? 0 : (float) Math.min(.1, (now - s.at) * 1e-9);
-            s.at = now;
-            s.frame = frame;
+        float dt = (float) s.clock.tick();
+        if (dt >= 0) {
             s.motion.advance(dt, engaged && safe, owned > .98f && s.supportGap < .13f);
             if (!safe) s.motion.load = 0;
         }
@@ -55,13 +49,11 @@ final class TableSupport {
         var desired = SupportedContact.fit(s.turn, new Vector3f(r.x, r.y, r.z).sub(waist), new Vector3f(l.x, l.y, l.z).sub(waist),
                 new Vector3f(rt).sub(waist), new Vector3f(lt).sub(waist));
         // Keep the correction synchronized across the main model and its clothing passes.
-        if (s.fitFrame != frame) {
-            double dt = s.fitAt == 0 ? 0 : Math.min(.1, (System.nanoTime() - s.fitAt) * 1e-9);
+        double fitDt = s.fitClock.tick();
+        if (fitDt >= 0) {
             var previous = new Quaternionf(s.turn);
-            s.turn.set(SupportedContact.follow(s.turn, desired, dt));
+            s.turn.set(SupportedContact.follow(s.turn, desired, fitDt));
             s.snapshot.put("correctionStepDegrees", Math.toDegrees(2 * Math.acos(Math.min(1, Math.abs(previous.dot(s.turn))))));
-            s.fitFrame = frame;
-            s.fitAt = System.nanoTime();
         }
         var q = new Quaternionf().slerp(s.turn, owned);
         for (String name : new String[]{"body", "head", "hat", "right_arm", "left_arm"}) {

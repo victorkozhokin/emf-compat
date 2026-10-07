@@ -47,7 +47,7 @@ public final class MotionRuntime {
         final Spring forward = new Spring(), right = new Spring(), vertical = new Spring();
         final Spring accelForward = new Spring(), accelRight = new Spring(), turn = new Spring();
         Motion motion = Motion.STILL;
-        long loggedAt;
+        final DebugLog.Pace tracePace = new DebugLog.Pace();
     }
 
     /** Called right before the model is animated. */
@@ -103,8 +103,7 @@ public final class MotionRuntime {
                 s.accelForward.value, s.accelRight.value, s.turn.value,
                 s.groundTime, s.airTime, s.onGround, s.sprinting);
 
-        if (DebugLog.trace() && now - s.loggedAt > 100_000_000L) {
-            s.loggedAt = now;
+        if (DebugLog.trace() && s.tracePace.due(100_000_000L)) {
             Motion m = s.motion;
             LOGGER.info("[Motion] {} fwd {} right {} up {} accF {} accR {} turn {} {} {}s",
                     player.getName().getString(), f(m.forward), f(m.right), f(m.vertical),

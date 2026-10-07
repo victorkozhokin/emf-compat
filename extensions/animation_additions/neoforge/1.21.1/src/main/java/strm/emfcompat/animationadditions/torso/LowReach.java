@@ -4,8 +4,8 @@ import net.minecraft.client.model.geom.ModelPart;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.Smoothing;
-import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.FrameClock;
 
 /** Hand contact with a grounded pelvis, applied after the ordinary torso layers. */
 public final class LowReach {
@@ -17,8 +17,7 @@ public final class LowReach {
         public float angleLimit = (float) Math.toRadians(40);
         public float weightShift;
         public float weightForward;
-        float frame = -1;
-        long updatedAt;
+        final FrameClock clock = new FrameClock();
 
         /** Keep both soles planted while the grounded contact fades away. */
         public boolean active() {
@@ -38,12 +37,8 @@ public final class LowReach {
         ModelPart r = parts.apply("right_leg"), l = parts.apply("left_leg");
         if (body == null || arm == null || r == null || l == null) return;
         Vector3f hips = new Vector3f((r.x + l.x) * .5f, (r.y + l.y) * .5f, (r.z + l.z) * .5f);
-        float frame = EMFState.getFrameCounter();
-        long now = System.nanoTime();
-        if (frame != state.frame) {
-            double dt = state.updatedAt == 0 ? 0 : Math.min(.1, (now - state.updatedAt) * 1e-9);
-            state.updatedAt = now;
-            state.frame = frame;
+        double dt = state.clock.tick();
+        if (dt >= 0) {
             Vector3f shoulder = new Vector3f(arm.x, arm.y, arm.z).sub(hips);
             Vector3f point = new Vector3f(target).sub(hips);
             Quaternionf wanted = LowReachMath.turn(shoulder, point, 11, state.angleLimit);

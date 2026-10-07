@@ -21,6 +21,7 @@ import strm.emfcompat.animationadditions.gesture.HandTo;
 
 import java.util.HashMap;
 import java.util.Map;
+import strm.emfcompat.animationadditions.DebugLog;
 
 /** The client's end of {@link HandsNet}: tells the server what our own hands are at, and keeps what it is told of others'. */
 public final class ClientHands {
@@ -62,7 +63,7 @@ public final class ClientHands {
         boolean looked = !same(now, sent, false), changed = !same(now, sent, true);
         if (changed || looked && sentAgo >= LOOK_TICKS || !now.idle() && sentAgo >= AGAIN_TICKS) {
             PacketDistributor.sendToServer(now);
-            if (changed && strm.emfcompat.animationadditions.DebugLog.decisions())
+            if (changed && DebugLog.decisions())
                 LOGGER.info("[Hands] sent flags={} block={} entity={} menu={}", now.flags(), now.block(), now.entity(), now.menu());
             sent = now;
             sentAgo = 0;
@@ -150,7 +151,7 @@ public final class ClientHands {
         Minecraft.getInstance().execute(() -> {
             if (HEARD.size() > 256) HEARD.clear();
             Heard before = HEARD.put(state.sender(), new Heard(state, System.nanoTime()));
-            if (strm.emfcompat.animationadditions.DebugLog.decisions() && (before == null || before.state.flags() != state.flags()))
+            if (DebugLog.decisions() && (before == null || before.state.flags() != state.flags()))
                 LOGGER.info("[Hands] heard from {} flags={} block={} entity={}", state.sender(), state.flags(), state.block(), state.entity());
         });
     }

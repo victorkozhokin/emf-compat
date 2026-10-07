@@ -30,6 +30,17 @@ public final class FrameClock {
         return dt;
     }
 
+    /** Forgets everything: the next frame is the first again. */
+    public void reset() {
+        frame = Float.NaN;
+        at = 0;
+    }
+
+    /** Forgets the time only: the next new frame takes no step. */
+    public void restart() {
+        at = 0;
+    }
+
     /** Whether nothing has been counted yet. */
     public boolean fresh() {
         return at == 0;

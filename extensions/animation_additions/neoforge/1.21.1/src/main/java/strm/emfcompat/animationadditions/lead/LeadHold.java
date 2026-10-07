@@ -21,6 +21,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
 import strm.emfcompat.animationadditions.interaction.Body;
+import strm.emfcompat.animationadditions.DebugLog;
 
 /** An actual player-held lead owns one hand; other interactions can take that hand normally. */
 public final class LeadHold implements InteractionProvider {
@@ -46,7 +47,7 @@ public final class LeadHold implements InteractionProvider {
         Vec3 relative, rawRelative;
         long settleUntil;
         double speed;
-        long traceAt;
+        final DebugLog.Pace tracePace = new DebugLog.Pace();
     }
     public String id() { return "LeadHold"; }
     public boolean isEnabled() { return EMFCompatConfig.getBoolean(KEY_ENABLED, true); }
@@ -187,8 +188,7 @@ public final class LeadHold implements InteractionProvider {
         Vector3f palm = Body.tip(arm, 11);
         s.drawnPalm = s.frame.jointWorld(palm);
         long now = System.nanoTime();
-        if (strm.emfcompat.animationadditions.DebugLog.trace() && now - s.traceAt > 100_000_000L) {
-            s.traceAt = now;
+        if (DebugLog.trace() && s.tracePace.due(100_000_000L)) {
             org.slf4j.LoggerFactory.getLogger("EMFCompatLead").info(
                     "[LeadTrace] count={} distance={} load={} jerk={} effort={} stopPull={} right={} weight={} palmX={} palmY={} palmZ={}",
                     s.count, s.distance, s.motion.load, s.motion.jerk, s.effort, s.stopPull, s.hand == Effector.RIGHT_ARM,

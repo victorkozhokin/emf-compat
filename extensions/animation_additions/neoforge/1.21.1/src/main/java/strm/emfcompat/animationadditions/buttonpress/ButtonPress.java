@@ -1,15 +1,12 @@
 package strm.emfcompat.animationadditions.buttonpress;
 
 import strm.emfcompat.animationadditions.torso.TorsoLean;
-import strm.emfcompat.animationadditions.DebugLog;
-import strm.emfcompat.animationadditions.interaction.ArmAim;
 import static strm.emfcompat.animationadditions.interaction.Skeleton.WAIST;
 import static strm.emfcompat.animationadditions.interaction.Skeleton.LEFT_HIP;
 import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_HIP;
 import static strm.emfcompat.animationadditions.interaction.Skeleton.RIGHT_SHOULDER;
 import strm.emfcompat.animationadditions.interaction.Skeleton;
 import strm.emfcompat.animationadditions.interaction.Visibility;
-import net.minecraft.client.Minecraft;
 import strm.emfcompat.animationadditions.torso.LowReach;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -50,6 +47,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Body;
+import strm.emfcompat.animationadditions.DebugLog;
 
 /**
  * Pressing a button or throwing a lever with the body: the right hand goes to a button or a
@@ -601,7 +599,7 @@ public final class ButtonPress implements InteractionProvider {
         state.leverStep.apply(parts, weight);
         LowReach.apply(parts, true, state.button, weight, state.lowReach);
         long now = System.nanoTime();
-        if ((state.vanillaLever || state.leverStep.consumed > 0) && strm.emfcompat.animationadditions.DebugLog.trace() && now - state.tracedAt > 50_000_000L) {
+        if ((state.vanillaLever || state.leverStep.consumed > 0) && DebugLog.trace() && now - state.tracedAt > 50_000_000L) {
             state.tracedAt = now;
             org.slf4j.LoggerFactory.getLogger("EMFCompatButtonPress").info(
                     "[LeverPoseTrace] grounded={} weight={} loadX={} loadZ={} pressing={} step={} progress={} footX={} footZ={}",

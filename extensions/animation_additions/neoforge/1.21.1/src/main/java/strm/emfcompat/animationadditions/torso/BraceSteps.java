@@ -16,7 +16,7 @@ public final class BraceSteps {
     public static class State {
         final Stride stride = new Stride();
         final FrameClock clock = new FrameClock();
-        long traceAt;
+        final DebugLog.Pace tracePace = new DebugLog.Pace();
 
         /** Both feet back under the pack's pose and no step under way: nothing to draw. */
         public boolean resting() {
@@ -64,8 +64,7 @@ public final class BraceSteps {
         Vector3f r = soles[0], l = soles[1];
         if (!player.onGround() || player.isPassenger()) twist = 0;
         PelvisFollow.step(parts, r, l, -twist, twist);
-        if (DebugLog.trace() && System.nanoTime() - s.traceAt > 100_000_000L) {
-            s.traceAt = System.nanoTime();
+        if (DebugLog.trace() && s.tracePace.due(100_000_000L)) {
             trace.info("[{}] still={} effort={} step={} progress={} right={} left={}",
                 label, still, effort, stride.stepping, stride.progress, r, l);
         }

@@ -16,6 +16,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Ease;
 import strm.emfcompat.animationadditions.interaction.Body;
+import strm.emfcompat.animationadditions.DebugLog;
 
 /** A held Throttle receives phased visual effort; cockpit and item use retain their hands. */
 public final class HeavyThrottle implements InteractionProvider {
@@ -34,7 +35,8 @@ public final class HeavyThrottle implements InteractionProvider {
         Vec3 previousKnob;
         Effector primary = Effector.RIGHT_ARM;
         boolean active, helper, stepped;
-        long stepRequest, traceAt;
+        long stepRequest;
+        final DebugLog.Pace tracePace = new DebugLog.Pace();
         int signal;
         float primaryGap = Float.POSITIVE_INFINITY, helperGap = Float.POSITIVE_INFINITY;
     }
@@ -190,9 +192,8 @@ public final class HeavyThrottle implements InteractionProvider {
         s.primaryGap = gap(parts.apply(s.primary.part), s.primary == Effector.RIGHT_ARM ? s.right : s.left);
         s.helperGap = gap(parts.apply(s.primary == Effector.RIGHT_ARM ? "left_arm" : "right_arm"),
             s.primary == Effector.RIGHT_ARM ? s.left : s.right);
-        if (strm.emfcompat.animationadditions.DebugLog.trace()
-                && System.nanoTime() - s.traceAt > 60_000_000L) {
-            s.traceAt = System.nanoTime();
+        if (DebugLog.trace()
+                && s.tracePace.due(60_000_000L)) {
             org.slf4j.LoggerFactory.getLogger("EMFCompatThrottle").info(
                 "[ThrottleEffort] signal={} load={} assist={} recoil={} regrip={} primaryRight={} primaryWeight={} helperWeight={} primaryGap={} helperGap={} step={} progress={} right={} left={}",
                 s.signal, s.motion.load, s.motion.assist, s.motion.recoil, s.motion.regrip, s.primary == Effector.RIGHT_ARM,

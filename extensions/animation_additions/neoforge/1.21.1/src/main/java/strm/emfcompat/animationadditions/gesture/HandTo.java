@@ -2,7 +2,6 @@ package strm.emfcompat.animationadditions.gesture;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;

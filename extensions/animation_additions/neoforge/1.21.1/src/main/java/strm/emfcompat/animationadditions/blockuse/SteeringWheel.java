@@ -17,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.SubLevels;
 import strm.emfcompat.animationadditions.interaction.Body;
+import strm.emfcompat.animationadditions.DebugLog;
 
 /** Aeronautics' bundled Simulated steering wheel: six rim anchors and alternating regrips follow its rendered angle. */
 final class SteeringWheel implements BlockTarget {
@@ -31,7 +32,8 @@ final class SteeringWheel implements BlockTarget {
         HumanoidArm main;
         boolean positive;
         float frame = -1;
-        long at, traceAt;
+        long at;
+        final DebugLog.Pace tracePace = new DebugLog.Pace();
         SteeringGripMotion motion = new SteeringGripMotion();
     }
     public boolean matches(BlockState block) {
@@ -83,9 +85,8 @@ final class SteeringWheel implements BlockTarget {
         Vec3 out = Vec3.atLowerCornerOf(facing.getNormal());
         Vec3 grip = point(pos, block, state.motion.radians(hand), new Vector3f(positive ? 1 : 0, .5f, .5f))
                 .add(out.scale(state.motion.lift(hand)));
-        if (!support && strm.emfcompat.animationadditions.DebugLog.trace()
-                && now - state.traceAt > 100_000_000L) {
-            state.traceAt = now;
+        if (!support && DebugLog.trace()
+                && state.tracePace.due(100_000_000L)) {
             org.slf4j.LoggerFactory.getLogger("EMFCompatBlockUse").info(
                     "[RegripTrace] moving={} transfers={} rightPhase={} leftPhase={} rightLift={} leftLift={} rightSlot={} leftSlot={}",
                     state.motion.moving(), state.motion.transfers, state.motion.radians(0), state.motion.radians(1),

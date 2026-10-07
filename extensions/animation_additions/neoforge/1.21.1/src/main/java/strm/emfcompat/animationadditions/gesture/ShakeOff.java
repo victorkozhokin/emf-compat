@@ -1,10 +1,6 @@
 package strm.emfcompat.animationadditions.gesture;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;

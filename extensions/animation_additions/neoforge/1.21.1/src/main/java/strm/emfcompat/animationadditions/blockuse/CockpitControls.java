@@ -17,6 +17,8 @@ import strm.emfcompat.core.ik.IKMath;
 import java.util.*;
 import java.util.function.Function;
 import strm.emfcompat.animationadditions.interaction.Body;
+import strm.emfcompat.animationadditions.interaction.FrameClock;
+import strm.emfcompat.animationadditions.DebugLog;
 
 /** Seated wheel / side throttle handovers. The seat supports the pelvis and seated thigh volume. */
 public final class CockpitControls implements InteractionProvider {
@@ -39,8 +41,7 @@ public final class CockpitControls implements InteractionProvider {
         final CockpitMotion motion = new CockpitMotion();
         final Vector3f lean = new Vector3f();
         final Quaternionf contact = new Quaternionf();
-        long contactAt;
-        float contactFrame = -1;
+        final FrameClock contactClock = new FrameClock();
         Vec3 right;
         strm.emfcompat.animationadditions.transport.TransportMotion transport = new strm.emfcompat.animationadditions.transport.TransportMotion();
         SubLevels.Space craft;
@@ -54,8 +55,7 @@ public final class CockpitControls implements InteractionProvider {
         double dt;
         float rightGap, leftGap, seatGap;
         int seatSince;
-        float seatFrame = Float.NaN;
-        long seatAt;
+        final FrameClock seatClock = new FrameClock();
         double seatHeight = Double.NaN;
         double seatTop = Double.NaN;
         BlockPos seatBlock;
@@ -64,7 +64,7 @@ public final class CockpitControls implements InteractionProvider {
         final Vector3f[] lever = {new Vector3f(), new Vector3f()};
         boolean shown, held;
         int request = -1;
-        long traceAt;
+        final DebugLog.Pace tracePace = new DebugLog.Pace();
         AbstractClientPlayer player;
         float headYaw, headPitch;
     }
@@ -93,8 +93,7 @@ public final class CockpitControls implements InteractionProvider {
             if (!seat.equals(state.seat)) {
                 state.seat = seat;
                 state.seatSince = player.tickCount;
-                state.seatFrame = Float.NaN;
-                state.seatAt = 0;
+                state.seatClock.reset();
                 state.seatHeight = Double.NaN;
                 state.wheel = null;
                 state.motion.away = state.motion.moving = -1;
@@ -106,7 +105,7 @@ public final class CockpitControls implements InteractionProvider {
                 state.pelvisLocal = null;
                 state.craft = null;
                 state.contact.identity();
-                state.contactAt = 0;
+                state.contactClock.restart();
                 state.transport = new strm.emfcompat.animationadditions.transport.TransportMotion();
             }
             BlockHitResult hit = strm.emfcompat.animationadditions.net.Inputs.sight(player, 3, 1) instanceof BlockHitResult b ? b : null;
@@ -236,9 +235,8 @@ public final class CockpitControls implements InteractionProvider {
             context.decide(request < 0 ? "wheel" : request == 0 ? typing ? "typing-R" : "throttle-R" : typing ? "typing-L" : "throttle-L");
         } finally {
             state.lean.lerp(wantedLean, Smoothing.follow(context.dt(), .18));
-            if (strm.emfcompat.animationadditions.DebugLog.trace()
-                    && context.now() - state.traceAt > 100_000_000L) {
-                state.traceAt = context.now();
+            if (DebugLog.trace()
+                    && state.tracePace.due(100_000_000L)) {
                 org.slf4j.LoggerFactory.getLogger("EMFCompatCockpit").info(
                         "[CockpitTrace] seated={} shown={} moving={} away={} returning={} progress={} rightMix={} leftMix={} rightWeight={} leftWeight={} throttleHeld={} request={} rimRight={} rimLeft={} typing={} key={} effort={} rightTarget={} leftTarget={}",
                         Seated.seated(player), state.shown, state.motion.moving, state.motion.away, state.motion.returning,
@@ -324,15 +322,14 @@ public final class CockpitControls implements InteractionProvider {
             if (state.pelvisLocal == null || state.player.tickCount - state.seatSince < 12)
                 state.pelvisLocal = state.craft.toLocal(state.frame.jointWorld(waist)).subtract(seat);
             Vec3 hip = seat.add(state.pelvisLocal);
-            float draw = traben.entity_model_features.models.animation.state.EMFState.getFrameCounter();
             if (!Double.isNaN(state.seatTop)) {
                 double height = state.seatTop + 2.25 / 16;
                 if (Double.isNaN(state.seatHeight)) state.seatHeight = height;
-                if (state.seatFrame != draw) {
-                    long now = System.nanoTime();
-                    double dt = state.seatAt == 0 ? .05 : Math.min(.1, (now - state.seatAt) * 1e-9);
-                    state.seatFrame = draw;
-                    state.seatAt = now;
+                // The first frame of a seat is taken as a twentieth of a second, so the height starts towards its place at once.
+                boolean first = state.seatClock.fresh();
+                double dt = state.seatClock.tick();
+                if (dt >= 0) {
+                    if (first) dt = .05;
                     state.seatHeight += (height - state.seatHeight) * Smoothing.follow(dt, .12);
                 }
                 hip = new Vec3(hip.x, state.seatHeight, hip.z);
@@ -385,11 +382,8 @@ public final class CockpitControls implements InteractionProvider {
                 part.zRot += state.lean.z * weight;
             }
         }
-        if (state.contactFrame != traben.entity_model_features.models.animation.state.EMFState.getFrameCounter()) {
-            long now = System.nanoTime();
-            double dt = state.contactAt == 0 ? 0 : Math.min(.1, (now - state.contactAt) * 1e-9);
-            state.contactAt = now;
-            state.contactFrame = traben.entity_model_features.models.animation.state.EMFState.getFrameCounter();
+        double dt = state.contactClock.tick();
+        if (dt >= 0) {
             var ra = parts.apply("right_arm");
             var la = parts.apply("left_arm");
             Quaternionf wanted = new Quaternionf();
@@ -433,7 +427,7 @@ public final class CockpitControls implements InteractionProvider {
             else state.leftGap = gap;
         }
         state.snapshot.clear();
-        if (!strm.emfcompat.animationadditions.DebugLog.trace()) return;
+        if (!DebugLog.trace()) return;
         state.snapshot.put("sourceBodyRotation", java.util.List.of(sourceRotation.x, sourceRotation.y, sourceRotation.z));
         state.snapshot.put("sourceWaist", java.util.List.of(sourceWaist.x, sourceWaist.y, sourceWaist.z));
         state.snapshot.put("seatDelta", java.util.List.of(seatDelta.x, seatDelta.y, seatDelta.z));
