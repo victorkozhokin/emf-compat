@@ -155,6 +155,10 @@ public final class BlockUse implements InteractionProvider {
         Object last;
         /** For another player at the block's screen: how many slot actions their game had counted; -1 unknown. */
         int menuActions = -1;
+        /** When this player last gave a sign of using something: a swing begun, the use key, a screen up. */
+        long actedAt;
+        boolean swinging;
+        int swing;
         BlockTarget target;
         BlockTarget.Gesture gesture;
         long gestureAt;
@@ -221,6 +225,11 @@ public final class BlockUse implements InteractionProvider {
                 context.decide("off:state");
                 return;
             }
+            boolean swung = player.swinging && (!state.swinging || player.swingTime < state.swing);
+            state.swinging = player.swinging;
+            state.swing = player.swingTime;
+            Minecraft mc = Minecraft.getInstance();
+            if (swung || Inputs.useHeld(player) || Boolean.TRUE.equals(Inputs.menu(player)) || player == mc.player && mc.screen != null) state.actedAt = now;
             // The block held changed the way a hand changes it: the gesture.
             if (state.pos != null) {
                 BlockState block = player.level().getBlockState(state.pos);
@@ -228,7 +237,7 @@ public final class BlockUse implements InteractionProvider {
                 // What changes in a block's own screen is the doing of whoever has it up, not of everyone looking on.
                 Boolean menu = state.target.menu() ? Inputs.menu(player) : null;
                 BlockPos menuPos = menu == null ? null : Inputs.menuPos(player);
-                boolean theirs = menu == null || menu && (menuPos == null || menuPos.equals(state.pos));
+                boolean theirs = (menu == null || menu && (menuPos == null || menuPos.equals(state.pos))) && !othersDoing(player, state);
                 if (!seen.equals(state.last)) {
                     BlockTarget.Gesture gesture = theirs ? state.target.changed(state.pos, state.last, seen) : null;
                     if (gesture != null) {
@@ -535,6 +544,24 @@ public final class BlockUse implements InteractionProvider {
         if (state == null || state.pos == null || state.target == null) return null;
         BlockState kept = player.level().getBlockState(state.pos);
         return state.target.matches(kept) && state.target.holds(player, player.level(), state.pos, kept) ? state.pos : null;
+    }
+
+    /** How long a sign of using something stands for what changes next. */
+    private static final long ACTED_NANOS = 1_500_000_000L;
+
+    /**
+     * Whether what just changed in the block was another player's doing: someone else has their
+     * hands at the same block and gave a sign of using it more lately than this player did. With no
+     * such sign from anyone it is everyone's who is at it, as nothing tells them apart.
+     */
+    private static boolean othersDoing(AbstractClientPlayer player, State state) {
+        for (AbstractClientPlayer other : Minecraft.getInstance().level.players()) {
+            if (other == player) continue;
+            State theirs = STATES.fresh(other.getUUID());
+            if (theirs != null && state.pos.equals(theirs.pos) && theirs.actedAt > state.actedAt
+                    && System.nanoTime() - theirs.actedAt < ACTED_NANOS) return true;
+        }
+        return false;
     }
 
     /** The targets a block is one of, in {@link #TARGETS}' order; found once for each block. */

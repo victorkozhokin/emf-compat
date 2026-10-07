@@ -59,7 +59,9 @@ public final class Bellows implements BlockTarget {
         var p = PRESSES.seen(player.getUUID(), System.nanoTime()).value;
         if (!pos.equals(p.pos)) { p.pos = pos.immutable(); p.until = 0; p.swinging = false; p.swing = 0; }
         Object count = MANUAL.read(player.level().getBlockEntity(pos));
-        if (player.swinging && (!p.swinging || player.swingTime < p.swing) && count instanceof Number n && n.intValue() > 0)
+        // The mod tells only the game that pressed of the press: for anyone else the arm's swing at the plate is the word on it.
+        boolean pressed = player != Minecraft.getInstance().player || count instanceof Number n && n.intValue() > 0;
+        if (player.swinging && (!p.swinging || player.swingTime < p.swing) && pressed)
             p.until = player.level().getGameTime() + 18;
         p.swinging = player.swinging;
         p.swing = player.swingTime;
