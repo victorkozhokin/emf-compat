@@ -37,6 +37,9 @@ project(":core-fabric-26.1.2").projectDir = file("core/fabric/26.1.2")
 include("core-fabric-26.2")
 project(":core-fabric-26.2").projectDir = file("core/fabric/26.2")
 
+include("core-fabric-26.3")
+project(":core-fabric-26.3").projectDir = file("core/fabric/26.3")
+
 // Create addon.
 include("create-neoforge-1.21.1")
 project(":create-neoforge-1.21.1").projectDir = file("extensions/create/neoforge/1.21.1")
@@ -232,6 +235,25 @@ project(":tacz-forge-1.20.1").projectDir = file("extensions/tacz/forge/1.20.1")
 include("parcool-neoforge-1.21.1")
 project(":parcool-neoforge-1.21.1").projectDir = file("extensions/parcool/neoforge/1.21.1")
 
-// Touch'n Motion addon: Horse Sync (NeoForge) + Foot IK.
+// Touch'n Motion (was the Animation Additions addon).
 include("touch-n-motion-neoforge-1.21.1")
 project(":touch-n-motion-neoforge-1.21.1").projectDir = file("extensions/touch_n_motion/neoforge/1.21.1")
+
+// Touch'n Motion: frames for the ports - the settings tab and the mod-list entry, no animations yet.
+include("touch-n-motion-forge-1.20.1")
+project(":touch-n-motion-forge-1.20.1").projectDir = file("extensions/touch_n_motion/forge/1.20.1")
+
+include("touch-n-motion-fabric-1.21.1")
+project(":touch-n-motion-fabric-1.21.1").projectDir = file("extensions/touch_n_motion/fabric/1.21.1")
+
+include("touch-n-motion-fabric-1.21.11")
+project(":touch-n-motion-fabric-1.21.11").projectDir = file("extensions/touch_n_motion/fabric/1.21.11")
+
+include("touch-n-motion-fabric-26.1.2")
+project(":touch-n-motion-fabric-26.1.2").projectDir = file("extensions/touch_n_motion/fabric/26.1.2")
+
+include("touch-n-motion-fabric-26.2")
+project(":touch-n-motion-fabric-26.2").projectDir = file("extensions/touch_n_motion/fabric/26.2")
+
+include("touch-n-motion-fabric-26.3")
+project(":touch-n-motion-fabric-26.3").projectDir = file("extensions/touch_n_motion/fabric/26.3")
