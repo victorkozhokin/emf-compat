@@ -99,6 +99,8 @@ public final class Fright implements InteractionProvider {
         /** The way round to the sound, radians, against the body as drawn (to the right above zero). */
         float yaw;
         boolean grounded, wary, landed;
+        /** Whether this fright's hop puts the feet in their stand in the air; decided once, where there is ground to land on. */
+        Boolean leaps;
         /** How far the soles are to their stand, 0..1, and the step under way, both eased; seconds into the fright. */
         float stand, swing, in;
         float sx, sz;
@@ -203,6 +205,7 @@ public final class Fright implements InteractionProvider {
                 state.source = worst.at;
                 state.nerve += 1f;
                 state.landed = false;
+                state.leaps = null;
                 if (DebugLog.decisions()) LOGGER.info("[Fright] {} {} level={} at {}", player.getName().getString(), worst.kind.sound, level,
                         Math.round(worst.at.distanceTo(player.getEyePosition()) * 10) / 10.0);
             }
@@ -262,7 +265,14 @@ public final class Fright implements InteractionProvider {
         Vector3f left = state.wary ? FrightMotion.foot(state.level, false, state.sx, state.sz) : HOME;
         float hop = state.level == 0 ? 0f : FrightMotion.hop(state.level);
         Vector3f mean;
-        if (state.wary && state.grounded && hop > 0f && state.in < hop) {
+        if (state.leaps == null && state.wary && hop > 0f) {
+            // Only onto ground that is there: over an edge or against a wall the feet stay under the body and step, each step looked at.
+            ModelPart r = parts.apply("right_leg"), l = parts.apply("left_leg");
+            state.leaps = state.grounded && r != null && l != null && state.frame != null
+                    && strm.emfcompat.animationadditions.torso.Stride.level(state.player, state.frame, r, new Vector3f(), right)
+                    && strm.emfcompat.animationadditions.torso.Stride.level(state.player, state.frame, l, new Vector3f(), left);
+        }
+        if (state.wary && state.grounded && hop > 0f && state.in < hop && Boolean.TRUE.equals(state.leaps)) {
             // In the air: both feet go to where they will land at once.
             float way = Mth.clamp(state.in / hop, 0f, 1f);
             way = way * way * (3f - 2f * way);
