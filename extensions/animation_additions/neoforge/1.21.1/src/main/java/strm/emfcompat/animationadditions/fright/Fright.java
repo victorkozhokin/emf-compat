@@ -53,6 +53,13 @@ public final class Fright implements InteractionProvider {
     /** Seconds the torso's lean runs behind what it is asked: the shudder is asked for that much ahead. */
     private static final float LEAN_LAG = 0.12f;
     /** Radians: how far round to the sound the head goes, and the share of it the torso takes. Pixels: the shoulder on the sound's side up more, the head down between the shoulders by this share of the shrug. */
+    /**
+     * The weight of the body: the chest and the arms come after the hips, late, go past and settle. Each follows the
+     * hips' place as a loose spring - turns a second and how much it is damped (1 would not swing at all) - and how
+     * far it is behind them bends the body: radians a pixel.
+     */
+    private static final float CHEST_RATE = 2.3f, CHEST_DAMPED = 0.5f, CHEST_BEND = 0.085f;
+    private static final float ARMS_RATE = 1.7f, ARMS_DAMPED = 0.38f, ARMS_BEND = 0.15f;
     private static final float ROUND_LIMIT = 1.25f, ROUND_TORSO = 0.28f;
 
     /** What frightens, by the sound's name: the setting it falls under, how bad it is close by, and how far "close by" is, blocks. */
@@ -101,6 +108,10 @@ public final class Fright implements InteractionProvider {
         boolean grounded, wary, landed;
         /** Whether this fright's hop puts the feet in their stand in the air; decided once, where there is ground to land on. */
         Boolean leaps;
+        /** Where the chest and the arms have got to after the hips (model pixels, x and z), their speed, and how far each is behind. */
+        final float[] chest = new float[4], arms = new float[4];
+        float chestBehindX, chestBehindZ, armsBehindX, armsBehindZ;
+        final strm.emfcompat.animationadditions.interaction.FrameClock weightClock = new strm.emfcompat.animationadditions.interaction.FrameClock();
         /** How far the soles are to their stand, 0..1, and the step under way, both eased; seconds into the fright. */
         float stand, swing, in;
         float sx, sz;
@@ -216,11 +227,17 @@ public final class Fright implements InteractionProvider {
         // Kept for its time; then the feet are sent home, and it is over when they are there and the jolt has run out.
         state.wary = state.level > 0 && able && planted && in < FrightMotion.kept(state.level);
         if (state.level > 0 && (!able || in >= FrightMotion.kept(state.level) && in >= FrightMotion.shake(state.level)
-                && (state.feet.resting() || !planted) && state.stand < 0.02f)) state.level = 0;
+                && (state.feet.resting() || !planted) && state.stand < 0.02f
+                // ... and the chest and the arms have stopped swinging after the hips.
+                && Math.abs(state.chestBehindX) + Math.abs(state.chestBehindZ) + Math.abs(state.armsBehindX) + Math.abs(state.armsBehindZ) < 0.08f
+                && Math.abs(state.arms[2]) + Math.abs(state.arms[3]) < 0.6f)) state.level = 0;
         if (state.level == 0) {
             state.pose = state.ahead = FrightMotion.Pose.NONE;
             state.wary = false;
             state.stand = state.swing = 0f;
+            java.util.Arrays.fill(state.chest, 0f);
+            java.util.Arrays.fill(state.arms, 0f);
+            state.chestBehindX = state.chestBehindZ = state.armsBehindX = state.armsBehindZ = 0f;
             context.decide("calm");
             return;
         }
@@ -247,7 +264,8 @@ public final class Fright implements InteractionProvider {
         if (state == null || state.level == 0 || !INSTANCE.isEnabled()) return null;
         FrightMotion.Pose pose = state.ahead;
         // The torso goes a little with the head's look to the sides.
-        return TorsoLean.Hint.turn(pose.bow(), state.yaw * ROUND_TORSO * pose.round(), 0f);
+        // The chest behind the hips bends the body after them: hips gone back, it is bowed forward; gone to the left (+x), it leans right (-zRot).
+        return TorsoLean.Hint.turn(pose.bow() + state.chestBehindZ * CHEST_BEND, state.yaw * ROUND_TORSO * pose.round(), -state.chestBehindX * CHEST_BEND);
     }
 
     private static final Vector3f HOME = new Vector3f();
@@ -264,6 +282,7 @@ public final class Fright implements InteractionProvider {
         Vector3f right = state.wary ? FrightMotion.foot(state.level, true, state.sx, state.sz) : HOME;
         Vector3f left = state.wary ? FrightMotion.foot(state.level, false, state.sx, state.sz) : HOME;
         float hop = state.level == 0 ? 0f : FrightMotion.hop(state.level);
+        float gather = state.level == 0 ? 0f : FrightMotion.gather(state.level);
         Vector3f mean;
         if (state.leaps == null && state.wary && hop > 0f) {
             // Only onto ground that is there: over an edge or against a wall the feet stay under the body and step, each step looked at.
@@ -272,9 +291,9 @@ public final class Fright implements InteractionProvider {
                     && strm.emfcompat.animationadditions.torso.Stride.level(state.player, state.frame, r, new Vector3f(), right)
                     && strm.emfcompat.animationadditions.torso.Stride.level(state.player, state.frame, l, new Vector3f(), left);
         }
-        if (state.wary && state.grounded && hop > 0f && state.in < hop && Boolean.TRUE.equals(state.leaps)) {
-            // In the air: both feet go to where they will land at once.
-            float way = Mth.clamp(state.in / hop, 0f, 1f);
+        if (state.wary && state.grounded && hop > 0f && state.in < gather + hop && Boolean.TRUE.equals(state.leaps)) {
+            // Gathering, the feet are still under the body; in the air both go to where they will land at once.
+            float way = Mth.clamp((state.in - gather) / hop, 0f, 1f);
             way = way * way * (3f - 2f * way);
             Vector3f r = new Vector3f(right).mul(way), l = new Vector3f(left).mul(way);
             strm.emfcompat.animationadditions.torso.PelvisFollow.step(parts, r, l, 0f, 0f);
@@ -285,7 +304,30 @@ public final class Fright implements InteractionProvider {
             mean = state.feet.mean();
         }
         float carry = state.level == 0 ? 0f : FrightMotion.CARRY;
-        if (carry > 0f && mean.lengthSquared() > 1e-4f) strm.emfcompat.animationadditions.torso.PelvisFollow.shift(parts, mean.x * carry, mean.z * carry);
+        float hipsX = mean.x * carry, hipsZ = mean.z * carry;
+        if (carry > 0f && mean.lengthSquared() > 1e-4f) strm.emfcompat.animationadditions.torso.PelvisFollow.shift(parts, hipsX, hipsZ);
+        double dt = state.weightClock.tick();
+        if (dt > 0) {
+            after(state.chest, hipsX, hipsZ, CHEST_RATE, CHEST_DAMPED, dt);
+            after(state.arms, hipsX, hipsZ, ARMS_RATE, ARMS_DAMPED, dt);
+            state.chestBehindX = hipsX - state.chest[0];
+            state.chestBehindZ = hipsZ - state.chest[1];
+            state.armsBehindX = hipsX - state.arms[0];
+            state.armsBehindZ = hipsZ - state.arms[1];
+        }
+    }
+
+    /** A weight after the hips: {x, z, speed x, speed z} drawn to where they are as by a loose spring, in small steps of time. */
+    private static void after(float[] weight, float x, float z, float rate, float damped, double dt) {
+        float omega = (float) (Math.PI * 2 * rate);
+        int steps = Math.max(1, (int) Math.ceil(dt / 0.004));
+        float h = (float) (dt / steps);
+        for (int i = 0; i < steps; i++) {
+            weight[2] += (omega * omega * (x - weight[0]) - 2f * damped * omega * weight[2]) * h;
+            weight[3] += (omega * omega * (z - weight[1]) - 2f * damped * omega * weight[3]) * h;
+            weight[0] += weight[2] * h;
+            weight[1] += weight[3] * h;
+        }
     }
 
     /**
@@ -312,7 +354,9 @@ public final class Fright implements InteractionProvider {
             arm.yRot += pose.yaw();
             // A hand at work is left on it.
             if (InteractionRuntime.aim(uuid, right ? Effector.RIGHT_ARM : Effector.LEFT_ARM) != null) continue;
-            arm.xRot += -pose.armsUp() + (right ? pose.against() : -pose.against());
+            // Behind the hips, the arms hang back from where the body has gone: forward of it (-xRot) when it went back, to the right (+zRot) when it went left.
+            arm.xRot += -pose.armsUp() + (right ? pose.against() : -pose.against()) - state.armsBehindZ * ARMS_BEND;
+            arm.zRot += state.armsBehindX * ARMS_BEND;
             // Out from the body is +zRot for the right arm and -zRot for the left.
             // Both to the same side: +zRot takes either hand to the right.
             arm.zRot += (right ? 1f : -1f) * pose.armsOut() + pose.sway();

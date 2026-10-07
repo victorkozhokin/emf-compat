@@ -65,7 +65,12 @@ class FrightMotionTest {
     void onlyTheWorseOnesLeaveTheGround() {
         assertEquals(0f, FrightMotion.hop(FrightMotion.LIGHT), 1e-6f);
         assertEquals(0f, FrightMotion.pose(FrightMotion.LIGHT, 0.15f, 0f, 0f, -1f).hop(), 1e-6f);
-        assertTrue(FrightMotion.pose(FrightMotion.MEDIUM, 0.15f, 0f, 0f, -1f).hop() > 0.8f);
-        assertTrue(FrightMotion.pose(FrightMotion.STRONG, 0.15f, 0f, 0f, -1f).hop() > FrightMotion.pose(FrightMotion.MEDIUM, 0.15f, 0f, 0f, -1f).hop());
+        float top = FrightMotion.gather(FrightMotion.MEDIUM) + FrightMotion.hop(FrightMotion.MEDIUM) / 2;
+        assertTrue(FrightMotion.pose(FrightMotion.MEDIUM, top, 0f, 0f, -1f).hop() > 0.8f);
+        assertTrue(FrightMotion.pose(FrightMotion.STRONG, top, 0f, 0f, -1f).hop() > FrightMotion.pose(FrightMotion.MEDIUM, top, 0f, 0f, -1f).hop());
+        // First the body gathers: still on the ground, bent forward, the arms drawn back.
+        FrightMotion.Pose gathered = FrightMotion.pose(FrightMotion.MEDIUM, FrightMotion.gather(FrightMotion.MEDIUM), 0f, 0f, -1f);
+        assertEquals(0f, gathered.hop(), 1e-6f);
+        assertTrue(gathered.bow() > 0.08f && gathered.armsUp() < FrightMotion.pose(FrightMotion.MEDIUM, 0.6f, 1f, 0f, -1f).armsUp());
     }
 }

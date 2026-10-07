@@ -42,6 +42,9 @@ public final class FrightMotion {
     /** The trace of trembling: turns a second, and radians of it in the arms. */
     private static final float TREMBLE_RATE = 11f, TREMBLE = 0.006f;
     private static final float HOP_SECONDS = 0.3f;
+    /** Before the hop, seconds: the body gathers for it - bent forward, the arms drawn back a little. Radians of that bend and of the arms. */
+    private static final float GATHER_SECONDS = 0.12f;
+    private static final float[] GATHER = {0, 0f, 0.1f, 0.14f}, GATHER_ARMS = {0, 0f, 0.1f, 0.14f};
 
     /**
      * What is added to the pose. {@code yaw}, {@code roll}: the torso's turn and tilt, radians;
@@ -72,7 +75,12 @@ public final class FrightMotion {
         return SHAKE_SECONDS[level];
     }
 
-    /** How long the hop lasts, seconds - the feet are put in their stand in the air; zero for a start, which steps. */
+    /** How long the body gathers itself before the hop, seconds; zero for a start. */
+    public static float gather(int level) {
+        return level == LIGHT ? 0f : GATHER_SECONDS;
+    }
+
+    /** How long the hop lasts, seconds, after the gathering - the feet are put in their stand in the air; zero for a start, which steps. */
     public static float hop(int level) {
         return level == LIGHT ? 0f : HOP_SECONDS;
     }
@@ -111,9 +119,12 @@ public final class FrightMotion {
         float fine = TREMBLE * TREMBLING[level] * (float) Math.sin(Math.PI * 2 * TREMBLE_RATE * t)
                 * smooth(t / 0.15f) * (1f - smooth((t - KEPT[level] * 0.4f) / (KEPT[level] * 0.6f)));
         float hopSeconds = hop(level);
-        float hop = hopSeconds > 0f && t < hopSeconds ? HOP[level] * (float) Math.sin(Math.PI * t / hopSeconds) : 0f;
+        // Gathered first - bent forward, the arms back - and let go of into the hop.
+        float before = gather(level), air = t - before;
+        float gathered = before <= 0f ? 0f : smooth(t / before) * (1f - smooth(air / (hopSeconds * 0.6f)));
+        float hop = hopSeconds > 0f && air > 0f && air < hopSeconds ? HOP[level] * (float) Math.sin(Math.PI * air / hopSeconds) : 0f;
         // The give of the landing: just as the feet come down, eased off over half a second.
-        float landing = hopSeconds <= 0f ? 0f : smooth((t - hopSeconds * 0.7f) / (hopSeconds * 0.5f)) * (1f - smooth((t - hopSeconds - 0.1f) / 0.5f));
+        float landing = hopSeconds <= 0f ? 0f : smooth((air - hopSeconds * 0.7f) / (hopSeconds * 0.5f)) * (1f - smooth((air - hopSeconds - 0.1f) / 0.5f));
         // The arms: out at once with the first jerk, and kept there by the stand - the clock holds them until the feet have got there.
         float guard = Math.max(smooth(t / 0.18f) * (1f - smooth((t - 0.45f) / 0.4f)), stand);
         // One move only: the first swing of the shake, one arm a beat before the other, and then still.
@@ -121,8 +132,8 @@ public final class FrightMotion {
         // With a step the chest turns against the hips: the right foot going back takes the right hip back, and the right shoulder comes forward.
         return new Pose(0.15f * k * torso - CHEST_SWING[level] * swing, 0.05f * k * (float) Math.cos(turn - 0.7) * in,
                 // Upright and leaning away from it: back from a sound ahead, forward from one behind.
-                0.04f * k * in + LEAN[level] * sz * stand + LANDING[level] * landing,
-                GUARD_UP[level] * guard, GUARD_OUT[level] * guard,
+                0.04f * k * in + LEAN[level] * sz * stand + LANDING[level] * landing + GATHER[level] * gathered,
+                GUARD_UP[level] * guard - GATHER_ARMS[level] * gathered, GUARD_OUT[level] * guard,
                 0.24f * k * arms * first + fine, 0.1f * k * wave * first,
                 0.08f * k * head, ROUND[level] * stand, hop);
     }
