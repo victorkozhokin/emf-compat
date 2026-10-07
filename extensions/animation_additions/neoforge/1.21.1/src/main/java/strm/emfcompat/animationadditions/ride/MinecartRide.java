@@ -80,9 +80,9 @@ public final class MinecartRide implements InteractionProvider {
     private static final float RISE_LIMIT = 3f, RISE = 2f;
     /** Rolling at full speed, blocks a second: the rattle of the joints - pixels up and down, radians side to side. */
     private static final float FULL_SPEED = 8f, RATTLE = 0.45f, RATTLE_ROLL = 0.02f;
-    /** Seconds: the torso follows what it is asked a moment late, so it is asked that much ahead; and a hand's place easing along the rim. */
+    /** Seconds: the torso follows what it is asked a moment late, so it is asked that much ahead; a hand's place easing along the rim, and the body coming round after the look. */
     private static final float LEAD = 0.1f;
-    private static final double SLIDE_SECONDS = 0.15;
+    private static final double SLIDE_SECONDS = 0.15, FACE_SECONDS = 0.12;
 
     private static final class State {
         float weight, pitch, roll, rise, pitchRate, rollRate;
@@ -144,6 +144,11 @@ public final class MinecartRide implements InteractionProvider {
         // Carried along, a rider has no stride: the game counts one for another player all the same, and the pack bobs to it.
         player.walkAnimation.setSpeed(0f);
         float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        // The rider sits squarely to where they look: the game leaves the body where it was and turns only the head,
+        // up to most of a quarter turn off it. The body comes round after the look instead.
+        float turn = Mth.wrapDegrees(player.getYRot() - player.yBodyRot) * Smoothing.follow(dt, FACE_SECONDS);
+        player.yBodyRot += turn;
+        player.yBodyRotO = player.yBodyRot;
 
         // The shove on the seat: how the cart's speed changed this tick, blocks a second a second. From where the cart
         // was and is, not from the speed it claims - on a slope, off a drop and onto the ground that is what is felt.
