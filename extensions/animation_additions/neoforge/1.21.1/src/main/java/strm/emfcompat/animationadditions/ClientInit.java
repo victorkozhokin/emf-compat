@@ -57,6 +57,7 @@ final class ClientInit {
         strm.emfcompat.animationadditions.gesture.ArmorDon.register(gestures);
         strm.emfcompat.animationadditions.gesture.ShakeOff.register(gestures);
         strm.emfcompat.animationadditions.gesture.Gesture.register(gestures);
+        strm.emfcompat.animationadditions.fishing.Fishing.register(gestures);
         ButtonPress.register(blocks);
         strm.emfcompat.animationadditions.buttonpress.aeronautics.HeavyThrottle.register(blocks);
         BlockUse.register(blocks);
@@ -82,6 +83,7 @@ final class ClientInit {
         // Order is only the log's order; who wins is the arbiter's call.
         InteractionRuntime.register(WallHand.INSTANCE);
         InteractionRuntime.register(strm.emfcompat.animationadditions.wallhand.FenceLean.INSTANCE);
+        InteractionRuntime.register(strm.emfcompat.animationadditions.fishing.Fishing.INSTANCE);
         InteractionRuntime.register(PlantReach.INSTANCE);
         InteractionRuntime.register(LookAt.INSTANCE);
         InteractionRuntime.register(strm.emfcompat.animationadditions.lookat.SignRead.INSTANCE);

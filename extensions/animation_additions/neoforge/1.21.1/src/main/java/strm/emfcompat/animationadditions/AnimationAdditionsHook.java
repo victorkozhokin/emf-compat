@@ -154,6 +154,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         strm.emfcompat.animationadditions.lead.LeadHold.support(uuid, parts);
         strm.emfcompat.animationadditions.pocket.PocketStash.support(uuid, parts);
         strm.emfcompat.animationadditions.wallhand.FenceLean.support(uuid, parts);
+        strm.emfcompat.animationadditions.fishing.Fishing.support(uuid, parts);
         Mining.support(uuid, parts);
         strm.emfcompat.animationadditions.gesture.Gesture.support(uuid, parts);
         strm.emfcompat.animationadditions.compat.CombatBody.support(uuid, parts);
@@ -190,6 +191,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         strm.emfcompat.animationadditions.ride.BoatPassenger.grip(uuid, parts);
         strm.emfcompat.animationadditions.ride.MinecartRide.grip(uuid, parts);
         strm.emfcompat.animationadditions.wallhand.FenceLean.grip(uuid, parts);
+        strm.emfcompat.animationadditions.fishing.Fishing.grip(uuid, parts);
         InteractionRuntime.finishHands(uuid, parts, contactBase, EMFState.getFrameCounter(), mainModel);
     }
 }

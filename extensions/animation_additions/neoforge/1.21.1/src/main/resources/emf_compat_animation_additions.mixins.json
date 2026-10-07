@@ -15,7 +15,9 @@
     "ItemPickupMixin",
     "GestureInteractionMixin",
     "LevelRendererAccessor",
-    "BoatChestMixin"
+    "BoatChestMixin",
+    "FishingHookAccessor",
+    "FishingLineMixin"
   ],
   "injectors": {
     "defaultRequire": 1
