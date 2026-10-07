@@ -80,7 +80,7 @@ public class EMFCompatHnSMod {
                         "Follows the camera", "The head keeps looking where you look while an attack or a block twists the body.",
                         "Follows the animation", "The head turns with the body, as the attack animation keys it.")
                 .addBoolean(KEY_PROCEDURAL_BODY, "Body and feet in attacks (experimental)", false,
-                        "On", "Needs EMF Compat: Animation Additions. The torso leans into the attack, and standing still the feet step into a stance with the weight over it.",
+                        "On", "Needs Touch'n Motion. The torso leans into the attack, and standing still the feet step into a stance with the weight over it.",
                         "Off", "Attacks hold the arms and, standing still, the legs; the torso stays the pack's.");
         modEventBus.addListener(this::clientSetup);
     }

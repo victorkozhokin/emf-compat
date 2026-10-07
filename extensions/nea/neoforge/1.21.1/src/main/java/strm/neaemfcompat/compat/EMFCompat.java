@@ -22,7 +22,7 @@ public class EMFCompat {
 
     public static boolean shouldPauseForAnimation(BasicAnimation anim) {
         if (anim == null) return false;
-        // Animation Additions rows a boat itself: its rowing is over the pack's pose, not over this one.
+        // Touch'n Motion rows a boat itself: its rowing is over the pack's pose, not over this one.
         if (anim instanceof BoatAnimation) return !rowedElsewhere();
         return anim instanceof HorseAnimation
                 || anim instanceof EatDrinkAnimation
@@ -37,8 +37,8 @@ public class EMFCompat {
     }
 
     private static boolean rowedElsewhere() {
-        return net.neoforged.fml.ModList.get().isLoaded("emf_compat_animation_additions")
-                && strm.emfcompat.core.EMFCompatConfig.getBoolean("animationadditions.enabled", true)
+        return net.neoforged.fml.ModList.get().isLoaded("touch_n_motion")
+                && strm.emfcompat.core.EMFCompatConfig.getBoolean("touchnmotion.enabled", true)
                 && strm.emfcompat.core.EMFCompatConfig.getBoolean("ride.boat", true);
     }
 

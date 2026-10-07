@@ -132,7 +132,7 @@ public class PlayerModelMixin {
         // stationary, so a moving player keeps EMF's walk cycle.
         Map<String, PoseSnapshot> parts = null;
         boolean planted = emfcompat$legsHeld(uuid, player);
-        // The experiment: Animation Additions, if it is there, turns the torso with the attack and
+        // The experiment: Touch'n Motion, if it is there, turns the torso with the attack and
         // sets the feet itself - then the legs are its to place, not the animation's to hold.
         boolean procedural = EMFCompatHnSMod.isProceduralBody()
                 && strm.emfcompat.hackersandslashers.compat.BodyBridge.offer(uuid, model.body.xRot, model.body.yRot, model.body.zRot, planted);

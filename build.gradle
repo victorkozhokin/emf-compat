@@ -35,6 +35,8 @@ allprojects {
         def mcVersion = p.findProperty('minecraft_version')
         def modVersion = p.findProperty('mod_version')
         def modSuffix = (modId != null && modId.startsWith('emf_compat_')) ? modId.substring('emf_compat_'.length()) : null
+        // A mod of its own in this repository (Touch'n Motion) keeps its id as the jar's and the icon's name, with no prefix.
+        def standalone = modId != null && modId in ['touch_n_motion']
 
         def uploadElement
         def uploadLoader
@@ -79,6 +81,8 @@ allprojects {
 
             if (modSuffix != null && mcVersion != null && modVersion != null) {
                 rename { "emf_compat_${modSuffix}_${uploadLoader}_${mcVersion}_${modVersion}.jar" }
+            } else if (standalone && mcVersion != null && modVersion != null) {
+                rename { "${modId}_${uploadLoader}_${mcVersion}_${modVersion}.jar" }
             }
         }
 
@@ -108,8 +112,8 @@ allprojects {
         // A jar that would crash the loader must never reach the upload folder.
         p.tasks.named('copyToUpload') { dependsOn verifyMixins }
 
-        if (modSuffix != null) {
-            def iconSource = rootProject.file("resources/icons/icon_emf_compat_${modSuffix}.png")
+        if (modSuffix != null || standalone) {
+            def iconSource = rootProject.file(standalone ? "resources/icons/icon_${modId}.png" : "resources/icons/icon_emf_compat_${modSuffix}.png")
             if (iconSource.exists()) {
                 def processResources = p.tasks.findByName('processResources')
                 if (processResources instanceof ProcessResources) {
@@ -207,7 +211,7 @@ tasks.register('copyToAeronautics', Copy) {
         ':quark-neoforge-1.21.1',
         ':supplementaries-neoforge-1.21.1',
         ':create-neoforge-1.21.1',
-        ':animation-additions-neoforge-1.21.1',
+        ':touch-n-motion-neoforge-1.21.1',
         ':nea-neoforge-1.21.1',
         ':takeaseat-neoforge-1.21.1'
     ]
@@ -231,7 +235,8 @@ tasks.register('copyToAeronautics', Copy) {
 
         from(jarTask.archiveFile) {
             if (mcVersion != null && modVersion != null) {
-                rename { "emf_compat_${suffix}_neoforge_${mcVersion}_${modVersion}.jar" }
+                def own = modId != null && !modId.startsWith('emf_compat_')
+                rename { own ? "${modId}_neoforge_${mcVersion}_${modVersion}.jar" : "emf_compat_${suffix}_neoforge_${mcVersion}_${modVersion}.jar" }
             }
         }
     }

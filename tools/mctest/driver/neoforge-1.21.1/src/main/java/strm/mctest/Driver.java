@@ -593,8 +593,8 @@ public final class Driver {
         s.addProperty("mainItem",BuiltInRegistries.ITEM.getKey(p.getMainHandItem().getItem()).toString());
         s.addProperty("offItem",BuiltInRegistries.ITEM.getKey(p.getOffhandItem().getItem()).toString());
         try {
-            Class<?> runtime=Class.forName("strm.emfcompat.animationadditions.interaction.InteractionRuntime");
-            Class<?> effector=Class.forName("strm.emfcompat.animationadditions.interaction.Effector");
+            Class<?> runtime=Class.forName("strm.touchnmotion.interaction.InteractionRuntime");
+            Class<?> effector=Class.forName("strm.touchnmotion.interaction.Effector");
             Method weight=runtime.getMethod("weight",UUID.class,effector,String.class);
             s.addProperty("transportRight",(Float)weight.invoke(null,p.getUUID(),effector.getField("RIGHT_ARM").get(null),"TransportGrip"));
             s.addProperty("transportLeft",(Float)weight.invoke(null,p.getUUID(),effector.getField("LEFT_ARM").get(null),"TransportGrip"));
@@ -758,7 +758,7 @@ public final class Driver {
         }
         out.add("parts", parts);
         if(entity==mc.player)try {
-            var cls=Class.forName("strm.emfcompat.animationadditions.interaction.InteractionRuntime");
+            var cls=Class.forName("strm.touchnmotion.interaction.InteractionRuntime");
             var statesField=cls.getDeclaredField("STATES");statesField.setAccessible(true);
             var states=statesField.get(null);
             var state=states.getClass().getMethod("fresh",java.util.UUID.class).invoke(states,entity.getUUID());
@@ -778,11 +778,11 @@ public final class Driver {
         }catch(ClassNotFoundException ignored){}
 
         if(entity==mc.player)try {
-            var cls=Class.forName("strm.emfcompat.animationadditions.blockuse.aeronautics.CockpitControls");
+            var cls=Class.forName("strm.touchnmotion.blockuse.aeronautics.CockpitControls");
             out.add("cockpit",new com.google.gson.Gson().toJsonTree(cls.getMethod("snapshot",java.util.UUID.class).invoke(null,entity.getUUID())));
         } catch(ClassNotFoundException ignored) { }
         if(entity==mc.player)try {
-            var cls=Class.forName("strm.emfcompat.animationadditions.blockuse.BlockUse");
+            var cls=Class.forName("strm.touchnmotion.blockuse.BlockUse");
             out.add("bellows",new com.google.gson.Gson().toJsonTree(cls.getMethod("bellowsSnapshot",java.util.UUID.class).invoke(null,entity.getUUID())));
             out.add("tableSupport",new com.google.gson.Gson().toJsonTree(cls.getMethod("tableSnapshot",java.util.UUID.class).invoke(null,entity.getUUID())));
 
@@ -794,14 +794,14 @@ public final class Driver {
     }
 
     private static java.util.Map<String,float[]> earlyContacts(java.util.UUID uuid) throws ReflectiveOperationException {
-        var cls=Class.forName("strm.emfcompat.animationadditions.interaction.HandContacts");
+        var cls=Class.forName("strm.touchnmotion.interaction.HandContacts");
         java.util.Map<String,float[]> result=new java.util.HashMap<>();
         try {result.putAll((java.util.Map<String,float[]>)cls.getMethod("snapshot",java.util.UUID.class).invoke(null,uuid));}
         catch(NoSuchMethodException oldVersion) {
             var states=cls.getDeclaredField("STATES");states.setAccessible(true);
             Object store=states.get(null),state=store.getClass().getMethod("fresh",java.util.UUID.class).invoke(store,uuid);
             if(state instanceof java.util.Map<?,?> targets) {
-                Object frame=Class.forName("strm.emfcompat.animationadditions.interaction.InteractionRuntime").getMethod("frame",java.util.UUID.class).invoke(null,uuid);
+                Object frame=Class.forName("strm.touchnmotion.interaction.InteractionRuntime").getMethod("frame",java.util.UUID.class).invoke(null,uuid);
                 if(frame!=null)for(var entry:targets.entrySet()) {
                     var source=entry.getKey().getClass().getDeclaredMethod("source");source.setAccessible(true);
                     var hand=entry.getKey().getClass().getDeclaredMethod("hand");hand.setAccessible(true);
@@ -812,7 +812,7 @@ public final class Driver {
                 }
             }
         }
-        var button=Class.forName("strm.emfcompat.animationadditions.buttonpress.ButtonPress");
+        var button=Class.forName("strm.touchnmotion.buttonpress.ButtonPress");
         var states=button.getDeclaredField("STATES");states.setAccessible(true);
         Object store=states.get(null),state=store.getClass().getMethod("fresh",java.util.UUID.class).invoke(store,uuid);
         if(state!=null) {
@@ -1051,9 +1051,9 @@ public final class Driver {
         LocalPlayer p = requirePlayer(mc.player);
         JsonObject out = new JsonObject();
         try {
-            Class<?> gate=Class.forName("strm.emfcompat.animationadditions.compat.ParCoolActivity");
-            out.addProperty("animationAdditionsSuppressed",(Boolean)gate.getMethod("active",net.minecraft.client.player.AbstractClientPlayer.class).invoke(null,p));
-        } catch(ClassNotFoundException absent) {out.addProperty("animationAdditionsSuppressed",false);}
+            Class<?> gate=Class.forName("strm.touchnmotion.compat.ParCoolActivity");
+            out.addProperty("touchNMotionSuppressed",(Boolean)gate.getMethod("active",net.minecraft.client.player.AbstractClientPlayer.class).invoke(null,p));
+        } catch(ClassNotFoundException absent) {out.addProperty("touchNMotionSuppressed",false);}
         Class<?> parkourType=Class.forName("com.alrex.parcool.common.Parkourability");
         Object ability=parkourType.getMethod("get",net.minecraft.world.entity.player.Player.class).invoke(null,p);
         out.addProperty("parkourEnabled",(Boolean)call(ability,"isActive"));

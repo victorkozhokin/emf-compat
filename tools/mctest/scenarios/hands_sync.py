@@ -1,4 +1,4 @@
-"""The server part of Animation Additions, on the integrated server: a bot is another player, and
+"""The server part of Touch'n Motion, on the integrated server: a bot is another player, and
 the driver says for it what a real second player's game would (`bot.hands`, `bot.act`) - through
 the addon's own channel, so the packet and everything after it are the real ones. Each case is
 run told and untold; the log is marked `sync <case> told|untold` and the decisions tell the rest.

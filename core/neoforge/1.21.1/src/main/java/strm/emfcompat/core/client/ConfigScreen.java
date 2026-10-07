@@ -69,6 +69,14 @@ public class ConfigScreen extends Screen {
         this.parent = parent;
     }
 
+    /** Opened on one mod's tab: a mod with a section of its own opens the screen from its entry in the mod list. */
+    public ConfigScreen(Screen parent, String sectionId) {
+        this(parent);
+        if (sectionId != null && ConfigRegistry.get(sectionId) != null) {
+            selectedSectionId = sectionId;
+        }
+    }
+
     @Override
     protected void init() {
         int tabX = 12;

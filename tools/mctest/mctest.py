@@ -132,9 +132,12 @@ def get_profile(name: str) -> Profile:
 
 # Both namings are matched: the installed jar may still be emf_compat_<addon>_<mc>_<version>.jar
 # from before the loader went into the file name, while upload/ now writes the loader in.
-_OUR_JAR = re.compile(r"^emf_compat_(?P<addon>.+?)"
+_OUR_JAR = re.compile(r"^(?P<addon>emf_compat_.+?|touch_n_motion)"
                       r"(?:_(?:fabric|neoforge|forge))?"
                       r"_(?P<mc>\d+\.\d+(?:\.\d+)?)_[^_]+\.jar$")
+
+
+_RENAMED = {"emf_compat_animation_additions": "touch_n_motion"}
 
 
 def _fresh_build_of(jar_name: str, loader: str) -> Path | None:
@@ -142,9 +145,10 @@ def _fresh_build_of(jar_name: str, loader: str) -> Path | None:
     m = _OUR_JAR.match(jar_name)
     if not m:
         return None
-    addon, mc = m.group("addon"), m.group("mc")
-    candidates = [p for p in (REPO / "upload").glob(f"*/{loader}/{mc}/emf_compat_{addon}_*.jar")
-                  if p.name.startswith((f"emf_compat_{addon}_{mc}_", f"emf_compat_{addon}_{loader}_{mc}_"))]
+    # A profile may still hold the jar under the name the mod had before it was renamed.
+    addon, mc = _RENAMED.get(m.group("addon"), m.group("addon")), m.group("mc")
+    candidates = [p for p in (REPO / "upload").glob(f"*/{loader}/{mc}/{addon}_*.jar")
+                  if p.name.startswith((f"{addon}_{mc}_", f"{addon}_{loader}_{mc}_"))]
     return max(candidates, key=lambda p: p.stat().st_mtime) if candidates else None
 
 

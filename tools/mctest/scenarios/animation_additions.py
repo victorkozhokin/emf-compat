@@ -1,4 +1,4 @@
-"""Writes the Animation Additions baseline: a course and the shots taken on it.
+"""Writes the Touch'n Motion baseline: a course and the shots taken on it.
 
 The course floats at y 150 over x 300..360, z 0..30 in any world, so it does not depend on what
 was built by hand anywhere else; `aa-scene.json` clears the air there and builds it (run it once
@@ -10,10 +10,10 @@ with a burst of frames and, where it tells something, the same frames with the f
     aa-contact.json only the hands-on-things cases (buttons, lever, doors, chest, lectern)
 
 What each case shows and what was expected when the baseline was taken is in README.md
-("Animation Additions baseline"). The features all read their toggles from the config, so the
+("Touch'n Motion baseline"). The features all read their toggles from the config, so the
 shots switch them in memory with `config` steps and put them back.
 
-Needs: Animation Additions enabled in the sandbox, Fresh Animations + FA+Player, ParCool (the
+Needs: Touch'n Motion enabled in the sandbox, Fresh Animations + FA+Player, ParCool (the
 charge case) and a player skin that shows the legs (launch with --name/--uuid). Launch with WATUT
 disabled: it marks a scripted player AFK and bows the head.
 """

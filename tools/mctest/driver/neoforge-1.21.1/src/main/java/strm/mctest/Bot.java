@@ -258,7 +258,7 @@ public final class Bot {
      */
     private static void hands(ServerPlayer bot, JsonObject h, JsonObject out) {
         try {
-            String net = "strm.emfcompat.animationadditions.net.";
+            String net = "strm.touchnmotion.net.";
             int flags = 0, face = 1, entity = -1;
             BlockPos block = null;
             double x = 0, y = 0, z = 0;
@@ -293,7 +293,7 @@ public final class Bot {
     /** The same for one accepted click: {"kind": 0 feed / 1 milk / 2 shear / 3 stand / 4 seed, "entity": id, "at": [x, y, z]}. */
     private static void act(ServerPlayer bot, JsonObject a, JsonObject out) {
         try {
-            String net = "strm.emfcompat.animationadditions.net.";
+            String net = "strm.touchnmotion.net.";
             Vec3 at = a.has("at") ? vec(a.getAsJsonArray("at")) : Vec3.ZERO;
             Object act = Class.forName(net + "HandsAct").getDeclaredConstructors()[0].newInstance(bot.getId(), a.get("kind").getAsInt(),
                     a.has("entity") ? a.get("entity").getAsInt() : -1, at.x, at.y, at.z, true);
