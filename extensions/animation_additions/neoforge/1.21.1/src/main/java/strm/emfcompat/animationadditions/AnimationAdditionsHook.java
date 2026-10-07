@@ -171,6 +171,7 @@ public final class AnimationAdditionsHook extends EMFAnimationApi.EMFAnimationHo
         strm.emfcompat.animationadditions.gesture.Gesture.reach(uuid, parts);
         ButtonPress.reachContact(uuid, parts);
         strm.emfcompat.animationadditions.buttonpress.aeronautics.HeavyThrottle.reachContact(uuid, parts);
+        strm.emfcompat.animationadditions.fishing.Fishing.reach(uuid, parts);
         InteractionRuntime.finishSupport(uuid, parts, supportBase, EMFState.getFrameCounter(), mainModel);
         var contactBase = InteractionRuntime.beginHands(uuid, parts);
         InteractionRuntime.apply(uuid, parts);
