@@ -6,8 +6,10 @@ import org.joml.Vector3f;
  * The shape of a fright, free of the game. None of them takes the hands: a fright comes in the
  * middle of doing something, and is laid over it.
  *
- * <p>Each is two things. The <b>jolt</b> runs on the clock and is over in half a second: a shudder
- * of the torso, the shoulders jerked up and let most of the way down again, a hop. The <b>wary
+ * <p>Each is two things. The <b>jolt</b> runs on the clock: the shake of shaking something off
+ * ({@code gesture/ShakeOff} - the arms out from the body and shaking one against the other, the
+ * wave of it going through the torso and the head), smaller, with a fine tremble over it; a hop
+ * for the worse ones. The shoulders are not drawn up: that made the pose cramped. The <b>wary
  * stand</b> after it runs on the feet: how far the body is back, bowed, looking about is the share
  * of the way the soles have come to where they are set ({@code stand}, 0..1) - so the feet lead
  * and the body is never ahead of them, on the way in and on the way home alike.</p>
@@ -30,8 +32,12 @@ public final class FrightMotion {
     private static final float[] MORE = {0, 1f, 1.45f, 1.9f};
     /** Seconds the wary stand is kept before the feet go home. */
     private static final float[] KEPT = {0, 0.9f, 1.4f, 2.0f};
-    /** Seconds: the jolt's coming on; the hop; one look to a side and back. */
-    private static final float ATTACK = 0.1f, HOP_SECONDS = 0.3f, LOOK_SECONDS = 1.1f;
+    /** Seconds the shake runs; how much of the shake-off's it is. */
+    private static final float[] SHAKE_SECONDS = {0, 0.9f, 1.2f, 1.5f}, SHAKE = {0, 0.55f, 0.8f, 1f};
+    /** The fine tremble: turns a second, and radians of it in the arms. */
+    private static final float TREMBLE_RATE = 13f, TREMBLE = 0.018f;
+    /** Seconds: the hop; one look to a side and back. */
+    private static final float HOP_SECONDS = 0.3f, LOOK_SECONDS = 1.1f;
 
     /**
      * What is added to the pose. {@code yaw}, {@code roll}: the torso's shudder, radians; {@code bow}:
@@ -57,7 +63,7 @@ public final class FrightMotion {
 
     /** How long the jolt runs on the clock, seconds: nothing of it is left after. */
     public static float jolt(int level) {
-        return 0.55f + 0.1f * level;
+        return SHAKE_SECONDS[level];
     }
 
     /** Whether the feet are put in their stand in the air, by a hop, and not by steps. */
@@ -117,33 +123,38 @@ public final class FrightMotion {
         if (level <= 0 || t < 0f) return Pose.NONE;
         float more = MORE[level];
         stand = Math.max(0f, Math.min(1f, stand));
-        // The jolt: on at once and gone in half a second.
-        float over = jolt(level);
-        float on = smooth(t / ATTACK), gone = 1f - smooth((t - over * 0.35f) / (over * 0.65f));
-        double turn = Math.PI * 2 * (5.0 * t - 1.2 * t * t);
-        float shudder = (variant == FREEZE ? 0.035f : 0.05f) * more * on * gone;
-        // The shoulders: jerked up, and most of the way down again; what is left stays with the stand.
-        float jerk = on * gone;
+        // The shake, as shaking off water: hard at first and running down, a wave through the arms, the torso, the head last.
+        float s = t / SHAKE_SECONDS[level], k = SHAKE[level] * (variant == FREEZE ? 0.7f : 1f);
+        float in = s >= 1f ? 0f : smooth(s / 0.16f) * (1f - smooth((s - 0.4f) / 0.6f));
+        double turn = Math.PI * 2 * (4.7 * s - 1.5 * s * s);
+        float arms = (float) Math.sin(turn) * in, wave = (float) Math.sin(turn - 1.1) * in;
+        float torso = (float) Math.sin(turn - 0.7) * in, nod = (float) Math.sin(turn - 1.5) * in;
+        // The tremble: fine and quick, for as long as the fright is kept, dying away.
+        float fine = TREMBLE * more * (float) Math.sin(Math.PI * 2 * TREMBLE_RATE * t)
+                * smooth(t / 0.1f) * (1f - smooth((t - KEPT[level] * 0.5f) / (KEPT[level] * 0.5f)));
+        float shakeYaw = 0.15f * k * torso + 0.5f * fine, shakeRoll = 0.05f * k * (float) Math.cos(turn - 0.7) * in;
+        float shakeBow = 0.05f * k * in, shakeUp = 0.3f * k * in, shakeOut = 0.4f * k * in;
+        float shakeArms = 0.24f * k * arms + fine, shakeSway = 0.1f * k * wave, shakeHead = 0.08f * k * nod;
         float hopSeconds = hop(variant, level);
         float hop = hopSeconds > 0f && t < hopSeconds ? hopHeight(variant, level) * (float) Math.sin(Math.PI * t / hopSeconds) : 0f;
         // The look about: to a side and back, to the other and back, for as long as the stand is kept.
         float look = (float) Math.sin(Math.PI * 2 * Math.max(0f, t - 0.25f) / LOOK_SECONDS) * stand;
         float away = -sz;
         return switch (variant) {
-            case RECOIL -> new Pose(shudder * (float) Math.sin(turn), 0.3f * shudder * (float) Math.cos(turn),
+            case RECOIL -> new Pose(shakeYaw, shakeRoll,
                     // Upright and leaning away from it: back from a sound ahead, forward from one behind.
-                    -0.045f * more * away * stand, 0.9f * more * jerk + 0.25f * more * stand,
-                    0f, 0.07f * more * stand, 0.8f * shudder * (float) Math.sin(turn - 1.1), 0f,
-                    0f, 0f, Math.min(1f, 0.45f * more) * stand, hop, 0.75f);
-            case JUMP -> new Pose(shudder * (float) Math.sin(turn), 0.3f * shudder * (float) Math.cos(turn),
+                    shakeBow - 0.045f * more * away * stand, 0f,
+                    shakeUp, shakeOut + 0.05f * more * stand, shakeArms, shakeSway,
+                    shakeHead, 0f, Math.min(1f, 0.45f * more) * stand, hop, 0.75f);
+            case JUMP -> new Pose(shakeYaw, shakeRoll,
                     // Down into the landing, and up out of it.
-                    0.05f * more * landing(t, hopSeconds) + 0.02f * more * stand, 1.0f * more * jerk + 0.2f * more * stand,
-                    0.11f * more * stand, 0.05f * more * stand, 0.8f * shudder * (float) Math.sin(turn - 1.1), 0.1f * more * look,
-                    0.17f * more * look, 0.07f * more * landing(t, hopSeconds), level == STRONG ? 0.6f * stand : 0f, hop, 0.6f);
-            default -> new Pose(shudder * (float) Math.sin(turn), 0.3f * shudder * (float) Math.cos(turn),
-                    0.035f * more * stand, 1.1f * more * jerk + 0.45f * more * stand,
-                    0.04f * more * stand, 0f, 0.6f * shudder * (float) Math.sin(turn - 1.1), 0f,
-                    0f, 0.07f * more * stand, Math.min(1f, 0.55f * more) * slow(t, level) * stand, hop, 1f);
+                    shakeBow + 0.05f * more * landing(t, hopSeconds) + 0.02f * more * stand, 0f,
+                    shakeUp + 0.08f * more * stand, shakeOut, shakeArms, shakeSway + 0.1f * more * look,
+                    shakeHead + 0.17f * more * look, 0.07f * more * landing(t, hopSeconds), level == STRONG ? 0.6f * stand : 0f, hop, 0.6f);
+            default -> new Pose(shakeYaw, shakeRoll,
+                    shakeBow + 0.035f * more * stand, 0f,
+                    shakeUp, shakeOut, shakeArms, shakeSway,
+                    shakeHead, 0.07f * more * stand, Math.min(1f, 0.55f * more) * slow(t, level) * stand, hop, 1f);
         };
     }
 

@@ -15,13 +15,14 @@ class FrightMotionTest {
             for (int level = FrightMotion.LIGHT; level <= FrightMotion.STRONG; level++) {
                 // Long after the jolt, with the feet home again, nothing is left.
                 FrightMotion.Pose home = FrightMotion.pose(variant, level, FrightMotion.kept(level) + 1f, 0f, -1f);
-                assertEquals(0f, Math.abs(home.yaw()) + Math.abs(home.bow()) + home.shrug() + home.armsUp() + home.armsOut()
+                assertEquals(0f, Math.abs(home.yaw()) + Math.abs(home.bow()) + home.shrug() + home.armsUp() + home.armsOut() + Math.abs(home.tremble())
                         + Math.abs(home.glance()) + home.duck() + home.round() + home.hop(), 1e-4f);
                 // At the very start nothing has moved yet.
                 FrightMotion.Pose start = FrightMotion.pose(variant, level, 0f, 0f, -1f);
-                assertEquals(0f, Math.abs(start.yaw()) + start.shrug() + start.hop(), 1e-4f);
-                // In the jolt the shoulders are up whatever the feet do.
-                assertTrue(FrightMotion.pose(variant, level, 0.12f, 0f, -1f).shrug() > 0.7f);
+                assertEquals(0f, Math.abs(start.yaw()) + start.armsOut() + start.hop(), 1e-4f);
+                // In the shake the arms are out from the body whatever the feet do, and the shoulders are never drawn up.
+                assertTrue(FrightMotion.pose(variant, level, FrightMotion.jolt(level) * 0.25f, 0f, -1f).armsOut() > 0.12f);
+                assertEquals(0f, FrightMotion.pose(variant, level, FrightMotion.jolt(level) * 0.25f, 1f, -1f).shrug(), 1e-6f);
             }
         }
     }
@@ -31,8 +32,9 @@ class FrightMotionTest {
         for (int variant : VARIANTS) {
             FrightMotion.Pose none = FrightMotion.pose(variant, FrightMotion.MEDIUM, 1.2f, 0f, -1f), half = FrightMotion.pose(variant, FrightMotion.MEDIUM, 1.2f, 0.5f, -1f),
                     all = FrightMotion.pose(variant, FrightMotion.MEDIUM, 1.2f, 1f, -1f);
-            assertEquals(0f, Math.abs(none.bow()) + none.armsOut() + none.round() + none.duck(), 0.03f);
-            assertTrue(all.shrug() > half.shrug() && half.shrug() > none.shrug());
+            assertEquals(0f, Math.abs(none.bow()) + none.round() + none.duck(), 0.03f);
+            assertTrue(all.round() >= half.round() && half.round() >= none.round());
+            assertTrue(Math.abs(all.bow()) > Math.abs(half.bow()));
         }
     }
 

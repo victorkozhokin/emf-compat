@@ -53,7 +53,7 @@ public final class Fright implements InteractionProvider {
     /** Seconds the torso's lean runs behind what it is asked: the shudder is asked for that much ahead. */
     private static final float LEAN_LAG = 0.12f;
     /** Radians: how far round to the sound the head goes, and the share of it the torso takes. Pixels: the shoulder on the sound's side up more, the head down between the shoulders by this share of the shrug. */
-    private static final float ROUND_LIMIT = 1.25f, ROUND_TORSO = 0.28f, SHOULDER_OVER = 0.8f, HEAD_SINK = 0.3f;
+    private static final float ROUND_LIMIT = 1.25f, ROUND_TORSO = 0.28f;
 
     /** What frightens, by the sound's name: the setting it falls under, how bad it is close by, and how far "close by" is, blocks. */
     private record Kind(String key, String sound, int level, double near) {
@@ -302,9 +302,6 @@ public final class Fright implements InteractionProvider {
         for (boolean right : new boolean[]{true, false}) {
             ModelPart arm = parts.apply(right ? "right_arm" : "left_arm");
             if (arm == null) continue;
-            // The shoulder on the sound's side comes up further: the look round is from under it.
-            boolean towards = right ? state.yaw > 0.2f : state.yaw < -0.2f;
-            arm.y -= pose.shrug() + (towards ? SHOULDER_OVER * pose.round() : 0f);
             float x = arm.x, z = arm.z;
             arm.x = x * cos + z * sin;
             arm.z = -x * sin + z * cos;
@@ -317,14 +314,12 @@ public final class Fright implements InteractionProvider {
             arm.zRot += (right ? 1f : -1f) * pose.armsOut() + pose.sway();
         }
         if (head != null) {
-            head.y += HEAD_SINK * pose.shrug();
             if (InteractionRuntime.aim(uuid, Effector.HEAD) == null) {
                 float round = Mth.clamp(state.yaw * (1f - ROUND_TORSO), -1.2f, 1.2f);
                 head.yRot += pose.glance() + IKMath.wrap(round - head.yRot) * pose.round();
                 head.xRot += pose.duck();
             }
             if (hat != null) {
-                hat.y = head.y;
                 hat.yRot = head.yRot;
                 hat.xRot = head.xRot;
             }
