@@ -2,6 +2,7 @@ package strm.emfcompat.animationadditions.blockuse;
 import org.junit.jupiter.api.Test;
 import org.joml.Vector3f;
 import static org.junit.jupiter.api.Assertions.*;
+import strm.emfcompat.animationadditions.interaction.Ease;
 class CrankStanceTest {
     @Test void wrapDoesNotMistakeFullTurnForReversal() {
         assertEquals(2, CrankStanceMath.delta(359, 1));
@@ -20,12 +21,12 @@ class CrankStanceTest {
         }
     }
     @Test void SetupStepHasZeroEndpointLiftAndSmoothEndpointVelocity() {
-        assertEquals(0, CrankStanceMath.ease(0));
-        assertEquals(1, CrankStanceMath.ease(1));
+        assertEquals(0, Ease.smooth(0));
+        assertEquals(1, Ease.smooth(1));
         assertEquals(0, CrankStanceMath.lift(0), 1e-6);
         assertEquals(0, CrankStanceMath.lift(1), 1e-6);
-        assertTrue(CrankStanceMath.ease(.001f) < .00001f);
-        assertTrue(1 - CrankStanceMath.ease(.999f) < .00001f);
+        assertTrue(Ease.smooth(.001f) < .00001f);
+        assertTrue(1 - Ease.smooth(.999f) < .00001f);
         assertEquals(1, CrankStanceMath.lift(.5f), 1e-6);
     }
 }

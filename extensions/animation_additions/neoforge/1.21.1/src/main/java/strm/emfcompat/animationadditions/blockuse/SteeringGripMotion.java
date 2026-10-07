@@ -1,5 +1,7 @@
 package strm.emfcompat.animationadditions.blockuse;
 
+import strm.emfcompat.animationadditions.interaction.Ease;
+
 /** Alternating regrips between six equally spaced rim anchors; at least one hand remains on the rim. */
 final class SteeringGripMotion {
     private static final float SECONDS = .28f;
@@ -27,7 +29,7 @@ final class SteeringGripMotion {
         }
         if (moving >= 0) {
             elapsed = Math.min(SECONDS, elapsed + Math.max(0, Math.min(.1f, dt)));
-            offsets[moving] = from + (to - from) * CrankStanceMath.ease(elapsed / SECONDS);
+            offsets[moving] = from + (to - from) * Ease.smooth(elapsed / SECONDS);
             if (elapsed >= SECONDS) { next = 1 - moving; moving = -1; }
         }
         if (moving < 0) {

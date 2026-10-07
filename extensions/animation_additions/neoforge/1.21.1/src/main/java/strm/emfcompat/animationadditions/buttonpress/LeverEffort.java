@@ -12,7 +12,6 @@ final class LeverEffort {
     static Vector3f step(Vector3f grip) {
         return shift(grip, true).mul(.9f / .55f);
     }
-    static float ease(float t) { return t * t * (3 - 2 * t); }
     static float lift(float t) { float s = (float) Math.sin(Math.PI * t); return s * s; }
 }
 

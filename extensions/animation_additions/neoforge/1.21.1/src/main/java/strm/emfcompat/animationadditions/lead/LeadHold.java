@@ -19,6 +19,7 @@ import strm.emfcompat.core.ik.*;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** An actual player-held lead owns one hand; other interactions can take that hand normally. */
 public final class LeadHold implements InteractionProvider {
@@ -133,8 +134,8 @@ public final class LeadHold implements InteractionProvider {
         double walkSpeed = player.getDeltaMovement().horizontalDistance() * 20;
         s.stopPull = s.stop.advance(walkSpeed, s.distance, context.dt(), fresh || warped || !player.onGround());
         float walking = (float) Math.min(1, player.getDeltaMovement().horizontalDistance() * 20 / 3);
-        float trailing = LeadMotion.smooth((s.direction.z + .1f) / .7f);
-        float distance = LeadMotion.smooth((float)(s.distance - 2) / 2);
+        float trailing = Ease.smooth((s.direction.z + .1f) / .7f);
+        float distance = Ease.smooth((float)(s.distance - 2) / 2);
         float wanted = Math.max(s.motion.load, walking * trailing * distance * .4f);
         s.effort += (wanted - s.effort) * Smoothing.follow(context.dt(), .16);
         Vector3f wantedPalm = LeadPose.grip(s.direction, s.hand == Effector.RIGHT_ARM, s.effort, s.motion.jerk);

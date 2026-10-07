@@ -19,6 +19,7 @@ import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.InteractionContext;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /**
  * Looking through a container: while a chest, a barrel or a shulker box the player faces stands
@@ -143,7 +144,7 @@ public final class ContainerSearch extends Gesture {
 
     protected void pose(Play play, float phase, Pose out) {
         if (!(play.notes instanceof Open open) || open.pos == null) return;
-        float in = phase <= HOLD ? swell(phase, HOLD - .04f, 2f, 3f) : 1 - smooth((phase - HOLD) / .4f);
+        float in = phase <= HOLD ? swell(phase, HOLD - .04f, 2f, 3f) : 1 - Ease.smooth((phase - HOLD) / .4f);
         float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
         Vec3 middle = Vec3.atCenterOf(open.pos);
         Vec3 side = play.player.getPosition(partial).subtract(middle).multiply(1, 0, 1);

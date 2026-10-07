@@ -21,7 +21,7 @@ public final class ContactRelease {
         // Match the old fade's settling interval (six time constants), with zero velocity
         // at both ends. An exponential starts withdrawing at its greatest speed.
         double t = Math.min(1, Math.max(0, elapsed - UNLOAD_SECONDS) / (6 * tau));
-        return (float)(1 - t * t * (3 - 2 * t));
+        return (float) (1 - Ease.smooth(t));
     }
     public float supportRemaining() {
         if (!active) return 0;

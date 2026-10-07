@@ -3,6 +3,7 @@ package strm.emfcompat.animationadditions.buttonpress;
 import org.junit.jupiter.api.Test;
 import org.joml.Vector3f;
 import static org.junit.jupiter.api.Assertions.*;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 class ReachEnvelopeTest {
     @Test void contactCorrectionBlendsInAndOutWithoutSnapping() {
@@ -55,10 +56,10 @@ class ReachEnvelopeTest {
         }
     }
     @Test void preparationHasZeroSlopeAtBothEndpoints() {
-        assertEquals(0, ReachEnvelope.smooth(-1));
-        assertEquals(1, ReachEnvelope.smooth(2));
-        assertTrue(ReachEnvelope.smooth(0.0001f) < 1e-6);
-        assertTrue(1 - ReachEnvelope.smooth(0.9999f) < 1e-6);
+        assertEquals(0, Ease.smooth(-1));
+        assertEquals(1, Ease.smooth(2));
+        assertTrue(Ease.smooth(0.0001f) < 1e-6);
+        assertTrue(1 - Ease.smooth(0.9999f) < 1e-6);
     }
     @Test void contactTurnReachesWithoutStretchingTheTorso() {
         Vector3f shoulder = new Vector3f(-5, -12, 0);

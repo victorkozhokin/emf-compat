@@ -3,6 +3,7 @@ package strm.emfcompat.animationadditions.footgrounding.compat;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import java.util.List;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** Straight-limb IK: retain the hip, redirect the sole, compensate the vertical displacement. */
 final class BalanceMath {
@@ -14,7 +15,7 @@ final class BalanceMath {
     static float counterbalance(float lean) {
         float strength = SupportSurface.clamp((Math.abs(lean) - (float) Math.toRadians(3))
                 / (float) Math.toRadians(9), 0, 1);
-        return Math.copySign(strength * strength * (3 - 2 * strength), lean);
+        return Math.copySign(Ease.smooth(strength), lean);
     }
 
     /** Keep the rhythm of the pack, but soften extreme straight-leg sprint swings on beams. */

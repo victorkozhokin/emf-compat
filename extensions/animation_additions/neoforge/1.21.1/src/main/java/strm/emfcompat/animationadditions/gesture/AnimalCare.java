@@ -20,6 +20,7 @@ import org.joml.Vector3f;
 import strm.emfcompat.animationadditions.interaction.InteractionContext;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /**
  * Feeding an animal, milking it, shearing it. With the food, the bucket or the shears in hand and
@@ -202,9 +203,9 @@ public final class AnimalCare extends Gesture {
             // it - in to the mouth, over to the brow, back - and none for the strokes themselves.
             boolean strokes = on(KEY_STROKE);
             float waits = on(KEY_FREE_ARM) ? WAITS : 0;
-            float away = play.acted ? smooth((work - .24f) / .2f) : 0;
-            float stroke = !strokes ? 0 : play.acted ? smooth((work - .36f) / .16f) * (1 - smooth((work - .88f) / .12f)) : 0;
-            double pass = Math.PI * 2 * 2 * Math.max(0, Math.min(1, (work - .52f) / .36f));
+            float away = play.acted ? Ease.smooth((work - .24f) / .2f) : 0;
+            float stroke = !strokes ? 0 : play.acted ? Ease.smooth((work - .36f) / .16f) * (1 - Ease.smooth((work - .88f) / .12f)) : 0;
+            double pass = Math.PI * 2 * 2 * Ease.unit((work - .52f) / .36f);
             float gone = (float) (.5 - .5 * Math.cos(pass)), up = (float) Math.max(0, -Math.sin(pass));
             Vec3 neck = head == null ? side.scale(-1) : head[2];
             // The food comes to the mouth from where the player stands.
@@ -221,8 +222,8 @@ public final class AnimalCare extends Gesture {
             // Until its turn the free hand is half up and ready, not hanging.
             otherReach = Math.min(1, level * 1.4f) * (waits + (1 - waits) * stroke);
             // The body stays in for the whole of it and goes over from the one hand's place to the other's once.
-            float stay = level * (!play.acted ? 1 : strokes ? 1 - smooth((work - .88f) / .12f) : 1 - smooth((work - .45f) / .4f));
-            float over = play.acted && strokes ? smooth((work - .28f) / .22f) : 0;
+            float stay = level * (!play.acted ? 1 : strokes ? 1 - Ease.smooth((work - .88f) / .12f) : 1 - Ease.smooth((work - .45f) / .4f));
+            float over = play.acted && strokes ? Ease.smooth((work - .28f) / .22f) : 0;
             Vector3f mid = model(play, brow.add(0, .04, 0).add(neck.scale(length * .5)));
             out.fitAt = new Vector3f(tool).lerp(mid, over);
             out.fitRight = over < .5f == right;
@@ -238,15 +239,15 @@ public final class AnimalCare extends Gesture {
             // it, draws down three times and goes; the bucket is brought out. The body goes down
             // once, stays, and comes up once.
             Vec3 fore = head == null ? along : head[2].scale(-1);
-            float come = play.acted ? smooth((work - .08f) / .16f) * (1 - smooth((work - .8f) / .12f)) : 0;
-            double draws = Math.PI * 2 * 3 * Math.max(0, Math.min(1, (work - .26f) / .52f));
+            float come = play.acted ? Ease.smooth((work - .08f) / .16f) * (1 - Ease.smooth((work - .8f) / .12f)) : 0;
+            double draws = Math.PI * 2 * 3 * Ease.unit((work - .26f) / .52f);
             float pull = (float) (.5 - .5 * Math.cos(draws)) * come;
             Vec3 under = at.add(fore.scale(-width * .26)).add(side.scale(width * .24)).add(0, height * .44, 0);
             tool = model(play, under.add(0, -.12, 0));
             other = model(play, under.add(0, .14 - .2 * pull, 0).add(side.scale(-.04 + .05 * pull)));
             float waits = on(KEY_FREE_ARM) ? WAITS : 0;
             otherReach = Math.min(1, level * 1.4f) * (waits + (1 - waits) * come);
-            float stay = level * (play.acted ? 1 - smooth((work - .88f) / .12f) : 1);
+            float stay = level * (play.acted ? 1 - Ease.smooth((work - .88f) / .12f) : 1);
             out.fitAt = new Vector3f(tool);
             out.fitRight = right;
             out.fitWeight = stay;
@@ -262,15 +263,15 @@ public final class AnimalCare extends Gesture {
             Vec3 fore = head == null ? along : head[2].scale(-1);
             // From its front to its rear - or, stood before it or behind, across in front of the player.
             Vec3 line = Math.abs(side.dot(fore)) > .75 ? along.scale(hand) : fore.scale(-1);
-            float cut = play.acted ? smooth((work - .06f) / .1f) * (1 - smooth((work - .88f) / .12f)) : 0;
-            double pass = Math.PI * 2 * 2 * Math.max(0, Math.min(1, (work - .14f) / .72f));
+            float cut = play.acted ? Ease.smooth((work - .06f) / .1f) * (1 - Ease.smooth((work - .88f) / .12f)) : 0;
+            double pass = Math.PI * 2 * 2 * Ease.unit((work - .14f) / .72f);
             float gone = (float) (.5 - .5 * Math.cos(pass)), up = (float) Math.max(0, -Math.sin(pass));
             double where = -.28 + .56 * gone * cut;
             Vec3 flank = at.add(side.scale(width * .32)).add(0, height * .72, 0);
             tool = model(play, flank.add(line.scale(where)).add(0, .07 * up * up * cut, 0).add(side.scale(.05 * up * up * cut)));
             other = model(play, at.add(side.scale(width * .12)).add(0, height * .96, 0));
-            otherReach = Math.min(1, level * 1.3f) * (play.acted ? .7f + .3f * smooth(work / .1f) : .7f);
-            float stay = level * (play.acted ? 1 - smooth((work - .88f) / .12f) : 1);
+            otherReach = Math.min(1, level * 1.3f) * (play.acted ? .7f + .3f * Ease.smooth(work / .1f) : .7f);
+            float stay = level * (play.acted ? 1 - Ease.smooth((work - .88f) / .12f) : 1);
             Vector3f mid = model(play, flank);
             out.fitAt = mid;
             out.fitRight = right;
@@ -284,7 +285,7 @@ public final class AnimalCare extends Gesture {
         out.hand(right, tool, toolReach);
         out.hand(!right, other, otherReach);
         // Broad weight transfer supports the work; individual strokes do not pump the pelvis.
-        float effort = level * (play.acted ? 1 - smooth((work - .88f) / .12f) : 1);
+        float effort = level * (play.acted ? 1 - Ease.smooth((work - .88f) / .12f) : 1);
         out.weightSide = (right ? .3f : -.3f) * effort;
         out.weightForward = -.25f * effort;
         out.pitch = bend;

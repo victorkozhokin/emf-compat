@@ -13,7 +13,7 @@ public record ContactStance(float pitch, float yaw, float side, float forward, f
             case "PlantReach" -> { pitch = .015f; shift = .16f; forward = 0; spread = 0; }
             default -> { return new ContactStance(0, 0, 0, 0, 0); }
         }
-        weight = Math.max(0, Math.min(1, weight));
+        weight = Ease.unit(weight);
         return new ContactStance(pitch * weight * posture, side * .025f * weight * posture,
                 side * shift * weight * posture, forward * weight * posture, spread * posture);
     }

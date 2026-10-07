@@ -12,6 +12,7 @@ import strm.emfcompat.animationadditions.torso.ClearanceOffset;
 import strm.emfcompat.core.ik.IKFrame;
 import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** One brace step at a time on the same deck; no extra gait over FA walking. */
 final class TransportStance {
@@ -59,7 +60,7 @@ final class TransportStance {
                     if (!safe(player, space, deck, legs[step], start, end)) { step = -1; }
                     else {
                         progress = Math.min(1, progress + (float) dt / .32f);
-                        feet[step].set(start).lerp(end, BraceMath.ease(progress));
+                        feet[step].set(start).lerp(end, Ease.smooth(progress));
                         if (progress >= 1) step = -1;
                     }
                 }

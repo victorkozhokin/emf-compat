@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /**
  * A short authored gesture that follows something the player really did: it is set off, waits
@@ -382,20 +383,15 @@ public abstract class Gesture implements InteractionProvider {
         return play.frame.relativeToJoint(world, new Vector3f());
     }
 
-    protected static float smooth(float v) {
-        v = Math.max(0, Math.min(1, v));
-        return v * v * (3 - 2 * v);
-    }
-
     /** The same, but out at once: fast off the mark and easing into place, for what must not lag behind its cause. */
     protected static float swell(float phase, float in, float out, float end) {
-        float t = Math.max(0, Math.min(1, phase / in)), k = 1 - t;
-        return (1 - k * k * k) * (1 - smooth((phase - out) / (end - out)));
+        float t = Ease.unit(phase / in), k = 1 - t;
+        return (1 - k * k * k) * (1 - Ease.smooth((phase - out) / (end - out)));
     }
 
     /** 0 → 1 over {@code in}, held, 1 → 0 from {@code out} to {@code end}. */
     protected static float bell(float phase, float in, float out, float end) {
-        return smooth(phase / in) * (1 - smooth((phase - out) / (end - out)));
+        return Ease.smooth(phase / in) * (1 - Ease.smooth((phase - out) / (end - out)));
     }
 
     @Override
@@ -504,7 +500,7 @@ public abstract class Gesture implements InteractionProvider {
         if (!on(KEY_LOOK)) pose.look = null;
         if (pose.look != null) {
             // The eyes go to it from where they look, and lead the hands there.
-            float length = pose.look.length(), amount = Math.max(0, Math.min(1, pose.looking));
+            float length = pose.look.length(), amount = Ease.unit(pose.looking);
             if (length > 1e-3f) {
                 float pitch = (float) Math.asin(Math.max(-1f, Math.min(1f, pose.look.y / length)));
                 float yaw = (float) Math.atan2(-pose.look.x, -pose.look.z);
@@ -618,7 +614,7 @@ public abstract class Gesture implements InteractionProvider {
                 now.add(new Vector3f(speed).mul(h));
             }
         }
-        float way = Math.max(0, Math.min(1, reach));
+        float way = Ease.unit(reach);
         return new Vector3f(now).sub(0, 1.8f * 4 * way * (1 - way), 0);
     }
 
@@ -640,7 +636,7 @@ public abstract class Gesture implements InteractionProvider {
     static float[] towards(float x, float y, float z) {
         float[] aim = ArmAim.angles(x, y, z);
         if (aim == null) return null;
-        aim[1] *= smooth((float) Math.hypot(x, z) / 5f);
+        aim[1] *= Ease.smooth((float) Math.hypot(x, z) / 5f);
         return aim;
     }
 
@@ -721,10 +717,10 @@ public abstract class Gesture implements InteractionProvider {
                 if (pose.fitAt != null) {
                     play.fitRight = pose.fitRight;
                     play.fitAt.set(pose.fitAt);
-                    weight = gesture.shown(uuid, play) * Math.max(0, Math.min(1, pose.fitWeight));
+                    weight = gesture.shown(uuid, play) * Ease.unit(pose.fitWeight);
                 } else if (at != null) {
                     play.fitAt.set(at);
-                    weight = gesture.shown(uuid, play) * smooth((Math.max(r, l) - .5f) / .5f);
+                    weight = gesture.shown(uuid, play) * Ease.smooth((Math.max(r, l) - .5f) / .5f);
                     if (second != null && Math.min(r, l) > .6f) other = second;
                 }
             }

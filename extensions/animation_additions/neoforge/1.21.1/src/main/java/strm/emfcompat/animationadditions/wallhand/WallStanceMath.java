@@ -10,5 +10,4 @@ final class WallStanceMath {
         return delta;
     }
     static Vector3f retreat(float amount) { return new Vector3f(0, 0, Math.max(0, Math.min(3.5f, amount))); }
-    static float ease(float p) { p = Math.max(0, Math.min(1, p)); return p * p * (3 - 2 * p); }
 }

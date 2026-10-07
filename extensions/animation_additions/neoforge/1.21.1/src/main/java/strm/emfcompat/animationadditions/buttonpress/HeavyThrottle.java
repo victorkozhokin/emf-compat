@@ -14,6 +14,7 @@ import strm.emfcompat.core.ik.*;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** A held Throttle receives phased visual effort; cockpit and item use retain their hands. */
 public final class HeavyThrottle implements InteractionProvider {
@@ -150,8 +151,7 @@ public final class HeavyThrottle implements InteractionProvider {
         ModelPart arm = parts.apply(right ? "right_arm" : "left_arm");
         if (arm != null) {
             float distance = primary.distance(new Vector3f(arm.x, arm.y, arm.z));
-            float far = Math.max(0, Math.min(1, (distance - 11) / 6));
-            far = far * far * (3 - 2 * far);
+            float far = Ease.smooth((distance - 11) / 6);
             // A near knob must not make a rigid arm fit fold the whole torso
             // sideways by forty degrees just to shorten its reach.
             s.reach.angleLimit = (float) Math.toRadians(12 + 28 * far);

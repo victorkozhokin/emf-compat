@@ -6,6 +6,7 @@ import org.joml.Vector3f;
 import org.joml.Quaternionf;
 
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /**
  * The reaching pose: past the arm's length the whole body goes with the hand - the torso leans
@@ -51,8 +52,8 @@ public final class ReachPose {
 
     /** How much of the pose, 0..1, for a target {@code reach} arm lengths from the shoulder. */
     public static float weight(float reach) {
-        return Math.min(ReachEnvelope.smooth((FAR - reach) / (FAR - FULL)),
-                ReachEnvelope.smooth((reach - NONE) / (NEAR - NONE)));
+        return Math.min(Ease.smooth((FAR - reach) / (FAR - FULL)),
+                Ease.smooth((reach - NONE) / (NEAR - NONE)));
     }
 
     /**
@@ -65,7 +66,7 @@ public final class ReachPose {
         float flat = (float) Math.hypot(to.x, to.z);
         if (flat < 1e-3f || s <= 0f) return;
         // Model y is down: below the waist is +y.
-        float amount = LEAN + LOW_LEAN * Math.max(0f, Math.min(1f, to.y / LOW_FULL));
+        float amount = LEAN + LOW_LEAN * Ease.unit(to.y / LOW_FULL);
         lean[0] += s * amount * (-to.z / flat);
         lean[2] += s * amount * (-to.x / flat);
     }

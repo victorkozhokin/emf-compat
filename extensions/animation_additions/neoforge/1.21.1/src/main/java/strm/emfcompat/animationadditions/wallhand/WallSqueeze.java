@@ -30,6 +30,7 @@ import strm.emfcompat.core.ik.IKFrame;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /**
  * Past a wall the arms stay out of it. The model is wider than the player's box - the arms' outer
@@ -180,7 +181,7 @@ public final class WallSqueeze {
             // What is left in a wall after that: the torso turns to fit, the shoulder at the nearer wall first.
             float left = Math.max(Math.max(0f, inRight - Math.max(0f, over)), Math.max(0f, inLeft - Math.max(0f, -over)));
             if (left > 0.01f) {
-                float full = WallPoseMath.ease(left / TURN_FULL_AT);
+                float full = Ease.smooth(left / TURN_FULL_AT);
                 float turn = Math.min(MAX_TURN, fitting(left) + TURN_PAST);
                 s.side = WallPoseMath.side(s.side, inRight, inLeft, s.arms > 0.05f);
                 s.turn = full * turn * s.side;

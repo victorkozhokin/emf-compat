@@ -1,5 +1,7 @@
 package strm.emfcompat.animationadditions.blockuse;
 
+import strm.emfcompat.animationadditions.interaction.Ease;
+
 /** Return one hand before freeing the other; at least one hand stays on the rim. */
 final class CockpitMotion {
     int away = -1, moving = -1;
@@ -17,7 +19,7 @@ final class CockpitMotion {
     }
     float mix(int hand) {
         if (moving == hand) {
-            float e = progress * progress * (3 - 2 * progress);
+            float e = Ease.smooth(progress);
             return returning ? 1 - e : e;
         }
         return away == hand ? 1 : 0;

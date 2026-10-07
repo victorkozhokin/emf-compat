@@ -2,6 +2,7 @@ package strm.emfcompat.animationadditions.mining;
 
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** The tools and the swing's own arithmetic for {@link Mining}: no game classes, so it is unit-tested. */
 final class ToolSwing {
@@ -23,7 +24,7 @@ final class ToolSwing {
      * is drawn after the half would go by in a frame.
      */
     static float time(float phase) {
-        phase = Math.max(0f, Math.min(1f, phase));
+        phase = Ease.unit(phase);
         return phase < .5f ? phase * 1.5f : .75f + (phase - .5f) * .5f;
     }
     /**
@@ -126,7 +127,7 @@ final class ToolSwing {
         float gripReach = (float) Math.hypot(tool.gripY, tool.gripZ);
         float tipReach = (float) Math.hypot(tool.tipY, tool.tipZ);
         float s = tipReach - gripReach < 1e-3f ? 1f
-                : Math.max(0f, Math.min(1f, (distance - gripReach) / (tipReach - gripReach)));
+                : Ease.unit((distance - gripReach) / (tipReach - gripReach));
         float y = tool.gripY + s * (tool.tipY - tool.gripY), z = tool.gripZ + s * (tool.tipZ - tool.gripZ);
         // That part of the tool, turned in the hand, in the arm's space.
         float lx = z * (float) Math.sin(turn), lz = z * (float) Math.cos(turn);
@@ -168,7 +169,7 @@ final class ToolSwing {
         float gripReach = (float) Math.hypot(tool.gripY, tool.gripZ);
         float tipReach = (float) Math.hypot(tool.tipY, tool.tipZ);
         float s = tipReach - gripReach < 1e-3f ? 1f
-                : Math.max(0f, Math.min(1f, (distance - gripReach) / (tipReach - gripReach)));
+                : Ease.unit((distance - gripReach) / (tipReach - gripReach));
         float y = tool.gripY + s * (tool.tipY - tool.gripY);
         float z = tool.gripZ + s * (tool.tipZ - tool.gripZ);
         // The arm's rotation about x turns that part round by the same angle from where it hangs.
@@ -189,10 +190,10 @@ final class ToolSwing {
         if (time <= 0f || time >= IMPACT) return 0f;
         if (time < TOP) {
             float k = time / TOP;
-            return k * k * (3 - 2 * k);
+            return Ease.smooth(k);
         }
         float k = (time - TOP) / (IMPACT - TOP);
-        return 1 - k * k * (3 - 2 * k);
+        return 1 - Ease.smooth(k);
     }
 
     /**

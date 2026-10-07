@@ -2,6 +2,7 @@ package strm.emfcompat.animationadditions.transport;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import strm.emfcompat.animationadditions.interaction.Ease;
 class BraceMathTest {
     @Test void retainedReachHasAHysteresisButCannotCrossTheOppositeHand() {
         Vector3f shoulder = new Vector3f(-5, 2, 0), point = new Vector3f(-5, 2, -13.5f);
@@ -26,8 +27,8 @@ class BraceMathTest {
     @Test void effortAndStepInterpolationAreBounded() {
         assertEquals(0, BraceMath.load(-4));
         assertEquals(1, BraceMath.load(100));
-        assertEquals(0, BraceMath.ease(-1));
-        assertEquals(1, BraceMath.ease(2));
-        assertEquals(.5, BraceMath.ease(.5f));
+        assertEquals(0, Ease.smooth(-1));
+        assertEquals(1, Ease.smooth(2));
+        assertEquals(.5, Ease.smooth(.5f));
     }
 }

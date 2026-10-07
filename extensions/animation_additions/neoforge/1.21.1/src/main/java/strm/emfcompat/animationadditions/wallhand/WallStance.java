@@ -11,6 +11,7 @@ import strm.emfcompat.animationadditions.torso.PelvisFollow;
 import strm.emfcompat.core.ik.IKFrame;
 import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** Short alternating stance adjustments; moving feet follow the existing walking phase. */
 final class WallStance {
@@ -73,7 +74,7 @@ final class WallStance {
                         if (!safe(player, space, legs[stepping], start, end)) { feet[stepping].zero(); stepping = -1; }
                         else {
                             progress = Math.min(1, progress + (float) dt / .28f);
-                            feet[stepping].set(start).lerp(end, WallStanceMath.ease(progress));
+                            feet[stepping].set(start).lerp(end, Ease.smooth(progress));
                             if (progress >= 1) stepping = -1;
                         }
                     }

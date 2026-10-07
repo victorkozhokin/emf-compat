@@ -1,6 +1,7 @@
 package strm.emfcompat.animationadditions.mining;
 
 import org.joml.Vector3f;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /**
  * What the rest of the body does while {@link Mining} swings the arm: the feet set apart for the
@@ -55,9 +56,9 @@ final class MiningBody {
     static float[] lean(ToolSwing.Tool tool, boolean right, float pointY, float wound) {
         Stance s = stance(tool);
         float side = right ? 1f : -1f;
-        float height = pointY > LEVEL ? smooth((pointY - LEVEL) / (LOW - LEVEL)) * LOW_PITCH
-                : smooth((LEVEL - pointY) / (LEVEL - HIGH)) * HIGH_PITCH;
-        float struck = 1 - 2 * Math.max(0, Math.min(1, wound));
+        float height = pointY > LEVEL ? Ease.smooth((pointY - LEVEL) / (LOW - LEVEL)) * LOW_PITCH
+                : Ease.smooth((LEVEL - pointY) / (LEVEL - HIGH)) * HIGH_PITCH;
+        float struck = 1 - 2 * Ease.unit(wound);
         return new float[]{height + (float) Math.toRadians(s.pulsePitch) * struck * .5f,
                 side * (float) Math.toRadians(s.turned - s.pulseTurn * struck * .5f),
                 side * (float) Math.toRadians(1.5f) * struck};
@@ -68,16 +69,11 @@ final class MiningBody {
      * it from where the shoulder is, all of it a quarter of the tool's reach further.
      */
     static float shortBy(float distance, float reach) {
-        return smooth((distance / reach - 1f) / .25f);
+        return Ease.smooth((distance / reach - 1f) / .25f);
     }
 
     /** How far down by the legs a point is, 0..1: nothing above the waist (12), all of it at the knees. */
     static float low(float pointY) {
-        return smooth((pointY - 12f) / 6f);
-    }
-
-    private static float smooth(float v) {
-        v = Math.max(0, Math.min(1, v));
-        return v * v * (3 - 2 * v);
+        return Ease.smooth((pointY - 12f) / 6f);
     }
 }

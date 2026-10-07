@@ -12,6 +12,7 @@ import strm.emfcompat.animationadditions.interaction.Smoothing;
 import strm.emfcompat.animationadditions.torso.PelvisFollow;
 import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** Small grounded setup steps; rotation transfers weight rather than walking every turn. */
 final class CrankStance {
@@ -74,7 +75,7 @@ final class CrankStance {
                     if (!safe(s, legs[s.stepping], s.start, s.end)) { s.feet[s.stepping].set(s.start); s.stepping = -1; }
                     else {
                         s.progress = Math.min(1, s.progress + (float) dt / .32f);
-                        s.feet[s.stepping].set(s.start).lerp(s.end, CrankStanceMath.ease(s.progress));
+                        s.feet[s.stepping].set(s.start).lerp(s.end, Ease.smooth(s.progress));
                         if (s.progress >= 1) s.stepping = -1;
                     }
                 }

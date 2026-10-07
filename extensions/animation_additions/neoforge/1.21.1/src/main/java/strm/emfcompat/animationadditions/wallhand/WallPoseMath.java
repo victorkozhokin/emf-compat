@@ -1,6 +1,7 @@
 package strm.emfcompat.animationadditions.wallhand;
 
 import strm.emfcompat.animationadditions.interaction.Smoothing;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** Geometry and contact transitions independent of the Minecraft renderer. */
 final class WallPoseMath {
@@ -8,11 +9,6 @@ final class WallPoseMath {
 
     static float side(float previous, float right, float left, boolean engaged) {
         return engaged ? previous : right >= left ? 1 : -1;
-    }
-
-    static float ease(float value) {
-        float v = Math.max(0, Math.min(1, value));
-        return v * v * (3 - 2 * v);
     }
 
     static Aim aim(float x, float y, float z) {
@@ -32,7 +28,7 @@ final class WallPoseMath {
         boolean known;
 
         void update(Aim target, float strength, double dt) {
-            float wanted = target == null ? 0 : Math.max(0, Math.min(1, strength));
+            float wanted = target == null ? 0 : Ease.unit(strength);
             weight += (wanted - weight) * Smoothing.fadeIn(dt, wanted > weight ? 0.14 : 0.09);
             if (target != null) {
                 float k = known ? Smoothing.follow(dt, 0.055) : 1;

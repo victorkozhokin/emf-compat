@@ -50,6 +50,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /**
  * Using a block by hand - a chiseled bookshelf's slot, and so on ({@link BlockTarget}): looking at
@@ -276,7 +277,7 @@ public final class BlockUse implements InteractionProvider {
             Vec3 point = spot.point().add(spot.out().scale(outwards / 16.0));
             if (state.gesture != null && state.gesture.sweep() != null) {
                 // Across the spot, from half the sweep before it to half past it, eased at both ends.
-                double along = t * t * (3 - 2 * t) - 0.5;
+                double along = Ease.smooth(t) - 0.5;
                 point = point.add(space.directionToWorld(state.gesture.sweep()).scale(along));
             }
             Vector3f model = frame.relativeToJoint(point, new Vector3f());

@@ -14,6 +14,7 @@ import strm.emfcompat.core.ik.IKFrame;
 import traben.entity_model_features.models.animation.state.EMFState;
 
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** Sequential short brace steps on broad level support; walking keeps the pack's stride. */
 public final class BraceSteps {
@@ -72,7 +73,7 @@ public final class BraceSteps {
                     if (!safe(player, frame, legs[s.stepping], s.start, s.end)) s.stepping = -1;
                     else {
                         s.progress = Math.min(1, s.progress + (float) dt / .32f);
-                        s.feet[s.stepping].set(s.start).lerp(s.end, smooth(s.progress));
+                        s.feet[s.stepping].set(s.start).lerp(s.end, Ease.smooth(s.progress));
                         if (s.progress >= 1) s.stepping = -1;
                     }
                 }
@@ -89,7 +90,6 @@ public final class BraceSteps {
         }
     }
 
-    private static float smooth(float v) { v = Math.max(0, Math.min(1, v)); return v * v * (3 - 2 * v); }
 
     private static boolean safe(AbstractClientPlayer player, IKFrame frame, ModelPart leg, Vector3f from, Vector3f to) {
         Vector3f sole = new Quaternionf().rotationZYX(leg.zRot, leg.yRot, leg.xRot)

@@ -2,6 +2,7 @@ package strm.emfcompat.animationadditions.wallhand;
 import org.junit.jupiter.api.Test;
 import org.joml.Vector3f;
 import static org.junit.jupiter.api.Assertions.*;
+import strm.emfcompat.animationadditions.interaction.Ease;
 class WallStanceMathTest {
     @Test void feetFollowTurnWithOpposingShortPlacements() {
         Vector3f a = WallStanceMath.offset(new Vector3f(-2, 0, 0), 1);
@@ -27,9 +28,9 @@ class WallStanceMathTest {
         assertEquals(new Vector3f(0, 0, 1), WallStanceMath.retreat(1));
     }
     @Test void stepHasGentleEndpoints() {
-        assertEquals(0, WallStanceMath.ease(0));
-        assertEquals(1, WallStanceMath.ease(1));
-        assertTrue(WallStanceMath.ease(.001f) < .00001f);
-        assertTrue(1 - WallStanceMath.ease(.999f) < .00001f);
+        assertEquals(0, Ease.smooth(0));
+        assertEquals(1, Ease.smooth(1));
+        assertTrue(Ease.smooth(.001f) < .00001f);
+        assertTrue(1 - Ease.smooth(.999f) < .00001f);
     }
 }

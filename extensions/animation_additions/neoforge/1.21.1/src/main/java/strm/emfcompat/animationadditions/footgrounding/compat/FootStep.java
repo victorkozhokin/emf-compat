@@ -2,6 +2,7 @@ package strm.emfcompat.animationadditions.footgrounding.compat;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** Per-foot contact and swing, independent of Minecraft so a sampled gait can be replayed in tests. */
 final class FootStep {
@@ -96,10 +97,10 @@ final class FootStep {
 
     /** Rise early, clear the lip, then settle. Flat ground receives no extra gait. */
     static double swingHeight(double from, double to, double progress) {
-        double p = Math.max(0, Math.min(1, progress));
+        double p = Ease.unit(progress);
         double rise = to - from;
         double t = rise > 0 ? Math.min(1, p / 0.65) : p;
-        double y = from + rise * t * t * (3 - 2 * t);
+        double y = from + rise * Ease.smooth(t);
         if (rise > 0) y += Math.min(rise * 0.2, 1.5 * 0.9375 / 16) * Math.pow(Math.sin(Math.PI * p), 2);
         return y;
     }

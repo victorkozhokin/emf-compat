@@ -11,6 +11,7 @@ import strm.emfcompat.animationadditions.torso.PelvisFollow;
 import strm.emfcompat.core.ik.IKFrame;
 import traben.entity_model_features.models.animation.state.EMFState;
 import java.util.function.Function;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** One short support step on the click; the other sole stays planted. */
 final class LeverStep {
@@ -60,7 +61,7 @@ final class LeverStep {
                     if (!safe(legs[foot], start, end)) { offset.set(start); progress = 1; }
                     else {
                         progress = Math.min(1, progress + dt / duration);
-                        offset.set(start).lerp(end, LeverEffort.ease(progress));
+                        offset.set(start).lerp(end, Ease.smooth(progress));
                     }
                 }
             }

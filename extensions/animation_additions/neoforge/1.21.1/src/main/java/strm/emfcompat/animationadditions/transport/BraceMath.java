@@ -15,5 +15,4 @@ final class BraceMath {
         return new Vector3f(side * (.65f + .65f * load) + force.x * .35f, 0,
                 side * (.4f + .7f * load) * force.z);
     }
-    static float ease(float x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
 }

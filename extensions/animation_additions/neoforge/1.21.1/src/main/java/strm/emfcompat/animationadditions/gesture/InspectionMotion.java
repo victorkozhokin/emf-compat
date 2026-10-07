@@ -1,5 +1,7 @@
 package strm.emfcompat.animationadditions.gesture;
 
+import strm.emfcompat.animationadditions.interaction.Ease;
+
 /** A single left-foot inspection: eyes and support lead; hands settle after the foot. */
 final class InspectionMotion {
     static final double SECONDS = 3.2;
@@ -16,9 +18,9 @@ final class InspectionMotion {
         float look = window(phase, .02f, .20f, .83f, .97f);
         float support = window(phase, .08f, .23f, .83f, .96f);
         // Left foot turns inward first, then outward to expose the other side.
-        float turn = (.14f * smooth((phase - .32f) / .09f)
-                - .38f * smooth((phase - .51f) / .09f)
-                + .24f * smooth((phase - .70f) / .13f)
+        float turn = (.14f * Ease.smooth((phase - .32f) / .09f)
+                - .38f * Ease.smooth((phase - .51f) / .09f)
+                + .24f * Ease.smooth((phase - .70f) / .13f)
                 + .012f * firstHold - .010f * secondHold) * left;
         float settle = window(phase, .82f, .88f, .90f, .98f);
         return new Pose(left, spread, left == 0 ? 0 : turn, look, support, settle);
@@ -31,12 +33,7 @@ final class InspectionMotion {
     }
 
     private static float window(float t, float start, float ready, float leave, float end) {
-        return smooth((t - start) / (ready - start)) * (1 - smooth((t - leave) / (end - leave)));
-    }
-
-    private static float smooth(float v) {
-        v = Math.max(0, Math.min(1, v));
-        return v * v * (3 - 2 * v);
+        return Ease.smooth((t - start) / (ready - start)) * (1 - Ease.smooth((t - leave) / (end - leave)));
     }
 
     private InspectionMotion() {}

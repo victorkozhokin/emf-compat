@@ -16,6 +16,7 @@ import strm.emfcompat.core.EMFCompatConfig;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /**
  * Putting on armour and Curios accessories: when a piece appears in a slot - however it got
@@ -184,7 +185,7 @@ public final class ArmorDon extends Gesture {
         // Out at once: the piece is on already, the hands must not come after it.
         float in = swell(phase, play.kind == HEAD || play.kind == BACK ? .3f : .2f, .7f, .95f);
         // Settled into place once the hands are there, and how far through that it is.
-        float through = Math.max(0, Math.min(1, (phase - .3f) / .4f)), set = (float) Math.sin(Math.PI * through);
+        float through = Ease.unit((phase - .3f) / .4f), set = (float) Math.sin(Math.PI * through);
         Vector3f right, left = null;
         switch (play.kind) {
             case HEAD -> {
@@ -202,7 +203,7 @@ public final class ArmorDon extends Gesture {
             }
             case CHEST -> {
                 // From the breast out over the ribs and down the sides, the chest lifting into it; then a shrug to seat it.
-                float slide = smooth(through * 1.4f);
+                float slide = Ease.smooth(through * 1.4f);
                 right = new Vector3f(-2.6f - 2.2f * slide, 4.5f + 4.5f * slide, -3.3f + 1.3f * slide);
                 out.pitch = -.07f * set;
                 out.roll = .035f * (float) Math.sin(Math.PI * 2 * 2 * through) * set;
@@ -234,12 +235,12 @@ public final class ArmorDon extends Gesture {
             }
             case NECK -> {
                 // Round the neck from behind to the front, then let hang.
-                right = new Vector3f(-2.6f + 1.2f * smooth(through), .6f + 1.2f * smooth(through), 1f - 4.6f * smooth(through * 1.5f));
+                right = new Vector3f(-2.6f + 1.2f * Ease.smooth(through), .6f + 1.2f * Ease.smooth(through), 1f - 4.6f * Ease.smooth(through * 1.5f));
                 out.head = new float[]{.16f * in + .06f * set, 0};
             }
             case WAIST -> {
                 // Drawn round the waist to the front and pulled tight.
-                float round = smooth(through * 1.4f);
+                float round = Ease.smooth(through * 1.4f);
                 right = new Vector3f(-4.4f + 2.6f * round - .5f * set, 11.5f, -.5f - 2.9f * round);
                 out.head = new float[]{.24f * in, 0};
                 out.pitch = (float) Math.toRadians(7) * in - .04f * set;
@@ -260,6 +261,6 @@ public final class ArmorDon extends Gesture {
         }
         out.onBody = true;
         out.hand(true, right, in);
-        out.hand(false, left != null ? left : Reach.mirror(right), in * smooth(phase / .12f));
+        out.hand(false, left != null ? left : Reach.mirror(right), in * Ease.smooth(phase / .12f));
     }
 }

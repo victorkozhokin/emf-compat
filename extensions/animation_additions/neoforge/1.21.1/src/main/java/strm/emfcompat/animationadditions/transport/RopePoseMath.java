@@ -1,6 +1,7 @@
 package strm.emfcompat.animationadditions.transport;
 
 import org.joml.Vector3d;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** Rope-specific style envelopes and a double-precision segment projection. */
 final class RopePoseMath {
@@ -8,7 +9,7 @@ final class RopePoseMath {
     static double fraction(Vector3d a, Vector3d b, Vector3d point) {
         Vector3d segment = new Vector3d(b).sub(a);
         double length = segment.lengthSquared();
-        return length < 1e-12 ? 0 : Math.max(0, Math.min(1, new Vector3d(point).sub(a).dot(segment) / length));
+        return length < 1e-12 ? 0 : Ease.unit(new Vector3d(point).sub(a).dot(segment) / length);
     }
     static boolean reachable(org.joml.Vector3f target, org.joml.Vector3f shoulder, boolean right) {
         float distance = target.distance(shoulder);
@@ -23,7 +24,7 @@ final class RopePoseMath {
         int i = Math.min(count - 2, (int) coordinate);
         return point.apply(i).lerp(point.apply(i + 1), coordinate - i);
     }
-    static float gain(double speed) { return 1 + .65f * (float) Math.max(0, Math.min(1, speed / 5)); }
+    static float gain(double speed) { return 1 + .65f * (float) Ease.unit(speed / 5); }
     static org.joml.Vector3f foot(boolean right) {
         return new org.joml.Vector3f(right ? -.75f : .75f, 0, .9f);
     }

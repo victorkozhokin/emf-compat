@@ -3,6 +3,7 @@ package strm.emfcompat.animationadditions.buttonpress;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 class LeverEffortTest {
     @Test void lowAndHighGripsKeepTheSameSmallGroundedLoad() {
@@ -23,8 +24,8 @@ class LeverEffortTest {
     }
     @Test void stepHasSmallLandingAndSmoothGroundedEndpoints() {
         assertEquals(.9f, LeverEffort.step(new Vector3f(4, 25, -10)).length(), 1e-6f);
-        assertEquals(0, LeverEffort.ease(0));
-        assertEquals(1, LeverEffort.ease(1));
+        assertEquals(0, Ease.smooth(0));
+        assertEquals(1, Ease.smooth(1));
         assertEquals(0, LeverEffort.lift(0), 1e-6f);
         assertEquals(0, LeverEffort.lift(1), 1e-6f);
         assertEquals(1, LeverEffort.lift(.5f), 1e-6f);

@@ -1,6 +1,7 @@
 package strm.emfcompat.animationadditions.gesture;
 
 import org.joml.Vector3f;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 /** Small sums the gestures share, model pixels. */
 final class Reach {
@@ -14,7 +15,6 @@ final class Reach {
 
     /** How far forward the torso bends to a point at this height (the shoulder is at 2, the soles at 24), 0..1. */
     static float low(float pointY) {
-        float v = Math.max(0, Math.min(1, (pointY - 6f) / 14f));
-        return v * v * (3 - 2 * v);
+        return Ease.smooth((pointY - 6f) / 14f);
     }
 }

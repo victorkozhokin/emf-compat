@@ -4,6 +4,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import strm.emfcompat.animationadditions.interaction.Ease;
 
 class WallPoseMathTest {
     @Test void equalWallDistancesCannotReverseAnEngagedPose() {
@@ -66,11 +67,11 @@ class WallPoseMathTest {
     @Test void clearanceBlendIsBoundedMonotoneAndSmoothAtItsEnds() {
         float previous = 0;
         for (float v = -.5f; v < 1.5f; v += .01f) {
-            float eased = WallPoseMath.ease(v);
+            float eased = Ease.smooth(v);
             assertTrue(eased >= previous && eased >= 0 && eased <= 1);
             previous = eased;
         }
-        assertTrue(WallPoseMath.ease(.001f) < .00001f);
-        assertTrue(1 - WallPoseMath.ease(.999f) < .00001f);
+        assertTrue(Ease.smooth(.001f) < .00001f);
+        assertTrue(1 - Ease.smooth(.999f) < .00001f);
     }
 }
