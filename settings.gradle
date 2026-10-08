@@ -76,6 +76,9 @@ project(":carryon-fabric-1.21.11").projectDir = file("extensions/carryon/fabric/
 include("carryon-fabric-26.1.2")
 project(":carryon-fabric-26.1.2").projectDir = file("extensions/carryon/fabric/26.1.2")
 
+include("carryon-fabric-26.3")
+project(":carryon-fabric-26.3").projectDir = file("extensions/carryon/fabric/26.3")
+
 include("carryon-fabric-26.2")
 project(":carryon-fabric-26.2").projectDir = file("extensions/carryon/fabric/26.2")
 

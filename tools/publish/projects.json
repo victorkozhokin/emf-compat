@@ -421,6 +421,36 @@
   },
   {
    "addon": "carry_on",
+   "loader": "fabric",
+   "game_version": "26.3",
+   "version_number": "2.1.0",
+   "project": "emf-compat-carry-on",
+   "project_id": "BPD5ZhBo",
+   "publish": true,
+   "file": "upload/Carry On/fabric/26.3/emf_compat_carry_on_fabric_26.3_2.1.0.jar",
+   "changelog": "extensions/carryon/CHANGELOG.md",
+   "dependencies": [
+    {
+     "slug": "entity-model-features",
+     "project_id": "4I1XuqiY",
+     "dependency_type": "required"
+    },
+    {
+     "slug": "emf-compat-core",
+     "project_id": "hbGct5uU",
+     "dependency_type": "required"
+    },
+    {
+     "slug": "carry-on",
+     "project_id": "joEfVgkn",
+     "dependency_type": "optional"
+    }
+   ],
+   "display": "Carry On",
+   "name": "EMF Compat: Carry On 2.1.0"
+  },
+  {
+   "addon": "carry_on",
    "loader": "forge",
    "game_version": "1.20.1",
    "version_number": "2.1.0",
