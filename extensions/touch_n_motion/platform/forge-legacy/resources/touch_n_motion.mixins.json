@@ -16,7 +16,6 @@
     "LevelRendererAccessor",
     "legacy.BoatChestMixin",
     "FishingHookAccessor",
-    "FishingLineMixin",
     "ItemPickupMixin"
   ],
   "injectors": {

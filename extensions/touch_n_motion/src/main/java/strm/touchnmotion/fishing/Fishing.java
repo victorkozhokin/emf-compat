@@ -5,11 +5,8 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.FishingRodItem;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +56,7 @@ import java.util.function.Function;
 public final class Fishing implements InteractionProvider {
 
     public static final Fishing INSTANCE = new Fishing();
-    public static final String KEY_ENABLED = "fishing.enabled", KEY_LINE = "fishing.lineOnTip";
+    public static final String KEY_ENABLED = "fishing.enabled";
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatFishing");
 
     /** The fade-out is long - the runtime lets a hand go over some six of these - so that the haul runs out into standing instead of stopping. */
@@ -75,8 +72,6 @@ public final class Fishing implements InteractionProvider {
     private static final float UNDER = 2.2f;
     /** Radians: the free arm held out from the body, and how far it swings. */
     private static final float FREE_OUT = 0.3f, FREE_SWING = 0.55f;
-    /** The rod's tip against the arm that holds it, model pixels in the arm's own space (y runs down the arm, -z before it). */
-    private static final Vector3f TIP = new Vector3f(0f, 8.5f, -12f);
 
     private enum Phase { NONE, CAST, WAIT, BITE, HAUL }
 
@@ -94,8 +89,6 @@ public final class Fishing implements InteractionProvider {
         IKFrame frame;
         final BraceSteps.State feet = new BraceSteps.State();
         final LowReach.State reach = new LowReach.State();
-        /** The rod's tip, blocks from the player's own place, as last drawn. */
-        Vec3 tip;
         final DebugLog.Pace trace = new DebugLog.Pace();
     }
 
@@ -108,9 +101,6 @@ public final class Fishing implements InteractionProvider {
         config.addBoolean(KEY_ENABLED, "Fishing", true,
                 "On", "Casting, waiting, a bite and bringing the line in are each played with the whole body.",
                 "Off", "Leave fishing to EMF.");
-        config.addChild(KEY_ENABLED, KEY_LINE, "Line from the rod's tip (Enchanted Fishing Line)", true,
-                "On", "With Enchanted Fishing Line installed, the line starts at the rod's tip as the pose has it.",
-                "Off", "The line starts where the game puts it. Without that mod it always does.");
     }
 
     @Override
@@ -311,10 +301,6 @@ public final class Fishing implements InteractionProvider {
             other.xRot += -state.freeSwing * FREE_SWING * free;
         }
         if (state.phase == Phase.NONE) return;
-        if (state.frame != null) {
-            Vector3f tip = new Quaternionf().rotationZYX(rod.zRot, rod.yRot, rod.xRot).transform(new Vector3f(TIP)).add(rod.x, rod.y, rod.z);
-            state.tip = state.frame.jointWorld(tip).subtract(state.player.getPosition(strm.touchnmotion.platform.Platform.partialTick(false)));
-        }
         if (DebugLog.trace() && state.trace.due(40_000_000L)) {
             ModelPart body = parts.apply("body");
             LOGGER.info("[FishTrace] phase={} hooked={} rodPitch={} rodYaw={} second={} bodyPitch={} bodyYaw={} bodyZ={} weight={} miss={}", state.phase, state.hooked,
@@ -324,18 +310,4 @@ public final class Fishing implements InteractionProvider {
                     Math.round(Body.tip(rod, 11f).distance(state.point) * 10) / 10f);
         }
     }
-
-    /**
-     * Where the line starts for {@code player}, in the world - the rod's tip as the pose has it -
-     * or {@code null} to leave it where the game puts it: no pose, the option off, or no Enchanted
-     * Fishing Line (asked for by the user for that mod only).
-     */
-    public static Vec3 lineStart(Player player, float partial) {
-        if (!LINE_MOD || !EMFCompatConfig.getBoolean(KEY_LINE, true) || !INSTANCE.isEnabled()) return null;
-        State state = STATES.fresh(player.getUUID());
-        if (state == null || state.phase == Phase.NONE || state.tip == null) return null;
-        return player.getPosition(partial).add(state.tip);
-    }
-
-    private static final boolean LINE_MOD = strm.touchnmotion.platform.Platform.isModLoaded("enchanted_fishing_line");
 }
