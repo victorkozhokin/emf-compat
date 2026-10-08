@@ -10,7 +10,7 @@
 ext.tnm = [
     mod_id         : 'touch_n_motion',
     mod_name       : "Touch'n Motion",
-    mod_version    : '0.1.0',
+    mod_version    : '1.0.0',
     mod_license    : 'GNU GPL 3.0',
     mod_authors    : 'STRadaT',
     mod_description: "Procedural additions to the player's animation under Entity Model Features: feet that stand on uneven ground, hands that go to walls, plants, buttons, doors and the blocks they use, a torso that leans with the motion, a rider that follows an animated horse.",
