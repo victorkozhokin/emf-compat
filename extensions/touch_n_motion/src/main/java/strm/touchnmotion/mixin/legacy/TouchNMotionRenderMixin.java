@@ -1,32 +1,19 @@
-package strm.touchnmotion.mixin;
+package strm.touchnmotion.mixin.legacy;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.touchnmotion.blockuse.BlockUse;
-import strm.touchnmotion.footgrounding.compat.FootGrounding;
-import strm.touchnmotion.footgrounding.compat.HorseFootGrounding;
-import strm.touchnmotion.interaction.InteractionRuntime;
-import strm.touchnmotion.motion.MotionRuntime;
 import strm.touchnmotion.create.ejector.EjectorLaunch;
-import strm.touchnmotion.torso.TorsoLean;
-import strm.touchnmotion.wallhand.WallSqueeze;
-import strm.emfcompat.core.ik.IKFrame;
 
-/**
- * Right before the model is animated the pose stack is exactly the model's space: every feature
- * looks at the world from there. Foot grounding goes first, because it lowers the model on this
- * same stack and the others aim from where the model is really drawn.
- */
+/** Before the model is animated, up to 1.21.10: the renderer animates and draws at once, the entity in hand ({@link strm.touchnmotion.ModelSpace}). */
 @Mixin(LivingEntityRenderer.class)
 public class TouchNMotionRenderMixin {
 
@@ -36,32 +23,15 @@ public class TouchNMotionRenderMixin {
     private void emfcompat$animationAdditionsBeforeAnimating(LivingEntity entity, float yaw, float partialTick,
                                                             PoseStack stack, MultiBufferSource buffers, int light,
                                                             CallbackInfo ci) {
-        if (HorseFootGrounding.handles(entity)) {
-            HorseFootGrounding.modelPose((AbstractHorse) entity, stack, partialTick);
-            return;
-        }
-        if (!(entity instanceof AbstractClientPlayer player)) return;
-        if (strm.touchnmotion.compat.ParCoolActivity.active(player)
-                || strm.touchnmotion.compat.WholeBody.held(player)) {
-            InteractionRuntime.suspend(player.getUUID());
-            return;
-        }
-        strm.touchnmotion.blockuse.aeronautics.CockpitControls.orient(player, stack);
-        strm.touchnmotion.ride.MinecartRide.orient(player, stack);
-        strm.touchnmotion.wallhand.FenceLean.orient(player, stack);
-        strm.touchnmotion.lookat.LookAt.orient(player, stack);
-        emfcompat$quietSwing(player);
-        EjectorLaunch.crouch(player, ((LivingEntityRenderer<?, ?>) (Object) this).getModel(), stack);
-        FootGrounding.modelPose(player, stack);
-        IKFrame frame = IKFrame.capture(stack.last().pose(),
-                Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
-        strm.touchnmotion.blockuse.aeronautics.CockpitControls.frame(player, frame);
-        MotionRuntime.modelPose(player);
-        InteractionRuntime.modelPose(player, frame);
-        strm.touchnmotion.blockuse.BlockUse.frame(player, frame);
-        EjectorLaunch.modelPose(player);
-        WallSqueeze.modelPose(player, frame);
-        TorsoLean.modelPose(player);
+        strm.touchnmotion.ModelSpace.before(entity, stack, partialTick, player -> {
+            emfcompat$quietSwing(player);
+            if (EjectorLaunch.wantsCrouch(player)
+                    && ((LivingEntityRenderer<?, ?>) (Object) this).getModel() instanceof net.minecraft.client.model.HumanoidModel<?> humanoid
+                    && !humanoid.crouching) {
+                humanoid.crouching = true;
+                EjectorLaunch.dropForCrouch(stack);
+            }
+        });
     }
 
     /** The swing kept off a player this draw, to put back after it: whose, and the values. */

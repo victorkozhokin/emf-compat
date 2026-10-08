@@ -10,9 +10,12 @@ import net.minecraft.world.level.block.FlowerPotBlock;
 import strm.touchnmotion.blockuse.Held;
 
 /**
- * What the mod asks of its loader, each loader answering in its own way. The one class of the
- * shared code that is written twice over: everything else that is a loader's own sits in the
- * {@code neoforge} and {@code fabric} packages, of which a build takes one.
+ * What the mod asks of its loader and of its version of the game, each answering in its own way.
+ * The one class of the shared code that is written several times over: everything else that is a
+ * loader's own sits in the {@code neoforge} and {@code fabric} packages, of which a build takes
+ * one; what is a span of versions' own, in the mixins' {@code legacy} (up to 1.21.10) and
+ * {@code modern} packages; and names the game merely changed are replaced by the build
+ * ({@code renames.gradle}).
  */
 public final class Platform {
     private Platform() {
@@ -49,11 +52,14 @@ public final class Platform {
         *///?}
     }
 
-    /** Whether a furnace would burn it. */
+    /** Whether a furnace would burn it. Client only from 1.21.11 on: what burns is the world's to say. */
     public static boolean isFuel(ItemStack stack) {
         //? if neoforge {
         return stack.getBurnTime(null) > 0;
-        //?} else {
+        //?} elif >=1.21.11 {
+        /*net.minecraft.client.multiplayer.ClientLevel level = net.minecraft.client.Minecraft.getInstance().level;
+        return level != null && level.fuelValues().isFuel(stack);
+        *///?} else {
         /*return net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity.isFuel(stack);
         *///?}
     }
@@ -88,9 +94,140 @@ public final class Platform {
     public static boolean isRaft(Boat boat) {
         //? if neoforge {
         return boat.getVariant().isRaft();
-        //?} else {
+        //?} elif >=1.21.11 {
+        /*return boat instanceof net.minecraft.world.entity.vehicle.boat.Raft || boat instanceof net.minecraft.world.entity.vehicle.boat.ChestRaft;
+        *///?} else {
         /*return boat.getVariant() == Boat.Type.BAMBOO;
         *///?}
+    }
+
+    /** In water, a column of bubbles counted. */
+    public static boolean inWater(net.minecraft.world.entity.Entity entity) {
+        //? if >=1.21.11 {
+        /*return entity.isInWater();
+        *///?} else {
+        return entity.isInWaterOrBubble();
+        //?}
+    }
+
+    /** Armour a player wears: what is put on by a click with it in the hand. */
+    public static boolean isArmor(ItemStack stack) {
+        //? if >=1.21.11 {
+        /*net.minecraft.world.item.equipment.Equippable worn = stack.get(net.minecraft.core.component.DataComponents.EQUIPPABLE);
+        return worn != null && worn.slot().getType() == net.minecraft.world.entity.EquipmentSlot.Type.HUMANOID_ARMOR
+                && !stack.is(net.minecraft.world.item.Items.ELYTRA);
+        *///?} else {
+        return stack.getItem() instanceof net.minecraft.world.item.ArmorItem;
+        //?}
+    }
+
+    public static net.minecraft.server.level.ServerLevel level(ServerPlayer player) {
+        //? if >=1.21.11 {
+        /*return player.level();
+        *///?} else {
+        return player.serverLevel();
+        //?}
+    }
+
+    /** The horizontal direction nearest to that way. */
+    public static net.minecraft.core.Direction nearest(double x, double z) {
+        //? if >=1.21.11 {
+        /*return net.minecraft.core.Direction.getApproximateNearest(x, 0, z);
+        *///?} else {
+        return net.minecraft.core.Direction.getNearest(x, 0, z);
+        //?}
+    }
+
+    /** Whether a campfire cooks it. */
+    public static boolean cooksOnCampfire(net.minecraft.world.level.block.entity.CampfireBlockEntity campfire, ItemStack stack) {
+        //? if >=1.21.11 {
+        /*return campfire.getLevel() != null && campfire.getLevel().recipeAccess()
+                .propertySet(net.minecraft.world.item.crafting.RecipePropertySet.CAMPFIRE_INPUT).test(stack);
+        *///?} else {
+        return campfire.getCookableRecipe(stack).isPresent();
+        //?}
+    }
+
+    public static int selectedSlot(net.minecraft.world.entity.player.Player player) {
+        //? if >=1.21.11 {
+        /*return player.getInventory().getSelectedSlot();
+        *///?} else {
+        return player.getInventory().selected;
+        //?}
+    }
+
+    public static float x(net.minecraft.client.model.geom.PartPose pose) {
+        //? if >=1.21.11 {
+        /*return pose.x();
+        *///?} else {
+        return pose.x;
+        //?}
+    }
+
+    public static float y(net.minecraft.client.model.geom.PartPose pose) {
+        //? if >=1.21.11 {
+        /*return pose.y();
+        *///?} else {
+        return pose.y;
+        //?}
+    }
+
+    public static float z(net.minecraft.client.model.geom.PartPose pose) {
+        //? if >=1.21.11 {
+        /*return pose.z();
+        *///?} else {
+        return pose.z;
+        //?}
+    }
+
+    public static float yRot(net.minecraft.client.model.geom.PartPose pose) {
+        //? if >=1.21.11 {
+        /*return pose.yRot();
+        *///?} else {
+        return pose.yRot;
+        //?}
+    }
+
+    public static net.minecraft.resources.ResourceLocation id(net.minecraft.client.resources.sounds.SoundInstance sound) {
+        //? if >=1.21.11 {
+        /*return sound.getIdentifier();
+        *///?} else {
+        return sound.getLocation();
+        //?}
+    }
+
+    /** Where on an animal its lead is tied, from its feet. */
+    public static net.minecraft.world.phys.Vec3 leashOffset(net.minecraft.world.entity.Entity animal, float partialTick) {
+        //? if >=1.21.11 {
+        /*return animal instanceof net.minecraft.world.entity.Leashable leashed ? leashed.getLeashOffset(partialTick)
+                : new net.minecraft.world.phys.Vec3(0, animal.getEyeHeight(), animal.getBbWidth() * 0.4f);
+        *///?} else {
+        return animal.getLeashOffset(partialTick);
+        //?}
+    }
+
+    /**
+     * Where a cart at that point of the rails is drawn, {@code along} blocks further down them;
+     * {@code null} off rails, and for a cart that does not ride the rails the old way.
+     */
+    public static net.minecraft.world.phys.Vec3 railPos(net.minecraft.world.entity.vehicle.AbstractMinecart cart, double x, double y, double z, double along) {
+        //? if >=1.21.11 {
+        /*if (!(cart.getBehavior() instanceof net.minecraft.world.entity.vehicle.minecart.OldMinecartBehavior rails)) return null;
+        return along == 0 ? rails.getPos(x, y, z) : rails.getPosOffs(x, y, z, along);
+        *///?} else {
+        return along == 0 ? cart.getPos(x, y, z) : cart.getPosOffs(x, y, z, along);
+        //?}
+    }
+
+    /** How much larger than its model a horse is drawn. */
+    public static float horseScale(net.minecraft.world.entity.animal.horse.AbstractHorse horse) {
+        //? if >=1.21.11 {
+        /*// The renderer no longer scales: the size is in the model itself.
+        return 1.0f;
+        *///?} else {
+        return net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(horse)
+                instanceof strm.touchnmotion.mixin.legacy.horsesync.AbstractHorseRendererAccessor accessor ? accessor.emfhorsesync$getScale() : 1.0f;
+        //?}
     }
 
     /** Whether the server we are on knows the channel. Client only. */

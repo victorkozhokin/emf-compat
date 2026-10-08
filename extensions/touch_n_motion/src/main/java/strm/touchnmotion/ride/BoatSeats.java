@@ -52,7 +52,7 @@ public final class BoatSeats {
         List<Entity> riders = boat.getPassengers();
         if (riders.size() < 2 || riders.get(1) != passenger) return false;
         if (!(riders.get(0) instanceof Player)) return false;
-        return !boat.level().isClientSide || client.getAsBoolean();
+        return !boat.level().isClientSide() || client.getAsBoolean();
     }
 
     /** Blocks aft of the middle that the rider of {@code boat}, a boat with its chest in the bow, sits: in a boat as far as leaves the back clear of the stern's board, on a raft - it has none - further. */
@@ -62,6 +62,11 @@ public final class BoatSeats {
 
     /** Whether {@code boat} has a chest and that chest is in the bow: its rider then sits aft ({@link #aft}). */
     public static boolean chestInBow(Boat boat) {
-        return boat instanceof ChestBoat && (!boat.level().isClientSide || chestClient.getAsBoolean());
+        //? if <1.21.11 {
+        return boat instanceof ChestBoat && (!boat.level().isClientSide() || chestClient.getAsBoolean());
+        //?} else {
+        /*// Not from 1.21.11 on yet: the chest is not drawn in the bow there, so no one is seated aft of it.
+        return false;
+        *///?}
     }
 }

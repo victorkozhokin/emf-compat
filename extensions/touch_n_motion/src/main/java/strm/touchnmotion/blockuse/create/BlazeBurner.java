@@ -71,7 +71,7 @@ public final class BlazeBurner implements BlockTarget {
     /** The side of the cage nearest the player. */
     private static Direction side(AbstractClientPlayer player, BlockPos pos) {
         Vec3 to = SubLevels.at(player.level(), pos).toLocal(player.position()).subtract(Vec3.atCenterOf(pos));
-        return Direction.getNearest(to.x, 0, to.z);
+        return strm.touchnmotion.platform.Platform.nearest(to.x, to.z);
     }
 
     private static Spot feed(BlockPos pos, Direction side) {

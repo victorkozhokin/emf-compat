@@ -200,7 +200,7 @@ public final class HorseFootGrounding {
         // Not onGround(): a horse with no AI never sets it on the client. Something right under
         // the hitbox is enough.
         if (horse.level().noCollision(horse, horse.getBoundingBox().move(0, -0.08, 0))) return "airborne";
-        if (horse.isInWaterOrBubble() || horse.isStanding() || horse.isPassenger()) return "state";
+        if (strm.touchnmotion.platform.Platform.inWater(horse) || horse.isStanding() || horse.isPassenger()) return "state";
         return null;
     }
 

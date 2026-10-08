@@ -68,7 +68,7 @@ public final class LeadHold implements InteractionProvider {
 
     /** Same animal attachment transform as the vanilla lead renderer. */
     static Vec3 anchor(Entity animal, float partial) {
-        Vec3 offset = animal.getLeashOffset(partial);
+        Vec3 offset = strm.touchnmotion.platform.Platform.leashOffset(animal, partial);
         float yaw = animal instanceof LivingEntity living
                 ? Mth.rotLerp(partial, living.yBodyRotO, living.yBodyRot) : animal.getYRot();
         double angle = Math.toRadians(yaw) + Math.PI / 2;
@@ -81,7 +81,7 @@ public final class LeadHold implements InteractionProvider {
         State s = STATES.seen(player.getUUID(), context.now()).value;
         s.active = false;
         s.count = 0;
-        if (player.isSleeping() || player.isFallFlying() || player.isInWaterOrBubble() || player.isAutoSpinAttack()) {
+        if (player.isSleeping() || player.isFallFlying() || strm.touchnmotion.platform.Platform.inWater(player) || player.isAutoSpinAttack()) {
             context.decide("off:pose");
             return;
         }

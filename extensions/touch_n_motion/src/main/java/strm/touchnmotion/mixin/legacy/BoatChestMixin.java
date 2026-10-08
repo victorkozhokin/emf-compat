@@ -1,4 +1,4 @@
-package strm.touchnmotion.mixin;
+package strm.touchnmotion.mixin.legacy;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;

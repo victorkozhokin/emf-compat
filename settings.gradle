@@ -244,6 +244,7 @@ stonecutter {
     create(":touch-n-motion") {
         version("1.21.1-neoforge", "1.21.1").buildscript("build.neoforge.gradle")
         version("1.21.1-fabric", "1.21.1").buildscript("build.fabric.remap.gradle")
+        version("1.21.11-fabric", "1.21.11").buildscript("build.fabric.remap.gradle")
         vcsVersion = "1.21.1-neoforge"
     }
 }
@@ -253,8 +254,6 @@ include("touch-n-motion-forge-1.20.1")
 project(":touch-n-motion-forge-1.20.1").projectDir = file("extensions/touch_n_motion/forge/1.20.1")
 
 
-include("touch-n-motion-fabric-1.21.11")
-project(":touch-n-motion-fabric-1.21.11").projectDir = file("extensions/touch_n_motion/fabric/1.21.11")
 
 include("touch-n-motion-fabric-26.1.2")
 project(":touch-n-motion-fabric-26.1.2").projectDir = file("extensions/touch_n_motion/fabric/26.1.2")

@@ -1,4 +1,4 @@
-package strm.touchnmotion.mixin.horsesync;
+package strm.touchnmotion.mixin.legacy.horsesync;
 
 import net.minecraft.client.renderer.entity.AbstractHorseRenderer;
 import org.spongepowered.asm.mixin.Mixin;

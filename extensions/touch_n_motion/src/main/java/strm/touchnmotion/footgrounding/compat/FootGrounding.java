@@ -631,7 +631,7 @@ public final class FootGrounding {
         // Whatever animation plays, the offset goes on top of it; only a pose with no floor under
         // the feet is left alone.
         if (!player.onGround()) return "airborne";
-        if (player.isPassenger() || player.isInWaterOrBubble() || player.isFallFlying()
+        if (player.isPassenger() || strm.touchnmotion.platform.Platform.inWater(player) || player.isFallFlying()
                 || player.isSleeping()) return "state";
         if (player.getPose() != Pose.STANDING && player.getPose() != Pose.CROUCHING) return "pose";
         return null;

@@ -1,6 +1,5 @@
 package strm.touchnmotion.horsesync;
 
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 
@@ -61,7 +60,7 @@ public final class RidingPose {
      * @param upperBody       when {@code false}, only the leg seat is posed and the arms/torso/head
      *                        are left for an active action pose (gun aim, melee swing) to control
      */
-    public static void apply(PlayerModel<?> model, float horseLimbSwing, float horseLimbSpeed, boolean upperBody) {
+    public static void apply(net.minecraft.client.model.HumanoidModel<?> model, float horseLimbSwing, float horseLimbSpeed, boolean upperBody) {
         float move = Mth.clamp(horseLimbSpeed * MOVE_GAIN, 0.0f, 1.0f);
         float bob = Mth.sin(horseLimbSwing * GAIT_FREQ) * move;
 

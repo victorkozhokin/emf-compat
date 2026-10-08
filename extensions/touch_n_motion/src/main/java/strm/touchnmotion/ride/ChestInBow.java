@@ -1,5 +1,6 @@
 package strm.touchnmotion.ride;
 
+//? if <1.21.11
 import net.minecraft.client.model.ListModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -34,6 +35,7 @@ public final class ChestInBow {
                 "Off", "The chest stays in the stern, as the game has it - unless the server seats the rower aft.");
     }
 
+    //? if <1.21.11 {
     /** After the model has been posed for {@code boat}, before it is drawn. The model is one for every boat of its wood, so it is put back as well as moved. */
     public static void place(ListModel<Boat> model, Boat boat) {
         if (!(model instanceof net.minecraft.client.model.ChestBoatModel) && !(model instanceof net.minecraft.client.model.ChestRaftModel)) return;
@@ -46,7 +48,7 @@ public final class ChestInBow {
         float aft = moved ? (float) (BoatSeats.aft(boat) * 16) : 0f;
         for (int i = n - 5; i < n - 3; i++) {
             ModelPart paddle = parts.get(i);
-            paddle.x = paddle.getInitialPose().x - aft;
+            paddle.x = strm.touchnmotion.platform.Platform.x(paddle.getInitialPose()) - aft;
         }
         // The bottom is a box from its corner, a quarter turn round: its middle is half a side astern and half a side across.
         PartPose bottom = parts.get(n - 3).getInitialPose();
@@ -67,4 +69,5 @@ public final class ChestInBow {
             part.yRot = pose.yRot + (float) Math.PI;
         }
     }
+    //?}
 }

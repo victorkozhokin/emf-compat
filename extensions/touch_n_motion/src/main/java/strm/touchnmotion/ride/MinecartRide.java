@@ -249,9 +249,9 @@ public final class MinecartRide implements InteractionProvider {
             Vec3 middle = cart.getPosition(partial);
             double yaw = Math.toRadians(Mth.rotLerp(partial, cart.yRotO, cart.getYRot()));
             Vec3 along = new Vec3(Math.cos(yaw), 0, Math.sin(yaw));
-            Vec3 on = cart.getPos(middle.x, middle.y, middle.z);
+            Vec3 on = strm.touchnmotion.platform.Platform.railPos(cart, middle.x, middle.y, middle.z, 0);
             if (on != null) {
-                Vec3 ahead = cart.getPosOffs(middle.x, middle.y, middle.z, 0.3), behind = cart.getPosOffs(middle.x, middle.y, middle.z, -0.3);
+                Vec3 ahead = strm.touchnmotion.platform.Platform.railPos(cart, middle.x, middle.y, middle.z, 0.3), behind = strm.touchnmotion.platform.Platform.railPos(cart, middle.x, middle.y, middle.z, -0.3);
                 if (ahead == null) ahead = on;
                 if (behind == null) behind = on;
                 Vec3 lie = behind.subtract(ahead);

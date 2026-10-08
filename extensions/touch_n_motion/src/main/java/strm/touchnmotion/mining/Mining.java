@@ -13,7 +13,6 @@ import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -287,7 +286,7 @@ public final class Mining implements InteractionProvider {
     /** The tool in the hand; {@code null} for anything else - only tools swing onto the block. */
     private static ToolSwing.Tool tool(ItemStack stack) {
         Item item = stack.getItem();
-        if (item instanceof PickaxeItem) return ToolSwing.PICKAXE;
+        if (stack.is(net.minecraft.tags.ItemTags.PICKAXES)) return ToolSwing.PICKAXE;
         if (item instanceof AxeItem) return ToolSwing.AXE;
         if (item instanceof ShovelItem) return ToolSwing.SHOVEL;
         if (item instanceof HoeItem) return ToolSwing.HOE;

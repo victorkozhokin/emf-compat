@@ -168,7 +168,7 @@ public final class LookAt implements InteractionProvider {
         float yRot = player.getYRot(), xRot = player.getXRot();
         boolean looked = Float.isNaN(state.lastYaw)
                 || Math.abs(yRot - state.lastYaw) > LOOK_JITTER || Math.abs(xRot - state.lastPitch) > LOOK_JITTER;
-        int slot = player.getInventory().selected;
+        int slot = strm.touchnmotion.platform.Platform.selectedSlot(player);
         boolean crouching = player.isCrouching();
         boolean still = player.isPassenger() ? player.getVehicle().getDeltaMovement().horizontalDistanceSqr() < .0004 : Body.planted(player);
         boolean acted = looked || !still || player.swinging || player.isUsingItem()

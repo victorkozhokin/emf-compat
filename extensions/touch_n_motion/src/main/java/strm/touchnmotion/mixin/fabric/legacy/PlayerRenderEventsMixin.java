@@ -1,4 +1,4 @@
-package strm.touchnmotion.mixin.fabric;
+package strm.touchnmotion.mixin.fabric.legacy;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.AbstractClientPlayer;

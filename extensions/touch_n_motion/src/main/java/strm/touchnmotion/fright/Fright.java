@@ -159,7 +159,7 @@ public final class Fright implements InteractionProvider {
 
     private static void heard(SoundInstance sound) {
         if (sound == null || sound.isRelative() || !INSTANCE.isEnabled()) return;
-        String name = sound.getLocation().getPath();
+        String name = strm.touchnmotion.platform.Platform.id(sound).getPath();
         for (Kind kind : KINDS) {
             if (!name.startsWith(kind.sound)) continue;
             if (kind.level > 0 && EMFCompatConfig.getBoolean(kind.key, true)) {

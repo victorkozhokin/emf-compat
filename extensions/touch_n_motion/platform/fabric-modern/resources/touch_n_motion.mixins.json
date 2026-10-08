@@ -1,0 +1,25 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "strm.touchnmotion.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BoatSeatMixin"
+  ],
+  "client": [
+    "modern.StateEntityMixin",
+    "modern.ModelSpaceMixin",
+    "modern.RidingPoseMixin",
+    "fabric.modern.PlayerSubmitEventsMixin",
+    "LeadPlayerMixin",
+    "LeadInteractionMixin",
+    "ItemPickupMixin",
+    "GestureInteractionMixin",
+    "LevelRendererAccessor",
+    "FishingHookAccessor",
+    "FishingLineMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

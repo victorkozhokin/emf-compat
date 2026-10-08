@@ -6,7 +6,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.CropBlock;
@@ -94,7 +93,7 @@ public final class HandTo extends Gesture {
             Vec3 point = null;
             if (sight instanceof EntityHitResult hit && hit.getEntity() instanceof ArmorStand
                     && EMFCompatConfig.getBoolean(KEY_STAND, true)
-                    && (stack.getItem() instanceof ArmorItem || stack.isEmpty() && hand == InteractionHand.MAIN_HAND)) {
+                    && (strm.touchnmotion.platform.Platform.isArmor(stack) || stack.isEmpty() && hand == InteractionHand.MAIN_HAND)) {
                 kind = STAND;
                 point = hit.getLocation();
             } else if (sight instanceof BlockHitResult hit && hit.getType() == HitResult.Type.BLOCK

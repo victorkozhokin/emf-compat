@@ -13,7 +13,7 @@ import strm.touchnmotion.net.HandsState;
 
 /**
  * Touch'n Motion on Fabric, the client: the mod's client part started, and Fabric's events passed
- * on to it. Fabric has no event for a player's draw: that comes from {@code mixin/fabric/PlayerRenderEventsMixin}.
+ * on to it. Fabric has no event for a player's draw: that comes from {@code mixin/fabric/legacy/PlayerRenderEventsMixin}.
  */
 public class TouchNMotionFabricClient implements ClientModInitializer {
 

@@ -11,7 +11,7 @@ import java.util.stream.StreamSupport;
 
 /**
  * The rider on an animated horse. The tick and the draw are told by the loader's own part:
- * by events on NeoForge, on Fabric by its tick and {@code mixin/fabric/PlayerRenderEventsMixin}.
+ * by events on NeoForge, on Fabric by its tick and {@code mixin/fabric/legacy/PlayerRenderEventsMixin}.
  */
 public class ClientEventHandler {
 

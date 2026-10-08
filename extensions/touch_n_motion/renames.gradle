@@ -1,0 +1,31 @@
+// Names the game changed between versions, replaced in the sources of the nodes they hold for.
+// The sources in git carry the 1.21.1 names. What changed more than its name is not here: that
+// is in strm.touchnmotion.platform.Platform, or under a condition where it is used.
+//
+// A replacement works both ways: a node of the older span gets the newer name put back. So only
+// names that mean the same on both sides are here - never one that is also a different thing's
+// name on the other side (isInWater, PlayerModel).
+
+def since = { String version -> stonecutter.eval(stonecutter.current.version, ">=" + version) }
+
+stonecutter.replacements {
+    def modern = since('1.21.11')
+    [
+        'world.entity.animal.horse.'               : 'world.entity.animal.equine.',
+        'world.entity.animal.Cow'                  : 'world.entity.animal.cow.Cow',
+        'world.entity.vehicle.AbstractMinecart'    : 'world.entity.vehicle.minecart.AbstractMinecart',
+        'world.entity.npc.AbstractVillager'        : 'world.entity.npc.villager.AbstractVillager',
+        'client.model.PlayerModel'                 : 'client.model.player.PlayerModel',
+        'world.entity.vehicle.Boat'                : 'world.entity.vehicle.boat.AbstractBoat',
+        'world.entity.vehicle.ChestBoat'           : 'world.entity.vehicle.boat.AbstractChestBoat',
+        '.getTimer()'                              : '.getDeltaTracker()',
+        '.getNormal()'                             : '.getUnitVec3i()',
+        'getMainCamera().getPosition()'            : 'getMainCamera().position()',
+    ].each { from, to ->
+        string(modern) { replace(from, to) }
+    }
+    regex(modern) { replace('\\bResourceLocation\\b', 'Identifier', '\\bIdentifier\\b', 'ResourceLocation') }
+    // Every boat was a Boat; now a Boat is one kind of AbstractBoat.
+    regex(modern) { replace('\\bBoat\\b(?!\\.Type)', 'AbstractBoat', '\\bAbstractBoat\\b', 'Boat') }
+    regex(modern) { replace('\\bChestBoat\\b', 'AbstractChestBoat', '\\bAbstractChestBoat\\b', 'ChestBoat') }
+}

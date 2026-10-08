@@ -3,6 +3,9 @@
 // A node is named "<minecraft>-<loader>". The tree's sources live in src/ and are kept in git
 // as the NeoForge 1.21.1 node reads them; versions/ is generated and ignored, so nothing a node
 // needs can live in a gradle.properties there - it is all here.
+//
+// span: the game's way of drawing an entity - 'legacy' up to 1.21.10 (the renderer animates and
+// draws at once), 'modern' from 1.21.11 (a render state, drawn later). It picks the mixins.
 
 ext.tnm = [
     mod_id         : 'touch_n_motion',
@@ -17,6 +20,7 @@ ext.tnm = [
 ext.tnmNodes = [
     '1.21.1-neoforge': [
         loader                 : 'neoforge',
+        span                   : 'legacy',
         core                   : ':core-neoforge-1.21.1',
         minecraft_version_range: '[1.21.1,1.22)',
         neo_version            : '21.1.230',
@@ -27,6 +31,7 @@ ext.tnmNodes = [
     ],
     '1.21.1-fabric': [
         loader         : 'fabric',
+        span           : 'legacy',
         java           : 21,
         core           : ':core-fabric-1.21.1',
         loader_version : '0.16.14',
@@ -35,6 +40,18 @@ ext.tnmNodes = [
         emf_version    : '3.3.2',
         emf            : 'maven.modrinth:entity-model-features:3.3.2-fabric-1.21',
         etf            : 'maven.modrinth:entitytexturefeatures:7.2.1-fabric-1.21',
+    ],
+    '1.21.11-fabric': [
+        loader         : 'fabric',
+        span           : 'modern',
+        java           : 21,
+        core           : ':core-fabric-1.21.11',
+        loader_version : '0.19.2',
+        fabric_version : '0.141.4+1.21.11',
+        modmenu_version: '17.0.0',
+        emf_version    : '3.3.2',
+        emf            : 'maven.modrinth:entity-model-features:3.3.2-fabric-1.21.11',
+        etf            : 'maven.modrinth:entitytexturefeatures:7.2.1-fabric-1.21.11',
     ],
 ]
 
@@ -45,4 +62,12 @@ ext.node = { ->
         throw new GradleException("No Touch'n Motion values for node ${project.name} in versions.gradle")
     }
     return tnm + values
+}
+
+// What Stonecutter is told of a node, the same for every buildscript: the loader as a constant
+// for the conditions in the sources (//? if fabric), and the names the game changed, replaced
+// throughout instead of a condition at every use.
+ext.tnmStonecutter = { values ->
+    stonecutter.constants.match(values.loader, 'fabric', 'neoforge', 'forge')
+    apply from: rootProject.file('extensions/touch_n_motion/renames.gradle')
 }

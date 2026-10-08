@@ -218,7 +218,7 @@ public final class BlockUse implements InteractionProvider {
         try {
             // On a seat the hands use what is in front of them as standing; the body stays seated.
             boolean seated = Seated.seated(player);
-            if (!Seated.steady(player) || player.isSleeping() || player.isInWaterOrBubble()
+            if (!Seated.steady(player) || player.isSleeping() || strm.touchnmotion.platform.Platform.inWater(player)
                     || (player.getPose() != Pose.STANDING && player.getPose() != Pose.CROUCHING)) {
                 state.pos = null;
                 state.gesture = null;

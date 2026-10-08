@@ -80,11 +80,14 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             }
             if (context.animatingModelRoot().isMainModel) FootGrounding.recordAnimated(uuid, parts::get);
             applyAll(uuid, parts::get, player, context.animatingModelRoot().isMainModel);
+            // From 1.21.11 on the outer layer is a child of its limb and moves with it.
+            //? if <1.21.11 {
             for (String[] layer : LAYERS) {
                 ModelPart outer = parts.get(layer[0]);
                 ModelPart limb = parts.get(layer[1]);
                 if (outer != null && limb != null) PoseSnapshot.copy(limb, outer);
             }
+            //?}
         } catch (Throwable t) {
             // A throw out of an animation hook makes EMF disable the model's animations for good.
             // Report once: silently swallowing this made visual tests exercise only the fallback.
@@ -116,7 +119,9 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
                 case "left_leg" -> model.leftLeg;
                 default -> null;
             }, true, false);
+            //? if <1.21.11 {
             model.hat.copyFrom(model.head);
+            //?}
         } catch (Throwable t) {
             // Same as above: never throw out of an EMF hook, and say so once.
             if (!armourFailureLogged) {

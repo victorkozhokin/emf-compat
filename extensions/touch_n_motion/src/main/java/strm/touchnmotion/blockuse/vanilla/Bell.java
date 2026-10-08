@@ -33,7 +33,7 @@ public final class Bell implements BlockTarget {
     @Override
     public Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit) {
         Direction side = hit.getDirection().getAxis().isHorizontal() ? hit.getDirection()
-                : Direction.getNearest(player.getX() - (pos.getX() + 0.5), 0, player.getZ() - (pos.getZ() + 0.5));
+                : strm.touchnmotion.platform.Platform.nearest(player.getX() - (pos.getX() + 0.5), player.getZ() - (pos.getZ() + 0.5));
         return side(pos, side);
     }
 

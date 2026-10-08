@@ -60,13 +60,14 @@ neoForge {
     }
 }
 
-stonecutter {
-    constants.match(n.loader, 'fabric', 'neoforge', 'forge')
-}
+ext.tnmStonecutter(n)
 
-// The other loaders' own parts are not this build's.
-sourceSets.main.java.exclude '**/fabric/**', '**/forge/**'
-sourceSets.main.resources { srcDir new File(n.root, 'platform/neoforge/resources') }
+// The other loaders' own parts are not this build's, nor those of the other span of versions.
+sourceSets.main.java.exclude '**/fabric/**', '**/forge/**', n.span == 'modern' ? '**/legacy/**' : '**/modern/**'
+sourceSets.main.resources {
+    srcDir new File(n.root, 'platform/neoforge/resources')
+    srcDir new File(n.root, "platform/neoforge-${n.span}/resources")
+}
 
 repositories {
     mavenLocal()

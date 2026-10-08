@@ -1,4 +1,4 @@
-package strm.touchnmotion.mixin.horsesync;
+package strm.touchnmotion.mixin.legacy.horsesync;
 
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -43,7 +43,7 @@ public class PlayerModelMixin {
             return;
         }
 
-        PlayerModel<?> model = (PlayerModel<?>) (Object) this;
+        net.minecraft.client.model.HumanoidModel<?> model = (net.minecraft.client.model.HumanoidModel<?>) (Object) this;
 
         // If another (action) pose owns the arms — a gun aim, a melee swing — yield the whole upper
         // body to it and pose only the leg seat, so the rider aims/attacks naturally while still

@@ -13,7 +13,6 @@ import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -55,7 +54,7 @@ public class GestureInteractionMixin {
     private void emfcompat$holdStand(Player player, Entity target, EntityHitResult ray, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
         if (Gesture.replaying() || !Gesture.actsAfter() || !(target instanceof ArmorStand) || !(player instanceof AbstractClientPlayer client)) return;
         ItemStack held = player.getItemInHand(hand);
-        if (!(held.getItem() instanceof ArmorItem) && !(held.isEmpty() && hand == InteractionHand.MAIN_HAND)) return;
+        if (!strm.touchnmotion.platform.Platform.isArmor(held) && !(held.isEmpty() && hand == InteractionHand.MAIN_HAND)) return;
         MultiPlayerGameMode game = (MultiPlayerGameMode) (Object) this;
         if (HandTo.hold(client, HandTo.STAND, ray.getLocation(), hand == InteractionHand.MAIN_HAND,
                 () -> Gesture.replay(() -> game.interactAt(player, target, ray, hand)))) cir.setReturnValue(InteractionResult.CONSUME);

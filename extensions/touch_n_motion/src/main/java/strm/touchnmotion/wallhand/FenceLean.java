@@ -216,7 +216,7 @@ public final class FenceLean implements InteractionProvider {
         // to the fence as the lean begins.
         double yaw = Math.toRadians(player.getYRot());
         Vec3 facing = new Vec3(-Math.sin(yaw), 0, Math.cos(yaw));
-        Direction to = Direction.getNearest(facing.x, 0, facing.z);
+        Direction to = strm.touchnmotion.platform.Platform.nearest(facing.x, facing.z);
         Vec3 towards = new Vec3(to.getStepX(), 0, to.getStepZ());
         if (facing.dot(towards) < SQUARE) return null;
         Level level = player.level();

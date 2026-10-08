@@ -84,7 +84,7 @@ public final class CockpitControls implements InteractionProvider {
         state.snapshot.put("shown", false);
         Vector3f wantedLean = new Vector3f();
         try {
-            if (!Seated.seated(player) || player.isSleeping() || player.isInWaterOrBubble()) {
+            if (!Seated.seated(player) || player.isSleeping() || strm.touchnmotion.platform.Platform.inWater(player)) {
                 state.seat = null;
                 state.wheel = null;
                 context.decide("off:seat");

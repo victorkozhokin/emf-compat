@@ -26,13 +26,14 @@ base {
     archivesName = mod_id
 }
 
-stonecutter {
-    constants.match(n.loader, 'fabric', 'neoforge', 'forge')
-}
+ext.tnmStonecutter(n)
 
-// The other loaders' own parts are not this build's.
-sourceSets.main.java.exclude '**/neoforge/**', '**/forge/**'
-sourceSets.main.resources { srcDir new File(n.root, 'platform/fabric/resources') }
+// The other loaders' own parts are not this build's, nor those of the other span of versions.
+sourceSets.main.java.exclude '**/neoforge/**', '**/forge/**', n.span == 'modern' ? '**/legacy/**' : '**/modern/**'
+sourceSets.main.resources {
+    srcDir new File(n.root, 'platform/fabric/resources')
+    srcDir new File(n.root, "platform/fabric-${n.span}/resources")
+}
 
 loom {
     // One source set: the mod has a part for the server (the channels that pass players' hands on,
@@ -145,3 +146,6 @@ if (project.hasProperty('mctestRun')) {
         }
     }
 }
+
+// Every error at once: a port to a new version of the game is read off the whole list.
+tasks.withType(JavaCompile).configureEach { options.compilerArgs += ['-Xmaxerrs', '5000'] }

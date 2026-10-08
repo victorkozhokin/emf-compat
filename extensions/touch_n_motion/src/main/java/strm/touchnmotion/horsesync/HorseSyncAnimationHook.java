@@ -7,7 +7,6 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import strm.touchnmotion.horsesync.compat.EMFCompat;
-import strm.touchnmotion.mixin.horsesync.AbstractHorseRendererAccessor;
 import traben.entity_model_features.EMFAnimationApi;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.animation.state.EMFState;
@@ -59,15 +58,10 @@ public final class HorseSyncAnimationHook extends EMFAnimationApi.EMFAnimationHo
         // The value we inherit is the horse's CEM body.ty (the body bone's animated Y translation).
         // EMF applies ty on top of the initial pose, so ModelPart.y - initialPose.y == body.ty.
         float animatedY = bodyPart.y;
-        float baseY = bodyPart.getInitialPose().y;
+        float baseY = strm.touchnmotion.platform.Platform.y(bodyPart.getInitialPose());
         float bodyTy = animatedY - baseY;
 
-        float scale = 1.0f;
-        EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-        var renderer = dispatcher.getRenderer(horse);
-        if (renderer instanceof AbstractHorseRendererAccessor accessor) {
-            scale = accessor.emfhorsesync$getScale();
-        }
+        float scale = strm.touchnmotion.platform.Platform.horseScale(horse);
 
         // Model pixels -> world blocks (16 px per block), scaled by the horse renderer's scale.
         float offsetBlocks = (bodyTy / 16.0f) * scale;

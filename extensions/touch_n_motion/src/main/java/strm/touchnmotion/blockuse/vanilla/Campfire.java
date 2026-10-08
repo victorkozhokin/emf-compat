@@ -50,7 +50,7 @@ public final class Campfire implements BlockTarget {
     @Override
     public Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit) {
         if (!(player.level().getBlockEntity(pos) instanceof CampfireBlockEntity campfire)) return null;
-        if (campfire.getCookableRecipe(player.getMainHandItem()).isEmpty()) return null;
+        if (!strm.touchnmotion.platform.Platform.cooksOnCampfire(campfire, player.getMainHandItem())) return null;
         for (int i = 0; i < campfire.getItems().size(); i++) {
             if (campfire.getItems().get(i).isEmpty()) return place(pos, block, i);
         }

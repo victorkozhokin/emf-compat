@@ -173,7 +173,8 @@ def _patch_options(path: Path, extra: dict[str, str] | None = None) -> None:
 
 def prepare_sandbox(profile: Profile, world: str | None, use_project_jars: bool = True,
                     fresh_world: bool = False, enable: list[str] | None = None,
-                    disable: list[str] | None = None, emf_log: bool = False, no_cape: bool = False) -> dict:
+                    disable: list[str] | None = None, emf_log: bool = False, no_cape: bool = False,
+                    add: list[str] | None = None) -> dict:
     src, dst = profile.path, profile.sandbox
     dst.mkdir(parents=True, exist_ok=True)
     report = {"sandbox": str(dst), "swapped": [], "enabled": [], "disabled": [], "driver": None,
@@ -220,6 +221,13 @@ def prepare_sandbox(profile: Profile, world: str | None, use_project_jars: bool 
             else:
                 (mods / name).symlink_to(jar)
                 report["enabled"].append(name)
+    # A mod of ours the profile does not have yet: its fresh build for this loader and version.
+    for mod_id in add or []:
+        built = sorted((REPO / "upload").glob(f"*/{profile.loader}/{profile.game_version}/{mod_id}_*.jar"))
+        if not built:
+            raise SystemExit(f"no build of {mod_id!r} for {profile.loader} {profile.game_version} under upload/")
+        shutil.copy2(built[-1], mods / built[-1].name)
+        report["enabled"].append(f"+ upload/{built[-1].relative_to(REPO / 'upload')}")
     driver = _driver_jar(profile)
     if driver is not None:
         shutil.copy2(driver, mods / driver.name)
@@ -418,12 +426,13 @@ def running_pid(profile: Profile) -> int | None:
 def launch(name: str, world: str | None = None, width: int = 1280, height: int = 720,
            use_project_jars: bool = True, fresh_world: bool = False,
            enable: list[str] | None = None, disable: list[str] | None = None, emf_log: bool = False,
-           player_name: str = OFFLINE_NAME, player_uuid: str | None = None, no_cape: bool = False) -> dict:
+           player_name: str = OFFLINE_NAME, player_uuid: str | None = None, no_cape: bool = False,
+           add: list[str] | None = None) -> dict:
     profile = get_profile(name)
     if running_pid(profile):
         raise SystemExit(f"{profile.name} is already running (pid {running_pid(profile)}); stop it first")
     report = prepare_sandbox(profile, world, use_project_jars, fresh_world, enable, disable, emf_log,
-                             no_cape=no_cape)
+                             no_cape=no_cape, add=add)
     cmd = build_command(profile, world, width, height, player_name, player_uuid)
     # The child keeps its own handle on the log, so the parent's can close with the block.
     with open(profile.sandbox / "mctest" / "launcher.out", "w") as log:
@@ -588,7 +597,8 @@ def _main(argv: list[str]) -> None:
                                 enable=enable, disable=disable, emf_log="--emf-log" in rest,
                                 player_name=name,
                                 player_uuid=rest[rest.index("--uuid") + 1] if "--uuid" in rest else None,
-                                no_cape="--no-cape" in rest), indent=1))
+                                no_cape="--no-cape" in rest,
+                                add=rest[rest.index("--add") + 1].split(",") if "--add" in rest else None), indent=1))
     elif cmd == "wait":
         print(json.dumps(wait_ready(rest[0]), indent=1))
     elif cmd == "steps":

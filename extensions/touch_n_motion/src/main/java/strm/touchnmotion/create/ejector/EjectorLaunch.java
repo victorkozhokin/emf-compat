@@ -98,7 +98,7 @@ public final class EjectorLaunch {
         State s = entry.value;
         boolean on = EMFCompatConfig.getBoolean(KEY_ENABLED, true) && EMFCompatCore.isCompatEnabled()
                 && !EMFCompatCore.isLocalPlayerInFirstPerson(uuid);
-        boolean free = !player.isPassenger() && !player.isFallFlying() && !player.isInWaterOrBubble() && !player.isSleeping();
+        boolean free = !player.isPassenger() && !player.isFallFlying() && !strm.touchnmotion.platform.Platform.inWater(player) && !player.isSleeping();
 
         BlockPos lid = on && free ? lid(player) : null;
         if (lid != null) {
@@ -142,16 +142,18 @@ public final class EjectorLaunch {
 
     /**
      * Braced on the lid the player is drawn crouching, sneaking or not: the model is told it
-     * crouches, so the pack plays its own crouch, and the render is dropped as a crouch drops it.
-     * Called before the model is animated and before anything measures from the pose stack; goes by
-     * the last frame's brace.
+     * crouches - the caller does that, a model's field before 1.21.11 and the render state's after -
+     * so the pack plays its own crouch, and the render is dropped as a crouch drops it
+     * ({@link #dropForCrouch}). Asked before the model is animated and before anything measures
+     * from the pose stack; goes by the last frame's brace.
      */
-    public static void crouch(AbstractClientPlayer player, EntityModel<?> model,
-                              PoseStack stack) {
+    public static boolean wantsCrouch(AbstractClientPlayer player) {
         State s = STATES.fresh(player.getUUID());
-        if (s == null || !s.braced || player.isCrouching()) return;
-        if (!(model instanceof HumanoidModel<?> humanoid) || humanoid.crouching) return;
-        humanoid.crouching = true;
+        return s != null && s.braced && !player.isCrouching();
+    }
+
+    /** The drop of a crouch, for a model just told it crouches ({@link #wantsCrouch}). */
+    public static void dropForCrouch(PoseStack stack) {
         stack.translate(0f, CROUCH_DROP, 0f);
     }
 

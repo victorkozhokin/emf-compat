@@ -140,7 +140,7 @@ public final class PlantReach implements InteractionProvider {
     }
 
     private static String ineligible(AbstractClientPlayer player) {
-        if (player.isPassenger() || player.isSleeping() || player.isInWaterOrBubble()) return "off:state";
+        if (player.isPassenger() || player.isSleeping() || strm.touchnmotion.platform.Platform.inWater(player)) return "off:state";
         if (player.getPose() != Pose.STANDING && player.getPose() != Pose.CROUCHING) return "off:pose";
         // Nobody runs with their hands trailed out: the arms pump, and held out to the side of a body bent into its
         // run they looked torn off it.

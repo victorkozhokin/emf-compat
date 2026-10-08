@@ -7,16 +7,15 @@
     "BoatSeatMixin"
   ],
   "client": [
-    "horsesync.AbstractHorseRendererAccessor",
-    "horsesync.PlayerModelMixin",
-    "fabric.PlayerRenderEventsMixin",
-    "TouchNMotionRenderMixin",
+    "legacy.horsesync.AbstractHorseRendererAccessor",
+    "legacy.horsesync.PlayerModelMixin",
+    "legacy.TouchNMotionRenderMixin",
     "LeadPlayerMixin",
     "LeadInteractionMixin",
     "ItemPickupMixin",
     "GestureInteractionMixin",
     "LevelRendererAccessor",
-    "BoatChestMixin",
+    "legacy.BoatChestMixin",
     "FishingHookAccessor",
     "FishingLineMixin"
   ],

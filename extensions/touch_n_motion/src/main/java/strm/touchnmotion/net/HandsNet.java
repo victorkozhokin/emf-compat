@@ -47,7 +47,7 @@ public final class HandsNet {
     /** To every other player of that level near enough, whose game knows the channel. */
     public static void relay(ServerPlayer from, CustomPacketPayload payload) {
         UUID own = from.getUUID();
-        for (ServerPlayer other : from.serverLevel().players()) {
+        for (ServerPlayer other : Platform.level(from).players()) {
             if (other.getUUID().equals(own) || other.distanceToSqr(from) > RANGE * RANGE) continue;
             if (Platform.canSend(other, payload.type())) Platform.send(other, payload);
         }

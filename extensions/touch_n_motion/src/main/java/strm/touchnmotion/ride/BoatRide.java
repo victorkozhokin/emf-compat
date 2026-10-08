@@ -339,7 +339,7 @@ public final class BoatRide implements InteractionProvider {
         float pitch = Mth.clampedLerp(-(float) Math.PI / 3f, -0.2617994f, dip);
         float yaw = Mth.clampedLerp(-(float) Math.PI / 4f, (float) Math.PI / 4f, sweep);
         if (side == 1) yaw = (float) Math.PI - yaw;
-        float pivotY = boat.getVariant() == Boat.Type.BAMBOO ? RAFT_PIVOT_Y : PIVOT_Y;
+        float pivotY = strm.touchnmotion.platform.Platform.isRaft(boat) ? RAFT_PIVOT_Y : PIVOT_Y;
         // The part: its own turn (ZYX, as ModelPart applies it), then its pivot; side 1 starts turned half round.
         return world(boat, new Quaternionf().rotationZYX(PADDLE_ROLL, yaw, pitch).transform(new Vector3f(HANDLE))
                 .add(BoatSeats.chestInBow(boat) ? PIVOT_X - (float) (BoatSeats.aft(boat) * 16) : PIVOT_X, pivotY, side == 0 ? PIVOT_Z : -PIVOT_Z), partial);
