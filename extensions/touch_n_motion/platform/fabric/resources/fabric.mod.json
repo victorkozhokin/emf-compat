@@ -13,6 +13,9 @@
     "main": [
       "strm.touchnmotion.fabric.TouchNMotionFabric"
     ],
+    "preLaunch": [
+      "strm.touchnmotion.fabric.Requirements"
+    ],
     "client": [
       "strm.touchnmotion.fabric.TouchNMotionFabricClient"
     ],
@@ -26,7 +29,9 @@
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
-    "minecraft": ">=${minecraft_version}",
+    "minecraft": ">=${minecraft_version}"
+  },
+  "suggests": {
     "entity_model_features": ">=${emf_version}",
     "emf_compat_core": ">=2.2.0"
   }

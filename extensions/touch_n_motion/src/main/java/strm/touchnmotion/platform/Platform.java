@@ -1,7 +1,5 @@
 package strm.touchnmotion.platform;
 
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -105,16 +103,6 @@ public final class Platform {
             }
         }
         return POTTED.contains(plant);
-        *///?}
-    }
-
-    public static boolean isRaft(Boat boat) {
-        //? if neoforge {
-        return boat.getVariant().isRaft();
-        //?} elif >=1.21.11 {
-        /*return boat instanceof net.minecraft.world.entity.vehicle.boat.Raft || boat instanceof net.minecraft.world.entity.vehicle.boat.ChestRaft;
-        *///?} else {
-        /*return boat.getVariant() == Boat.Type.BAMBOO;
         *///?}
     }
 
@@ -335,14 +323,6 @@ public final class Platform {
         //?}
     }
 
-    public static net.minecraft.server.level.ServerLevel level(ServerPlayer player) {
-        //? if >=1.21.11 {
-        /*return player.level();
-        *///?} else {
-        return player.serverLevel();
-        //?}
-    }
-
     /** The horizontal direction nearest to that way. */
     public static net.minecraft.core.Direction nearest(double x, double z) {
         //? if >=1.21.11 {
@@ -467,25 +447,4 @@ public final class Platform {
         *///?}
     }
 
-    /** Whether that player's game knows the channels. */
-    public static boolean canSend(ServerPlayer player) {
-        //? if neoforge {
-        return player.connection != null && player.connection.hasChannel(strm.touchnmotion.net.HandsState.TYPE);
-        //?} elif forge {
-        /*return strm.touchnmotion.forge.ForgeNet.canSend(player);
-        *///?} else {
-        /*return net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.canSend(player, strm.touchnmotion.net.HandsState.TYPE);
-        *///?}
-    }
-
-    /** A {@code HandsState} or a {@code HandsAct}, to that player. */
-    public static void send(ServerPlayer player, Object payload) {
-        //? if neoforge {
-        net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player, (net.minecraft.network.protocol.common.custom.CustomPacketPayload) payload);
-        //?} elif forge {
-        /*strm.touchnmotion.forge.ForgeNet.send(player, payload);
-        *///?} else {
-        /*net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player, (net.minecraft.network.protocol.common.custom.CustomPacketPayload) payload);
-        *///?}
-    }
 }

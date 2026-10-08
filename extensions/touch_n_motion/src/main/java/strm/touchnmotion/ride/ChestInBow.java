@@ -45,7 +45,7 @@ public final class ChestInBow {
         int n = parts.size();
         // The model's own order: ..., the two paddles, the chest's bottom, lid and lock.
         if (n < 5) return;
-        place(parts.subList(n - 5, n - 3), parts.subList(n - 3, n), BoatSeats.chestInBow(boat), Platform.isRaft(boat));
+        place(parts.subList(n - 5, n - 3), parts.subList(n - 3, n), BoatSeats.chestInBow(boat), strm.touchnmotion.platform.ServerSide.isRaft(boat));
     }
     //?}
 
