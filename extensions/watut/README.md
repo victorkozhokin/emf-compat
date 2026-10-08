@@ -29,7 +29,7 @@ The body and legs always stay under EMF's control, so resource-pack animations k
 - [What Are They Up To](https://modrinth.com/mod/what-are-they-up-to) 1.2.1+ (1.20.1) / 1.2.3+ (1.21.1)
 - [Entity Model Features](https://modrinth.com/mod/entity-model-features) 3.2.4+
 - [Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures) (required by EMF)
-- EMF Compat Core 1.0.1+
+- EMF Compat Core 2.3.0+
 
 ## Config
 

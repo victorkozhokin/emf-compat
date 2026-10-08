@@ -31,7 +31,7 @@ side="CLIENT"
 [[dependencies.${mod_id}]]
 modId="emf_compat_core"
 type="required"
-versionRange="[2.1.0,)"
+versionRange="[2.3.0,)"
 ordering="AFTER"
 side="CLIENT"
 

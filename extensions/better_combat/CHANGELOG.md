@@ -3,7 +3,7 @@
 ## 2.1.0
 
 - Added a Fabric 26.3 build
-- Requires EMF Compat Core 2.2.0
+- Requires EMF Compat Core 2.3.0
 - Added a Fabric 1.21.1 build
 
 ## 2.0.0

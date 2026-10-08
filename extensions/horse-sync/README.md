@@ -31,7 +31,7 @@ Open the in-game config screen (Mods → EMF Compat Core → Config) and pick th
 
 - [Entity Model Features](https://modrinth.com/mod/entity-model-features) 3.3.2+
 - [Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures) (required by EMF)
-- EMF Compat Core 2.0.0+
+- EMF Compat Core 2.3.0+
 
 ## Supported loaders / versions
 

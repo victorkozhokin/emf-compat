@@ -46,7 +46,7 @@ On Fabric, armour can sit slightly loose on the body while you move or crouch, s
 - [Entity Model Features](https://modrinth.com/mod/entity-model-features) 3.3.2+
 - [Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures) (required by EMF)
 - [Player Animation Library](https://modrinth.com/mod/player-animation-library) (required by Take a Seat)
-- EMF Compat Core 2.0.0+
+- EMF Compat Core 2.3.0+
 
 ## Supported loaders / versions
 

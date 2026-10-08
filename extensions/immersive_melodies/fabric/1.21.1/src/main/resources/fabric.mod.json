@@ -25,6 +25,6 @@
     "minecraft": ">=${minecraft_version}",
     "immersive_melodies": "*",
     "entity_model_features": ">=${emf_version}",
-    "emf_compat_core": ">=2.2.0"
+    "emf_compat_core": ">=2.3.0"
   }
 }

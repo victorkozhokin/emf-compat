@@ -46,7 +46,7 @@ Combat** are never useful at the same time.
 - Hackers 'n Slashers 2.0-beta2.5+ (checked with 2.0-beta3)
 - [Entity Model Features](https://modrinth.com/mod/entity-model-features) 3.3.2+
 - [Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures) (required by EMF)
-- EMF Compat Core 2.1.0+
+- EMF Compat Core 2.3.0+
 
 ## Supported loaders / versions
 

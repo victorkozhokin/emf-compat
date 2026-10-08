@@ -29,7 +29,7 @@ The body and legs always stay under EMF's control, so resource-pack walk/idle an
 - [Exposure](https://modrinth.com/mod/exposure) 1.9+
 - [Entity Model Features](https://modrinth.com/mod/entity-model-features) 3.2.4+
 - [Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures) (required by EMF)
-- EMF Compat Core 1.0.1+
+- EMF Compat Core 2.3.0+
 
 ## Config
 

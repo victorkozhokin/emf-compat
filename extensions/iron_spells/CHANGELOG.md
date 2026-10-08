@@ -2,7 +2,7 @@
 
 ## 2.1.0
 
-- Requires EMF Compat Core 2.2.0
+- Requires EMF Compat Core 2.3.0
 - Turning the addon off in the settings now fully turns it off
 - Added a Forge 1.20.1 build
 
