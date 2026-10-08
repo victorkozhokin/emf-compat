@@ -336,8 +336,9 @@ public final class BoatRide implements InteractionProvider {
 
     /** The same with the paddle {@code dip} of the way up from its deepest and {@code sweep} of the way through its sweep, both 0..1. */
     private static Vec3 handle(Boat boat, int side, float dip, float sweep, float partial) {
-        float pitch = Mth.clampedLerp(-(float) Math.PI / 3f, -0.2617994f, dip);
-        float yaw = Mth.clampedLerp(-(float) Math.PI / 4f, (float) Math.PI / 4f, sweep);
+        // Not the game's clampedLerp: it takes its arguments in another order from 1.21.2 on.
+        float pitch = Mth.lerp(Mth.clamp(dip, 0f, 1f), -(float) Math.PI / 3f, -0.2617994f);
+        float yaw = Mth.lerp(Mth.clamp(sweep, 0f, 1f), -(float) Math.PI / 4f, (float) Math.PI / 4f);
         if (side == 1) yaw = (float) Math.PI - yaw;
         float pivotY = strm.touchnmotion.platform.Platform.isRaft(boat) ? RAFT_PIVOT_Y : PIVOT_Y;
         // The part: its own turn (ZYX, as ModelPart applies it), then its pivot; side 1 starts turned half round.
