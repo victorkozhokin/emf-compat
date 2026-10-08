@@ -81,7 +81,7 @@ public final class AeronauticRopes {
         return best;
     }
     private static Vector3d position(Object point) {
-        return (Vector3d) call(render, point, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false), new Vector3d());
+        return (Vector3d) call(render, point, strm.touchnmotion.platform.Platform.partialTick(false), new Vector3d());
     }
     private static boolean ready() {
         if (!looked) {

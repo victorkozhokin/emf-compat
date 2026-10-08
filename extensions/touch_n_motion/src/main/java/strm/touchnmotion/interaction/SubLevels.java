@@ -115,7 +115,7 @@ public final class SubLevels {
 
     private static Space space(Object sub) {
         Minecraft mc = Minecraft.getInstance();
-        float partial = mc.getTimer().getGameTimeDeltaPartialTick(false);
+        float partial = strm.touchnmotion.platform.Platform.partialTick(false);
         long tick = mc.level == null ? Long.MIN_VALUE : mc.level.getGameTime();
         if (tick != spacesTick || partial != spacesPartial) {
             SPACES.clear();

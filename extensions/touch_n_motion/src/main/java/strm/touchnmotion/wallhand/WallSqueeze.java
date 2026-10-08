@@ -161,7 +161,7 @@ public final class WallSqueeze {
         boolean turned = false;
         boolean rightWall = false, leftWall = false;
         if (on) {
-            float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+            float partial = strm.touchnmotion.platform.Platform.partialTick(false);
             Vec3 at = player.getPosition(partial);
             double yaw = Math.toRadians(Mth.rotLerp(partial, player.yBodyRotO, player.yBodyRot));
             // Minecraft yaw: 0 faces +z; forward (-sin, cos), the right of it (-cos, -sin).

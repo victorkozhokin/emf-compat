@@ -1,6 +1,5 @@
 package strm.touchnmotion.net;
 
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import strm.touchnmotion.platform.Platform;
 
@@ -45,11 +44,11 @@ public final class HandsNet {
     }
 
     /** To every other player of that level near enough, whose game knows the channel. */
-    public static void relay(ServerPlayer from, CustomPacketPayload payload) {
+    public static void relay(ServerPlayer from, Object payload) {
         UUID own = from.getUUID();
         for (ServerPlayer other : Platform.level(from).players()) {
             if (other.getUUID().equals(own) || other.distanceToSqr(from) > RANGE * RANGE) continue;
-            if (Platform.canSend(other, payload.type())) Platform.send(other, payload);
+            if (Platform.canSend(other)) Platform.send(other, payload);
         }
     }
 }

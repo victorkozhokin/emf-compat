@@ -27,7 +27,7 @@ public final class WheelAngle {
                 methods.put(entity.getClass(), method);
             }
             float angle = ((Number) method.invoke(entity,
-                    Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false))).floatValue();
+                    strm.touchnmotion.platform.Platform.partialTick(false))).floatValue();
             return Float.isFinite(angle) ? angle : null;
         } catch (ReflectiveOperationException | ClassCastException e) {
             failed.add(entity.getClass());

@@ -1,0 +1,167 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'idea'
+    id 'net.neoforged.moddev.legacyforge' version '2.0.141'
+}
+
+// Touch'n Motion on Forge (1.20.1). One buildscript per loader; what differs between nodes is in versions.gradle.
+apply from: rootProject.file('extensions/touch_n_motion/versions.gradle')
+
+def n = ext.node()
+
+// The root build script reads these back with findProperty to name the uploaded jar.
+ext.mod_id = n.mod_id
+ext.mod_name = n.mod_name
+ext.mod_version = n.mod_version
+ext.minecraft_version = stonecutter.current.version
+
+version = mod_version
+group = mod_group_id
+
+ext.tnmStonecutter(n)
+
+// The other loaders' own parts are not this build's, nor those of the other span of versions.
+sourceSets.main.java.exclude '**/fabric/**', '**/neoforge/**', n.span == 'modern' ? '**/legacy/**' : '**/modern/**'
+(n.excludes ?: []).each { sourceSets.main.java.exclude it }
+(n.dropMixins ?: []).each { sourceSets.main.java.exclude "**/mixin/${it.replace('.', '/')}.java" }
+sourceSets.main.resources {
+    srcDir new File(n.root, 'platform/forge/resources')
+    srcDir new File(n.root, "platform/forge-${n.span}/resources")
+}
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+legacyForge {
+    version = "${stonecutter.current.version}-${n.forge_version}"
+
+    runs {
+        client {
+            client()
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        }
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        }
+        gameTestServer {
+            type = "gameTestServer"
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        }
+        data {
+            data()
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath()
+        }
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+
+repositories {
+    mavenLocal()
+    exclusiveContent {
+        forRepository {
+            maven { url = 'https://api.modrinth.com/maven' }
+        }
+        filter { includeGroup 'maven.modrinth' }
+    }
+}
+
+dependencies {
+    implementation project(n.core)
+
+    compileOnly n.emf
+    compileOnly n.etf
+
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation 'org.joml:joml:1.10.5'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+}
+
+
+// Forge 1.20.1 runs on SRG names: the mixins need a refmap, and the jar's manifest names the config.
+mixin {
+    add sourceSets.main, 'touch_n_motion.refmap.json'
+    config 'touch_n_motion.mixins.json'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).configureEach { options.compilerArgs += ['-Xmaxerrs', '5000'] }
+
+processResources {
+    var replaceProperties = [minecraft_version      : stonecutter.current.version,
+                             minecraft_version_range: n.minecraft_version_range,
+                             forge_version          : n.forge_version,
+                             forge_version_range    : n.forge_version_range,
+                             loader_version_range   : n.loader_version_range,
+                             mod_id                 : n.mod_id,
+                             mod_name               : n.mod_name,
+                             mod_license            : n.mod_license,
+                             mod_version            : n.mod_version,
+                             mod_authors            : n.mod_authors,
+                             mod_description        : n.mod_description]
+    inputs.properties replaceProperties
+    filesMatching(["META-INF/mods.toml", "**/*.mcmeta"]) {
+        expand replaceProperties
+    }
+    // A mixin whose target this version of the game does not have is not listed.
+    filesMatching("touch_n_motion.mixins.json") {
+        filter { line -> (n.dropMixins ?: []).any { line.contains('"' + it + '"') } ? null : line }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : mod_id,
+                "Specification-Vendor"    : mod_authors,
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.jar.archiveVersion,
+                "Implementation-Vendor"   : mod_authors,
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "MixinConfigs"            : "touch_n_motion.mixins.json"
+        ])
+    }
+}
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url "file://${project.projectDir}/repo"
+        }
+    }
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}

@@ -51,7 +51,7 @@ public final class ValuePanel implements BlockTarget {
     private static final String SETTINGS = "com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBehaviour";
     private static final String SIDED_FILTER = "com.simibubi.create.foundation.blockEntity.behaviour.filtering.SidedFilteringBehaviour";
     private static final String LINK = "com.simibubi.create.content.redstone.link.LinkBehaviour";
-    private static final ResourceLocation WRENCH = ResourceLocation.fromNamespaceAndPath("create", "wrench");
+    private static final ResourceLocation WRENCH = ResourceLocation.tryBuild("create", "wrench");
 
     /** Which of our kinds a class is, found once. */
     private static final Map<Class<?>, Boolean> SMART_ENTITIES = new HashMap<>();

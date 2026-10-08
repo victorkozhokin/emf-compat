@@ -2,11 +2,9 @@ package strm.touchnmotion.blockuse.vanilla;
 
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
@@ -14,7 +12,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
-import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import strm.touchnmotion.blockuse.*;
@@ -80,17 +77,14 @@ public final class Cauldron implements BlockTarget {
     }
 
     private static boolean waterBottle(ItemStack stack) {
-        PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
-        return stack.is(Items.POTION) && contents != null && contents.is(Potions.WATER);
+        return strm.touchnmotion.platform.Platform.isWaterBottle(stack);
     }
 
     /** What water washes clean: a dyed thing, a banner with a pattern, a coloured shulker box. */
     private static boolean washes(ItemStack stack) {
         if (stack.isEmpty()) return false;
-        if (stack.has(DataComponents.DYED_COLOR)) return true;
-        if (stack.getItem() instanceof BannerItem) {
-            return !stack.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY).layers().isEmpty();
-        }
+        if (strm.touchnmotion.platform.Platform.isDyed(stack)) return true;
+        if (stack.getItem() instanceof BannerItem) return strm.touchnmotion.platform.Platform.hasPatterns(stack);
         return Block.byItem(stack.getItem()) instanceof ShulkerBoxBlock box && box.getColor() != null;
     }
 }

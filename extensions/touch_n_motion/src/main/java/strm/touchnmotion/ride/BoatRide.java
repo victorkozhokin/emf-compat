@@ -133,7 +133,7 @@ public final class BoatRide implements InteractionProvider {
             context.decide(player.getVehicle() instanceof Boat ? "passenger" : "off");
             return;
         }
-        float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        float partial = strm.touchnmotion.platform.Platform.partialTick(false);
         IKFrame frame = context.frame();
         Vec3 first = handle(boat, 0, partial), second = handle(boat, 1, partial);
         Vector3f a = Body.model(frame, first), b = Body.model(frame, second);

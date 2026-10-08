@@ -163,7 +163,7 @@ public final class Mining implements InteractionProvider {
     public void collect(InteractionContext context, List<Candidate> out) {
         AbstractClientPlayer player = context.player();
         State state = STATES.seen(player.getUUID(), context.now()).value;
-        float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        float partial = strm.touchnmotion.platform.Platform.partialTick(false);
         long now = context.now();
         state.player = player;
         state.frame = context.frame();
@@ -277,7 +277,7 @@ public final class Mining implements InteractionProvider {
         // In the block's own space: on a craft its plot, carried out to where it is drawn.
         SubLevels.Space space = SubLevels.at(player.level(), pos);
         Vec3 eye = space.toLocal(player.getEyePosition(partial));
-        Vec3 end = eye.add(space.directionToLocal(player.getViewVector(partial)).scale(player.blockInteractionRange() + 1));
+        Vec3 end = eye.add(space.directionToLocal(player.getViewVector(partial)).scale(strm.touchnmotion.platform.Platform.blockReach(player) + 1));
         VoxelShape shape = player.level().getBlockState(pos).getShape(player.level(), pos);
         // On the shape itself: a slab, a stair or a fence is hit where it is, not on the box round it.
         BlockHitResult on = shape.isEmpty() ? null : shape.clip(eye, end, pos);

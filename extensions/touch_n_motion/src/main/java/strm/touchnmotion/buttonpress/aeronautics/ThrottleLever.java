@@ -55,7 +55,7 @@ public final class ThrottleLever {
         if (m == null || entity == null || !is(level.getBlockState(pos))) return null;
         try {
             PoseStack stack = new PoseStack();
-            m.invoke(null, entity, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false), stack);
+            m.invoke(null, entity, strm.touchnmotion.platform.Platform.partialTick(false), stack);
             Vec3[] result = new Vec3[2];
             for (int i = 0; i < 2; i++) {
                 Vector3f at = stack.last().pose().transformPosition(new Vector3f(KNOB).add(i == 0 ? -.08f : .08f, 0, 0));

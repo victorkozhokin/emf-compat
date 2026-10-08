@@ -18,7 +18,6 @@ stonecutter.replacements {
         'client.model.PlayerModel'                 : 'client.model.player.PlayerModel',
         'world.entity.vehicle.Boat'                : 'world.entity.vehicle.boat.AbstractBoat',
         'world.entity.vehicle.ChestBoat'           : 'world.entity.vehicle.boat.AbstractChestBoat',
-        '.getTimer()'                              : '.getDeltaTracker()',
         '.getNormal()'                             : '.getUnitVec3i()',
     ].each { from, to ->
         string(modern) { replace(from, to) }
@@ -34,6 +33,7 @@ stonecutter.replacements {
         string(deobf) { replace(from, to) }
     }
     string(since('26.3')) { replace('.getAttackAnim(', '.getSwingAnimation(') }
+    string(since('1.20.5')) { replace('EnchantmentTableBlock', 'EnchantingTableBlock') }
     // Every boat was a Boat; now a Boat is one kind of AbstractBoat.
     regex(modern) { replace('\\bBoat\\b(?!\\.Type)', 'AbstractBoat', '\\bAbstractBoat\\b', 'Boat') }
     regex(modern) { replace('\\bChestBoat\\b', 'AbstractChestBoat', '\\bAbstractChestBoat\\b', 'ChestBoat') }

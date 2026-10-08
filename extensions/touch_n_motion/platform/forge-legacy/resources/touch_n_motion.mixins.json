@@ -1,0 +1,26 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "strm.touchnmotion.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "BoatSeatMixin"
+  ],
+  "client": [
+    "legacy.horsesync.AbstractHorseRendererAccessor",
+    "legacy.horsesync.PlayerModelMixin",
+    "legacy.TouchNMotionRenderMixin",
+    "LeadPlayerMixin",
+    "LeadInteractionMixin",
+    "GestureInteractionMixin",
+    "LevelRendererAccessor",
+    "legacy.BoatChestMixin",
+    "FishingHookAccessor",
+    "FishingLineMixin",
+    "ItemPickupMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "touch_n_motion.refmap.json"
+}

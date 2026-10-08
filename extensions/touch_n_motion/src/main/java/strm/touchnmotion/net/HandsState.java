@@ -1,10 +1,13 @@
 package strm.touchnmotion.net;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+//? if >=1.20.5 {
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+//?}
 
 /**
  * What one player's hands are at, as only that player's own game knows it: the buttons held, the
@@ -15,13 +18,23 @@ import net.minecraft.resources.ResourceLocation;
  */
 public record HandsState(int sender, int flags, BlockPos block, int face, double hitX, double hitY, double hitZ, int entity,
                          BlockPos throttle, BlockPos typing, int key, int menu, int actions, int drive, BlockPos drivePos,
-                         BlockPos menuPos) implements CustomPacketPayload {
+                         BlockPos menuPos)
+        //? if >=1.20.5
+        implements CustomPacketPayload
+{
     public static final int USE = 1, ATTACK = 2, BLOCK = 4, ENTITY = 8, HOLD = 16, THROTTLE = 32, TYPING = 64, DRIVE = 128;
+    //? if >=1.20.5 {
     public static final Type<HandsState> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("touch_n_motion", "hands"));
     public static final StreamCodec<RegistryFriendlyByteBuf, HandsState> CODEC = StreamCodec.of(HandsState::write, HandsState::read);
+
+    @Override
+    public Type<HandsState> type() {
+        return TYPE;
+    }
+    //?}
     public static final HandsState NOTHING = new HandsState(0, 0, null, 0, 0, 0, 0, -1, null, null, -1, 0, 0, -1, null, null);
 
-    private static void write(RegistryFriendlyByteBuf out, HandsState s) {
+    public static void write(FriendlyByteBuf out, HandsState s) {
         out.writeVarInt(s.sender);
         out.writeByte(s.flags);
         if (s.has(BLOCK)) {
@@ -47,7 +60,7 @@ public record HandsState(int sender, int flags, BlockPos block, int face, double
         if (s.menu != 0 && s.menuPos != null) out.writeBlockPos(s.menuPos);
     }
 
-    private static HandsState read(RegistryFriendlyByteBuf in) {
+    public static HandsState read(FriendlyByteBuf in) {
         int sender = in.readVarInt(), flags = in.readByte() & 0xFF;
         BlockPos block = null, throttle = null, typing = null, drivePos = null;
         int face = 0, entity = -1, key = -1, drive = -1;
@@ -85,10 +98,5 @@ public record HandsState(int sender, int flags, BlockPos block, int face, double
 
     public HandsState from(int entityId) {
         return new HandsState(entityId, flags, block, face, hitX, hitY, hitZ, entity, throttle, typing, key, menu, actions, drive, drivePos, menuPos);
-    }
-
-    @Override
-    public Type<HandsState> type() {
-        return TYPE;
     }
 }

@@ -245,7 +245,7 @@ public final class HorseFootGrounding {
         Vec3 offset = horse.getPosition(partialTick).subtract(rider.getPosition(partialTick));
         Vector3f pivot = new Vector3f(state.pivot).add((float) offset.x, (float) offset.y, (float) offset.z);
         stack.translate(pivot.x + state.shift.x, pivot.y + state.shift.y, pivot.z + state.shift.z);
-        stack.mulPose(new Matrix4f().set(state.turn));
+        strm.touchnmotion.platform.Platform.apply(stack, new Matrix4f().set(state.turn));
         stack.translate(-pivot.x, -pivot.y, -pivot.z);
         return true;
     }

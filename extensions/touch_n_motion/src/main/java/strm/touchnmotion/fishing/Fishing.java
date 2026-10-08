@@ -313,7 +313,7 @@ public final class Fishing implements InteractionProvider {
         if (state.phase == Phase.NONE) return;
         if (state.frame != null) {
             Vector3f tip = new Quaternionf().rotationZYX(rod.zRot, rod.yRot, rod.xRot).transform(new Vector3f(TIP)).add(rod.x, rod.y, rod.z);
-            state.tip = state.frame.jointWorld(tip).subtract(state.player.getPosition(net.minecraft.client.Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false)));
+            state.tip = state.frame.jointWorld(tip).subtract(state.player.getPosition(strm.touchnmotion.platform.Platform.partialTick(false)));
         }
         if (DebugLog.trace() && state.trace.due(40_000_000L)) {
             ModelPart body = parts.apply("body");

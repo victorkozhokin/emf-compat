@@ -74,7 +74,7 @@ public final class ClientInit {
                 && strm.emfcompat.core.EMFCompatConfig.getBoolean(strm.touchnmotion.ride.BoatRide.KEY_ENABLED, true)
                 && strm.emfcompat.core.EMFCompatConfig.getBoolean(key, true);
         strm.touchnmotion.ride.BoatSeats.client = seated.apply(strm.touchnmotion.ride.BoatPassenger.KEY_ENABLED);
-        //? if <1.21.11
+        //? if >=1.20.5 && <1.21.11
         strm.touchnmotion.ride.ChestInBow.register(riding);
         strm.touchnmotion.ride.BoatSeats.chestClient = seated.apply(strm.touchnmotion.ride.ChestInBow.KEY_ENABLED);
         strm.touchnmotion.ride.MinecartRide.register(riding);

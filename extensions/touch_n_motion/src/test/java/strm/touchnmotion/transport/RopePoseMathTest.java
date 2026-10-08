@@ -43,8 +43,8 @@ public class RopePoseMathTest {
         var before = RopePoseMath.sample(3, .999, i -> new Vector3d(points.get(i)));
         var after = RopePoseMath.sample(3, 1.001, i -> new Vector3d(points.get(i)));
         assertTrue(before.distance(after) < .003);
-        assertEquals(points.getFirst(), RopePoseMath.sample(3, -10, i -> new Vector3d(points.get(i))));
-        assertEquals(points.getLast(), RopePoseMath.sample(3, 10, i -> new Vector3d(points.get(i))));
+        assertEquals(points.get(0), RopePoseMath.sample(3, -10, i -> new Vector3d(points.get(i))));
+        assertEquals(points.get(points.size() - 1), RopePoseMath.sample(3, 10, i -> new Vector3d(points.get(i))));
     }
     @Test void regripDoesNotJumpAndIsIndependentOfFrameRate() {
         assertEquals(2.9, RopePoseMath.slide(2.9, 3.2, 0));

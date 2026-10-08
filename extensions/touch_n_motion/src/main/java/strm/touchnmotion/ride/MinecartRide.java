@@ -143,7 +143,7 @@ public final class MinecartRide implements InteractionProvider {
         state.riding = true;
         state.weight += (1f - state.weight) * Smoothing.follow(dt, 0.2);
         Riders.carried(player);
-        float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        float partial = strm.touchnmotion.platform.Platform.partialTick(false);
         // The shove on the seat: how the cart's speed changed this tick, blocks a second a second. From where the cart
         // was and is, not from the speed it claims - on a slope, off a drop and onto the ground that is what is felt.
         if (cart.tickCount != state.tick) {
@@ -315,7 +315,7 @@ public final class MinecartRide implements InteractionProvider {
         if (state == null || !state.riding || state.face == null || !INSTANCE.isEnabled()
                 || !(player.getVehicle() instanceof AbstractMinecart cart)
                 || !strm.emfcompat.core.EMFCompatCore.isCompatEnabled() || strm.emfcompat.core.EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) return;
-        float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        float partial = strm.touchnmotion.platform.Platform.partialTick(false);
         // Worked out for this very frame, as the cart's own drawing is: a frame late, a bend would show the rider askew.
         Drawn drawn = Drawn.of(cart, partial);
         Vec3 way = way(state, drawn.along);

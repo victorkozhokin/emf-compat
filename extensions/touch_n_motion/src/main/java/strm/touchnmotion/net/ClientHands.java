@@ -53,7 +53,7 @@ public final class ClientHands {
     /** Whether the server we are on passes these on at all. */
     public static boolean connected() {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
-        return connection != null && Platform.canSendToServer(HandsState.TYPE);
+        return connection != null && Platform.canSendToServer();
     }
 
     /** Our own game accepted a use of this block: a screen that follows is its. */

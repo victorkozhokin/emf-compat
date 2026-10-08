@@ -96,7 +96,7 @@ public final class BoatPassenger implements InteractionProvider {
         state.riding = true;
         state.weight += (1f - state.weight) * Smoothing.follow(dt, 0.2);
         Riders.carried(player);
-        float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        float partial = strm.touchnmotion.platform.Platform.partialTick(false);
         IKFrame frame = context.frame();
         // Towards the rower as they lean away: forward is +xRot.
         float answer = Math.min(ANSWER_LIMIT, BoatRide.rowerLean(boat) * ANSWER);

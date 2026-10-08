@@ -154,7 +154,11 @@ public final class Fright implements InteractionProvider {
     private static void listen() {
         if (listening) return;
         listening = true;
+        //? if >=1.21 {
         Minecraft.getInstance().getSoundManager().addListener((sound, accessor, range) -> heard(sound));
+        //?} else {
+        /*Minecraft.getInstance().getSoundManager().addListener((sound, accessor) -> heard(sound));
+        *///?}
     }
 
     private static void heard(SoundInstance sound) {

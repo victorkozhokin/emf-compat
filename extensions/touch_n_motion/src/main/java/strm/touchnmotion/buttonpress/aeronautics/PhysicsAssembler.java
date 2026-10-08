@@ -54,7 +54,7 @@ public final class PhysicsAssembler {
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity == null) return null;
         try {
-            float radians = (Float) m.invoke(null, entity, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
+            float radians = (Float) m.invoke(null, entity, strm.touchnmotion.platform.Platform.partialTick(false));
             Vector3f at = place(block.getValue(FaceAttachedHorizontalDirectionalBlock.FACE),
                     block.getValue(FaceAttachedHorizontalDirectionalBlock.FACING), radians);
             // In double: on a sub-level the block is in a plot millions of blocks out, past a float's precision.

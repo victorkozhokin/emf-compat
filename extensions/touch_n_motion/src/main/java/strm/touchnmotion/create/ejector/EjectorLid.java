@@ -78,7 +78,7 @@ public final class EjectorLid {
         if (entity == null) return 0;
         try {
             if (progress == null) progress = entity.getClass().getMethod("getLidProgress", float.class);
-            return (float) progress.invoke(entity, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
+            return (float) progress.invoke(entity, strm.touchnmotion.platform.Platform.partialTick(false));
         } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
             FAILURES.failed(e);
             return 0;

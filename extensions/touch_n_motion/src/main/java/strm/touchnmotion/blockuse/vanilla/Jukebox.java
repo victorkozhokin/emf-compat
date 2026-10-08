@@ -2,7 +2,6 @@ package strm.touchnmotion.blockuse.vanilla;
 
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.level.block.JukeboxBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -24,7 +23,7 @@ public final class Jukebox implements BlockTarget {
     @Override
     public Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit) {
         boolean record = block.getValue(JukeboxBlock.HAS_RECORD);
-        boolean disc = player.getMainHandItem().has(DataComponents.JUKEBOX_PLAYABLE);
+        boolean disc = strm.touchnmotion.platform.Platform.isDisc(player.getMainHandItem());
         return record || disc ? slot(pos) : null;
     }
 

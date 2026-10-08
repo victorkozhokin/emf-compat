@@ -202,7 +202,7 @@ public final class ContainerSearch extends Gesture {
     protected void pose(Play play, float phase, Pose out) {
         if (!(play.notes instanceof Open open) || open.pos == null) return;
         float in = phase <= HOLD ? swell(phase, HOLD - .04f, 2f, 3f) : 1 - Ease.smooth((phase - HOLD) / .4f);
-        float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        float partial = strm.touchnmotion.platform.Platform.partialTick(false);
         Vec3 middle = Vec3.atCenterOf(open.pos);
         Vec3 side = play.player.getPosition(partial).subtract(middle).multiply(1, 0, 1);
         side = side.lengthSqr() < 1e-6 ? new Vec3(0, 0, 1) : side.normalize();

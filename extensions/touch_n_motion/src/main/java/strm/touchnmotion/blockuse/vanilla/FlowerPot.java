@@ -39,7 +39,7 @@ public final class FlowerPot implements BlockTarget {
     }
 
     private static boolean empty(BlockState block) {
-        return ((FlowerPotBlock) block.getBlock()).getPotted() == Blocks.AIR;
+        return strm.touchnmotion.platform.Platform.pottedIn((FlowerPotBlock) block.getBlock()) == Blocks.AIR;
     }
 
     private static boolean plantable(ItemStack stack) {

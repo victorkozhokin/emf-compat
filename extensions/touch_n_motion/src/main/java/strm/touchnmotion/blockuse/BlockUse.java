@@ -76,11 +76,11 @@ public final class BlockUse implements InteractionProvider {
 
     private static final String SUPPLEMENTARIES = "net.mehvahdjukaar.supplementaries.common.block.blocks.";
 
-    private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox(), new Campfire(), new Vault(), new HandCrank(),
+    private static final List<BlockTarget> TARGETS = List.of(new ChiseledShelf(), new Jukebox(), new Campfire(), /*? if >=1.21 {*/ new Vault(), /*?}*/ new HandCrank(),
             new Composter(), new FlowerPot(), new RespawnAnchor(), new NoteBlock(), new Repeater(), new Comparator(),
             new DaylightDetector(), new Cake(), new Barrel(), new Candle(), new ValveHandle(), new SteeringWheel(),
             new CraftingTable(), new Stonecutter(), new Bell(), new FenceGate(), new Cauldron(), new Beehive(),
-            new CandleCake(), new Tnt(), new Crafter(), new EnchantingTable(), new CartographyTable(), new BrewingStand(),
+            new CandleCake(), new Tnt(), /*? if >=1.21 {*/ new Crafter(), /*?}*/ new EnchantingTable(), new CartographyTable(), new BrewingStand(),
             new ItemRest(ModBlock.exact("com.simibubi.create.content.logistics.depot.DepotBlock", "create:depot"), "getHeldItem", 13),
             new ItemDrain(), new Basin(), new BlazeBurner(), new ContraptionControls(),
             ItemRest.front(ModBlock.exact("com.simibubi.create.content.kinetics.crafter.MechanicalCrafterBlock", "create:mechanical_crafter"), "getInventory"),

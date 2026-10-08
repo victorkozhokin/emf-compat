@@ -177,7 +177,7 @@ public final class AnimalCare extends Gesture {
     }
 
     protected void pose(Play play, float work, Pose out) {
-        float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        float partial = strm.touchnmotion.platform.Platform.partialTick(false);
         Entity animal = play.player.level().getEntity(play.entity);
         Vec3 at = animal == null ? play.point : animal.getPosition(partial);
         if (at == null) return;

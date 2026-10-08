@@ -1,6 +1,5 @@
 package strm.touchnmotion.platform;
 
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ItemStack;
@@ -24,6 +23,8 @@ public final class Platform {
     public static boolean isModLoaded(String id) {
         //? if fabric {
         /*return net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded(id);
+        *///?} elif forge {
+        /*return net.minecraftforge.fml.ModList.get().isLoaded(id);
         *///?} else {
         return net.neoforged.fml.ModList.get().isLoaded(id);
         //?}
@@ -38,7 +39,14 @@ public final class Platform {
             return out;
         }
         return new ItemStack[0];
-        //?} else {
+        //?} elif forge {
+        /*if (inventory instanceof net.minecraftforge.items.IItemHandler handler) {
+            ItemStack[] out = new ItemStack[handler.getSlots()];
+            for (int i = 0; i < out.length; i++) out[i] = handler.getStackInSlot(i);
+            return out;
+        }
+        return new ItemStack[0];
+        *///?} else {
         /*return Held.stacks(inventory);
         *///?}
     }
@@ -47,7 +55,9 @@ public final class Platform {
     public static long fluid(Object tank) {
         //? if neoforge {
         return tank instanceof net.neoforged.neoforge.fluids.capability.templates.FluidTank handler ? handler.getFluidAmount() : 0;
-        //?} else {
+        //?} elif forge {
+        /*return tank instanceof net.minecraftforge.fluids.capability.templates.FluidTank handler ? handler.getFluidAmount() : 0;
+        *///?} else {
         /*return Held.fluid(tank);
         *///?}
     }
@@ -56,7 +66,9 @@ public final class Platform {
     public static boolean isFuel(ItemStack stack) {
         //? if neoforge {
         return stack.getBurnTime(null) > 0;
-        //?} elif >=26.3 {
+        //?} elif forge {
+        /*return net.minecraftforge.common.ForgeHooks.getBurnTime(stack, null) > 0;
+        */        //?} elif >=26.3 {
         /*return stack.has(net.minecraft.core.component.DataComponents.COOKING_FUEL);
         *///?} elif >=1.21.11 {
         /*net.minecraft.client.multiplayer.ClientLevel level = net.minecraft.client.Minecraft.getInstance().level;
@@ -82,14 +94,14 @@ public final class Platform {
 
     /** Whether a flower pot takes this plant. */
     public static boolean potted(Block plant) {
-        //? if neoforge {
+        //? if neoforge || forge {
         return ((FlowerPotBlock) Blocks.FLOWER_POT).getFullPotsView()
                 .getOrDefault(net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(plant), () -> Blocks.AIR).get() != Blocks.AIR;
         //?} else {
         /*// Every pot with something in it knows what: the plants that go in a pot are the ones some pot holds.
         if (POTTED.isEmpty()) {
             for (Block block : net.minecraft.core.registries.BuiltInRegistries.BLOCK) {
-                if (block instanceof FlowerPotBlock pot && pot.getPotted() != Blocks.AIR) POTTED.add(pot.getPotted());
+                if (block instanceof FlowerPotBlock pot && pottedIn(pot) != Blocks.AIR) POTTED.add(pottedIn(pot));
             }
         }
         return POTTED.contains(plant);
@@ -185,6 +197,122 @@ public final class Platform {
         *///?} else {
         return stack.getItem() instanceof net.minecraft.world.item.HoeItem;
         //?}
+    }
+
+    /** A music disc. */
+    public static boolean isDisc(ItemStack stack) {
+        //? if >=1.21 {
+        return stack.has(net.minecraft.core.component.DataComponents.JUKEBOX_PLAYABLE);
+        //?} else {
+        /*return stack.getItem() instanceof net.minecraft.world.item.RecordItem;
+        *///?}
+    }
+
+    public static boolean isWaterBottle(ItemStack stack) {
+        //? if >=1.20.5 {
+        net.minecraft.world.item.alchemy.PotionContents contents = stack.get(net.minecraft.core.component.DataComponents.POTION_CONTENTS);
+        return stack.is(net.minecraft.world.item.Items.POTION) && contents != null && contents.is(net.minecraft.world.item.alchemy.Potions.WATER);
+        //?} else {
+        /*return stack.is(net.minecraft.world.item.Items.POTION)
+                && net.minecraft.world.item.alchemy.PotionUtils.getPotion(stack) == net.minecraft.world.item.alchemy.Potions.WATER;
+        *///?}
+    }
+
+    /** Dyed, as leather armour is. */
+    public static boolean isDyed(ItemStack stack) {
+        //? if >=1.20.5 {
+        return stack.has(net.minecraft.core.component.DataComponents.DYED_COLOR);
+        //?} else {
+        /*return stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem dyeable && dyeable.hasCustomColor(stack);
+        *///?}
+    }
+
+    /** A banner with a pattern on it. */
+    public static boolean hasPatterns(ItemStack stack) {
+        //? if >=1.20.5 {
+        return !stack.getOrDefault(net.minecraft.core.component.DataComponents.BANNER_PATTERNS,
+                net.minecraft.world.level.block.entity.BannerPatternLayers.EMPTY).layers().isEmpty();
+        //?} else {
+        /*return net.minecraft.world.level.block.entity.BannerBlockEntity.getPatternCount(stack) > 0;
+        *///?}
+    }
+
+    /** Who holds the lead of that creature; {@code null} for no one, and for what cannot be led. */
+    public static net.minecraft.world.entity.Entity leashHolder(net.minecraft.world.entity.Entity led) {
+        //? if >=1.21 {
+        return led instanceof net.minecraft.world.entity.Leashable leashed ? leashed.getLeashHolder() : null;
+        //?} else {
+        /*return led instanceof net.minecraft.world.entity.Mob mob ? mob.getLeashHolder() : null;
+        *///?}
+    }
+
+    /** Whether that creature can be on a lead at all. */
+    public static boolean leashable(net.minecraft.world.entity.Entity entity) {
+        //? if >=1.21 {
+        return entity instanceof net.minecraft.world.entity.Leashable;
+        //?} else {
+        /*return entity instanceof net.minecraft.world.entity.Mob;
+        *///?}
+    }
+
+    /** How far into the tick the frame is. {@code running}: the value that goes on while the game is paused; otherwise the one a paused game holds. Client only. */
+    public static float partialTick(boolean running) {
+        //? if >=1.21.11 {
+        /*return net.minecraft.client.Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(running);
+        *///?} elif >=1.21 {
+        return net.minecraft.client.Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(running);
+        //?} else {
+        /*return running ? net.minecraft.client.Minecraft.getInstance().getFrameTime() : net.minecraft.client.Minecraft.getInstance().getPartialTick();
+        *///?}
+    }
+
+    /** What is in a flower pot; air in an empty one. */
+    public static Block pottedIn(FlowerPotBlock pot) {
+        //? if >=1.20.5 {
+        return pot.getPotted();
+        //?} else {
+        /*return pot.getContent();
+        *///?}
+    }
+
+    /** How far a player's hand reaches a block. */
+    public static double blockReach(net.minecraft.world.entity.player.Player player) {
+        //? if >=1.20.5 {
+        return player.blockInteractionRange();
+        //?} elif forge {
+        /*return player.getBlockReach();
+        *///?} else {
+        /*return player.isCreative() ? 5.0 : 4.5;
+        *///?}
+    }
+
+    /** How far a player's hand reaches a creature. */
+    public static double entityReach(net.minecraft.world.entity.player.Player player) {
+        //? if >=1.20.5 {
+        return player.entityInteractionRange();
+        //?} elif forge {
+        /*return player.getEntityReach();
+        *///?} else {
+        /*return player.isCreative() ? 5.0 : 3.0;
+        *///?}
+    }
+
+    /** Applies a transform to what is drawn from here on. */
+    public static void apply(com.mojang.blaze3d.vertex.PoseStack stack, org.joml.Matrix4f by) {
+        //? if >=1.20.5 {
+        stack.mulPose(by);
+        //?} else {
+        /*stack.mulPoseMatrix(by);
+        *///?}
+    }
+
+    /** The block an entity's feet are in. */
+    public static net.minecraft.world.level.block.state.BlockState blockAtFeet(net.minecraft.world.entity.Entity entity) {
+        //? if >=1.20.5 {
+        return entity.getInBlockState();
+        //?} else {
+        /*return entity.getFeetBlockState();
+        *///?}
     }
 
     /** In water, a column of bubbles counted. */
@@ -316,39 +444,48 @@ public final class Platform {
         //?}
     }
 
-    /** Whether the server we are on knows the channel. Client only. */
-    public static boolean canSendToServer(CustomPacketPayload.Type<?> type) {
+    /** Whether the server we are on knows the channels. Client only. */
+    public static boolean canSendToServer() {
         //? if neoforge {
         net.minecraft.client.multiplayer.ClientPacketListener connection = net.minecraft.client.Minecraft.getInstance().getConnection();
-        return connection != null && connection.hasChannel(type);
-        //?} else {
-        /*return net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.canSend(type);
+        return connection != null && connection.hasChannel(strm.touchnmotion.net.HandsState.TYPE);
+        //?} elif forge {
+        /*return strm.touchnmotion.forge.ForgeNet.canSendToServer();
+        *///?} else {
+        /*return net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.canSend(strm.touchnmotion.net.HandsState.TYPE);
         *///?}
     }
 
-    /** Client only. */
-    public static void sendToServer(CustomPacketPayload payload) {
+    /** A {@code HandsState} or a {@code HandsAct}, to the server. Client only. */
+    public static void sendToServer(Object payload) {
         //? if neoforge {
-        net.neoforged.neoforge.network.PacketDistributor.sendToServer(payload);
-        //?} else {
-        /*net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(payload);
+        net.neoforged.neoforge.network.PacketDistributor.sendToServer((net.minecraft.network.protocol.common.custom.CustomPacketPayload) payload);
+        //?} elif forge {
+        /*strm.touchnmotion.forge.ForgeNet.sendToServer(payload);
+        *///?} else {
+        /*net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send((net.minecraft.network.protocol.common.custom.CustomPacketPayload) payload);
         *///?}
     }
 
-    /** Whether that player's game knows the channel. */
-    public static boolean canSend(ServerPlayer player, CustomPacketPayload.Type<?> type) {
+    /** Whether that player's game knows the channels. */
+    public static boolean canSend(ServerPlayer player) {
         //? if neoforge {
-        return player.connection != null && player.connection.hasChannel(type);
-        //?} else {
-        /*return net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.canSend(player, type);
+        return player.connection != null && player.connection.hasChannel(strm.touchnmotion.net.HandsState.TYPE);
+        //?} elif forge {
+        /*return strm.touchnmotion.forge.ForgeNet.canSend(player);
+        *///?} else {
+        /*return net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.canSend(player, strm.touchnmotion.net.HandsState.TYPE);
         *///?}
     }
 
-    public static void send(ServerPlayer player, CustomPacketPayload payload) {
+    /** A {@code HandsState} or a {@code HandsAct}, to that player. */
+    public static void send(ServerPlayer player, Object payload) {
         //? if neoforge {
-        net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player, payload);
-        //?} else {
-        /*net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player, payload);
+        net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player, (net.minecraft.network.protocol.common.custom.CustomPacketPayload) payload);
+        //?} elif forge {
+        /*strm.touchnmotion.forge.ForgeNet.send(player, payload);
+        *///?} else {
+        /*net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player, (net.minecraft.network.protocol.common.custom.CustomPacketPayload) payload);
         *///?}
     }
 }

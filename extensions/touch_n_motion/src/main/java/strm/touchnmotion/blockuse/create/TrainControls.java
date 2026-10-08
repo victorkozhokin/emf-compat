@@ -82,7 +82,7 @@ public final class TrainControls implements BlockTarget {
             Object contraption = getContraption.invoke(entity);
             if (!(((Map<?, ?>) getBlocks.invoke(contraption)).get(driven.controls) instanceof StructureTemplate.StructureBlockInfo info)) return null;
             if (!BLOCK.is(info.state())) return null;
-            float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+            float partial = strm.touchnmotion.platform.Platform.partialTick(false);
             float[] angles = angles(contraption, driven.controls, partial);
             Direction facing = info.state().getValue(BlockStateProperties.HORIZONTAL_FACING);
             Vec3 first = (Vec3) toGlobal.invoke(entity, lever(driven.controls, facing, true, angles), partial);

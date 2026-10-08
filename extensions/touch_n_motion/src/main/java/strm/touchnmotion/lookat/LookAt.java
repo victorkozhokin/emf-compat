@@ -208,7 +208,7 @@ public final class LookAt implements InteractionProvider {
         }
         state.targetId = target == null ? -1 : target.getId();
         if (target != null) {
-            point = target.getEyePosition(Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true));
+            point = target.getEyePosition(strm.touchnmotion.platform.Platform.partialTick(true));
             name = target.getName().getString();
         }
 

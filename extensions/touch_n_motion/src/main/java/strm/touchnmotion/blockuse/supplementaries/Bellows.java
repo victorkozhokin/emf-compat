@@ -26,7 +26,7 @@ public final class Bellows implements BlockTarget {
     public static float height(Level level, BlockPos pos) {
         Object be = level.getBlockEntity(pos), a = PREVIOUS.read(be), b = HEIGHT.read(be);
         if (!(a instanceof Number previous) || !(b instanceof Number current)) return 0;
-        float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
+        float partial = strm.touchnmotion.platform.Platform.partialTick(true);
         return BellowsGeometry.height(previous.floatValue(), current.floatValue(), partial);
     }
     private static boolean usable(AbstractClientPlayer player, BlockState block) {

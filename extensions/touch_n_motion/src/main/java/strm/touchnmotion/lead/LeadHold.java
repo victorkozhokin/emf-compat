@@ -6,7 +6,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
@@ -58,8 +57,8 @@ public final class LeadHold implements InteractionProvider {
     }
 
     public static void attachHand(AbstractClientPlayer player, Entity target, net.minecraft.world.InteractionHand hand) {
-        if (!player.getItemInHand(hand).is(Items.LEAD) || !(target instanceof Leashable lead)
-                || lead.getLeashHolder() == player) return;
+        if (!player.getItemInHand(hand).is(Items.LEAD) || !strm.touchnmotion.platform.Platform.leashable(target)
+                || strm.touchnmotion.platform.Platform.leashHolder(target) == player) return;
         State s = STATES.seen(player.getUUID(), System.nanoTime()).value;
         s.attachingAnimal = target.getUUID();
         boolean right = Body.right(player, hand);
@@ -88,7 +87,7 @@ public final class LeadHold implements InteractionProvider {
         Entity chosen = null;
         double farthest = -1;
         for (Entity e : player.level().getEntities(player, player.getBoundingBox().inflate(12),
-                e -> e instanceof Leashable lead && lead.getLeashHolder() == player && e.isAlive())) {
+                e -> strm.touchnmotion.platform.Platform.leashHolder(e) == player && e.isAlive())) {
             s.count++;
             double distance = e.distanceTo(player);
             // Keep the previous animal through small distance changes instead of flickering between leads.
@@ -107,7 +106,7 @@ public final class LeadHold implements InteractionProvider {
         s.frame = context.frame();
         s.player = player;
         s.distance = chosen.distanceTo(player);
-        float partial = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        float partial = strm.touchnmotion.platform.Platform.partialTick(false);
         s.playerPosition = player.getPosition(partial);
         Vec3 relative = chosen.getPosition(partial).subtract(s.playerPosition);
         Vec3 raw = chosen.position().subtract(player.position());

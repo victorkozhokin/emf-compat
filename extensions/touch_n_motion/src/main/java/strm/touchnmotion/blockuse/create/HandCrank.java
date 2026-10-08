@@ -96,7 +96,7 @@ public final class HandCrank implements BlockTarget {
         if (entity == null) return null;
         try {
             if (method == null) method = entity.getClass().getMethod("getIndependentAngle", float.class);
-            return (Float) method.invoke(entity, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
+            return (Float) method.invoke(entity, strm.touchnmotion.platform.Platform.partialTick(false));
         } catch (Throwable t) {
             FAILURES.failed(t);
             return null;

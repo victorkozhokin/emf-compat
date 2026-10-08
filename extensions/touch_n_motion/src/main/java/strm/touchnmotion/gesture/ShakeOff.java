@@ -55,7 +55,7 @@ public final class ShakeOff extends Gesture {
         float dt = (float) Math.min(.1, context.dt());
         // The game marks "in powder snow" only for a player it moves itself - our own. Another
         // player is placed where the server says, and the mark never comes: the block they stand in says it.
-        boolean snow = player.isInPowderSnow || player.getInBlockState().is(Blocks.POWDER_SNOW);
+        boolean snow = player.isInPowderSnow || strm.touchnmotion.platform.Platform.blockAtFeet(player).is(Blocks.POWDER_SNOW);
         boolean in = player.isInWater() || snow || player.getBlockStateOn().is(Blocks.MUD);
         if (in) {
             wet.inside += dt;

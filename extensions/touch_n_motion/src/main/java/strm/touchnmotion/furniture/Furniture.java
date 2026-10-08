@@ -199,7 +199,7 @@ public final class Furniture implements InteractionProvider {
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity instanceof LidBlockEntity lid) {
             // As ChestRenderer draws it.
-            float f = 1f - lid.getOpenNess(Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
+            float f = 1f - lid.getOpenNess(strm.touchnmotion.platform.Platform.partialTick(false));
             open = 1f - f * f * f;
         }
         // Open, it is in somebody's hands already: only theirs go to it.
