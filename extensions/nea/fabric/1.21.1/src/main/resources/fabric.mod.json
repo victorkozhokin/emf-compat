@@ -23,6 +23,6 @@
     "minecraft": ">=${minecraft_version}",
     "notenoughanimations": "*",
     "entity_model_features": ">=${emf_version}",
-    "emf_compat_core": ">=2.0.0"
+    "emf_compat_core": ">=2.3.0"
   }
 }

@@ -1,9 +1,8 @@
 # EMF Compat: Carry On — Changelog
 
-## 2.0.0
+## 2.1.0
 
-- Requires Entity Model Features 3.3.2 and EMF Compat Core 2.0.0
-- Fixed a startup crash with EMF 3.3
+- Requires EMF Compat Core 2.3.0
 - Added a Fabric 1.21.1 build, and the Fabric 26.2 build is back
 - Fixed carried objects drifting away from the hands in the mirrored third-person camera
 - Frozen now keeps a per-entity EMF pose in both first and third person, so another visible mob of the same type cannot animate the carried model
@@ -12,6 +11,11 @@
 - Frozen now holds on Fabric 1.21.11, 26.1.2 and 26.2, in both views, and carried mobs are handled in first person there
 - Fixed a crash on Forge 1.20.1 when a carried mob was drawn in first person
 - Carried mobs face the way Carry On means them to, whatever way they were facing when picked up
+
+## 2.0.0
+
+- Requires Entity Model Features 3.3.2 and EMF Compat Core 2.0.0
+- Fixed a startup crash with EMF 3.3
 
 ## 1.1.0
 

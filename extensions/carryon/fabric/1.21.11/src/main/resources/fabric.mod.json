@@ -25,6 +25,6 @@
     "minecraft": "${minecraft_version}",
     "carryon": ">=2.9.0",
     "entity_model_features": ">=3.3.2",
-    "emf_compat_core": ">=2.0.0"
+    "emf_compat_core": ">=2.3.0"
   }
 }

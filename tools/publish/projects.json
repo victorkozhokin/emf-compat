@@ -303,11 +303,11 @@
    "addon": "carry_on",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "2.0.0",
+   "version_number": "2.1.0",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/fabric/1.21.1/emf_compat_carry_on_fabric_1.21.1_2.0.0.jar",
+   "file": "upload/Carry On/fabric/1.21.1/emf_compat_carry_on_fabric_1.21.1_2.1.0.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -327,17 +327,17 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.0.0"
+   "name": "EMF Compat: Carry On 2.1.0"
   },
   {
    "addon": "carry_on",
    "loader": "fabric",
    "game_version": "1.21.11",
-   "version_number": "2.0.0",
+   "version_number": "2.1.0",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/fabric/1.21.11/emf_compat_carry_on_fabric_1.21.11_2.0.0.jar",
+   "file": "upload/Carry On/fabric/1.21.11/emf_compat_carry_on_fabric_1.21.11_2.1.0.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -357,17 +357,17 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.0.0"
+   "name": "EMF Compat: Carry On 2.1.0"
   },
   {
    "addon": "carry_on",
    "loader": "fabric",
    "game_version": "26.1.2",
-   "version_number": "2.0.0",
+   "version_number": "2.1.0",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/fabric/26.1.2/emf_compat_carry_on_fabric_26.1.2_2.0.0.jar",
+   "file": "upload/Carry On/fabric/26.1.2/emf_compat_carry_on_fabric_26.1.2_2.1.0.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -387,17 +387,17 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.0.0"
+   "name": "EMF Compat: Carry On 2.1.0"
   },
   {
    "addon": "carry_on",
    "loader": "fabric",
    "game_version": "26.2",
-   "version_number": "2.0.0",
+   "version_number": "2.1.0",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/fabric/26.2/emf_compat_carry_on_fabric_26.2_2.0.0.jar",
+   "file": "upload/Carry On/fabric/26.2/emf_compat_carry_on_fabric_26.2_2.1.0.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -417,17 +417,17 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.0.0"
+   "name": "EMF Compat: Carry On 2.1.0"
   },
   {
    "addon": "carry_on",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "2.0.0",
+   "version_number": "2.1.0",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/forge/1.20.1/emf_compat_carry_on_forge_1.20.1_2.0.0.jar",
+   "file": "upload/Carry On/forge/1.20.1/emf_compat_carry_on_forge_1.20.1_2.1.0.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -447,17 +447,17 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.0.0"
+   "name": "EMF Compat: Carry On 2.1.0"
   },
   {
    "addon": "carry_on",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "2.0.0",
+   "version_number": "2.1.0",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/neoforge/1.21.1/emf_compat_carry_on_neoforge_1.21.1_2.0.0.jar",
+   "file": "upload/Carry On/neoforge/1.21.1/emf_compat_carry_on_neoforge_1.21.1_2.1.0.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -477,7 +477,7 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.0.0"
+   "name": "EMF Compat: Carry On 2.1.0"
   },
   {
    "addon": "core",
@@ -1313,11 +1313,11 @@
    "addon": "not_enough_animations",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "1.2.0",
+   "version_number": "1.2.1",
    "project": "not-enough-animations-emf-compat",
    "project_id": "IGCrWfL7",
    "publish": true,
-   "file": "upload/Not Enough Animations/fabric/1.21.1/emf_compat_not_enough_animations_fabric_1.21.1_1.2.0.jar",
+   "file": "upload/Not Enough Animations/fabric/1.21.1/emf_compat_not_enough_animations_fabric_1.21.1_1.2.1.jar",
    "changelog": "extensions/nea/CHANGELOG.md",
    "dependencies": [
     {
@@ -1337,17 +1337,17 @@
     }
    ],
    "display": "Not Enough Animations",
-   "name": "EMF Compat: Not Enough Animations 1.2.0"
+   "name": "EMF Compat: Not Enough Animations 1.2.1"
   },
   {
    "addon": "not_enough_animations",
    "loader": "fabric",
    "game_version": "1.21.11",
-   "version_number": "1.2.0",
+   "version_number": "1.2.1",
    "project": "not-enough-animations-emf-compat",
    "project_id": "IGCrWfL7",
    "publish": true,
-   "file": "upload/Not Enough Animations/fabric/1.21.11/emf_compat_not_enough_animations_fabric_1.21.11_1.2.0.jar",
+   "file": "upload/Not Enough Animations/fabric/1.21.11/emf_compat_not_enough_animations_fabric_1.21.11_1.2.1.jar",
    "changelog": "extensions/nea/CHANGELOG.md",
    "dependencies": [
     {
@@ -1367,17 +1367,17 @@
     }
    ],
    "display": "Not Enough Animations",
-   "name": "EMF Compat: Not Enough Animations 1.2.0"
+   "name": "EMF Compat: Not Enough Animations 1.2.1"
   },
   {
    "addon": "not_enough_animations",
    "loader": "fabric",
    "game_version": "26.1.2",
-   "version_number": "1.2.0",
+   "version_number": "1.2.1",
    "project": "not-enough-animations-emf-compat",
    "project_id": "IGCrWfL7",
    "publish": true,
-   "file": "upload/Not Enough Animations/fabric/26.1.2/emf_compat_not_enough_animations_fabric_26.1.2_1.2.0.jar",
+   "file": "upload/Not Enough Animations/fabric/26.1.2/emf_compat_not_enough_animations_fabric_26.1.2_1.2.1.jar",
    "changelog": "extensions/nea/CHANGELOG.md",
    "dependencies": [
     {
@@ -1397,17 +1397,17 @@
     }
    ],
    "display": "Not Enough Animations",
-   "name": "EMF Compat: Not Enough Animations 1.2.0"
+   "name": "EMF Compat: Not Enough Animations 1.2.1"
   },
   {
    "addon": "not_enough_animations",
    "loader": "fabric",
    "game_version": "26.2",
-   "version_number": "1.2.0",
+   "version_number": "1.2.1",
    "project": "not-enough-animations-emf-compat",
    "project_id": "IGCrWfL7",
    "publish": true,
-   "file": "upload/Not Enough Animations/fabric/26.2/emf_compat_not_enough_animations_fabric_26.2_1.2.0.jar",
+   "file": "upload/Not Enough Animations/fabric/26.2/emf_compat_not_enough_animations_fabric_26.2_1.2.1.jar",
    "changelog": "extensions/nea/CHANGELOG.md",
    "dependencies": [
     {
@@ -1427,17 +1427,17 @@
     }
    ],
    "display": "Not Enough Animations",
-   "name": "EMF Compat: Not Enough Animations 1.2.0"
+   "name": "EMF Compat: Not Enough Animations 1.2.1"
   },
   {
    "addon": "not_enough_animations",
    "loader": "fabric",
    "game_version": "26.3",
-   "version_number": "1.2.0",
+   "version_number": "1.2.1",
    "project": "not-enough-animations-emf-compat",
    "project_id": "IGCrWfL7",
    "publish": true,
-   "file": "upload/Not Enough Animations/fabric/26.3/emf_compat_not_enough_animations_fabric_26.3_1.2.0.jar",
+   "file": "upload/Not Enough Animations/fabric/26.3/emf_compat_not_enough_animations_fabric_26.3_1.2.1.jar",
    "changelog": "extensions/nea/CHANGELOG.md",
    "dependencies": [
     {
@@ -1457,17 +1457,17 @@
     }
    ],
    "display": "Not Enough Animations",
-   "name": "EMF Compat: Not Enough Animations 1.2.0"
+   "name": "EMF Compat: Not Enough Animations 1.2.1"
   },
   {
    "addon": "not_enough_animations",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "1.2.0",
+   "version_number": "1.2.1",
    "project": "not-enough-animations-emf-compat",
    "project_id": "IGCrWfL7",
    "publish": true,
-   "file": "upload/Not Enough Animations/forge/1.20.1/emf_compat_not_enough_animations_forge_1.20.1_1.2.0.jar",
+   "file": "upload/Not Enough Animations/forge/1.20.1/emf_compat_not_enough_animations_forge_1.20.1_1.2.1.jar",
    "changelog": "extensions/nea/CHANGELOG.md",
    "dependencies": [
     {
@@ -1487,17 +1487,17 @@
     }
    ],
    "display": "Not Enough Animations",
-   "name": "EMF Compat: Not Enough Animations 1.2.0"
+   "name": "EMF Compat: Not Enough Animations 1.2.1"
   },
   {
    "addon": "not_enough_animations",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "1.2.0",
+   "version_number": "1.2.1",
    "project": "not-enough-animations-emf-compat",
    "project_id": "IGCrWfL7",
    "publish": true,
-   "file": "upload/Not Enough Animations/neoforge/1.21.1/emf_compat_not_enough_animations_neoforge_1.21.1_1.2.0.jar",
+   "file": "upload/Not Enough Animations/neoforge/1.21.1/emf_compat_not_enough_animations_neoforge_1.21.1_1.2.1.jar",
    "changelog": "extensions/nea/CHANGELOG.md",
    "dependencies": [
     {
@@ -1517,7 +1517,7 @@
     }
    ],
    "display": "Not Enough Animations",
-   "name": "EMF Compat: Not Enough Animations 1.2.0"
+   "name": "EMF Compat: Not Enough Animations 1.2.1"
   },
   {
    "addon": "parcool",
