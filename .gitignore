@@ -86,3 +86,6 @@ __pycache__/
 # Notes and local settings live outside the repository; these are links to them
 /docs
 /.claude
+
+# The in-game test tool: launcher, drivers, scenarios - kept locally
+/tools/mctest/
