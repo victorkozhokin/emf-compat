@@ -29,6 +29,26 @@ public final class ModelSpace {
     }
 
     /**
+     * The space the model's parts are in, as it is on the stack now: what a part's place is
+     * measured in and a point of the world is brought into to aim a part at it.
+     *
+     * <p>From 1.21.11 on a player's model has a root part every other part hangs off, and a pack
+     * can move it - Fresh Animations leans the whole player with it, walking aslant. The stack
+     * knows nothing of that: the root is applied when the model is drawn. So the root's pose is
+     * laid on top of the stack here - the one the model was last drawn with, a frame old, which
+     * the pack only ever changes smoothly. Without it a hand misses its place by as much as the
+     * root has moved the shoulder.</p>
+     */
+    public static IKFrame frame(net.minecraft.world.entity.Entity entity, PoseStack stack) {
+        org.joml.Matrix4f pose = stack.last().pose();
+        //? if >=1.21.11 {
+        /*org.joml.Matrix4f root = TouchNMotionHook.Drawn.root(entity.getUUID());
+        if (root != null) pose = new org.joml.Matrix4f(pose).mul(root);
+        *///?}
+        return IKFrame.capture(pose, strm.touchnmotion.platform.Platform.cameraPosition());
+    }
+
+    /**
      * @param model what only the caller can do, having the model or its render state in hand: called for a
      *              player once the stack is turned and before anything measures from it
      */
@@ -49,8 +69,7 @@ public final class ModelSpace {
         strm.touchnmotion.lookat.LookAt.orient(player, stack);
         model.accept(player);
         FootGrounding.modelPose(player, stack);
-        IKFrame frame = IKFrame.capture(stack.last().pose(),
-                strm.touchnmotion.platform.Platform.cameraPosition());
+        IKFrame frame = frame(player, stack);
         strm.touchnmotion.blockuse.aeronautics.CockpitControls.frame(player, frame);
         MotionRuntime.modelPose(player);
         InteractionRuntime.modelPose(player, frame);

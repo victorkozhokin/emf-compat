@@ -145,6 +145,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
     public static final class Drawn {
         private static final String[] NAMES = {"head", "body", "right_arm", "left_arm", "right_leg", "left_leg"};
         private static final Map<UUID, PoseSnapshot[]> BY_PLAYER = new java.util.HashMap<>();
+        private static final Map<UUID, org.joml.Matrix4f> ROOTS = new java.util.HashMap<>();
 
         private Drawn() {
         }
@@ -156,6 +157,19 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
                 kept[i] = part == null ? null : new PoseSnapshot(part);
             }
             BY_PLAYER.put(uuid, kept);
+            // The root every part hangs off, as a part applies itself: moved, turned (Z, Y, X), scaled.
+            ModelPart root = parts.apply("root");
+            if (root == null) {
+                ROOTS.remove(uuid);
+            } else {
+                ROOTS.put(uuid, strm.touchnmotion.interaction.PartMath.transform(root.x, root.y, root.z,
+                        root.xRot, root.yRot, root.zRot, root.xScale, root.yScale, root.zScale));
+            }
+        }
+
+        /** The root's pose the player's model was last drawn with, as a transform in the model's space; {@code null} for a model with no root, or not drawn yet. */
+        public static org.joml.Matrix4f root(UUID uuid) {
+            return ROOTS.get(uuid);
         }
 
         static void put(UUID uuid, HumanoidModel<?> model) {
@@ -168,6 +182,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
         /** Leaving a world. */
         public static void clear() {
             BY_PLAYER.clear();
+            ROOTS.clear();
         }
     }
 

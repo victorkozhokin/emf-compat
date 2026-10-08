@@ -79,6 +79,8 @@ public final class ClientInit {
         strm.touchnmotion.ride.BoatSeats.chestClient = seated.apply(strm.touchnmotion.ride.ChestInBow.KEY_ENABLED);
         strm.touchnmotion.ride.MinecartRide.register(riding);
         strm.touchnmotion.transport.TransportGrip.register(riding, debug);
+        // Only where there is something to be compatible with.
+        if (strm.touchnmotion.platform.Platform.isModLoaded("notenoughanimations")) strm.touchnmotion.compat.NeaCompat.register(riding);
         DebugLog.register(debug);
         strm.touchnmotion.compat.ParCoolActivity.register(movement, debug);
         // Order is only the log's order; who wins is the arbiter's call.
@@ -112,6 +114,7 @@ public final class ClientInit {
     /** The end of a client tick: what our own hands are at, told to a server that passes it on. */
     public static void tickEnd() {
         strm.touchnmotion.net.ClientHands.tick();
+        strm.touchnmotion.compat.NeaCompat.tick();
     }
 
     /** Leaving a world drops every feature's per-entity state with it, and what was known of other players' hands. */
