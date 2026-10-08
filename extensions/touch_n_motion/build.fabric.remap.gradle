@@ -1,0 +1,147 @@
+// Touch'n Motion on Fabric, Minecraft 1.21.x.
+//
+// 1.21.x is still obfuscated, so these nodes need fabric-loom-remap, a mappings line and mod*
+// dependency scopes, and their jar comes out of remapJar. The 26.x nodes have build.fabric.gradle;
+// the two exist only because a plugins {} block cannot pick its plugin by node.
+
+plugins {
+    id 'net.fabricmc.fabric-loom-remap' version '1.17.11'
+    id 'maven-publish'
+}
+
+apply from: rootProject.file('extensions/touch_n_motion/versions.gradle')
+
+def n = ext.node()
+
+// The root build script reads these back with findProperty to name the uploaded jar.
+ext.mod_id = n.mod_id
+ext.mod_name = n.mod_name
+ext.mod_version = n.mod_version
+ext.minecraft_version = stonecutter.current.version
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+stonecutter {
+    constants.match(n.loader, 'fabric', 'neoforge', 'forge')
+}
+
+// The other loaders' own parts are not this build's.
+sourceSets.main.java.exclude '**/neoforge/**', '**/forge/**'
+sourceSets.main.resources { srcDir new File(n.root, 'platform/fabric/resources') }
+
+loom {
+    // One source set: the mod has a part for the server (the channels that pass players' hands on,
+    // the seat in a boat's bow), and the rest is kept off a server by where it is called from.
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        name = "TerraformersMC"
+        url = "https://maven.terraformersmc.com/releases"
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${stonecutter.current.version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${n.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${n.fabric_version}"
+
+    modImplementation project(n.core)
+
+    modCompileOnly n.emf
+    modCompileOnly n.etf
+    modCompileOnly "com.terraformersmc:modmenu:${n.modmenu_version}" // optional: the way to the settings from the mod list
+
+    // Unit tests of the pure logic: no game needed.
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation 'org.joml:joml:1.10.5'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
+
+processResources {
+    def values = [
+            "version"          : version,
+            "minecraft_version": stonecutter.current.version,
+            "loader_version"   : n.loader_version,
+            "mod_id"           : n.mod_id,
+            "mod_name"         : n.mod_name,
+            "mod_description"  : n.mod_description,
+            "mod_authors"      : n.mod_authors,
+            "mod_license"      : n.mod_license,
+            "emf_version"      : n.emf_version
+    ]
+    inputs.properties values
+    filteringCharset "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand(values)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    it.options.release.set(n.java)
+}
+
+java {
+    def javaVersion = JavaVersion.toVersion(n.java)
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(n.java)
+    }
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            artifactId = mod_id
+            from components.java
+        }
+    }
+}
+
+// A test run of the game from the build, driven by tools/mctest's driver (tools/tnm_port/devrun.py):
+// for a loader and version no Modrinth profile exists for. Only with -PmctestRun=<run dir>.
+if (project.hasProperty('mctestRun')) {
+    dependencies {
+        modLocalRuntime n.emf
+        modLocalRuntime n.etf
+        modLocalRuntime files(rootProject.file("tools/mctest/driver/fabric-${stonecutter.current.version}/build/libs/mctest_driver-fabric-${stonecutter.current.version}-1.0.0.jar"))
+    }
+    loom {
+        runs {
+            client {
+                runDir = project.projectDir.toPath().relativize(file(project.property('mctestRun')).toPath()).toString()
+                vmArg "-Dmctest=1"
+                programArgs "--quickPlaySingleplayer", (project.findProperty('mctestWorld') ?: 'test'), "--width", "1280", "--height", "720", "--username", "Dev"
+            }
+        }
+    }
+}

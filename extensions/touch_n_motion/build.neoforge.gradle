@@ -60,6 +60,12 @@ neoForge {
     }
 }
 
+stonecutter {
+    constants.match(n.loader, 'fabric', 'neoforge', 'forge')
+}
+
+// The other loaders' own parts are not this build's.
+sourceSets.main.java.exclude '**/fabric/**', '**/forge/**'
 sourceSets.main.resources { srcDir new File(n.root, 'platform/neoforge/resources') }
 
 repositories {

@@ -5,8 +5,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.items.IItemHandler;
 import strm.touchnmotion.blockuse.*;
+import strm.touchnmotion.platform.Platform;
 
 /**
  * Create's basin: items go into it thrown, not by hand - an empty hand takes all of them out. With
@@ -53,9 +53,8 @@ public final class Basin implements BlockTarget {
     }
 
     private static int count(Object inventory) {
-        if (!(inventory instanceof IItemHandler handler)) return 0;
         int count = 0;
-        for (int i = 0; i < handler.getSlots(); i++) count += handler.getStackInSlot(i).getCount();
+        for (net.minecraft.world.item.ItemStack stack : Platform.stacks(inventory)) count += stack.getCount();
         return count;
     }
 }

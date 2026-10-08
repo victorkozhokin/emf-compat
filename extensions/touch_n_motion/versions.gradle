@@ -25,6 +25,17 @@ ext.tnmNodes = [
         emf                    : 'maven.modrinth:entity-model-features:3.3.2-neoforge-1.21',
         etf                    : 'maven.modrinth:entitytexturefeatures:7.2.1-neoforge-1.21',
     ],
+    '1.21.1-fabric': [
+        loader         : 'fabric',
+        java           : 21,
+        core           : ':core-fabric-1.21.1',
+        loader_version : '0.16.14',
+        fabric_version : '0.116.17+1.21.1',
+        modmenu_version: '11.0.4',
+        emf_version    : '3.3.2',
+        emf            : 'maven.modrinth:entity-model-features:3.3.2-fabric-1.21',
+        etf            : 'maven.modrinth:entitytexturefeatures:7.2.1-fabric-1.21',
+    ],
 ]
 
 // The node being built: its own values over the mod's.

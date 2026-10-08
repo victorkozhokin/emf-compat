@@ -63,7 +63,7 @@ public final class BlazeBurner implements BlockTarget {
 
     private static boolean fuel(ItemStack stack) {
         if (stack.isEmpty()) return false;
-        if (stack.getBurnTime(null) > 0) return true;
+        if (strm.touchnmotion.platform.Platform.isFuel(stack)) return true;
         ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
         return id.getNamespace().equals("create") && id.getPath().endsWith("blaze_cake");
     }

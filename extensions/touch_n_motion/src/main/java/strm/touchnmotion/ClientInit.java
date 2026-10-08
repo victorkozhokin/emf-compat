@@ -1,8 +1,5 @@
 package strm.touchnmotion;
 
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.common.NeoForge;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.touchnmotion.footgrounding.FootGroundingFeature;
 import strm.touchnmotion.horsesync.HorseSync;
@@ -21,12 +18,15 @@ import strm.touchnmotion.plantreach.PlantReach;
 import strm.touchnmotion.wallhand.WallHand;
 import strm.touchnmotion.wallhand.WallSqueeze;
 
-/** Everything of the addon that is the client's: kept out of the mod's own class, which a server loads too. */
-final class ClientInit {
+/**
+ * Everything of the mod that is the client's and no loader's: kept out of the mod's own class, which a
+ * server loads too. The loader's part ({@code neoforge}, {@code fabric}) calls it and tells it the tick and the leaving of a world.
+ */
+public final class ClientInit {
     private ClientInit() {
     }
 
-    static void run(IEventBus modEventBus) {
+    public static void run() {
         ConfigRegistry.Section config = ConfigRegistry.section(TouchNMotionMod.MOD_ID, "Touch'n Motion");
         String KEY_ENABLED = TouchNMotionMod.KEY_ENABLED;
         // Read through EMFCompatConfig, every option below is off while this one is.
@@ -65,7 +65,7 @@ final class ClientInit {
         Furniture.register(blocks);
         Mining.register(blocks);
         EjectorLaunch.register(blocks);
-        HorseSync.register(riding, modEventBus);
+        HorseSync.register(riding);
         strm.touchnmotion.ride.BoatRide.register(riding);
         strm.touchnmotion.ride.BoatPassenger.register(riding);
         // As the server has it, when the server has the addon; else as this client is set.
@@ -106,16 +106,16 @@ final class ClientInit {
         InteractionRuntime.register(strm.touchnmotion.ride.BoatPassenger.INSTANCE);
         InteractionRuntime.register(strm.touchnmotion.ride.MinecartRide.INSTANCE);
         TouchNMotionHook.register();
-        // Leaving a world drops every feature's per-entity state with it.
-        NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut event) -> EntityStates.clearAll());
-        // What our own hands are at, told to a server that passes it on; and all of it dropped with the world.
-        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.client.event.ClientTickEvent.Post event) -> strm.touchnmotion.net.ClientHands.tick());
-        NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut event) -> strm.touchnmotion.net.ClientHands.forgetAll());
     }
 
-    /** The mod's own entry in the mod list opens the settings: the shared screen, on this mod's tab. */
-    static void configScreen(net.neoforged.fml.ModContainer container) {
-        container.registerExtensionPoint(net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
-                (mod, parent) -> new strm.emfcompat.core.client.ConfigScreen(parent, TouchNMotionMod.MOD_ID));
+    /** The end of a client tick: what our own hands are at, told to a server that passes it on. */
+    public static void tickEnd() {
+        strm.touchnmotion.net.ClientHands.tick();
+    }
+
+    /** Leaving a world drops every feature's per-entity state with it, and what was known of other players' hands. */
+    public static void leftWorld() {
+        EntityStates.clearAll();
+        strm.touchnmotion.net.ClientHands.forgetAll();
     }
 }

@@ -43,7 +43,7 @@ public final class WholeBody {
         try {
             if (!looked) {
                 looked = true;
-                if (!net.neoforged.fml.ModList.get().isLoaded("takeaseat")) return false;
+                if (!strm.touchnmotion.platform.Platform.isModLoaded("takeaseat")) return false;
                 sitLayer = Class.forName("com.takeaseat.client.TakeASeatClient").getField("SIT_LAYER").get(null);
                 layer = Class.forName("com.zigythebird.playeranim.api.PlayerAnimationAccess")
                         .getMethod("getPlayerAnimationLayer", AbstractClientPlayer.class, net.minecraft.resources.ResourceLocation.class);

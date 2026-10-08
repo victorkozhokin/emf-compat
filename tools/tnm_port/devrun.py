@@ -11,7 +11,7 @@ import json, os, shutil, signal, subprocess, sys, time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-NAME, MODULE = "Fabric-1.21.1", ":touch-n-motion-fabric-1.21.1"
+NAME, MODULE = "Fabric-1.21.1", ":touch-n-motion:1.21.1-fabric"
 RUN = REPO / "run" / "mctest" / NAME
 PROFILE = Path.home() / "Modrinth" / "profiles" / "Test"
 PACKS = ["FreshAnimations_v1.10.4", "FA+Player-v1.1.zip", "JustExpressions_v1.2.1.zip"]

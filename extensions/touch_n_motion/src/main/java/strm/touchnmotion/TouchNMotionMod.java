@@ -1,11 +1,5 @@
 package strm.touchnmotion;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.loading.FMLEnvironment;
-
 /**
  * Touch'n Motion: small player-animation features that are not a compat layer for any one
  * mod, gathered in one addon. Each one registers its own toggles in the shared config section and
@@ -29,20 +23,16 @@ import net.neoforged.fml.loading.FMLEnvironment;
  *       a seed planted, armour and accessories put on, a shake after water, looking through a container;</li>
  *   <li>{@code ejector} - on a Create weighted ejector the body braces, and flies when thrown.</li>
  * </ul>
+ *
+ * <p>This class is what every loader shares of the mod's own: its names. The entry points are the
+ * loaders' - {@code neoforge.TouchNMotionNeoForge}, {@code fabric.TouchNMotionFabric}.</p>
  */
-@Mod(TouchNMotionMod.MOD_ID)
-public class TouchNMotionMod {
+public final class TouchNMotionMod {
 
     public static final String MOD_ID = "touch_n_motion";
     /** The addon's master option; the core's global switch covers it by its suffix. */
     public static final String KEY_ENABLED = "touchnmotion.enabled";
 
-    public TouchNMotionMod(IEventBus modEventBus, ModContainer modContainer) {
-        // The one thing a server has of this addon: the channels it passes players' hands on by.
-        modEventBus.addListener(strm.touchnmotion.net.HandsNet::register);
-        if (FMLEnvironment.dist == Dist.CLIENT) {
-            ClientInit.run(modEventBus);
-            ClientInit.configScreen(modContainer);
-        }
+    private TouchNMotionMod() {
     }
 }

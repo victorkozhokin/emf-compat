@@ -2,10 +2,7 @@ package strm.touchnmotion.net;
 
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import strm.touchnmotion.platform.Platform;
 
 import java.util.Map;
 import java.util.UUID;
@@ -28,18 +25,13 @@ public final class HandsNet {
     private HandsNet() {
     }
 
-    public static void register(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("2").optional();
-        registrar.playBidirectional(HandsState.TYPE, HandsState.CODEC,
-                new DirectionalPayloadHandler<>((state, context) -> ClientHands.receive(state),
-                        (state, context) -> {
-                            if (context.player() instanceof ServerPlayer player && allowed(player)) relay(player, state.from(player.getId()));
-                        }));
-        registrar.playBidirectional(HandsAct.TYPE, HandsAct.CODEC,
-                new DirectionalPayloadHandler<>((act, context) -> ClientHands.receive(act),
-                        (act, context) -> {
-                            if (context.player() instanceof ServerPlayer player && allowed(player)) relay(player, act.from(player.getId()));
-                        }));
+    /** A server got a player's state: passed on, under the player's own id. The channels themselves are the loader's part to register. */
+    public static void onServer(ServerPlayer player, HandsState state) {
+        if (allowed(player)) relay(player, state.from(player.getId()));
+    }
+
+    public static void onServer(ServerPlayer player, HandsAct act) {
+        if (allowed(player)) relay(player, act.from(player.getId()));
     }
 
     private static boolean allowed(ServerPlayer player) {
@@ -57,7 +49,7 @@ public final class HandsNet {
         UUID own = from.getUUID();
         for (ServerPlayer other : from.serverLevel().players()) {
             if (other.getUUID().equals(own) || other.distanceToSqr(from) > RANGE * RANGE) continue;
-            if (other.connection != null && other.connection.hasChannel(payload.type())) PacketDistributor.sendToPlayer(other, payload);
+            if (Platform.canSend(other, payload.type())) Platform.send(other, payload);
         }
     }
 }

@@ -10,8 +10,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.items.IItemHandler;
 import strm.touchnmotion.interaction.SubLevels;
+import strm.touchnmotion.platform.Platform;
 import strm.touchnmotion.interaction.Body;
 
 /**
@@ -152,9 +152,8 @@ public final class ItemRest implements BlockTarget {
             for (int i = 0; i < container.getContainerSize(); i++) count += container.getItem(i).getCount();
             return count;
         }
-        if (!(value instanceof IItemHandler handler)) return 0;
         int count = 0;
-        for (int i = 0; i < handler.getSlots(); i++) count += handler.getStackInSlot(i).getCount();
+        for (ItemStack stack : Platform.stacks(value)) count += stack.getCount();
         return count;
     }
 
@@ -168,9 +167,8 @@ public final class ItemRest implements BlockTarget {
             }
             return null;
         }
-        if (!(value instanceof IItemHandler handler)) return null;
-        for (int i = 0; i < handler.getSlots(); i++) {
-            if (!handler.getStackInSlot(i).isEmpty()) return handler.getStackInSlot(i).getItem().toString();
+        for (ItemStack stack : Platform.stacks(value)) {
+            if (!stack.isEmpty()) return stack.getItem().toString();
         }
         return null;
     }

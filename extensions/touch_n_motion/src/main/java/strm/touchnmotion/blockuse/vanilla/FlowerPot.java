@@ -44,8 +44,7 @@ public final class FlowerPot implements BlockTarget {
 
     private static boolean plantable(ItemStack stack) {
         if (!(stack.getItem() instanceof BlockItem item)) return false;
-        return ((FlowerPotBlock) Blocks.FLOWER_POT).getFullPotsView()
-                .getOrDefault(BuiltInRegistries.BLOCK.getKey(item.getBlock()), () -> Blocks.AIR).get() != Blocks.AIR;
+        return strm.touchnmotion.platform.Platform.potted(item.getBlock());
     }
 
     /** The earth in the pot: its top is 4 pixels up, the rim 6. */

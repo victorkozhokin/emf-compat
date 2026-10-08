@@ -1,9 +1,6 @@
 package strm.touchnmotion.footgrounding;
 
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.neoforge.client.event.RenderPlayerEvent;
-import net.neoforged.neoforge.common.NeoForge;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.touchnmotion.footgrounding.compat.FootGrounding;
@@ -42,10 +39,6 @@ public final class FootGroundingFeature {
                 .addChild(KEY_ENABLED, KEY_HORSES, "Foot IK for horses", true,
                         "On", "Horses, donkeys and mules also stand on uneven ground: the body is lowered and pitched, and the rider goes down with it.",
                         "Off", "Only players.");
-        // Innermost: after everyone else has moved the rider (a cancelled draw never reaches the
-        // lowest listener), and undone first, so the push and pop pair up with no one in between.
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, FootGroundingFeature::onRenderPlayerPre);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, FootGroundingFeature::onRenderPlayerPost);
     }
 
     public static boolean isTerrainEnabled() {
@@ -56,18 +49,20 @@ public final class FootGroundingFeature {
         return EMFCompatConfig.getBoolean(KEY_HORSES, true);
     }
 
-    /** The rider goes down and pitches with its horse. */
-    private static void onRenderPlayerPre(RenderPlayerEvent.Pre event) {
+    /**
+     * The rider goes down and pitches with its horse. Innermost of what moves the rider: called
+     * last before the draw and undone first after it (the loader's own part calls both).
+     */
+    public static void onRenderPlayerPre(net.minecraft.world.entity.player.Player player, com.mojang.blaze3d.vertex.PoseStack stack, float partialTick) {
         riderMoved = false;
-        if (!(event.getEntity().getVehicle() instanceof AbstractHorse horse)) return;
-        event.getPoseStack().pushPose();
-        riderMoved = HorseFootGrounding.moveRider(horse, event.getEntity(), event.getPoseStack(),
-                event.getPartialTick());
-        if (!riderMoved) event.getPoseStack().popPose();
+        if (!(player.getVehicle() instanceof AbstractHorse horse)) return;
+        stack.pushPose();
+        riderMoved = HorseFootGrounding.moveRider(horse, player, stack, partialTick);
+        if (!riderMoved) stack.popPose();
     }
 
-    private static void onRenderPlayerPost(RenderPlayerEvent.Post event) {
-        if (riderMoved) event.getPoseStack().popPose();
+    public static void onRenderPlayerPost(com.mojang.blaze3d.vertex.PoseStack stack) {
+        if (riderMoved) stack.popPose();
         riderMoved = false;
     }
 

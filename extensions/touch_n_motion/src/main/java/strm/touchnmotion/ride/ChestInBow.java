@@ -51,7 +51,7 @@ public final class ChestInBow {
         // The bottom is a box from its corner, a quarter turn round: its middle is half a side astern and half a side across.
         PartPose bottom = parts.get(n - 3).getInitialPose();
         float middleX = bottom.x - CHEST / 2f, middleZ = bottom.z + CHEST / 2f;
-        float near = boat.getVariant().isRaft() ? RAFT_NEAR : NEAR;
+        float near = strm.touchnmotion.platform.Platform.isRaft(boat) ? RAFT_NEAR : NEAR;
         for (int i = n - 3; i < n; i++) {
             ModelPart part = parts.get(i);
             PartPose pose = part.getInitialPose();

@@ -14,9 +14,19 @@ import strm.touchnmotion.ride.ChestInBow;
 @Mixin(BoatRenderer.class)
 public abstract class BoatChestMixin {
 
+    //? if fabric {
+    /*@org.spongepowered.asm.mixin.Shadow
+    @org.spongepowered.asm.mixin.Final
+    private java.util.Map<Boat.Type, com.mojang.datafixers.util.Pair<net.minecraft.resources.ResourceLocation, net.minecraft.client.model.ListModel<Boat>>> boatResources;
+    *///?}
+
     @Inject(method = "render(Lnet/minecraft/world/entity/vehicle/Boat;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ListModel;setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V", shift = At.Shift.AFTER))
     private void emfcompat$chestInBow(Boat boat, float yaw, float partial, PoseStack pose, MultiBufferSource buffers, int light, CallbackInfo ci) {
+        //? if fabric {
+        /*ChestInBow.place(boatResources.get(boat.getVariant()).getSecond(), boat);
+        *///?} else {
         ChestInBow.place(((BoatRenderer) (Object) this).getModelWithLocation(boat).getSecond(), boat);
+        //?}
     }
 }

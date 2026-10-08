@@ -6,7 +6,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 import strm.touchnmotion.blockuse.*;
 
 /**
@@ -41,7 +40,7 @@ public final class Composter implements BlockTarget {
     }
 
     private static boolean compostable(ItemStack stack) {
-        return !stack.isEmpty() && (stack.getItemHolder().getData(NeoForgeDataMaps.COMPOSTABLES) != null
+        return !stack.isEmpty() && (strm.touchnmotion.platform.Platform.compostable(stack)
                 || ComposterBlock.COMPOSTABLES.containsKey(stack.getItem()));
     }
 

@@ -1,7 +1,5 @@
 package strm.touchnmotion.horsesync;
 
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.PoseManager;
@@ -18,7 +16,7 @@ public final class HorseSync {
     private HorseSync() {
     }
 
-    public static void register(ConfigRegistry.Group config, IEventBus modEventBus) {
+    public static void register(ConfigRegistry.Group config) {
         // The riding seat is a low-priority base: action poses (guns, attacks) take the arms while
         // the seat keeps the legs/body.
         PoseManager.setSourcePriority(RIDING_SOURCE, -10);
@@ -29,7 +27,6 @@ public final class HorseSync {
                 .addChild(KEY_ENABLED, KEY_RIDING_ANIMATION, "Riding animation", true,
                         "On", "Play a proper riding pose (legs straddling, hands on the reins) while on a horse.",
                         "Off", "Leave the mounted pose to the vanilla / resource-pack animation.");
-        modEventBus.addListener(HorseSync::onClientSetup);
     }
 
     public static boolean isEnabled() {
@@ -40,8 +37,8 @@ public final class HorseSync {
         return EMFCompatConfig.getBoolean(KEY_RIDING_ANIMATION, true);
     }
 
-    private static void onClientSetup(FMLClientSetupEvent event) {
-        // EMF calls this back once per rendered entity, right after the pack animation.
+    /** Once the client is set up: EMF calls the hook back once per rendered entity, right after the pack animation. */
+    public static void registerHook() {
         HorseSyncAnimationHook.register();
     }
 }

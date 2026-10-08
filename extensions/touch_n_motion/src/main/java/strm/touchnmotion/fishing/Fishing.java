@@ -337,5 +337,5 @@ public final class Fishing implements InteractionProvider {
         return player.getPosition(partial).add(state.tip);
     }
 
-    private static final boolean LINE_MOD = net.neoforged.fml.ModList.get().isLoaded("enchanted_fishing_line");
+    private static final boolean LINE_MOD = strm.touchnmotion.platform.Platform.isModLoaded("enchanted_fishing_line");
 }

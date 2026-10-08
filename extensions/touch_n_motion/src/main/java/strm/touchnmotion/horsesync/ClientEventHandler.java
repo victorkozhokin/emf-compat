@@ -1,26 +1,23 @@
 package strm.touchnmotion.horsesync;
 
-import net.neoforged.api.distmarker.Dist;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RenderPlayerEvent;
-import strm.touchnmotion.TouchNMotionMod;
 import strm.touchnmotion.horsesync.compat.EMFCompat;
 
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@EventBusSubscriber(modid = TouchNMotionMod.MOD_ID, value = Dist.CLIENT)
+/**
+ * The rider on an animated horse. The tick and the draw are told by the loader's own part:
+ * by events on NeoForge, on Fabric by its tick and {@code mixin/fabric/PlayerRenderEventsMixin}.
+ */
 public class ClientEventHandler {
 
     private static int cleanupCounter = 0;
 
-    @SubscribeEvent
-    public static void onClientTick(ClientTickEvent.Pre event) {
+    public static void onClientTick() {
         if (!HorseSync.isEnabled()) {
             EMFCompat.horseBodyOffsets.clear();
             return;
@@ -41,33 +38,21 @@ public class ClientEventHandler {
         EMFCompat.horseBodyOffsets.keySet().retainAll(activeHorses);
     }
 
-    @SubscribeEvent
-    public static void onRenderPlayerPre(RenderPlayerEvent.Pre event) {
-        if (!HorseSync.isEnabled()) return;
-        if (!(event.getEntity().getVehicle() instanceof AbstractHorse horse)) return;
-
+    /** How far up the rider is drawn; zero for none. Inverted and clamped: the horse's body going down in model space is up in the world. */
+    private static float offset(Entity player) {
+        if (!HorseSync.isEnabled()) return 0f;
+        if (!(player.getVehicle() instanceof AbstractHorse horse)) return 0f;
         Float offset = EMFCompat.horseBodyOffsets.get(horse.getUUID());
-        if (offset == null) return;
-
-        // Invert and clamp: move the player up when the horse body goes down in model space
-        // (which translates to the body going up in world space after scale(-1, -1, 1)).
-        float appliedOffset = -offset;
-        if (appliedOffset <= 0.0f) return;
-
-        event.getPoseStack().translate(0.0, appliedOffset, 0.0);
+        return offset == null ? 0f : Math.max(0f, -offset);
     }
 
-    @SubscribeEvent
-    public static void onRenderPlayerPost(RenderPlayerEvent.Post event) {
-        if (!HorseSync.isEnabled()) return;
-        if (!(event.getEntity().getVehicle() instanceof AbstractHorse horse)) return;
+    public static void onRenderPlayerPre(Entity player, PoseStack stack) {
+        float up = offset(player);
+        if (up > 0f) stack.translate(0.0, up, 0.0);
+    }
 
-        Float offset = EMFCompat.horseBodyOffsets.get(horse.getUUID());
-        if (offset == null) return;
-
-        float appliedOffset = -offset;
-        if (appliedOffset <= 0.0f) return;
-
-        event.getPoseStack().translate(0.0, -appliedOffset, 0.0);
+    public static void onRenderPlayerPost(Entity player, PoseStack stack) {
+        float up = offset(player);
+        if (up > 0f) stack.translate(0.0, -up, 0.0);
     }
 }

@@ -8,7 +8,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
@@ -72,7 +71,7 @@ public final class ItemDrain implements BlockTarget {
                 tank = entity.getClass().getDeclaredField("internalTank");
                 tank.setAccessible(true);
             }
-            return HANDLER.read(tank.get(entity)) instanceof FluidTank handler ? handler.getFluidAmount() : 0;
+            return (int) Math.min(Integer.MAX_VALUE, strm.touchnmotion.platform.Platform.fluid(HANDLER.read(tank.get(entity))));
         } catch (ReflectiveOperationException | RuntimeException e) {
             failed = true;
             LoggerFactory.getLogger("EMFCompatBlockUse").warn("[BlockUse] cannot read the item drain's tank", e);

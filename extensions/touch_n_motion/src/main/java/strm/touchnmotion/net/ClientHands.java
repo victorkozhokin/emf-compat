@@ -12,7 +12,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
+import strm.touchnmotion.platform.Platform;
 import strm.touchnmotion.blockuse.BlockUse;
 import strm.touchnmotion.blockuse.aeronautics.Typewriter;
 import strm.touchnmotion.buttonpress.aeronautics.ThrottleLever;
@@ -53,7 +53,7 @@ public final class ClientHands {
     /** Whether the server we are on passes these on at all. */
     public static boolean connected() {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
-        return connection != null && connection.hasChannel(HandsState.TYPE);
+        return connection != null && Platform.canSendToServer(HandsState.TYPE);
     }
 
     /** Our own game accepted a use of this block: a screen that follows is its. */
@@ -96,7 +96,7 @@ public final class ClientHands {
         sentAgo++;
         boolean looked = !same(now, sent, false), changed = !same(now, sent, true);
         if (changed || looked && sentAgo >= LOOK_TICKS || !now.idle() && sentAgo >= AGAIN_TICKS) {
-            PacketDistributor.sendToServer(now);
+            Platform.sendToServer(now);
             if (changed && DebugLog.decisions())
                 LOGGER.info("[Hands] sent flags={} block={} entity={} menu={}", now.flags(), now.block(), now.entity(), now.menu());
             sent = now;
@@ -179,10 +179,10 @@ public final class ClientHands {
     public static void act(int kind, Entity target, Vec3 point, boolean mainHand) {
         if (!connected()) return;
         Vec3 at = point != null ? point : target != null ? target.position() : Vec3.ZERO;
-        PacketDistributor.sendToServer(new HandsAct(0, kind, target == null ? -1 : target.getId(), at.x, at.y, at.z, mainHand));
+        Platform.sendToServer(new HandsAct(0, kind, target == null ? -1 : target.getId(), at.x, at.y, at.z, mainHand));
     }
 
-    static void receive(HandsState state) {
+    public static void receive(HandsState state) {
         Minecraft.getInstance().execute(() -> {
             if (HEARD.size() > 256) HEARD.clear();
             Heard before = HEARD.put(state.sender(), new Heard(state, System.nanoTime()));
@@ -191,7 +191,7 @@ public final class ClientHands {
         });
     }
 
-    static void receive(HandsAct act) {
+    public static void receive(HandsAct act) {
         Minecraft mc = Minecraft.getInstance();
         mc.execute(() -> {
             if (mc.level == null || !(mc.level.getEntity(act.sender()) instanceof AbstractClientPlayer player) || player == mc.player) return;
