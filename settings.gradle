@@ -98,6 +98,9 @@ project(":nea-fabric-26.1.2").projectDir = file("extensions/nea/fabric/26.1.2")
 include("nea-fabric-26.2")
 project(":nea-fabric-26.2").projectDir = file("extensions/nea/fabric/26.2")
 
+include("nea-fabric-26.3")
+project(":nea-fabric-26.3").projectDir = file("extensions/nea/fabric/26.3")
+
 // Immersive Melodies addon.
 include("immersive-melodies-fabric-1.21.1")
 project(":immersive-melodies-fabric-1.21.1").projectDir = file("extensions/immersive_melodies/fabric/1.21.1")
@@ -144,7 +147,7 @@ include("better-combat-fabric-1.21.1")
 project(":better-combat-fabric-1.21.1").projectDir = file("extensions/better_combat/fabric-1.21.1")
 
 // Better Combat, Fabric side — one Stonecutter branch instead of three flat modules.
-// The sources of 1.21.11, 26.1.2 and 26.2 were byte-identical, so the branch carries a single
+// The sources of 1.21.11, 26.1.2, 26.2 and 26.3 were byte-identical, so the branch carries a single
 // src/ and needs no version directives at all; only the buildscript differs, and only because
 // 1.21.x is obfuscated (fabric-loom-remap) while 26.x is not (fabric-loom).
 include("better-combat-fabric")
@@ -155,6 +158,7 @@ stonecutter {
         version("1.21.11", "1.21.11").buildscript("build.remap.gradle")
         version("26.1.2", "26.1.2").buildscript("build.plain.gradle")
         version("26.2", "26.2").buildscript("build.plain.gradle")
+        version("26.3", "26.3").buildscript("build.plain.gradle")
         vcsVersion = "26.2"
     }
 }

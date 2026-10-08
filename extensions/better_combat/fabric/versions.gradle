@@ -43,6 +43,16 @@ ext.mcVersions = [
                 betterCombat  : 'maven.modrinth:better-combat:enlZuzkJ',
                 pal           : 'com.zigythebird.playeranim:PlayerAnimationLibFabric:1.2.5+mc.26.2',
         ],
+        '26.3'   : [
+                loader_version: '0.19.5',
+                fabric_version: '0.162.0+26.3',
+                core          : ':core-fabric-26.3',
+                java          : 25,
+                emf           : 'maven.modrinth:entity-model-features:3.3.11-fabric-26.3',
+                etf           : 'maven.modrinth:entitytexturefeatures:7.2.5-fabric-26.3',
+                betterCombat  : 'maven.modrinth:better-combat:8Vyq1h9a', // 3.2.2+26.3-fabric
+                pal           : 'com.zigythebird.playeranim:PlayerAnimationLibFabric:1.2.8+mc.26.3',
+        ],
 ]
 
 ext.mc = { ->

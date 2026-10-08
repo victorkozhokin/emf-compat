@@ -211,6 +211,36 @@
   },
   {
    "addon": "better_combat",
+   "loader": "fabric",
+   "game_version": "26.3",
+   "version_number": "2.1.0",
+   "project": "emf-compat-better-combat",
+   "project_id": "Smytm33T",
+   "publish": true,
+   "file": "upload/Better Combat/fabric/26.3/emf_compat_better_combat_fabric_26.3_2.1.0.jar",
+   "changelog": "extensions/better_combat/CHANGELOG.md",
+   "dependencies": [
+    {
+     "slug": "entity-model-features",
+     "project_id": "4I1XuqiY",
+     "dependency_type": "required"
+    },
+    {
+     "slug": "emf-compat-core",
+     "project_id": "hbGct5uU",
+     "dependency_type": "required"
+    },
+    {
+     "slug": "better-combat",
+     "project_id": "5sy6g3kz",
+     "dependency_type": "optional"
+    }
+   ],
+   "display": "Better Combat",
+   "name": "EMF Compat: Better Combat 2.1.0"
+  },
+  {
+   "addon": "better_combat",
    "loader": "forge",
    "game_version": "1.20.1",
    "version_number": "2.1.0",
@@ -518,6 +548,26 @@
    "project_id": "hbGct5uU",
    "publish": true,
    "file": "upload/Core/fabric/26.2/emf_compat_core_fabric_26.2_2.3.0.jar",
+   "changelog": "core/CHANGELOG.md",
+   "dependencies": [
+    {
+     "slug": "entity-model-features",
+     "project_id": "4I1XuqiY",
+     "dependency_type": "required"
+    }
+   ],
+   "display": "Core",
+   "name": "EMF Compat: Core 2.3.0"
+  },
+  {
+   "addon": "core",
+   "loader": "fabric",
+   "game_version": "26.3",
+   "version_number": "2.3.0",
+   "project": "emf-compat-core",
+   "project_id": "hbGct5uU",
+   "publish": true,
+   "file": "upload/Core/fabric/26.3/emf_compat_core_fabric_26.3_2.3.0.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -1358,6 +1408,36 @@
    "project_id": "IGCrWfL7",
    "publish": true,
    "file": "upload/Not Enough Animations/fabric/26.2/emf_compat_not_enough_animations_fabric_26.2_1.2.0.jar",
+   "changelog": "extensions/nea/CHANGELOG.md",
+   "dependencies": [
+    {
+     "slug": "entity-model-features",
+     "project_id": "4I1XuqiY",
+     "dependency_type": "required"
+    },
+    {
+     "slug": "emf-compat-core",
+     "project_id": "hbGct5uU",
+     "dependency_type": "required"
+    },
+    {
+     "slug": "not-enough-animations",
+     "project_id": "MPCX6s5C",
+     "dependency_type": "optional"
+    }
+   ],
+   "display": "Not Enough Animations",
+   "name": "EMF Compat: Not Enough Animations 1.2.0"
+  },
+  {
+   "addon": "not_enough_animations",
+   "loader": "fabric",
+   "game_version": "26.3",
+   "version_number": "1.2.0",
+   "project": "not-enough-animations-emf-compat",
+   "project_id": "IGCrWfL7",
+   "publish": true,
+   "file": "upload/Not Enough Animations/fabric/26.3/emf_compat_not_enough_animations_fabric_26.3_1.2.0.jar",
    "changelog": "extensions/nea/CHANGELOG.md",
    "dependencies": [
     {
