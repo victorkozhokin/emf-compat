@@ -37,6 +37,23 @@ public final class HandCrank implements BlockTarget {
 
     /** How the angle is read, by the block entity's class: the crank's and the valve handle's are two, and a method found on one cannot be called on the other. */
     private static final java.util.Map<Class<?>, Object[]> READERS = new java.util.concurrent.ConcurrentHashMap<>();
+    /**
+     * Whether that class tells the angle in radians. Create up to 6.0.8 does - its renderer turns the
+     * handle by the number as it is, a crank's being the sum of its speeds over 360, a valve's a real
+     * angle; from 6.0.9 on both are degrees, turned into radians by the renderer. The older one is
+     * known by the name its speed has there.
+     */
+    private static final java.util.Map<Class<?>, Boolean> RADIANS = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private static boolean has(Class<?> type, String field) {
+        try {
+            type.getField(field);
+            return true;
+        } catch (NoSuchFieldException none) {
+            return false;
+        }
+    }
+
     private static final ModFailures FAILURES = new ModFailures("read the hand crank's angle");
 
     @Override
@@ -106,8 +123,12 @@ public final class HandCrank implements BlockTarget {
                     reader = new Object[]{entity.getClass().getField("independentAngle"), entity.getClass().getField("chasingAngularVelocity")};
                 }
                 READERS.put(entity.getClass(), reader);
+                RADIANS.put(entity.getClass(), reader.length == 1 && has(entity.getClass(), "chasingVelocity"));
             }
-            if (reader.length == 1) return (Float) ((Method) reader[0]).invoke(entity, partial);
+            if (reader.length == 1) {
+                float angle = (Float) ((Method) reader[0]).invoke(entity, partial);
+                return RADIANS.get(entity.getClass()) ? (float) Math.toDegrees(angle) : angle;
+            }
             return ((java.lang.reflect.Field) reader[0]).getFloat(entity) + partial * ((java.lang.reflect.Field) reader[1]).getFloat(entity);
         } catch (Throwable t) {
             FAILURES.failed(t);
