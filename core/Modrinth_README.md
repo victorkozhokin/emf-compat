@@ -48,7 +48,7 @@ Addon coverage varies per loader — check each addon's page.
 
 ## Projects
 
-- **[Touch'n Motion](https://github.com/victorkozhokin/emf-compat/blob/main/extensions/touch_n_motion/README.md)** — procedural animations, including horse sync, rowing and hands that interact with the world.
+- **[Touch'n Motion](https://modrinth.com/mod/touch-and-motion)** — procedural animations, including horse sync, rowing and hands that interact with the world.
 - **[EMF Compat: Not Enough Animations](https://modrinth.com/project/emf-compat-not-enough-animations)**
 - **[EMF Compat: Create](https://modrinth.com/project/emf-compat-create)**
 - **[EMF Compat: Better Combat](https://modrinth.com/project/emf-compat-better-combat)**
