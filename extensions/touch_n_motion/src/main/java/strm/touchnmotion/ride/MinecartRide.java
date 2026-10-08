@@ -323,7 +323,12 @@ public final class MinecartRide implements InteractionProvider {
         IKFrame frame = IKFrame.capture(stack.last().pose(), strm.touchnmotion.platform.Platform.cameraPosition());
         Vec3 origin = frame.jointWorld(new Vector3f());
         // Into the cart as it is drawn: the rider is carried where the cart is, the cart drawn on its rail.
-        Vector3f moved = strm.touchnmotion.interaction.Body.model(frame, origin.add(drawn.middle.subtract(cart.getPosition(partial))));
+        Vec3 carried = origin.add(drawn.middle.subtract(cart.getPosition(partial)));
+        // On a slope the game tilts the cart about a point of its own, lifted off the rail, and the model here is turned
+        // about its own origin, up by the head: left at that, the rider swings out of the cart - through its back wall
+        // going down, into its front going up. So the origin is put where the cart's tilt would have carried it.
+        double above = carried.y - (drawn.middle.y + LIFT);
+        Vector3f moved = strm.touchnmotion.interaction.Body.model(frame, carried.add(drawn.up.subtract(new Vec3(0, 1, 0)).scale(above)));
         stack.translate(moved.x / 16f, moved.y / 16f, moved.z / 16f);
         Vector3f toward = strm.touchnmotion.interaction.Body.model(frame, origin.add(face));
         Vector3f normal = strm.touchnmotion.interaction.Body.model(frame, origin.add(drawn.up));
