@@ -17,7 +17,8 @@
     "GestureInteractionMixin",
     "LevelRendererAccessor",
     "legacy.BoatChestMixin",
-    "FishingHookAccessor"
+    "FishingHookAccessor",
+    "FishingLineMixin"
   ],
   "injectors": {
     "defaultRequire": 1

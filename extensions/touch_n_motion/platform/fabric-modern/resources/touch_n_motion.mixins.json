@@ -18,7 +18,8 @@
     "ItemPickupMixin",
     "GestureInteractionMixin",
     "LevelRendererAccessor",
-    "FishingHookAccessor"
+    "FishingHookAccessor",
+    "FishingLineMixin"
   ],
   "injectors": {
     "defaultRequire": 1

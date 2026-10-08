@@ -34,6 +34,8 @@ ext.tnmNodes = [
         span                   : 'legacy',
         // Blocks this version of the game does not have yet.
         excludes               : ['**/blockuse/vanilla/Crafter.java', '**/blockuse/vanilla/Vault.java'],
+        // No place in this version's code to hook: the fishing line's end is not a method.
+        dropMixins             : ['FishingLineMixin'],
         core                   : ':core-forge-1.20.1',
         minecraft_version_range: '[1.20.1,1.20.2)',
         forge_version          : '47.3.0',
