@@ -341,7 +341,10 @@ def build_command(profile: Profile, world: str | None, width: int, height: int,
     if not vjson.exists():
         raise SystemExit(f"{vjson} is missing — launch the profile once from the Modrinth App")
     d = json.loads(vjson.read_text())
-    features = {"has_custom_resolution": True, "is_quick_play_singleplayer": bool(world)}
+    # --server host:port joins a server instead of opening a world (MCTEST_SERVER carries it here).
+    server = os.environ.get("MCTEST_SERVER", "")
+    features = {"has_custom_resolution": True, "is_quick_play_singleplayer": bool(world) and not server,
+                "is_quick_play_multiplayer": bool(server)}
 
     classpath = []
     for lib in d["libraries"]:
@@ -367,7 +370,7 @@ def build_command(profile: Profile, world: str | None, width: int, height: int,
         "classpath": ":".join(classpath), "classpath_separator": ":",
         "library_directory": str(META / "libraries"),
         "resolution_width": str(width), "resolution_height": str(height),
-        "quickPlaySingleplayer": world or "", "quickPlayPath": "", "quickPlayMultiplayer": "",
+        "quickPlaySingleplayer": world or "", "quickPlayPath": "", "quickPlayMultiplayer": server,
         "quickPlayRealms": "",
     }
 
@@ -590,6 +593,8 @@ def _main(argv: list[str]) -> None:
             print(f"{p.name:24} {p.title:24} {p.loader:9} {p.version_id:20} {p.memory_mb}M")
     elif cmd == "launch":
         world = rest[rest.index("--world") + 1] if "--world" in rest else None
+        if "--server" in rest:
+            os.environ["MCTEST_SERVER"] = rest[rest.index("--server") + 1]
         enable = rest[rest.index("--enable") + 1].split(",") if "--enable" in rest else None
         disable = rest[rest.index("--disable") + 1].split(",") if "--disable" in rest else None
         name = rest[rest.index("--name") + 1] if "--name" in rest else OFFLINE_NAME
