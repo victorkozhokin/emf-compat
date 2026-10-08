@@ -122,7 +122,7 @@ public final class HorseFootGrounding {
         // Model pixels -> model units: the pivot at the ground, in the middle of the footprint.
         Vector3f pivotModel = new Vector3f(0f, GROUND / 16f, MIDDLE_Z / 16f);
         Vector3f pivotWorld = toWorld.transformPosition(new Vector3f(pivotModel));
-        Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        Vec3 camera = strm.touchnmotion.platform.Platform.cameraPosition();
         Vec3 at = horse.getPosition(partialTick);
         state.pivot.set((float) (pivotWorld.x + camera.x - at.x), (float) (pivotWorld.y + camera.y - at.y),
                 (float) (pivotWorld.z + camera.z - at.z));
@@ -142,7 +142,7 @@ public final class HorseFootGrounding {
         if (why != null) {
             decided = "off:" + why;
         } else {
-            Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+            Vec3 camera = strm.touchnmotion.platform.Platform.cameraPosition();
             frame = IKFrame.capture(stack.last().pose(), camera);
             float low = 0f;
             for (int i = 0; i < 4; i++) {

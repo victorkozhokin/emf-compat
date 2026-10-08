@@ -1,11 +1,11 @@
-// Touch'n Motion on Fabric, Minecraft 1.21.x.
+// Touch'n Motion on Fabric, Minecraft 26.x.
 //
-// 1.21.x is still obfuscated, so these nodes need fabric-loom-remap, a mappings line and mod*
-// dependency scopes, and their jar comes out of remapJar. The 26.x nodes have build.fabric.gradle;
-// the two exist only because a plugins {} block cannot pick its plugin by node.
+// 26.x ships with its names: no mappings line and no remap step, plain fabric-loom, and the jar
+// task makes the final jar. See build.fabric.remap.gradle for the 1.21.x half - below the
+// dependencies the two are the same on purpose.
 
 plugins {
-    id 'net.fabricmc.fabric-loom-remap' version '1.17.11'
+    id 'net.fabricmc.fabric-loom' version '1.17.11'
     id 'maven-publish'
 }
 
@@ -67,15 +67,14 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${stonecutter.current.version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${n.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${n.fabric_version}"
+    implementation "net.fabricmc:fabric-loader:${n.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${n.fabric_version}"
 
-    modImplementation project(n.core)
+    implementation project(n.core)
 
-    modCompileOnly n.emf
-    modCompileOnly n.etf
-    modCompileOnly "com.terraformersmc:modmenu:${n.modmenu_version}" // optional: the way to the settings from the mod list
+    compileOnly n.emf
+    compileOnly n.etf
+    compileOnly "com.terraformersmc:modmenu:${n.modmenu_version}" // optional: the way to the settings from the mod list
 
     // Unit tests of the pure logic: no game needed.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
@@ -137,9 +136,9 @@ publishing {
 // for a loader and version no Modrinth profile exists for. Only with -PmctestRun=<run dir>.
 if (project.hasProperty('mctestRun')) {
     dependencies {
-        modLocalRuntime n.emf
-        modLocalRuntime n.etf
-        modLocalRuntime files(rootProject.file("tools/mctest/driver/fabric-${stonecutter.current.version}/build/libs/mctest_driver-fabric-${stonecutter.current.version}-1.0.0.jar"))
+        localRuntime n.emf
+        localRuntime n.etf
+        localRuntime files(rootProject.file("tools/mctest/driver/fabric-${stonecutter.current.version}/build/libs/mctest_driver-fabric-${stonecutter.current.version}-1.0.0.jar"))
     }
     loom {
         runs {

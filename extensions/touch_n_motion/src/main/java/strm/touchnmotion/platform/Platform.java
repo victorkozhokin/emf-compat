@@ -101,6 +101,26 @@ public final class Platform {
         *///?}
     }
 
+    /** Where the camera is. Client only. */
+    public static net.minecraft.world.phys.Vec3 cameraPosition() {
+        //? if >=26.2 {
+        /*return net.minecraft.client.Minecraft.getInstance().gameRenderer.mainCamera().position();
+        *///?} elif >=1.21.11 {
+        /*return net.minecraft.client.Minecraft.getInstance().gameRenderer.getMainCamera().position();
+        *///?} else {
+        return net.minecraft.client.Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        //?}
+    }
+
+    /** The screen that is open; {@code null} for none. Client only. */
+    public static net.minecraft.client.gui.screens.Screen screen() {
+        //? if >=26.2 {
+        /*return net.minecraft.client.Minecraft.getInstance().gui.screen();
+        *///?} else {
+        return net.minecraft.client.Minecraft.getInstance().screen;
+        //?}
+    }
+
     /** In water, a column of bubbles counted. */
     public static boolean inWater(net.minecraft.world.entity.Entity entity) {
         //? if >=1.21.11 {

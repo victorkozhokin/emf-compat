@@ -20,11 +20,19 @@ stonecutter.replacements {
         'world.entity.vehicle.ChestBoat'           : 'world.entity.vehicle.boat.AbstractChestBoat',
         '.getTimer()'                              : '.getDeltaTracker()',
         '.getNormal()'                             : '.getUnitVec3i()',
-        'getMainCamera().getPosition()'            : 'getMainCamera().position()',
     ].each { from, to ->
         string(modern) { replace(from, to) }
     }
     regex(modern) { replace('\\bResourceLocation\\b', 'Identifier', '\\bIdentifier\\b', 'ResourceLocation') }
+    def deobf = since('26.1')
+    [
+        'client.renderer.state.CameraRenderState'  : 'client.renderer.state.level.CameraRenderState',
+        'client/renderer/state/CameraRenderState'  : 'client/renderer/state/level/CameraRenderState',
+        '.playC2S()'                               : '.serverboundPlay()',
+        '.playS2C()'                               : '.clientboundPlay()',
+    ].each { from, to ->
+        string(deobf) { replace(from, to) }
+    }
     // Every boat was a Boat; now a Boat is one kind of AbstractBoat.
     regex(modern) { replace('\\bBoat\\b(?!\\.Type)', 'AbstractBoat', '\\bAbstractBoat\\b', 'Boat') }
     regex(modern) { replace('\\bChestBoat\\b', 'AbstractChestBoat', '\\bAbstractChestBoat\\b', 'ChestBoat') }

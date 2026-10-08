@@ -261,7 +261,7 @@ public final class CockpitControls implements InteractionProvider {
         Vec3 centre = SubLevels.toWorld(player.level(), state.wheel, WHEEL.swayCentre(player.level(), state.wheel, block));
         if (centre.distanceTo(player.getEyePosition()) > 2.25) return 0;
         var frame = strm.emfcompat.core.ik.IKFrame.capture(stack.last().pose(),
-                Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
+                strm.touchnmotion.platform.Platform.cameraPosition());
         Vec3 origin = frame.jointWorld(new Vector3f());
         // A seated rider follows the deck's normal, including pitch and roll.
         Vec3 direction = centre.subtract(seatWorld(player));

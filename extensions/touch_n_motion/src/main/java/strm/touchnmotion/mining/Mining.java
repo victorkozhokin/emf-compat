@@ -33,6 +33,7 @@ import strm.touchnmotion.interaction.InteractionProvider;
 import strm.touchnmotion.interaction.InteractionRuntime;
 import strm.touchnmotion.interaction.Skeleton;
 import strm.touchnmotion.interaction.Smoothing;
+//? if <26.2
 import strm.touchnmotion.mixin.LevelRendererAccessor;
 import strm.touchnmotion.torso.BraceSteps;
 import strm.touchnmotion.torso.LowReach;
@@ -253,9 +254,14 @@ public final class Mining implements InteractionProvider {
             return strm.touchnmotion.net.Inputs.attackHeld(player) && strm.touchnmotion.net.Inputs.sight(player, 6, 1f) instanceof BlockHitResult told
                     && told.getType() == HitResult.Type.BLOCK ? told.getBlockPos() : null;
         if ((now - state.swungAt) / 1e9 > SWING_GAP) return null;
+        //? if <26.2 {
         var blocks = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).emfcompat$destroyingBlocks();
         BlockDestructionProgress progress = blocks.get(player.getId());
         return progress == null ? null : progress.getPos();
+        //?} else {
+        /*// Not from 26.2 on yet: the crack list is no longer the level renderer's to ask.
+        return null;
+        *///?}
     }
 
     /** The block looked at within {@link #HOVER_RANGE} of the eyes, {@code null} when none. */

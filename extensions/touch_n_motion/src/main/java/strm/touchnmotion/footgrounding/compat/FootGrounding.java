@@ -198,7 +198,7 @@ public final class FootGrounding {
         state.lastPosition = player.position();
         String why = ineligible(player);
         IKFrame frame = why != null ? null : IKFrame.capture(stack.last().pose(),
-                Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
+                strm.touchnmotion.platform.Platform.cameraPosition());
         if (why != null) {
             resetContacts(state);
             state.terrain.reset();

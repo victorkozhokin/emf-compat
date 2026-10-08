@@ -67,7 +67,7 @@ public final class ClientHands {
     /** Whether our own player has a container's screen up - one opened in the world, not their own inventory. */
     public static boolean ownMenu() {
         Minecraft mc = Minecraft.getInstance();
-        return mc.player != null && mc.screen instanceof AbstractContainerScreen<?> screen && screen.getMenu() != mc.player.inventoryMenu;
+        return mc.player != null && strm.touchnmotion.platform.Platform.screen() instanceof AbstractContainerScreen<?> screen && screen.getMenu() != mc.player.inventoryMenu;
     }
 
     /** The block whose screen our own player has up; {@code null} with none, or one no block opened. */
@@ -108,7 +108,7 @@ public final class ClientHands {
         int flags = 0, face = 0, entity = -1, key = -1, menu = 0;
         BlockPos block = null;
         double x = 0, y = 0, z = 0;
-        boolean playing = mc.screen == null;
+        boolean playing = strm.touchnmotion.platform.Platform.screen() == null;
         if (playing && mc.options.keyUse.isDown()) flags |= HandsState.USE;
         if (playing && mc.options.keyAttack.isDown()) flags |= HandsState.ATTACK;
         // A control the hands stay on while the eyes wander is what is "looked at" for as long as it is held.
@@ -141,7 +141,7 @@ public final class ClientHands {
             key = Typewriter.pressedKey(player);
         }
         // A container opened in the world; the player's own inventory is not one.
-        if (ownMenu() && mc.screen instanceof AbstractContainerScreen<?> screen) {
+        if (ownMenu() && strm.touchnmotion.platform.Platform.screen() instanceof AbstractContainerScreen<?> screen) {
             menu = 1;
             long hash = 1;
             for (Slot slot : screen.getMenu().slots)

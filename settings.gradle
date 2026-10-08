@@ -245,6 +245,10 @@ stonecutter {
         version("1.21.1-neoforge", "1.21.1").buildscript("build.neoforge.gradle")
         version("1.21.1-fabric", "1.21.1").buildscript("build.fabric.remap.gradle")
         version("1.21.11-fabric", "1.21.11").buildscript("build.fabric.remap.gradle")
+        version("26.1.2-fabric", "26.1.2").buildscript("build.fabric.gradle")
+        version("26.2-fabric", "26.2").buildscript("build.fabric.gradle")
+        // 26.3 is not ported yet (the swing left the entity, the tool classes went): its values wait in versions.gradle.
+        // version("26.3-fabric", "26.3").buildscript("build.fabric.gradle")
         vcsVersion = "1.21.1-neoforge"
     }
 }
@@ -255,11 +259,5 @@ project(":touch-n-motion-forge-1.20.1").projectDir = file("extensions/touch_n_mo
 
 
 
-include("touch-n-motion-fabric-26.1.2")
-project(":touch-n-motion-fabric-26.1.2").projectDir = file("extensions/touch_n_motion/fabric/26.1.2")
 
-include("touch-n-motion-fabric-26.2")
-project(":touch-n-motion-fabric-26.2").projectDir = file("extensions/touch_n_motion/fabric/26.2")
 
-include("touch-n-motion-fabric-26.3")
-project(":touch-n-motion-fabric-26.3").projectDir = file("extensions/touch_n_motion/fabric/26.3")

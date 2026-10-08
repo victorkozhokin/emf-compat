@@ -136,7 +136,7 @@ public final class CraftingTable implements BlockTarget {
             }
         }
         if (mc.player == null) return 0f;
-        Vec3 centre = pos.getCenter();
+        Vec3 centre = Vec3.atCenterOf(pos);
         double turn = (Math.atan2(-(mc.player.getX() - centre.x), -(mc.player.getZ() - centre.z)) + 3.9269908169872414) % (2 * Math.PI);
         return (int) (turn * 2 / Math.PI) * 90f;
     }

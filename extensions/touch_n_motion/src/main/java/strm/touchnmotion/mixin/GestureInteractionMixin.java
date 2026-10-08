@@ -41,6 +41,27 @@ public class GestureInteractionMixin {
      * With the option on, a click that one of the gestures answers is held back: the hand goes to its
      * place first and the click is let through when it gets there (it comes this way again, marked).
      */
+
+
+    @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
+    private void emfcompat$holdSeed(LocalPlayer player, InteractionHand hand, BlockHitResult result, CallbackInfoReturnable<InteractionResult> cir) {
+        if (Gesture.replaying() || !Gesture.actsAfter() || result.getDirection() != Direction.UP) return;
+        if (!(player.getItemInHand(hand).getItem() instanceof BlockItem seed) || !HandTo.plants(seed)) return;
+        if (!seed.getBlock().defaultBlockState().canSurvive(player.level(), result.getBlockPos().above())
+                || !player.level().getBlockState(result.getBlockPos().above()).isAir()) return;
+        MultiPlayerGameMode game = (MultiPlayerGameMode) (Object) this;
+        if (HandTo.hold(player, HandTo.SEED, result.getLocation(), hand == InteractionHand.MAIN_HAND,
+                () -> Gesture.replay(() -> game.useItemOn(player, hand, result)))) cir.setReturnValue(InteractionResult.CONSUME);
+    }
+
+    /** A block's use the game accepted: the screen that follows is that block's. */
+    @Inject(method = "useItemOn", at = @At("RETURN"))
+    private void emfcompat$usedBlock(LocalPlayer player, InteractionHand hand, BlockHitResult result, CallbackInfoReturnable<InteractionResult> cir) {
+        if (cir.getReturnValue().consumesAction()) strm.touchnmotion.net.ClientHands.used(result.getBlockPos());
+    }
+
+    // A click on a creature: two calls of the game's before 26.1, one from then on.
+    //? if <26.1 {
     @Inject(method = "interact", at = @At("HEAD"), cancellable = true)
     private void emfcompat$holdCare(Player player, Entity target, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
         if (Gesture.replaying() || !Gesture.actsAfter() || !(player instanceof AbstractClientPlayer client)) return;
@@ -58,23 +79,6 @@ public class GestureInteractionMixin {
         MultiPlayerGameMode game = (MultiPlayerGameMode) (Object) this;
         if (HandTo.hold(client, HandTo.STAND, ray.getLocation(), hand == InteractionHand.MAIN_HAND,
                 () -> Gesture.replay(() -> game.interactAt(player, target, ray, hand)))) cir.setReturnValue(InteractionResult.CONSUME);
-    }
-
-    @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
-    private void emfcompat$holdSeed(LocalPlayer player, InteractionHand hand, BlockHitResult result, CallbackInfoReturnable<InteractionResult> cir) {
-        if (Gesture.replaying() || !Gesture.actsAfter() || result.getDirection() != Direction.UP) return;
-        if (!(player.getItemInHand(hand).getItem() instanceof BlockItem seed) || !HandTo.plants(seed)) return;
-        if (!seed.getBlock().defaultBlockState().canSurvive(player.level(), result.getBlockPos().above())
-                || !player.level().getBlockState(result.getBlockPos().above()).isAir()) return;
-        MultiPlayerGameMode game = (MultiPlayerGameMode) (Object) this;
-        if (HandTo.hold(player, HandTo.SEED, result.getLocation(), hand == InteractionHand.MAIN_HAND,
-                () -> Gesture.replay(() -> game.useItemOn(player, hand, result)))) cir.setReturnValue(InteractionResult.CONSUME);
-    }
-
-    /** A block's use the game accepted: the screen that follows is that block's. */
-    @Inject(method = "useItemOn", at = @At("RETURN"))
-    private void emfcompat$usedBlock(LocalPlayer player, InteractionHand hand, BlockHitResult result, CallbackInfoReturnable<InteractionResult> cir) {
-        if (cir.getReturnValue().consumesAction()) strm.touchnmotion.net.ClientHands.used(result.getBlockPos());
     }
 
     @Inject(method = "interact", at = @At("HEAD"))
@@ -104,6 +108,43 @@ public class GestureInteractionMixin {
             strm.touchnmotion.net.ClientHands.act(strm.touchnmotion.net.HandsAct.STAND, target, ray.getLocation(), hand == InteractionHand.MAIN_HAND);
         }
     }
+    //?} else {
+    /*@Inject(method = "interact", at = @At("HEAD"), cancellable = true)
+    private void emfcompat$hold(Player player, Entity target, EntityHitResult ray, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+        emfcompat$used = player.getItemInHand(hand).copy();
+        if (Gesture.replaying() || !Gesture.actsAfter() || !(player instanceof AbstractClientPlayer client)) return;
+        MultiPlayerGameMode game = (MultiPlayerGameMode) (Object) this;
+        boolean main = hand == InteractionHand.MAIN_HAND;
+        ItemStack held = player.getItemInHand(hand);
+        if (target instanceof ArmorStand) {
+            if (!strm.touchnmotion.platform.Platform.isArmor(held) && !(held.isEmpty() && main)) return;
+            if (HandTo.hold(client, HandTo.STAND, ray.getLocation(), main,
+                    () -> Gesture.replay(() -> game.interact(player, target, ray, hand)))) cir.setReturnValue(InteractionResult.CONSUME);
+            return;
+        }
+        int kind = AnimalCare.kindOf(held, target);
+        if (kind >= 0 && AnimalCare.hold(client, target, kind, main,
+                () -> Gesture.replay(() -> game.interact(player, target, ray, hand)))) cir.setReturnValue(InteractionResult.CONSUME);
+    }
+
+    @Inject(method = "interact", at = @At("RETURN"))
+    private void emfcompat$interacted(Player player, Entity target, EntityHitResult ray, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+        if (!cir.getReturnValue().consumesAction() || !(player instanceof AbstractClientPlayer client)) return;
+        boolean main = hand == InteractionHand.MAIN_HAND;
+        if (target instanceof ArmorStand) {
+            HandTo.done(client, HandTo.STAND, ray.getLocation(), main);
+            strm.touchnmotion.net.ClientHands.act(strm.touchnmotion.net.HandsAct.STAND, target, ray.getLocation(), main);
+            return;
+        }
+        ItemStack used = emfcompat$used;
+        int kind = used.is(Items.SHEARS) && target instanceof Shearable ? AnimalCare.SHEAR
+                : used.is(Items.BUCKET) && (target instanceof Cow || target instanceof Goat) ? AnimalCare.MILK
+                : target instanceof Animal animal && !used.isEmpty() && animal.isFood(used) ? AnimalCare.FEED : -1;
+        if (kind < 0) return;
+        AnimalCare.done(client, target, kind, main);
+        strm.touchnmotion.net.ClientHands.act(kind, target, null, main);
+    }
+    *///?}
 
     @Inject(method = "useItemOn", at = @At("HEAD"))
     private void emfcompat$beforeBlock(LocalPlayer player, InteractionHand hand, BlockHitResult result, CallbackInfoReturnable<InteractionResult> cir) {

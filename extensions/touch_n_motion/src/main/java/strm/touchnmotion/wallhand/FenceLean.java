@@ -204,7 +204,7 @@ public final class FenceLean implements InteractionProvider {
         State state = STATES.fresh(player.getUUID());
         if (state == null || state.square < 1e-3f || state.rail == null || !INSTANCE.isEnabled()
                 || !strm.emfcompat.core.EMFCompatCore.isCompatEnabled() || strm.emfcompat.core.EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) return;
-        IKFrame frame = IKFrame.capture(stack.last().pose(), net.minecraft.client.Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
+        IKFrame frame = IKFrame.capture(stack.last().pose(), strm.touchnmotion.platform.Platform.cameraPosition());
         Vec3 origin = frame.jointWorld(new Vector3f());
         Vector3f toward = Body.model(frame, origin.add(state.rail.towards)), up = Body.model(frame, origin.add(0, 1, 0));
         stack.mulPose(new org.joml.Quaternionf().slerp(CockpitFacing.orientation(toward, up), state.square));

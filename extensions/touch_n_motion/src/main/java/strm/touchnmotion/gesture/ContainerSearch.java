@@ -102,7 +102,7 @@ public final class ContainerSearch extends Gesture {
         if (pos == null) return;
         if (!pos.equals(open.pos)) { open.contents = null; open.actedAt = 0; }
         open.pos = pos;
-        if (player == Minecraft.getInstance().player && Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen) {
+        if (player == Minecraft.getInstance().player && strm.touchnmotion.platform.Platform.screen() instanceof AbstractContainerScreen<?> screen) {
             var slots = screen.getMenu().slots;
             java.util.List<net.minecraft.world.item.ItemStack> current = new java.util.ArrayList<>();
             for (var slot : slots) current.add(slot.getItem().copy());

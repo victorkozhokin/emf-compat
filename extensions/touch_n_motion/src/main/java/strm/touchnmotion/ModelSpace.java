@@ -50,7 +50,7 @@ public final class ModelSpace {
         model.accept(player);
         FootGrounding.modelPose(player, stack);
         IKFrame frame = IKFrame.capture(stack.last().pose(),
-                Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
+                strm.touchnmotion.platform.Platform.cameraPosition());
         strm.touchnmotion.blockuse.aeronautics.CockpitControls.frame(player, frame);
         MotionRuntime.modelPose(player);
         InteractionRuntime.modelPose(player, frame);

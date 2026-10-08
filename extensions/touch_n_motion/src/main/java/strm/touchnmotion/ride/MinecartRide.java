@@ -320,7 +320,7 @@ public final class MinecartRide implements InteractionProvider {
         Drawn drawn = Drawn.of(cart, partial);
         Vec3 way = way(state, drawn.along);
         Vec3 face = state.face.dot(way) > 0 ? way : state.face;
-        IKFrame frame = IKFrame.capture(stack.last().pose(), Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
+        IKFrame frame = IKFrame.capture(stack.last().pose(), strm.touchnmotion.platform.Platform.cameraPosition());
         Vec3 origin = frame.jointWorld(new Vector3f());
         // Into the cart as it is drawn: the rider is carried where the cart is, the cart drawn on its rail.
         Vector3f moved = strm.touchnmotion.interaction.Body.model(frame, origin.add(drawn.middle.subtract(cart.getPosition(partial))));

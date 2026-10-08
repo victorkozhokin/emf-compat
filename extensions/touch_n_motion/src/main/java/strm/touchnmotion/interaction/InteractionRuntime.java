@@ -127,7 +127,7 @@ public final class InteractionRuntime {
         // Only the local container gesture supersedes WATUT's generic GUI hands.
         // Weapons, other addon poses and ordinary inventory screens keep their reservation.
         boolean containerSearch = player == net.minecraft.client.Minecraft.getInstance().player
-                && net.minecraft.client.Minecraft.getInstance().screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>
+                && strm.touchnmotion.platform.Platform.screen() instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>
                 && candidates.stream().anyMatch(candidate -> candidate.source().equals("ContainerSearch"));
         Set<Effector> reserved = reserved(player, containerSearch, context.armsClaimed()
                 || player.swinging && state.claimedSwingStart == swingStart);

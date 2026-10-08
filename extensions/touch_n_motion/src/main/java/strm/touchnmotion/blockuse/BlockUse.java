@@ -229,7 +229,7 @@ public final class BlockUse implements InteractionProvider {
             state.swinging = player.swinging;
             state.swing = player.swingTime;
             Minecraft mc = Minecraft.getInstance();
-            if (swung || Inputs.useHeld(player) || Boolean.TRUE.equals(Inputs.menu(player)) || player == mc.player && mc.screen != null) state.actedAt = now;
+            if (swung || Inputs.useHeld(player) || Boolean.TRUE.equals(Inputs.menu(player)) || player == mc.player && strm.touchnmotion.platform.Platform.screen() != null) state.actedAt = now;
             // The block held changed the way a hand changes it: the gesture.
             if (state.pos != null) {
                 BlockState block = player.level().getBlockState(state.pos);
