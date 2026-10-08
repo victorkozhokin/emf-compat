@@ -53,6 +53,26 @@ public final class ModelSpace {
      *              player once the stack is turned and before anything measures from it
      */
     public static void before(LivingEntity entity, PoseStack stack, float partialTick, Consumer<AbstractClientPlayer> model) {
+        //? if <1.20.5 {
+        /*// Before 1.20.5 the stack an entity is drawn on has the camera's turn in it as well, under everything
+        // else; from then on that is the game's own matrix and the stack is the world, moved to the camera.
+        // Everything here reads the stack as the latter, so the turn is taken off for it and put back after.
+        org.joml.Matrix3f unturn = new org.joml.Matrix3f(com.mojang.blaze3d.systems.RenderSystem.getInverseViewRotationMatrix());
+        org.joml.Matrix3f turn = new org.joml.Matrix3f(unturn).invert();
+        stack.last().pose().mulLocal(new org.joml.Matrix4f(unturn));
+        stack.last().normal().mulLocal(unturn);
+        try {
+            unturned(entity, stack, partialTick, model);
+        } finally {
+            stack.last().pose().mulLocal(new org.joml.Matrix4f(turn));
+            stack.last().normal().mulLocal(turn);
+        }
+        *///?} else {
+        unturned(entity, stack, partialTick, model);
+        //?}
+    }
+
+    private static void unturned(LivingEntity entity, PoseStack stack, float partialTick, Consumer<AbstractClientPlayer> model) {
         if (HorseFootGrounding.handles(entity)) {
             HorseFootGrounding.modelPose((AbstractHorse) entity, stack, partialTick);
             return;
