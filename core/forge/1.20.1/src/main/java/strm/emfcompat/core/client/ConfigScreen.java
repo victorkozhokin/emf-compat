@@ -1,5 +1,7 @@
 package strm.emfcompat.core.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -334,7 +336,7 @@ public class ConfigScreen extends Screen {
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (button != 0) {
+            if (button != InputConstants.MOUSE_BUTTON_LEFT) {
                 return false;
             }
             COLLAPSED.put(section.id + "/" + group.id, !isCollapsed(section, group));
