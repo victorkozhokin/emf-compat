@@ -125,6 +125,7 @@ processResources {
         expand replaceProperties
     }
     // A mixin whose target this version of the game does not have is not listed.
+    inputs.property 'dropMixins', (n.dropMixins ?: []).join(',')
     filesMatching("touch_n_motion.mixins.json") {
         filter { line -> (n.dropMixins ?: []).any { line.contains('"' + it + '"') } ? null : line }
     }

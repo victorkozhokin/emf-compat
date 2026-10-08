@@ -16,6 +16,7 @@ import strm.touchnmotion.ride.BoatSeats;
 @Mixin(Boat.class)
 public abstract class BoatSeatMixin {
 
+    //? if >=1.20.5 {
     @Inject(method = "getPassengerAttachmentPoint", at = @At("RETURN"), cancellable = true)
     private void emfcompat$bowSeat(Entity entity, EntityDimensions dimensions, float scale, CallbackInfoReturnable<Vec3> cir) {
         Boat boat = (Boat) (Object) this;
@@ -30,6 +31,27 @@ public abstract class BoatSeatMixin {
         if (!BoatSeats.inBow(boat, entity)) return;
         cir.setReturnValue(new Vec3(0.0, cir.getReturnValue().y + BoatSeats.RAISED, BoatSeats.BOW).yRot(-boat.getYRot() * Mth.DEG_TO_RAD));
     }
+    //?} else {
+    /*// Before 1.20.5 the boat places its rider itself, with no seat to ask: the rider is placed once more, where ours is.
+    @Inject(method = "positionRider", at = @At("TAIL"))
+    private void emfcompat$bowSeat(Entity entity, Entity.MoveFunction move, CallbackInfo ci) {
+        Boat boat = (Boat) (Object) this;
+        if (!boat.hasPassenger(entity)) return;
+        double forward, up = 0.0;
+        if (BoatSeats.chestInBow(boat)) {
+            forward = -BoatSeats.aft(boat);
+        } else if (BoatSeats.rowsWithBow(boat, entity)) {
+            forward = 0.0;
+        } else if (BoatSeats.inBow(boat, entity)) {
+            forward = BoatSeats.BOW;
+            up = BoatSeats.RAISED;
+        } else {
+            return;
+        }
+        Vec3 seat = new Vec3(0.0, 0.0, forward).yRot(-boat.getYRot() * Mth.DEG_TO_RAD);
+        move.accept(entity, boat.getX() + seat.x, entity.getY() + up, boat.getZ() + seat.z);
+    }
+    *///?}
 
     //? if <26.3 {
     // As the game's own, about the way to the stern instead of the way to the bow.
