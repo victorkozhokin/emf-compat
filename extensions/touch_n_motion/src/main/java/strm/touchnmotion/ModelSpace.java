@@ -53,6 +53,8 @@ public final class ModelSpace {
      *              player once the stack is turned and before anything measures from it
      */
     public static void before(LivingEntity entity, PoseStack stack, float partialTick, Consumer<AbstractClientPlayer> model) {
+        // Every creature drawn comes through here: all but the players and the horses leave at once, before anything is worked out.
+        if (!(entity instanceof AbstractClientPlayer) && !HorseFootGrounding.handles(entity)) return;
         //? if <1.20.5 {
         /*// Before 1.20.5 the stack an entity is drawn on has the camera's turn in it as well, under everything
         // else; from then on that is the game's own matrix and the stack is the world, moved to the camera.

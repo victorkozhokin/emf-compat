@@ -29,7 +29,9 @@ public class StateEntityMixin {
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;F)V",
             at = @At("HEAD"))
     private void touchnmotion$filling(LivingEntity entity, LivingEntityRenderState state, float partialTick, CallbackInfo ci) {
-        DrawnEntities.filled(state, entity);
+        // Every creature's state is filled here: only the players' and the horses' are noted.
+        if (entity instanceof net.minecraft.world.entity.player.Player
+                || strm.touchnmotion.footgrounding.compat.HorseFootGrounding.handles(entity)) DrawnEntities.filled(state, entity);
         //? if <26.3 {
         // A hand crank held down starts a swing on every repeat of the click; see the same in mixin/legacy.
         if (entity instanceof AbstractClientPlayer player && BlockUse.quietsSwing(player.getUUID())) {
