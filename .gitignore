@@ -82,3 +82,7 @@ libs/*.jar
 # Python
 __pycache__/
 /.codex/
+
+# Documentation and Claude settings live outside the repository (../docs/reworked-emf-compat); these are links to them
+/docs
+/.claude
