@@ -24,8 +24,8 @@ public final class ChestInBow {
 
     public static final String KEY_ENABLED = "ride.boat.chest";
 
-    /** Boat model pixels: the chest's side, and where its face towards the rower is - in a boat it ends at the bow's board, on a raft at the deck's end. */
-    private static final float CHEST = 12f, NEAR = 4.5f, RAFT_NEAR = 2.5f;
+    /** Boat model pixels: the chest's side, and where its face towards the rower is - in a boat its far side is against the inside of the bow's board (the board is 14 to 16 px out), almost at the rower's feet; on a raft it ends at the deck's end. */
+    private static final float CHEST = 12f, NEAR = 2.0f, RAFT_NEAR = 2.5f;
 
     private ChestInBow() {
     }
