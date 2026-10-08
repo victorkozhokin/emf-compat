@@ -35,8 +35,8 @@ public final class HandCrank implements BlockTarget {
     private static final Vector3f GRIP = new Vector3f(1f, 8f, 6f);
     private static final Vector3f AXIS = new Vector3f(8f, 8f, 6f);
 
-    private static Method method;
-    private static java.lang.reflect.Field angleField, velocityField;
+    /** How the angle is read, by the block entity's class: the crank's and the valve handle's are two, and a method found on one cannot be called on the other. */
+    private static final java.util.Map<Class<?>, Object[]> READERS = new java.util.concurrent.ConcurrentHashMap<>();
     private static final ModFailures FAILURES = new ModFailures("read the hand crank's angle");
 
     @Override
@@ -97,17 +97,18 @@ public final class HandCrank implements BlockTarget {
         if (entity == null) return null;
         try {
             float partial = strm.touchnmotion.platform.Platform.partialTick(false);
-            if (method == null && angleField == null) {
+            Object[] reader = READERS.get(entity.getClass());
+            if (reader == null) {
                 try {
-                    method = entity.getClass().getMethod("getIndependentAngle", float.class);
+                    reader = new Object[]{entity.getClass().getMethod("getIndependentAngle", float.class)};
                 } catch (NoSuchMethodException none) {
                     // Create Fly keeps the two numbers on the block entity and the sum of them in its renderer.
-                    angleField = entity.getClass().getField("independentAngle");
-                    velocityField = entity.getClass().getField("chasingAngularVelocity");
+                    reader = new Object[]{entity.getClass().getField("independentAngle"), entity.getClass().getField("chasingAngularVelocity")};
                 }
+                READERS.put(entity.getClass(), reader);
             }
-            if (method != null) return (Float) method.invoke(entity, partial);
-            return angleField.getFloat(entity) + partial * velocityField.getFloat(entity);
+            if (reader.length == 1) return (Float) ((Method) reader[0]).invoke(entity, partial);
+            return ((java.lang.reflect.Field) reader[0]).getFloat(entity) + partial * ((java.lang.reflect.Field) reader[1]).getFloat(entity);
         } catch (Throwable t) {
             FAILURES.failed(t);
             return null;
