@@ -5,6 +5,18 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.141'
 }
 
+// Touch'n Motion on NeoForge. One buildscript per loader: a plugins {} block cannot pick its
+// plugins by node. What differs between nodes of one loader is in versions.gradle.
+apply from: rootProject.file('extensions/touch_n_motion/versions.gradle')
+
+def n = ext.node()
+
+// The root build script reads these back with findProperty to name the uploaded jar.
+ext.mod_id = n.mod_id
+ext.mod_name = n.mod_name
+ext.mod_version = n.mod_version
+ext.minecraft_version = stonecutter.current.version
+
 version = mod_version
 group = mod_group_id
 
@@ -15,7 +27,7 @@ base {
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 neoForge {
-    version = project.neo_version
+    version = n.neo_version
 
     runs {
         client {
@@ -33,7 +45,7 @@ neoForge {
         }
         data {
             data()
-            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath()
         }
         configureEach {
             systemProperty 'neoforge.logging.markers', 'REGISTRIES'
@@ -48,7 +60,7 @@ neoForge {
     }
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+sourceSets.main.resources { srcDir new File(n.root, 'platform/neoforge/resources') }
 
 repositories {
     mavenLocal()
@@ -62,9 +74,9 @@ repositories {
 }
 
 dependencies {
-    implementation project(':core-neoforge-1.21.1')
-    compileOnly 'maven.modrinth:entity-model-features:3.3.2-neoforge-1.21'
-    compileOnly 'maven.modrinth:entitytexturefeatures:7.2.1-neoforge-1.21'
+    implementation project(n.core)
+    compileOnly n.emf
+    compileOnly n.etf
 
     // Unit tests of the pure logic (the interaction arbiter, smoothing): no game needed.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
@@ -78,19 +90,19 @@ tasks.named('test', Test) {
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
     var replaceProperties = [minecraft_version      : minecraft_version,
-                             minecraft_version_range: minecraft_version_range,
-                             neo_version            : neo_version,
-                             neo_version_range      : neo_version_range,
-                             loader_version_range   : loader_version_range,
-                             mod_id                 : mod_id,
-                             mod_name               : mod_name,
-                             mod_license            : mod_license,
-                             mod_version            : mod_version,
-                             mod_authors            : mod_authors,
-                             mod_description        : mod_description]
+                             minecraft_version_range: n.minecraft_version_range,
+                             neo_version            : n.neo_version,
+                             neo_version_range      : n.neo_version_range,
+                             loader_version_range   : n.loader_version_range,
+                             mod_id                 : n.mod_id,
+                             mod_name               : n.mod_name,
+                             mod_license            : n.mod_license,
+                             mod_version            : n.mod_version,
+                             mod_authors            : n.mod_authors,
+                             mod_description        : n.mod_description]
     inputs.properties replaceProperties
     expand replaceProperties
-    from "src/main/templates"
+    from new File(n.root, "platform/neoforge/templates")
     into "build/generated/sources/modMetadata"
 }
 

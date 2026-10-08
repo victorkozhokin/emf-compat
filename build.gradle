@@ -13,7 +13,7 @@ plugins {
 // Stonecutter branch roots are controller projects, not buildable ones — applying `base` to
 // them makes Stonecutter complain and serves no purpose, since the jars come out of the version
 // nodes underneath.
-def stonecutterBranchRoots = [':better-combat-fabric'] as Set
+def stonecutterBranchRoots = [':better-combat-fabric', ':touch-n-motion'] as Set
 
 allprojects {
     if (!(project.path in stonecutterBranchRoots)) {
@@ -46,7 +46,11 @@ allprojects {
         // named after its Minecraft version alone and hangs under a branch named
         // "<element>-<loader>", so the same three pieces come from the parent plus the node.
         def nameParts
-        if (p.parent != null && p.parent != rootProject) {
+        if (p.parent != null && p.parent != rootProject && p.name.contains('-')) {
+            // A tree that spans loaders names its nodes "<version>-<loader>".
+            def (nodeVersion, nodeLoader) = p.name.split('-', 2) as List
+            nameParts = (p.parent.name.split('-') as List) + [nodeLoader, nodeVersion]
+        } else if (p.parent != null && p.parent != rootProject) {
             nameParts = (p.parent.name.split('-') as List) + [p.name]
         } else {
             nameParts = p.name.split('-') as List
@@ -211,7 +215,7 @@ tasks.register('copyToAeronautics', Copy) {
         ':quark-neoforge-1.21.1',
         ':supplementaries-neoforge-1.21.1',
         ':create-neoforge-1.21.1',
-        ':touch-n-motion-neoforge-1.21.1',
+        ':touch-n-motion:1.21.1-neoforge',
         ':nea-neoforge-1.21.1',
         ':takeaseat-neoforge-1.21.1'
     ]

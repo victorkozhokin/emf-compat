@@ -236,8 +236,16 @@ include("parcool-neoforge-1.21.1")
 project(":parcool-neoforge-1.21.1").projectDir = file("extensions/parcool/neoforge/1.21.1")
 
 // Touch'n Motion (was the Animation Additions addon).
-include("touch-n-motion-neoforge-1.21.1")
-project(":touch-n-motion-neoforge-1.21.1").projectDir = file("extensions/touch_n_motion/neoforge/1.21.1")
+// One Stonecutter tree for every loader and version: a single src/, kept in git as the NeoForge
+// 1.21.1 node reads it. Nodes are named "<minecraft>-<loader>"; each loader has a buildscript.
+include("touch-n-motion")
+project(":touch-n-motion").projectDir = file("extensions/touch_n_motion")
+stonecutter {
+    create(":touch-n-motion") {
+        version("1.21.1-neoforge", "1.21.1").buildscript("build.neoforge.gradle")
+        vcsVersion = "1.21.1-neoforge"
+    }
+}
 
 // Touch'n Motion: frames for the ports - the settings tab and the mod-list entry, no animations yet.
 include("touch-n-motion-forge-1.20.1")

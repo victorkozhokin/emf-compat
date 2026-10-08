@@ -1,0 +1,37 @@
+// Touch'n Motion: what differs from one node of the Stonecutter tree to the next.
+//
+// A node is named "<minecraft>-<loader>". The tree's sources live in src/ and are kept in git
+// as the NeoForge 1.21.1 node reads them; versions/ is generated and ignored, so nothing a node
+// needs can live in a gradle.properties there - it is all here.
+
+ext.tnm = [
+    mod_id         : 'touch_n_motion',
+    mod_name       : "Touch'n Motion",
+    mod_version    : '0.1.0',
+    mod_license    : 'GNU GPL 3.0',
+    mod_authors    : 'STRadaT',
+    mod_description: "Procedural additions to the player's animation under Entity Model Features: feet that stand on uneven ground, hands that go to walls, plants, buttons, doors and the blocks they use, a torso that leans with the motion, a rider that follows an animated horse.",
+    root           : rootProject.file('extensions/touch_n_motion'),
+]
+
+ext.tnmNodes = [
+    '1.21.1-neoforge': [
+        loader                 : 'neoforge',
+        core                   : ':core-neoforge-1.21.1',
+        minecraft_version_range: '[1.21.1,1.22)',
+        neo_version            : '21.1.230',
+        neo_version_range      : '[21,)',
+        loader_version_range   : '[4,)',
+        emf                    : 'maven.modrinth:entity-model-features:3.3.2-neoforge-1.21',
+        etf                    : 'maven.modrinth:entitytexturefeatures:7.2.1-neoforge-1.21',
+    ],
+]
+
+// The node being built: its own values over the mod's.
+ext.node = { ->
+    def values = tnmNodes[project.name]
+    if (values == null) {
+        throw new GradleException("No Touch'n Motion values for node ${project.name} in versions.gradle")
+    }
+    return tnm + values
+}
