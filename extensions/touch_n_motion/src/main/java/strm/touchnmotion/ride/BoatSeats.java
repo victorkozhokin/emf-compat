@@ -62,15 +62,19 @@ public final class BoatSeats {
 
     /** Blocks aft of the middle that the rider of {@code boat}, a boat with its chest in the bow, sits: in a boat as far as leaves the back clear of the stern's board, on a raft - it has none - further. */
     public static double aft(Boat boat) {
-        return strm.touchnmotion.platform.Platform.isRaft(boat) ? RAFT_AFT : AFT;
+        return aft(strm.touchnmotion.platform.Platform.isRaft(boat));
+    }
+
+    public static double aft(boolean raft) {
+        return raft ? RAFT_AFT : AFT;
     }
 
     /** Whether {@code boat} has a chest and that chest is in the bow: its rider then sits aft ({@link #aft}). */
     public static boolean chestInBow(Boat boat) {
-        //? if >=1.20.5 && <1.21.11 {
+        //? if >=1.20.5 {
         return boat instanceof ChestBoat && (!boat.level().isClientSide() || chestClient.getAsBoolean());
         //?} else {
-        /*// Not on 1.20.1 nor from 1.21.11 on yet: the chest is not drawn in the bow there, so no one is seated aft of it.
+        /*// Not on 1.20.1: the chest is not drawn in the bow there, so no one is seated aft of it.
         return false;
         *///?}
     }

@@ -6,6 +6,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.world.entity.vehicle.Boat;
 import strm.emfcompat.core.ConfigRegistry;
+import strm.touchnmotion.platform.Platform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,30 +45,35 @@ public final class ChestInBow {
         int n = parts.size();
         // The model's own order: ..., the two paddles, the chest's bottom, lid and lock.
         if (n < 5) return;
-        boolean moved = BoatSeats.chestInBow(boat);
-        float aft = moved ? (float) (BoatSeats.aft(boat) * 16) : 0f;
-        for (int i = n - 5; i < n - 3; i++) {
-            ModelPart paddle = parts.get(i);
-            paddle.x = strm.touchnmotion.platform.Platform.x(paddle.getInitialPose()) - aft;
+        place(parts.subList(n - 5, n - 3), parts.subList(n - 3, n), BoatSeats.chestInBow(boat), Platform.isRaft(boat));
+    }
+    //?}
+
+    /**
+     * Places the two paddles and the chest's three parts - bottom, lid, lock - of a model just posed:
+     * the chest in the bow and the paddles aft when {@code moved}, where the model has them when not.
+     */
+    public static void place(List<ModelPart> paddles, List<ModelPart> chest, boolean moved, boolean raft) {
+        float aft = moved ? (float) (BoatSeats.aft(raft) * 16) : 0f;
+        for (ModelPart paddle : paddles) {
+            paddle.x = Platform.x(paddle.getInitialPose()) - aft;
         }
         // The bottom is a box from its corner, a quarter turn round: its middle is half a side astern and half a side across.
-        PartPose bottom = parts.get(n - 3).getInitialPose();
-        float middleX = bottom.x - CHEST / 2f, middleZ = bottom.z + CHEST / 2f;
-        float near = strm.touchnmotion.platform.Platform.isRaft(boat) ? RAFT_NEAR : NEAR;
-        for (int i = n - 3; i < n; i++) {
-            ModelPart part = parts.get(i);
+        PartPose bottom = chest.get(0).getInitialPose();
+        float middleX = Platform.x(bottom) - CHEST / 2f, middleZ = Platform.z(bottom) + CHEST / 2f;
+        float near = raft ? RAFT_NEAR : NEAR;
+        for (ModelPart part : chest) {
             PartPose pose = part.getInitialPose();
             if (!moved) {
-                part.x = pose.x;
-                part.z = pose.z;
-                part.yRot = pose.yRot;
+                part.x = Platform.x(pose);
+                part.z = Platform.z(pose);
+                part.yRot = Platform.yRot(pose);
                 continue;
             }
             // Half a turn about the chest's middle, so the lock is towards the rower, and forward to the bow.
-            part.x = 2f * middleX - pose.x + near + CHEST / 2f - middleX;
-            part.z = 2f * middleZ - pose.z;
-            part.yRot = pose.yRot + (float) Math.PI;
+            part.x = 2f * middleX - Platform.x(pose) + near + CHEST / 2f - middleX;
+            part.z = 2f * middleZ - Platform.z(pose);
+            part.yRot = Platform.yRot(pose) + (float) Math.PI;
         }
     }
-    //?}
 }

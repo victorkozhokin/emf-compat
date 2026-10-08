@@ -10,6 +10,7 @@
     "modern.StateEntityMixin",
     "modern.ModelSpaceMixin",
     "modern.RidingPoseMixin",
+    "modern.BoatChestModelMixin",
     "fabric.modern.PlayerSubmitEventsMixin",
     "LeadPlayerMixin",
     "LeadInteractionMixin",
