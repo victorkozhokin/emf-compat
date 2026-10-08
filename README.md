@@ -10,7 +10,7 @@ Resource-pack animations through EMF override everything the player model does, 
 
 | Addon                                                            | Makes these work with EMF | Modrinth                                                                | CurseForge |
 |------------------------------------------------------------------|---|-------------------------------------------------------------------------|------------|
-| [Touch & Motion](extensions/animation_additions/README.md)       | Foot IK, balance, environmental interactions, cockpit controls and everyday gestures | — | — |
+| [Touch'n Motion](extensions/touch_n_motion/README.md)            | Foot IK, balance, environmental interactions, cockpit controls and everyday gestures | — | — |
 | [Better Combat](extensions/better_combat/README.md)              | Weapon swings, attack poses, RPG Series spellcasting | [link](https://modrinth.com/project/emf-compat-better-combat)           | [link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-better-combat)   |
 | [Carry On](extensions/carryon/README.md)                         | Carrying blocks, chests and mobs | [link](https://modrinth.com/project/emf-compat-carry-on)                |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-carry-on)            |
 | [Create](extensions/create/README.md)                            | Skyhook, grappling hooks, handles, jetpacks, physics objects | [link](https://modrinth.com/project/emf-compat-create)                  |[link](https://www.curseforge.com/minecraft/mc-mods/emf-compat-create)            |
