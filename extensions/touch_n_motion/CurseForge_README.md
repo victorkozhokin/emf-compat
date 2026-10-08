@@ -1,67 +1,58 @@
 # Touch'n Motion
 
-A client-side mod that adds animations of its own on top of an **[Entity Model Features](https://www.curseforge.com/minecraft/mc-mods/entity-model-features)** player model: feet that stand on the ground they are on, hands that go to the thing you use, and a body that takes part in what the hands do.
+Do you feel it too? In Minecraft, we interact with our surroundings all the time, yet our characters barely seem to touch them. They open chests, press buttons, feed animals — and just wave a hand in the air. Why shouldn’t they actually reach for the things they use?
 
-Made for and tested with **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)**. The pack keeps its own walk and idle motion, and the face keeps the expressions of **[Just Expressions](https://modrinth.com/resourcepack/just-expressions)**, the add-on for it; this addon only adds to them. Other player animation packs may give different results.
+That question is where Touch'n Motion began.
 
-**Experimental:** an early version — things may still change.
+It adds those missing movements to your **[Entity Model Features](https://www.curseforge.com/minecraft/mc-mods/entity-model-features)** player model. A hand reaches for a button. Feet find their place on a step. The body leans into what the hands are doing.
 
-## Features
+Made for and tested with **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)**.
 
-- Feet stand on stairs, slabs and uneven ground; a careful stance on fences and other narrow supports.
-- Hands go to the thing you use: buttons, levers, doors, chests, workstations and dozens of other blocks.
-- The whole body takes part: the torso leans, the feet step into a stance, the weight shifts.
-- Mining swings the tool on to the block, with a stance for each tool and three different blows.
-- Feeding, milking and shearing by hand; dressing an armour stand; planting seeds; looking through an open chest.
-- Putting on armour and Curios accessories; shaking off water, snow and mud; pocketing what was picked up.
-- Fishing with the whole body: the cast, the wait, the bite and the haul.
-- Fright at a sudden sound - sculk, a warden, a creeper's hiss, an explosion, thunder: a shudder and a step back, the hands on guard.
-- Leaning on a fence; a look at a creature nearby, the body stepping round to it; signs are read.
-- Cranks, valves, steering wheels, throttles and typewriters of Create, Aeronautics and Supplementaries are worked with both hands — also seated in a cockpit and on a ship under way.
-- You stay on the saddle of an animated horse; a boat is rowed with the hands on the oars, a minecart ridden with the hands on its sides.
-- Works for other players too.
-- Every animation has its own switch in the config.
+A great addition to **[Punchy!](https://www.curseforge.com/minecraft/mc-mods/punchy)** or **[Hold My Items](https://www.curseforge.com/minecraft/mc-mods/hold-my-items)**!
 
-## Everything it does
+## So what does it do?
 
-| | Feature | What you see |
-|---|---|---|
-| **Movement** | Foot IK | Feet stand on stairs, slabs and uneven ground; the step up is prepared ahead. |
-|  | Balance | A careful stance on fences, walls, bars and slopes. |
-|  | Torso lean and inertia | The torso goes with your motion and with the hands; poses settle with weight. |
-|  | Narrow passages | The body turns to fit the gap. |
-| **Surroundings** | Hand on the wall | A hand rests on the wall beside you. |
-|  | Plants | Hands brush through crops as you walk by or through them; grass and flowers as an option. |
-|  | Leaning on a fence | Stood up against a fence or a wall, the hands go on its top and the body leans on them. |
-|  | Look at things | Standing idle, a look at a creature nearby, the body stepping round if it is far to the side; signs are read. |
-|  | Animal leads | The hand follows the lead, the body leans against the pull. |
-|  | Pocket | One gesture after a run of pickups puts them away. |
-| **Blocks** | Buttons and levers | Pressed at their real height — standing, crouched or seated. |
-|  | Reaching | The body stretches for a control past arm's length. |
-|  | Doors and gates | A hand on them as they open. |
-|  | Blocks used by hand | Lids, pages and work slots: the hand goes to the right place. |
-|  | Mining | A stance for each tool, three different blows, the body going with them. |
-| **Gestures** | Feeding | The food to the animal's mouth, then a stroke with the other hand. |
-|  | Milking and shearing | Done bent to the animal, both hands at work. |
-|  | Hand out before the click | Aiming with the right item already holds the hand out. |
-|  | Armour stand | The hand goes to the part that was clicked. |
-|  | Planting | Seeds pressed into the bed, along a row without straightening up. |
-|  | Open containers | One hand on the edge, the other looking through. |
-|  | Putting on armour | Helmet, chestplate, leggings and boots — each its own way. |
-|  | Curios accessories | Put on where they are worn. |
-|  | Shaking off | After water, powder snow and mud. |
-|  | Fishing | The cast, the wait, the bite and the haul, each with the whole body. |
-|  | Fright | A frightening sound near by: a shudder and a step back from it, a hop back from a worse one, the hands on guard and a look at where it came from. |
-|  | Other players | All of these show on other players too. |
-| **Machines** | Cranks and valves | Turned with the whole body: feet, hips, torso and hands. |
-|  | Steering wheel | Held hand over hand, one hand always on the rim. |
-|  | Cockpit | Seated: the wheel in one hand, a throttle or typewriter in the other. |
-|  | Weighted ejector | Bracing on the lid, the launch, the flight. |
-| **Transport** | Moving transport | Hands brace on what is near; a rope held at the edge. |
-|  | Horses | You stay on the saddle of an animated horse; optional riding pose. |
-|  | Boats | The hands on the oars and the body in the stroke; a passenger sits in the bow facing the rower; a chest boat keeps its chest in the bow. |
-|  | Minecarts | Sat against the back, the hands on the sides, the body thrown about by the bends and the drops. |
-|  | Sable sub-levels | Contacts follow a ship under way. |
+**Hands on what you use.** Open a door, pull a lever, turn a page, look through a chest: your hands go to the thing itself, at the height where it actually is. Reach further and the body leans with them, the feet step into a stance, and the other arm helps you balance.
+
+![Reaching for and pulling a lever](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_lever.webp?raw=true)
+
+**Feet on the ground.** Feet rest on stairs, slabs and uneven surfaces. On a fence or a narrow wall you take a more careful stance.
+
+![Balancing on a narrow fence](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fence.webp?raw=true)
+
+**The world around you.** Stand beside a wall and a hand rests against it. Walk through crops and your hands brush past them. Face a gap that’s too narrow and your body turns to fit.
+
+![Body movement and leaning with the surroundings](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_lean.webp?raw=true)
+
+![Brushing past crops](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_plant_reach.webp?raw=true)
+
+**Animals and gear.** Food goes to an animal’s mouth, followed by a stroke with your other hand. You bend down to milk or shear, plant a seed in the soil, dress an armour stand. Getting dressed has gestures of its own: a helmet pushed into place, a chestplate settled with both hands.
+
+![Using a lead and shearing animals](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_lead_and_shear.webp?raw=true)
+
+**Work.** Mining puts your tool against the block, with stances and swings for different tools. Fishing follows the cast, the wait, the bite and the haul. A handful of picked-up items goes into your pocket in one gesture. Come out of water, powder snow or mud and you shake it off.
+
+![Casting and fishing](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fishing.webp?raw=true)
+
+![Shaking off water](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_afterwater.webp?raw=true)
+
+**Riding.** You rise and fall with an animated horse, hold the oars while rowing, and brace against the sides of a minecart on a bend or a drop. A boat’s passenger sits in the bow facing the rower; a chest boat keeps its chest there instead.
+
+![Rowing and riding in a boat](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_boat.webp?raw=true)
+
+**Just standing there.** You glance at a creature nearby, turn to read a sign, or lean on a fence with your hands on top. A sudden hiss or thunder can make you flinch, step back and look towards it.
+
+![Resting hands on a fence](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fence_interact.webp?raw=true)
+
+![Looking towards nearby creatures](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_look_at.webp?raw=true)
+
+![Reacting to a sudden scare](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fear.webp?raw=true)
+
+**Machines.** With Create, Aeronautics or Supplementaries, your hands find cranks, valves, wheels and throttles. Turning a crank takes the whole body; at a wheel one hand keeps its grip while the other moves around the rim.
+
+![Turning a crank with the whole body](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_crank.webp?raw=true)
+
+All of this shows on other players too. And if there’s a movement you don’t want, you can switch it off.
 
 ## Blocks you can interact with
 
@@ -73,11 +64,11 @@ Made for and tested with **[Fresh Animations: Player Extension](https://www.curs
 
 **Supplementaries:** crank, bellows, gold door, iron gate, globes, sconce lever, item shelf, pedestal, blackboard, safe, lunch basket, presents, cage, notice board, hourglass, faucet, speaker block, turn table, book piles, jars, sack, flower box and planter, cannon, pulley block, lock block, doormat.
 
-Some of these get a full working cycle — the cranks, the valve, the wheel, the bellows; most get a hand that goes to the right place and presses, puts or takes.
+Cranks, valves, wheels and bellows have their own working motions. For most other blocks, your hand reaches the place where you press, put something in or take something out.
 
 ## Supported mods
 
-Everything below is optional — the matching animations turn on when the mod is there.
+Have one of these installed? Touch'n Motion adds the matching gestures when it finds it.
 
 | Mod | What it covers |
 |---|---|
@@ -85,16 +76,19 @@ Everything below is optional — the matching animations turn on when the mod is
 | **[Create Aeronautics](https://www.curseforge.com/minecraft/mc-mods/create-aeronautics)** | Steering wheel, throttle, typewriter, navigation table, rope; the seated cockpit |
 | **[Supplementaries](https://www.curseforge.com/minecraft/mc-mods/supplementaries)** | Crank, bellows, faucet, globe, jars, shelves and other blocks used by hand |
 | **[Curios](https://www.curseforge.com/minecraft/mc-mods/curios)** | Putting on accessories |
-| **[Enchanted Fishing Line](https://modrinth.com/mod/enchanted-fishing-line)** | The line starts at the rod's tip as the fishing pose has it |
+| **[Not Enough Animations](https://www.curseforge.com/minecraft/mc-mods/not-enough-animations)** | Its rowing and horse-riding poses give way to Touch'n Motion's while **NEA Compat** is on |
+| **[Enchanted Fishing Line](https://modrinth.com/mod/enchanted-fishing-line)** | The line starts at the rod's tip as the fishing pose has it (1.21.1 and newer) |
 
-## Multiplayer
+## What about other players?
 
-Works on the client alone, on any server: what other players do is then guessed from where they look and how they swing.
+Touch'n Motion works on the client alone, on any server. It works out other players’ gestures from what you can see them doing: where they look, how they swing, and what changes around them.
 
-Put the same jar on a **NeoForge server** too and nothing is guessed — each player's game tells the others what its hands are at, so a crank turned, a wheel held, a key typed or an animal fed looks to others as it does to you. The server only passes this on; it changes nothing in the world. Players without the addon can still join.
+Put the matching jar on the **server** too (NeoForge, Forge or Fabric; a server needs neither EMF nor Core), and players with the mod share the details. A crank being turned, a wheel being held or an animal being fed then looks to others as it does to you. Players without the mod can still join.
 
-## Loaders
+## Can I choose which movements I want?
 
-- **NeoForge 1.21.1**
+Yes — each feature has its own switch. Open **Mods → Touch'n Motion → Config** (Fabric needs Mod Menu), pick a category, and turn off what you don’t want. **Reset** goes back to the defaults; the switch at the top turns the whole mod off and keeps your choices for later.
+
+With Not Enough Animations installed, the **NEA Compat** option (on by default) keeps its rowing and horse-riding animations out of the way while Touch'n Motion’s are on. NEA’s own settings file is left unchanged.
 
 enjoy ^_^

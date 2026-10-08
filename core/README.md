@@ -18,7 +18,8 @@ The EMF Compat addons fix that, one mod at a time. This core is the shared piece
 | **[Exposure](https://modrinth.com/project/emf-compat-exposure)** | Taking photos, selfies and tripod cameras |
 | **[Gliders](https://modrinth.com/project/emf-compat-gliders)** | Paragliders, Gliders and Reliable Gliders |
 | **Hackers 'n Slashers** | Attacks, blocks, rolls and weapon stances |
-| **Horse Sync** *(archived)* | Sitting steady on an animated horse; source remains available, but the addon is not published or maintained |
+| **[Touch'n Motion](../extensions/touch_n_motion/README.md)** | Grounded feet, hands that interact with blocks and animals, horse sync, rowing and other procedural poses |
+| **Horse Sync** *(archived)* | Horse sync is now part of Touch'n Motion; the old addon's source remains available |
 | **[Immersive Melodies](https://modrinth.com/project/emf-compat-immersive-melodies)** | Playing instruments |
 | **[Iron's Spells 'n Spellbooks](https://modrinth.com/project/emf-compat-irons-spells-n-spellbooks)** | Spellcasting poses |
 | **[Not Enough Animations](https://modrinth.com/project/emf-compat-not-enough-animations)** | Eating, rowing, riding, petting and more |
@@ -37,9 +38,15 @@ When a mod takes a limb or lets it go, the pose blends into the pack's animation
 
 Only the parts a mod actually needs are taken over. Everything else keeps its resource-pack animation, so your character still breathes, walks and idles normally while holding a gun or carrying a chest. When two mods want the same limb at once, the more specific one wins — for example an attack takes the arms while a riding pose keeps the legs.
 
+The core also provides the shared support for foot placement and hand contacts used by Touch'n Motion, on every supported loader and Minecraft version.
+
 ## Settings
 
 All addons share one settings screen, with a tab per addon: **Mods → EMF Compat Core → Config**.
+
+Each installed addon also has a **Config** button in its own mod-list entry. It opens this shared screen directly on that addon's tab; **Done** returns to the mod list. Fabric requires Mod Menu to show the buttons; Forge and NeoForge use their built-in mod lists.
+
+Settings and addon tabs scroll with the mouse wheel. Click a category heading to fold or unfold it; child options appear under their parent. Numeric options use fixed steps. Hover over an option to read its description, and use **Reset** to restore the selected tab's defaults. Changes apply without restarting the game.
 
 The first tab, **Core**, has these options:
 
@@ -56,7 +63,7 @@ Addons that cover several mods (Create, Gliders) add a toggle per supported mod,
 
 ## Dependencies
 
-- **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** 3.3.2+
+- **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** 3.3.2+ (3.3.11+ on Minecraft 26.3)
 - **[Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures)** (required by EMF)
 - A player animation resource pack, such as **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**
 
@@ -66,7 +73,7 @@ Addons that cover several mods (Create, Gliders) add a toggle per supported mod,
 |--------|-------------------|
 | NeoForge | 1.21.1 |
 | Forge | 1.20.1 |
-| Fabric | 1.21.1, 1.21.11, 26.1.2, 26.2 |
+| Fabric | 1.21.1, 1.21.11, 26.1.2, 26.2, 26.3 |
 
 Addon coverage varies per loader — check each addon's page.
 
@@ -79,6 +86,7 @@ Addon coverage varies per loader — check each addon's page.
 ./gradlew :core-fabric-1.21.11:build
 ./gradlew :core-fabric-26.1.2:build
 ./gradlew :core-fabric-26.2:build
+./gradlew :core-fabric-26.3:build
 ```
 
 enjoy ^_^

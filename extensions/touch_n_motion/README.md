@@ -1,8 +1,5 @@
 # Touch'n Motion
 
-> [!IMPORTANT]
-> **Experimental:** version 0.1.0, not published yet. Things here are tried out, looked at in game and may still change or go.
-
 A mod, client-side with an optional server part, that adds animations of its own on top of an **[Entity Model Features](https://modrinth.com/mod/entity-model-features)** player model: feet that stand on the ground they are on, hands that go to the thing you use, and a body that takes part in what the hands do.
 
 Made for and tested with **[Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension)**. The pack keeps its own walk and idle motion, and the face keeps the expressions of **[Just Expressions](https://modrinth.com/resourcepack/just-expressions)**, the add-on for it; this addon only adds to them. Other player animation packs may give different results.
@@ -47,6 +44,8 @@ Made for and tested with **[Fresh Animations: Player Extension](https://modrinth
 - You rise and fall with an animated horse instead of sinking into the saddle, with an optional riding pose.
 - Rowing a boat with the hands on the oars; a passenger in the bow; riding a minecart with the hands on its sides.
 - On moving transport the hands brace against what is near.
+
+On Minecraft **1.21.11 and later**, poses account for the player model's overall movement, and armour and the head's outer layer follow the posed body. Rowing follows the paddle motion on these versions, and the chest-in-the-bow option is available too. Create Fly cranks and valve handles are also recognised where that mod is available.
 
 ## Everything it does
 
@@ -112,7 +111,8 @@ Everything below is optional — the matching animations turn on when the mod is
 | **[Supplementaries](https://modrinth.com/mod/supplementaries)** | Crank, bellows, faucet, globe, jars, pedestals, shelves and other blocks used by hand. |
 | **[Curios](https://modrinth.com/mod/curios)** | Putting on accessories: ring and bracelet, necklace, belt, back and head pieces. |
 | **[ParCool](https://modrinth.com/mod/parcool)** | Nothing of its own: the addon stands down in ParCool's hanging, climbing, vaulting, rolling and diving moves, and goes on working in a fast run. |
-| **[Enchanted Fishing Line](https://modrinth.com/mod/enchanted-fishing-line)** | The line starts at the rod's tip as the fishing pose has it. |
+| **Not Enough Animations** | Its rowing and horse-riding poses give way to Touch'n Motion while the matching poses and **NEA Compat** are enabled. |
+| **[Enchanted Fishing Line](https://modrinth.com/mod/enchanted-fishing-line)** | The line starts at the rod's tip as the fishing pose has it (1.21.1 and newer). |
 
 Contacts follow a moving Sable sub-level, so they hold on a ship under way. Interactions on Create contraptions are not covered, apart from driving controls.
 
@@ -120,15 +120,15 @@ Contacts follow a moving Sable sub-level, so they hold on a ship under way. Inte
 
 The addon works on the client alone, on any server: what other players do is then guessed from what the game shows of them — where they look, the swing of an arm, the block that changed.
 
-Put the same jar on a **NeoForge server** as well and nothing is guessed. Each player's game tells the server what its hands are at — the buttons held, the block or the creature under the crosshair (a ship's blocks included), the control held on to, the key typed, the click the game accepted — and the server passes it on to the players nearby. Turning a crank, holding a wheel or a throttle, typing, mining, feeding an animal then look to others as they do to you.
+Install the matching Touch'n Motion jar on the **server** as well (NeoForge, Forge or Fabric; a server needs neither EMF nor Core) to relay interaction details. Each player's game tells the server what its hands are at — the buttons held, the block or the creature under the crosshair (a ship's blocks included), the control held on to, the key typed, the click the game accepted — and the server passes it on to the players nearby. Turning a crank, holding a wheel or a throttle, typing, mining, feeding an animal then look to others as they do to you.
 
 A boat's second rider is seated in the bow by the server when it has the addon, so hits and the view are from there; without it each client draws them there by itself.
 
-The server does nothing else with it: no world or gameplay change, nothing stored. Players without the addon can join such a server, and players with it can join servers without it.
+The server relays interaction states and changes the boat passenger's seat as described above. It adds no blocks or items. Players without the addon can join such a server, and players with it can join servers without it.
 
 ## Config
 
-Open the in-game config screen (Mods → EMF Compat Core → Config) and pick the **Touch'n Motion** tab. The button at the top turns the whole addon off and keeps the settings.
+Use **Mods → Touch'n Motion → Config** to open its tab directly, or **Mods → EMF Compat Core → Config → Touch'n Motion**. Fabric requires Mod Menu; Forge and NeoForge use their built-in mod lists. The button at the top turns the whole addon off and keeps the settings.
 
 **Movement & body**
 
@@ -196,14 +196,21 @@ Open the in-game config screen (Mods → EMF Compat Core → Config) and pick th
 | Brace on moving transport | Hands hold on to what is near while the vehicle moves. |
 | Row a boat | The hands on the oars, the body in the stroke. Under it: **Passenger in the bow** - a second rider sits in the bow facing the rower; **Chest in the bow** - a chest boat's chest is drawn in the bow, the rower aft. |
 | Ride in a minecart | The hands on the sides, the body thrown about by the ride. Under it: **Legs inside the cart**. |
+| NEA Compat | Shown when Not Enough Animations is installed. Gives Touch'n Motion control of rowing and horse riding while its matching poses are enabled. |
+
+With **NEA Compat** enabled (the default), Not Enough Animations' rowing and horse-riding animations are temporarily switched off while the corresponding Touch'n Motion poses are enabled. They are restored when those poses or this compatibility option are disabled; NEA's settings file is left unchanged.
+
+Click category headings to fold or unfold them, and scroll to reach more options. Child options appear under their parent; numeric values change in fixed steps. **Reset** restores this tab's defaults.
 
 **Debug** holds logging switches; leave them off for normal play.
 
 ## Dependencies
 
-- [Entity Model Features](https://modrinth.com/mod/entity-model-features) 3.3.2+
+Required on the client:
+
+- [Entity Model Features](https://modrinth.com/mod/entity-model-features) 3.3.2+ (3.3.11+ on Minecraft 26.3)
 - [Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures) (required by EMF)
-- EMF Compat Core 2.2.0+
+- EMF Compat Core 2.3.0+
 - [Fresh Animations: Player Extension](https://modrinth.com/resourcepack/fa-player-extension) (recommended)
 
 ## Supported loaders / versions
@@ -211,11 +218,25 @@ Open the in-game config screen (Mods → EMF Compat Core → Config) and pick th
 | Loader | Minecraft versions |
 |--------|-------------------|
 | NeoForge | 1.21.1 |
+| Forge | 1.20.1 |
+| Fabric | 1.21.1, 1.21.11, 26.1.2, 26.2, 26.3 |
+
+Optional integrations depend on the mods available for your loader and Minecraft version; the block list includes blocks from newer versions of Minecraft and Create.
+
+**Forge 1.20.1** has everything the newer versions have, except the blocks that version of the game does not have yet (the crafter, the vault) and the fishing line's start at the rod's tip.
 
 ## Build
 
+All targets share one Stonecutter source tree in `src/`; loader and version differences are selected during the build.
+
 ```bash
-./gradlew :touch-n-motion-neoforge-1.21.1:build
+./gradlew :touch-n-motion:1.21.1-neoforge:build
+./gradlew :touch-n-motion:1.20.1-forge:build
+./gradlew :touch-n-motion:1.21.1-fabric:build
+./gradlew :touch-n-motion:1.21.11-fabric:build
+./gradlew :touch-n-motion:26.1.2-fabric:build
+./gradlew :touch-n-motion:26.2-fabric:build
+./gradlew :touch-n-motion:26.3-fabric:build
 ```
 
 enjoy ^_^
