@@ -39,10 +39,18 @@ public final class ChestInBow {
     //? if <1.21.11 {
     /** After the model has been posed for {@code boat}, before it is drawn. The model is one for every boat of its wood, so it is put back as well as moved. */
     public static void place(ListModel<Boat> model, Boat boat) {
-        if (!(model instanceof net.minecraft.client.model.ChestBoatModel) && !(model instanceof net.minecraft.client.model.ChestRaftModel)) return;
+        boolean cannon = CannonInBow.is(boat);
+        if (!cannon && !(model instanceof net.minecraft.client.model.ChestBoatModel) && !(model instanceof net.minecraft.client.model.ChestRaftModel)) return;
         List<ModelPart> parts = new ArrayList<>();
         model.parts().forEach(parts::add);
         int n = parts.size();
+        if (cannon) {
+            // A boat with a cannon is a plain boat's model, the cannon drawn apart: the paddles are its last two parts.
+            if (n < 2) return;
+            float aft = CannonInBow.moved(boat) ? (float) (BoatSeats.aft(boat) * 16) : 0f;
+            for (ModelPart paddle : parts.subList(n - 2, n)) paddle.x = strm.touchnmotion.platform.Platform.x(paddle.getInitialPose()) - aft;
+            return;
+        }
         // The model's own order: ..., the two paddles, the chest's bottom, lid and lock.
         if (n < 5) return;
         place(parts.subList(n - 5, n - 3), parts.subList(n - 3, n), BoatSeats.chestInBow(boat), strm.touchnmotion.platform.ServerSide.isRaft(boat));

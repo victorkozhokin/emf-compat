@@ -74,6 +74,9 @@ public final class BoatRide implements InteractionProvider {
     private static final float GUNWALE_Y = -3.6f, GUNWALE_Z = 9f, GUNWALE_HALF = 12f;
     /** A handle driven out this fast, pixels a second, is a full push. */
     private static final float FULL_PULL = 28f;
+    /** Aiming a boat's cannon: radians the torso leans forward over it, and seconds the hands take to it and back. */
+    private static final float AIM_LEAN = 0.22f;
+    private static final double AIM_SECONDS = 0.18;
     /** Seconds: a side's rowing coming on and off, the load on it, the springs' half-life, and how far ahead they are read. */
     private static final double ACTIVE_SECONDS = 0.22, LOAD_SECONDS = 0.06, SPRING = 0.04, LEAD = 0.12, SLIDE_SECONDS = 0.12;
 
@@ -84,6 +87,9 @@ public final class BoatRide implements InteractionProvider {
         final Spring pitch = new Spring(), yaw = new Spring(), roll = new Spring();
         boolean riding;
         float seated;
+        /** How far the hands are on a cannon's breech instead of the paddles, and where on it they last were. */
+        float aim;
+        Vec3[] breech;
         final float[] free = new float[2], along = new float[2];
         final boolean[] resting = new boolean[2];
         final float[] miss = new float[2], gap = new float[2];
@@ -129,6 +135,8 @@ public final class BoatRide implements InteractionProvider {
                     state.seen[i] = false;
                 }
                 state.seated = 0;
+                state.aim = 0;
+                state.breech = null;
             }
             context.decide(player.getVehicle() instanceof Boat ? "passenger" : "off");
             return;
@@ -189,6 +197,17 @@ public final class BoatRide implements InteractionProvider {
                 leftAt = Body.model(frame, left);
             }
         }
+        // Aiming a boat's cannon the hands leave the paddles for its breech, and go round with it.
+        Vec3[] breech = CannonAim.grips(boat, player, partial, context.now());
+        if (breech != null) state.breech = breech;
+        state.aim += ((breech != null ? 1f : 0f) - state.aim) * Smoothing.follow(dt, AIM_SECONDS);
+        float aim = state.breech == null ? 0f : Ease.smooth(state.aim);
+        if (aim > 1e-3f) {
+            right = right.lerp(state.breech[0], aim);
+            left = left.lerp(state.breech[1], aim);
+            rightAt = Body.model(frame, right);
+            leftAt = Body.model(frame, left);
+        }
         state.handle[0].set(rightAt);
         state.handle[1].set(leftAt);
         // How far back each shoulder has to be for its hand to lie on its handle.
@@ -203,12 +222,18 @@ public final class BoatRide implements InteractionProvider {
         // One hand rowing alone: its shoulder goes a little after it as it is driven out - the right one forward is -yRot.
         yaw -= (state.out[0] * state.free[1] - state.out[1] * state.free[0]) * LONE_TURN;
         float roll = (state.load[0] - state.load[1]) * HEEL;
+        if (aim > 1e-3f) {
+            // Over the cannon: forward from the waist, the chest square to it.
+            pitch = Mth.lerp(aim, pitch, AIM_LEAN);
+            yaw *= 1f - aim;
+            roll *= 1f - aim;
+        }
         state.pitch.update(pitch, SPRING, dt);
         state.yaw.update(yaw, SPRING, dt);
         state.roll.update(roll, SPRING, dt);
 
         boolean held = Riders.hold(out, id(), TIMING, frame, right, left, MAX_REACH);
-        context.decide(!held ? "out-of-reach" : pulling ? "row" : "hold");
+        context.decide(!held ? "out-of-reach" : aim > 0.5f ? "aim" : pulling ? "row" : "hold");
     }
 
     /** What the stroke asks of the torso; {@code null} out of a boat. */
@@ -343,7 +368,7 @@ public final class BoatRide implements InteractionProvider {
         float pivotY = strm.touchnmotion.platform.ServerSide.isRaft(boat) ? RAFT_PIVOT_Y : PIVOT_Y;
         // The part: its own turn (ZYX, as ModelPart applies it), then its pivot; side 1 starts turned half round.
         return world(boat, new Quaternionf().rotationZYX(PADDLE_ROLL, yaw, pitch).transform(new Vector3f(HANDLE))
-                .add(BoatSeats.chestInBow(boat) ? PIVOT_X - (float) (BoatSeats.aft(boat) * 16) : PIVOT_X, pivotY, side == 0 ? PIVOT_Z : -PIVOT_Z), partial);
+                .add(BoatSeats.riderAft(boat) ? PIVOT_X - (float) (BoatSeats.aft(boat) * 16) : PIVOT_X, pivotY, side == 0 ? PIVOT_Z : -PIVOT_Z), partial);
     }
 
     /** A point of the boat's model, pixels, in the world as the boat's renderer draws it: up 0.375, turned to the boat's yaw, flipped, a quarter turn. */

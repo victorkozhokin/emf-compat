@@ -20,7 +20,7 @@ public abstract class BoatSeatMixin {
     @Inject(method = "getPassengerAttachmentPoint", at = @At("RETURN"), cancellable = true)
     private void emfcompat$bowSeat(Entity entity, EntityDimensions dimensions, float scale, CallbackInfoReturnable<Vec3> cir) {
         Boat boat = (Boat) (Object) this;
-        if (BoatSeats.chestInBow(boat)) {
+        if (BoatSeats.riderAft(boat)) {
             cir.setReturnValue(new Vec3(0.0, cir.getReturnValue().y, -BoatSeats.aft(boat)).yRot(-boat.getYRot() * Mth.DEG_TO_RAD));
             return;
         }
@@ -38,7 +38,7 @@ public abstract class BoatSeatMixin {
         Boat boat = (Boat) (Object) this;
         if (!boat.hasPassenger(entity)) return;
         double forward, up = 0.0;
-        if (BoatSeats.chestInBow(boat)) {
+        if (BoatSeats.riderAft(boat)) {
             forward = -BoatSeats.aft(boat);
         } else if (BoatSeats.rowsWithBow(boat, entity)) {
             forward = 0.0;
@@ -52,6 +52,11 @@ public abstract class BoatSeatMixin {
         move.accept(entity, boat.getX() + seat.x, entity.getY() + up, boat.getZ() + seat.z);
     }
     *///?}
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void emfcompat$cannon(CallbackInfo ci) {
+        strm.touchnmotion.ride.CannonInBow.tick((Boat) (Object) this);
+    }
 
     //? if <26.3 {
     // As the game's own, about the way to the stern instead of the way to the bow.

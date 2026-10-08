@@ -4,7 +4,8 @@
   "package": "strm.touchnmotion.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "BoatSeatMixin"
+    "BoatSeatMixin",
+    "compat.CannonBoatMixin"
   ],
   "client": [
     "legacy.horsesync.AbstractHorseRendererAccessor",

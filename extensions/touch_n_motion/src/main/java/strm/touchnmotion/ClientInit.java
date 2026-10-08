@@ -77,6 +77,7 @@ public final class ClientInit {
         //? if >=1.20.5
         strm.touchnmotion.ride.ChestInBow.register(riding);
         strm.touchnmotion.ride.BoatSeats.chestClient = seated.apply(strm.touchnmotion.ride.ChestInBow.KEY_ENABLED);
+        strm.touchnmotion.ride.CannonInBow.client = strm.touchnmotion.net.ClientHands::connected;
         strm.touchnmotion.ride.MinecartRide.register(riding);
         strm.touchnmotion.transport.TransportGrip.register(riding, debug);
         // Only where there is something to be compatible with.
