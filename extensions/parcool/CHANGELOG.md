@@ -17,4 +17,4 @@
 - With the module, crawling and fast swimming show Fresh Animations' own crawl and swim, and climbing a chain or pole shows its ladder climb
 - The module keeps Fresh Animations' cape on the back while ParCool poses the torso, such as climbing up a ledge
 - A config tab with a master switch and a switch for holding the head and torso too
-- Requires EMF Compat Core 2.2.0 and Entity Model Features 3.3.2+
+- Requires EMF Compat Core 2.3.0 and Entity Model Features 3.3.2+

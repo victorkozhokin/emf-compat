@@ -248,7 +248,6 @@ stonecutter {
         version("1.21.11-fabric", "1.21.11").buildscript("build.fabric.remap.gradle")
         version("26.1.2-fabric", "26.1.2").buildscript("build.fabric.gradle")
         version("26.2-fabric", "26.2").buildscript("build.fabric.gradle")
-        // 26.3 is not ported yet (the swing left the entity, the tool classes went): its values wait in versions.gradle.
         version("26.3-fabric", "26.3").buildscript("build.fabric.gradle")
         vcsVersion = "1.21.1-neoforge"
     }

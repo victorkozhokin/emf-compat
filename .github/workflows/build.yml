@@ -60,6 +60,7 @@ jobs:
           :core-fabric-1.21.11:build
           :core-fabric-26.1.2:build
           :core-fabric-26.2:build
+          :core-fabric-26.3:build
           --configure-on-demand --stacktrace
 
       - name: Build all modules

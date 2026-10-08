@@ -15,7 +15,7 @@ public class Requirements implements PreLaunchEntrypoint {
 
     private static final String[][] NEEDED = {
             {"entity_model_features", "Entity Model Features", "3.3.2"},
-            {"emf_compat_core", "EMF Compat Core", "2.2.0"},
+            {"emf_compat_core", "EMF Compat Core", "2.3.0"},
     };
 
     @Override

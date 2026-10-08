@@ -1,5 +1,13 @@
 # EMF Compat Core — Changelog
 
+## 2.3.0
+
+- The settings screen is rebuilt: options are sorted into groups you can fold, an option that depends on another sits under it, and the list scrolls when it does not fit
+- An option can offer a choice of several values, not only on and off
+- An addon's entry in the mod list opens the settings on that addon's tab
+- Shared hand and foot reach helpers for addons — Touch'n Motion is built on them
+- Added a Fabric 26.3 build
+
 ## 2.2.0
 
 - Your pack keeps animating while another mod plays a Player Animation Library animation — sitting, carrying or playing an instrument no longer freezes the model

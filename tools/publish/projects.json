@@ -453,11 +453,11 @@
    "addon": "core",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "2.2.0",
+   "version_number": "2.3.0",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/1.21.1/emf_compat_core_fabric_1.21.1_2.2.0.jar",
+   "file": "upload/Core/fabric/1.21.1/emf_compat_core_fabric_1.21.1_2.3.0.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -467,17 +467,17 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.2.0"
+   "name": "EMF Compat: Core 2.3.0"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "1.21.11",
-   "version_number": "2.2.0",
+   "version_number": "2.3.0",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/1.21.11/emf_compat_core_fabric_1.21.11_2.2.0.jar",
+   "file": "upload/Core/fabric/1.21.11/emf_compat_core_fabric_1.21.11_2.3.0.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -487,17 +487,17 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.2.0"
+   "name": "EMF Compat: Core 2.3.0"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "26.1.2",
-   "version_number": "2.2.0",
+   "version_number": "2.3.0",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/26.1.2/emf_compat_core_fabric_26.1.2_2.2.0.jar",
+   "file": "upload/Core/fabric/26.1.2/emf_compat_core_fabric_26.1.2_2.3.0.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -507,17 +507,17 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.2.0"
+   "name": "EMF Compat: Core 2.3.0"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "26.2",
-   "version_number": "2.2.0",
+   "version_number": "2.3.0",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/26.2/emf_compat_core_fabric_26.2_2.2.0.jar",
+   "file": "upload/Core/fabric/26.2/emf_compat_core_fabric_26.2_2.3.0.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -527,17 +527,17 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.2.0"
+   "name": "EMF Compat: Core 2.3.0"
   },
   {
    "addon": "core",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "2.2.0",
+   "version_number": "2.3.0",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/forge/1.20.1/emf_compat_core_forge_1.20.1_2.2.0.jar",
+   "file": "upload/Core/forge/1.20.1/emf_compat_core_forge_1.20.1_2.3.0.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -547,17 +547,17 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.2.0"
+   "name": "EMF Compat: Core 2.3.0"
   },
   {
    "addon": "core",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "2.2.0",
+   "version_number": "2.3.0",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/neoforge/1.21.1/emf_compat_core_neoforge_1.21.1_2.2.0.jar",
+   "file": "upload/Core/neoforge/1.21.1/emf_compat_core_neoforge_1.21.1_2.3.0.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -567,7 +567,7 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.2.0"
+   "name": "EMF Compat: Core 2.3.0"
   },
   {
    "addon": "create",
