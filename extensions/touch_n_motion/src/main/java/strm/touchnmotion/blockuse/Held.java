@@ -16,6 +16,12 @@ public final class Held {
     /** The stacks an inventory holds; empty for what is not one. */
     public static ItemStack[] stacks(Object inventory) {
         if (inventory == null) return new ItemStack[0];
+        // The game's own kind of inventory, which some ports use in the loader's place.
+        if (inventory instanceof net.minecraft.world.Container container) {
+            ItemStack[] out = new ItemStack[container.getContainerSize()];
+            for (int i = 0; i < out.length; i++) out[i] = container.getItem(i);
+            return out;
+        }
         try {
             Method slots = inventory.getClass().getMethod("getSlots");
             Method stack = inventory.getClass().getMethod("getStackInSlot", int.class);

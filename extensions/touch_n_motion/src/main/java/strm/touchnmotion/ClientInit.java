@@ -117,6 +117,7 @@ public final class ClientInit {
     /** Leaving a world drops every feature's per-entity state with it, and what was known of other players' hands. */
     public static void leftWorld() {
         EntityStates.clearAll();
+        TouchNMotionHook.Drawn.clear();
         strm.touchnmotion.net.ClientHands.forgetAll();
     }
 }

@@ -80,6 +80,9 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             }
             if (context.animatingModelRoot().isMainModel) FootGrounding.recordAnimated(uuid, parts::get);
             applyAll(uuid, parts::get, player, context.animatingModelRoot().isMainModel);
+            //? if >=1.21.11 {
+            /*if (context.animatingModelRoot().isMainModel) Drawn.keep(uuid, parts::get);
+            *///?}
             // From 1.21.11 on the outer layer is a child of its limb and moves with it.
             //? if <1.21.11 {
             for (String[] layer : LAYERS) {
@@ -109,6 +112,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             if (uuid == null || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
             // Armour is only a player's concern here: nothing of ours is on any other biped.
             if (!(state.emfEntity() instanceof Player)) return;
+            //? if <1.21.11 {
             applyAll(uuid, name -> switch (name) {
                 case "head" -> model.head;
                 case "hat" -> model.hat;
@@ -119,9 +123,12 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
                 case "left_leg" -> model.leftLeg;
                 default -> null;
             }, true, false);
-            //? if <1.21.11 {
             model.hat.copyFrom(model.head);
-            //?}
+            //?} else {
+            /*// From 1.21.11 on the pose EMF copies here already has what the hook did to the body
+            // drawn, so doing it again would do it twice: the copy gets the drawn pose itself.
+            Drawn.put(uuid, model);
+            *///?}
         } catch (Throwable t) {
             // Same as above: never throw out of an EMF hook, and say so once.
             if (!armourFailureLogged) {
@@ -131,7 +138,47 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
         }
     }
 
+    /**
+     * From 1.21.11 on: the six parts of a player's model as they are drawn this frame, kept for the
+     * models that are drawn over it - armour, a cape's or a mod's copy of the body.
+     */
+    public static final class Drawn {
+        private static final String[] NAMES = {"head", "body", "right_arm", "left_arm", "right_leg", "left_leg"};
+        private static final Map<UUID, PoseSnapshot[]> BY_PLAYER = new java.util.HashMap<>();
+
+        private Drawn() {
+        }
+
+        static void keep(UUID uuid, Function<String, ModelPart> parts) {
+            PoseSnapshot[] kept = new PoseSnapshot[NAMES.length];
+            for (int i = 0; i < NAMES.length; i++) {
+                ModelPart part = parts.apply(NAMES[i]);
+                kept[i] = part == null ? null : new PoseSnapshot(part);
+            }
+            BY_PLAYER.put(uuid, kept);
+        }
+
+        static void put(UUID uuid, HumanoidModel<?> model) {
+            PoseSnapshot[] kept = BY_PLAYER.get(uuid);
+            if (kept == null) return;
+            ModelPart[] parts = {model.head, model.body, model.rightArm, model.leftArm, model.rightLeg, model.leftLeg};
+            for (int i = 0; i < parts.length; i++) if (kept[i] != null) kept[i].apply(parts[i]);
+        }
+
+        /** Leaving a world. */
+        public static void clear() {
+            BY_PLAYER.clear();
+        }
+    }
+
     private static void applyAll(UUID uuid, Function<String, ModelPart> parts, boolean player, boolean mainModel) {
+        // A hat that hangs off the head (1.21.11 on) moves with it: to the features, which move a hat
+        // that is a part of its own beside the head, it is not there.
+        ModelPart headPart = parts.apply("head");
+        if (headPart != null && headPart.hasChild("hat")) {
+            Function<String, ModelPart> all = parts;
+            parts = name -> "hat".equals(name) ? null : all.apply(name);
+        }
         var entity = EMFState.state();
         net.minecraft.client.player.AbstractClientPlayer client = player && entity != null
                 && entity.emfEntity() instanceof net.minecraft.client.player.AbstractClientPlayer p ? p : null;

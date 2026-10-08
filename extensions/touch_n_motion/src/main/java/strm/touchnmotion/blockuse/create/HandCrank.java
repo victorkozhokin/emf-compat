@@ -36,6 +36,7 @@ public final class HandCrank implements BlockTarget {
     private static final Vector3f AXIS = new Vector3f(8f, 8f, 6f);
 
     private static Method method;
+    private static java.lang.reflect.Field angleField, velocityField;
     private static final ModFailures FAILURES = new ModFailures("read the hand crank's angle");
 
     @Override
@@ -95,8 +96,18 @@ public final class HandCrank implements BlockTarget {
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity == null) return null;
         try {
-            if (method == null) method = entity.getClass().getMethod("getIndependentAngle", float.class);
-            return (Float) method.invoke(entity, strm.touchnmotion.platform.Platform.partialTick(false));
+            float partial = strm.touchnmotion.platform.Platform.partialTick(false);
+            if (method == null && angleField == null) {
+                try {
+                    method = entity.getClass().getMethod("getIndependentAngle", float.class);
+                } catch (NoSuchMethodException none) {
+                    // Create Fly keeps the two numbers on the block entity and the sum of them in its renderer.
+                    angleField = entity.getClass().getField("independentAngle");
+                    velocityField = entity.getClass().getField("chasingAngularVelocity");
+                }
+            }
+            if (method != null) return (Float) method.invoke(entity, partial);
+            return angleField.getFloat(entity) + partial * velocityField.getFloat(entity);
         } catch (Throwable t) {
             FAILURES.failed(t);
             return null;

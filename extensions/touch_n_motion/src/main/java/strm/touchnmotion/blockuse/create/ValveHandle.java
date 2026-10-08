@@ -16,7 +16,6 @@ import strm.touchnmotion.blockuse.*;
 /** All Create valve colours share this block class and the same octagonal rim geometry. */
 public final class ValveHandle implements BlockTarget {
     private static final EntityStates<RimGrip> GRIPS = new EntityStates<>(RimGrip::new);
-    private static final WheelAngle ANGLE = new WheelAngle("getIndependentAngle");
     private static final ModBlock BLOCK = ModBlock.exact("com.simibubi.create.content.kinetics.crank.ValveHandleBlock", "create:*_valve_handle");
     public boolean matches(BlockState block) {
         return BLOCK.is(block);
@@ -28,7 +27,7 @@ public final class ValveHandle implements BlockTarget {
         return grip(player, pos, block, true);
     }
     private static Spot grip(AbstractClientPlayer player, BlockPos pos, BlockState block, boolean support) {
-        Float degrees = ANGLE.read(player.level(), pos);
+        Float degrees = HandCrank.angle(player.level(), pos);
         if (degrees == null) return null;
         Direction facing = block.getValue(BlockStateProperties.FACING);
         boolean positive = RimGrip.positiveSide(player, pos, point(pos, facing, 0, new Vector3f(.5f, 6.5f / 16f, .5f)),
@@ -47,7 +46,7 @@ public final class ValveHandle implements BlockTarget {
                 .add(out.scale(state.motion.lift(hand))), out);
     }
 
-    public Float stanceAngle(Level level, BlockPos pos) { return ANGLE.read(level, pos); }
+    public Float stanceAngle(Level level, BlockPos pos) { return HandCrank.angle(level, pos); }
     public Vec3 swayCentre(Level level, BlockPos pos, BlockState block) {
         return point(pos, block.getValue(BlockStateProperties.FACING), 0, new Vector3f(.5f, 6.5f / 16f, .5f));
     }

@@ -18,6 +18,7 @@ public final class Basin implements BlockTarget {
     private static final ModBlock BLOCK = ModBlock.exact("com.simibubi.create.content.processing.basin.BasinBlock", "create:basin");
     private static final ModAccess INPUT = new ModAccess("getInputInventory");
     private static final ModAccess OUTPUT = new ModAccess("getOutputInventory");
+    private static final ModAccess BOTH = new ModAccess("itemCapability");
     /** Inside, under the rim, pixels. */
     private static final double INSIDE = 11;
 
@@ -49,7 +50,8 @@ public final class Basin implements BlockTarget {
 
     private static int items(Level level, BlockPos pos) {
         Object entity = level.getBlockEntity(pos);
-        return count(INPUT.read(entity)) + count(OUTPUT.read(entity));
+        // Create Fly has one inventory for both, under another name.
+        return count(INPUT.read(entity)) + count(OUTPUT.read(entity)) + count(BOTH.read(entity));
     }
 
     private static int count(Object inventory) {
