@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "mctest_driver",
+  "version": "1.0.0",
+  "name": "mctest driver",
+  "description": "Development-only test driver for EMF Compat. Inert unless the game was started with -Dmctest.",
+  "license": "GPL-3.0",
+  "environment": "client",
+  "entrypoints": { "client": ["strm.mctest.MctestDriverMod"] },
+  "depends": { "fabricloader": "*", "fabric-lifecycle-events-v1": "*" }
+}

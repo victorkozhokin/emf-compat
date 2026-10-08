@@ -269,7 +269,7 @@ public final class CockpitControls implements InteractionProvider {
         Vec3 up = space.directionToWorld(new Vec3(0, 1, 0));
         Vector3f local = Body.model(frame, origin.add(direction));
         Vector3f normal = Body.model(frame, origin.add(up));
-        stack.mulPose(CockpitFacing.orientation(local, normal));
+        strm.touchnmotion.platform.Platform.rotate(stack, CockpitFacing.orientation(local, normal));
         return CockpitFacing.angle(local.x, local.z);
     }
 

@@ -108,7 +108,7 @@ public final class HorseFootGrounding {
         if (Math.abs(state.tilt) > 1e-4f) {
             // Round the middle of the footprint, on the ground: front up is -y at -z.
             stack.translate(0f, GROUND / 16f, MIDDLE_Z / 16f);
-            stack.mulPose(Axis.XP.rotation(-state.tilt));
+            strm.touchnmotion.platform.Platform.rotate(stack, new org.joml.Quaternionf().rotationX(-state.tilt));
             stack.translate(0f, -GROUND / 16f, -MIDDLE_Z / 16f);
         }
     }

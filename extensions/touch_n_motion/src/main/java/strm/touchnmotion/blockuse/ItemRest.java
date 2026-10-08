@@ -128,7 +128,7 @@ public final class ItemRest implements BlockTarget {
     public Object snapshot(AbstractClientPlayer player, Level level, BlockPos pos, BlockState block) {
         ItemStack hand = player.getMainHandItem();
         return new Seen(block, item(level, pos), count(level, pos), hand.isEmpty() ? null : hand.getItem().toString(),
-                player.swinging, player.swingTime);
+                strm.touchnmotion.platform.Platform.swinging(player), strm.touchnmotion.platform.Platform.swingTime(player));
     }
 
     @Override

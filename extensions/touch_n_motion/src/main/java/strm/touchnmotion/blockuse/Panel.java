@@ -89,7 +89,7 @@ public final class Panel implements BlockTarget {
 
     @Override
     public Object snapshot(AbstractClientPlayer player, Level level, BlockPos pos, BlockState block) {
-        return new Seen(block, player.swinging, player.swingTime, looked.get(player.getUUID()));
+        return new Seen(block, strm.touchnmotion.platform.Platform.swinging(player), strm.touchnmotion.platform.Platform.swingTime(player), looked.get(player.getUUID()));
     }
 
     @Override

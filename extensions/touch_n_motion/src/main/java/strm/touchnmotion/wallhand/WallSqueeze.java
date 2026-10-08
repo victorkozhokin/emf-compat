@@ -281,7 +281,7 @@ public final class WallSqueeze {
         boolean main = right == (s.player.getMainArm() == HumanoidArm.RIGHT);
         InteractionHand hand = main ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
         return !s.player.getItemInHand(hand).isEmpty()
-                || s.player.swinging && s.player.swingingArm == hand
+                || strm.touchnmotion.platform.Platform.swinging(s.player) && strm.touchnmotion.platform.Platform.swingingArm(s.player) == hand
                 || s.player.isUsingItem() && s.player.getUsedItemHand() == hand;
     }
 

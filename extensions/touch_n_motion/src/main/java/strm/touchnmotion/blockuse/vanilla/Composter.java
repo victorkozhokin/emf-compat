@@ -40,8 +40,7 @@ public final class Composter implements BlockTarget {
     }
 
     private static boolean compostable(ItemStack stack) {
-        return !stack.isEmpty() && (strm.touchnmotion.platform.Platform.compostable(stack)
-                || ComposterBlock.COMPOSTABLES.containsKey(stack.getItem()));
+        return !stack.isEmpty() && strm.touchnmotion.platform.Platform.compostable(stack);
     }
 
     /** The middle of the opening, just under the rim. */

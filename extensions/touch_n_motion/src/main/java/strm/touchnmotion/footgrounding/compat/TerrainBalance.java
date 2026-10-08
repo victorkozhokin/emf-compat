@@ -112,7 +112,7 @@ final class TerrainBalance {
         float idle = SupportSurface.clamp(1 - player.walkAnimation.speed() / 0.25f, 0, 1);
         shift(balanced(r), -1.9f, right, dt, idle);
         shift(balanced(l), 1.9f, left, dt, idle);
-        armsFree = !player.swinging && !player.isUsingItem()
+        armsFree = !strm.touchnmotion.platform.Platform.swinging(player) && !player.isUsingItem()
                 && !PoseManager.hasArmPoseExcept(player.getUUID(), "");
     }
 

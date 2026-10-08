@@ -31,7 +31,8 @@ public abstract class BoatSeatMixin {
         cir.setReturnValue(new Vec3(0.0, cir.getReturnValue().y + BoatSeats.RAISED, BoatSeats.BOW).yRot(-boat.getYRot() * Mth.DEG_TO_RAD));
     }
 
-    /** As the game's own, about the way to the stern instead of the way to the bow. */
+    //? if <26.3 {
+    // As the game's own, about the way to the stern instead of the way to the bow.
     @Inject(method = "clampRotation", at = @At("HEAD"), cancellable = true)
     private void emfcompat$faceRower(Entity entity, CallbackInfo ci) {
         Boat boat = (Boat) (Object) this;
@@ -45,4 +46,18 @@ public abstract class BoatSeatMixin {
         entity.setYHeadRot(entity.getYRot());
         ci.cancel();
     }
+    //?} else {
+    /*// From 26.3 on the game's own says how far it turned the rider, and whoever asked does the rest.
+    @Inject(method = "clampRotation", at = @At("HEAD"), cancellable = true)
+    private void emfcompat$faceRower(Entity entity, org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Float> cir) {
+        Boat boat = (Boat) (Object) this;
+        if (!BoatSeats.inBow(boat, entity)) return;
+        float aft = boat.getYRot() + 180f;
+        entity.setYBodyRot(aft);
+        float off = Mth.wrapDegrees(entity.getYRot() - aft);
+        float kept = Mth.clamp(off, -BoatSeats.TURN, BoatSeats.TURN);
+        entity.setYRot(entity.getYRot() + kept - off);
+        cir.setReturnValue(kept - off);
+    }
+    *///?}
 }

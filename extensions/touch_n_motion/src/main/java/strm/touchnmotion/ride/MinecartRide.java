@@ -327,7 +327,7 @@ public final class MinecartRide implements InteractionProvider {
         stack.translate(moved.x / 16f, moved.y / 16f, moved.z / 16f);
         Vector3f toward = strm.touchnmotion.interaction.Body.model(frame, origin.add(face));
         Vector3f normal = strm.touchnmotion.interaction.Body.model(frame, origin.add(drawn.up));
-        stack.mulPose(strm.touchnmotion.blockuse.aeronautics.CockpitFacing.orientation(toward, normal));
+        strm.touchnmotion.platform.Platform.rotate(stack, strm.touchnmotion.blockuse.aeronautics.CockpitFacing.orientation(toward, normal));
     }
 
     /** The last word on the hands: each fist kept on its place on the rim from where the shoulder has been thrown to. */

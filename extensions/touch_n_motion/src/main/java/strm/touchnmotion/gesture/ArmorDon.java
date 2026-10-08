@@ -174,7 +174,7 @@ public final class ArmorDon extends Gesture {
     }
 
     protected boolean ready(AbstractClientPlayer player) {
-        return super.ready(player) && !player.swinging && !player.isUsingItem();
+        return super.ready(player) && !strm.touchnmotion.platform.Platform.swinging(player) && !player.isUsingItem();
     }
 
     protected double seconds(Play play) {

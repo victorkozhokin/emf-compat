@@ -154,7 +154,7 @@ public final class PocketStash implements InteractionProvider {
     /** On firm ground with the right hand doing nothing else. */
     private static boolean ready(AbstractClientPlayer player) {
         return player.onGround() && !player.isPassenger() && !player.isSleeping() && !player.isSpectator()
-                && !strm.touchnmotion.platform.Platform.inWater(player) && !player.isFallFlying() && !player.swinging && !player.isUsingItem()
+                && !strm.touchnmotion.platform.Platform.inWater(player) && !player.isFallFlying() && !strm.touchnmotion.platform.Platform.swinging(player) && !player.isUsingItem()
                 && InteractionRuntime.weight(player.getUUID(), Effector.RIGHT_ARM) < .05f;
     }
 

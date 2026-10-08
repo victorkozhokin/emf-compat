@@ -9,11 +9,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.BlockDestructionProgress;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -179,7 +176,7 @@ public final class Mining implements InteractionProvider {
             context.decide("target-removed");
             return;
         }
-        if (player.swinging) state.swungAt = now;
+        if (strm.touchnmotion.platform.Platform.swinging(player)) state.swungAt = now;
         BlockPos pos = breaking(player, state, now);
         boolean breaking = pos != null;
         if (breaking) state.minedAt = now;
@@ -216,7 +213,7 @@ public final class Mining implements InteractionProvider {
         // Where it is on the model this frame: the player may walk or turn meanwhile.
         state.hit.set(Body.model(frame, state.space.refresh().toWorld(state.point)));
         // A swing ending drops the value to nothing as well: only one that goes on is a new blow.
-        if (state.active && player.swinging && phase < state.phase - NEW_SWING) {
+        if (state.active && strm.touchnmotion.platform.Platform.swinging(player) && phase < state.phase - NEW_SWING) {
             // Another of the three, never the same twice running.
             state.lastBlow = state.blow;
             state.blow = (state.blow + 1 + java.util.concurrent.ThreadLocalRandom.current().nextInt(2)) % 3;
@@ -293,9 +290,9 @@ public final class Mining implements InteractionProvider {
     private static ToolSwing.Tool tool(ItemStack stack) {
         Item item = stack.getItem();
         if (stack.is(net.minecraft.tags.ItemTags.PICKAXES)) return ToolSwing.PICKAXE;
-        if (item instanceof AxeItem) return ToolSwing.AXE;
-        if (item instanceof ShovelItem) return ToolSwing.SHOVEL;
-        if (item instanceof HoeItem) return ToolSwing.HOE;
+        if (strm.touchnmotion.platform.Platform.isAxe(stack)) return ToolSwing.AXE;
+        if (strm.touchnmotion.platform.Platform.isShovel(stack)) return ToolSwing.SHOVEL;
+        if (strm.touchnmotion.platform.Platform.isHoe(stack)) return ToolSwing.HOE;
         return null;
     }
 

@@ -142,8 +142,8 @@ public final class Fishing implements InteractionProvider {
         float in = (float) ((now - state.since) / 1e9);
         // One's own cast begins with the click, not with the float the server sends back a tick or two later.
         var mc = net.minecraft.client.Minecraft.getInstance();
-        boolean clicked = player == mc.player && player.swinging && !state.swung && mc.options.keyUse.isDown();
-        state.swung = player.swinging;
+        boolean clicked = player == mc.player && strm.touchnmotion.platform.Platform.swinging(player) && !state.swung && mc.options.keyUse.isDown();
+        state.swung = strm.touchnmotion.platform.Platform.swinging(player);
         if (!able) {
             state.phase = Phase.NONE;
         } else if (clicked && hook == null && state.phase == Phase.NONE) {

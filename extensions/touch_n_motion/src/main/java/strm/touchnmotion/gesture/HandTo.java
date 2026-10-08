@@ -74,7 +74,7 @@ public final class HandTo extends Gesture {
             super.remote(context, play);
             return;
         }
-        if (!(play.notes instanceof net.minecraft.core.BlockPos bed) || !play.player.swinging || play.acted && !play.back) return;
+        if (!(play.notes instanceof net.minecraft.core.BlockPos bed) || !strm.touchnmotion.platform.Platform.swinging(play.player) || play.acted && !play.back) return;
         net.minecraft.world.level.block.Block grown = play.player.level().getBlockState(bed).getBlock();
         if (!(grown instanceof CropBlock || grown instanceof StemBlock || grown instanceof NetherWartBlock)) return;
         play.notes = null;

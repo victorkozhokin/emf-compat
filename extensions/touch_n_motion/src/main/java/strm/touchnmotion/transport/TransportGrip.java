@@ -61,7 +61,7 @@ public final class TransportGrip implements InteractionProvider {
         s.frame = context.frame();
         s.active = false;
         s.helper = false;
-        if (p.isPassenger() || !p.onGround() || p.isSleeping() || p.isSwimming() || p.isFallFlying() || p.isUsingItem() || p.swinging) {
+        if (p.isPassenger() || !p.onGround() || p.isSleeping() || p.isSwimming() || p.isFallFlying() || p.isUsingItem() || strm.touchnmotion.platform.Platform.swinging(p)) {
             release(s, context.now());
             context.decide("off:pose");
             return;

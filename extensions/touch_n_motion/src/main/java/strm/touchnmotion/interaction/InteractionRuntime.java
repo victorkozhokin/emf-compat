@@ -122,15 +122,15 @@ public final class InteractionRuntime {
             }
         }
 
-        int swingStart = player.tickCount - player.swingTime;
-        if (player.swinging && context.armsClaimed()) state.claimedSwingStart = swingStart;
+        int swingStart = player.tickCount - strm.touchnmotion.platform.Platform.swingTime(player);
+        if (strm.touchnmotion.platform.Platform.swinging(player) && context.armsClaimed()) state.claimedSwingStart = swingStart;
         // Only the local container gesture supersedes WATUT's generic GUI hands.
         // Weapons, other addon poses and ordinary inventory screens keep their reservation.
         boolean containerSearch = player == net.minecraft.client.Minecraft.getInstance().player
                 && strm.touchnmotion.platform.Platform.screen() instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>
                 && candidates.stream().anyMatch(candidate -> candidate.source().equals("ContainerSearch"));
         Set<Effector> reserved = reserved(player, containerSearch, context.armsClaimed()
-                || player.swinging && state.claimedSwingStart == swingStart);
+                || strm.touchnmotion.platform.Platform.swinging(player) && state.claimedSwingStart == swingStart);
         Map<Effector, String> holders = new EnumMap<>(Effector.class);
         state.slots.forEach((effector, slot) -> {
             if (slot.owner != null) holders.put(effector, slot.owner);
@@ -223,7 +223,7 @@ public final class InteractionRuntime {
     private static Set<Effector> reserved(AbstractClientPlayer player, boolean containerSearch, boolean swingClaimed) {
         Set<Effector> reserved = EnumSet.noneOf(Effector.class);
         // A swing, an item in use or another addon's arm pose owns the arms.
-        if (player.swinging && !swingClaimed || player.isUsingItem() || PoseManager.hasArmPoseExcept(player.getUUID(), containerSearch ? "watut" : "")) {
+        if (strm.touchnmotion.platform.Platform.swinging(player) && !swingClaimed || player.isUsingItem() || PoseManager.hasArmPoseExcept(player.getUUID(), containerSearch ? "watut" : "")) {
             reserved.add(Effector.RIGHT_ARM);
             reserved.add(Effector.LEFT_ARM);
         }

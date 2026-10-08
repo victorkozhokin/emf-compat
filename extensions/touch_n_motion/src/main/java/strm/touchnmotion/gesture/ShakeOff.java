@@ -73,7 +73,7 @@ public final class ShakeOff extends Gesture {
     }
 
     protected boolean ready(AbstractClientPlayer player) {
-        return super.ready(player) && player.onGround() && !player.isInWater() && !player.swinging && !player.isUsingItem();
+        return super.ready(player) && player.onGround() && !player.isInWater() && !strm.touchnmotion.platform.Platform.swinging(player) && !player.isUsingItem();
     }
 
     protected double seconds(Play play) {

@@ -171,7 +171,7 @@ public final class LookAt implements InteractionProvider {
         int slot = strm.touchnmotion.platform.Platform.selectedSlot(player);
         boolean crouching = player.isCrouching();
         boolean still = player.isPassenger() ? player.getVehicle().getDeltaMovement().horizontalDistanceSqr() < .0004 : Body.planted(player);
-        boolean acted = looked || !still || player.swinging || player.isUsingItem()
+        boolean acted = looked || !still || strm.touchnmotion.platform.Platform.swinging(player) || player.isUsingItem()
                 || slot != state.lastSlot || crouching != state.lastCrouching;
         state.lastYaw = yRot;
         state.lastPitch = xRot;
@@ -313,7 +313,7 @@ public final class LookAt implements InteractionProvider {
         State state = STATES.fresh(player.getUUID());
         if (state == null || Math.abs(state.turn.value) < 1e-3f || !INSTANCE.isEnabled() || player.isPassenger()
                 || !EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) return;
-        stack.mulPose(new Quaternionf().rotationY(state.turn.value));
+        strm.touchnmotion.platform.Platform.rotate(stack, new Quaternionf().rotationY(state.turn.value));
     }
 
     /**

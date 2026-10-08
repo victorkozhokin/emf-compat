@@ -56,7 +56,9 @@ public final class Platform {
     public static boolean isFuel(ItemStack stack) {
         //? if neoforge {
         return stack.getBurnTime(null) > 0;
-        //?} elif >=1.21.11 {
+        //?} elif >=26.3 {
+        /*return stack.has(net.minecraft.core.component.DataComponents.COOKING_FUEL);
+        *///?} elif >=1.21.11 {
         /*net.minecraft.client.multiplayer.ClientLevel level = net.minecraft.client.Minecraft.getInstance().level;
         return level != null && level.fuelValues().isFuel(stack);
         *///?} else {
@@ -64,13 +66,16 @@ public final class Platform {
         *///?}
     }
 
-    /** Whether the loader's own list, beside the game's, has it as something a composter takes. */
+    /** Whether a composter takes it. */
     public static boolean compostable(ItemStack stack) {
+        //? if >=26.3 {
+        /*return stack.has(net.minecraft.core.component.DataComponents.COMPOSTABLE);
+        *///?} else {
         //? if neoforge {
-        return stack.getItemHolder().getData(net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps.COMPOSTABLES) != null;
-        //?} else {
-        /*return false;
-        *///?}
+        if (stack.getItemHolder().getData(net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps.COMPOSTABLES) != null) return true;
+        //?}
+        return net.minecraft.world.level.block.ComposterBlock.COMPOSTABLES.containsKey(stack.getItem());
+        //?}
     }
 
     private static final java.util.Set<Block> POTTED = new java.util.HashSet<>();
@@ -118,6 +123,67 @@ public final class Platform {
         /*return net.minecraft.client.Minecraft.getInstance().gui.screen();
         *///?} else {
         return net.minecraft.client.Minecraft.getInstance().screen;
+        //?}
+    }
+
+    /** Whether the arm is in a swing. */
+    public static boolean swinging(net.minecraft.world.entity.LivingEntity entity) {
+        //? if >=26.3 {
+        /*return entity.isSwinging();
+        *///?} else {
+        return entity.swinging;
+        //?}
+    }
+
+    /** Ticks into the swing: it starts over at each new one. */
+    public static int swingTime(net.minecraft.world.entity.LivingEntity entity) {
+        //? if >=26.3 {
+        /*var swing = entity.getCurrentSwing();
+        return swing == null ? 0 : Math.round(entity.getSwingAnimation(1f) * swing.durationTicks());
+        *///?} else {
+        return entity.swingTime;
+        //?}
+    }
+
+    public static net.minecraft.world.InteractionHand swingingArm(net.minecraft.world.entity.LivingEntity entity) {
+        //? if >=26.3 {
+        /*var swing = entity.getCurrentSwing();
+        return swing == null ? net.minecraft.world.InteractionHand.MAIN_HAND : swing.hand();
+        *///?} else {
+        return entity.swingingArm;
+        //?}
+    }
+
+    /** Turns what is drawn from here on. */
+    public static void rotate(com.mojang.blaze3d.vertex.PoseStack stack, org.joml.Quaternionf by) {
+        //? if >=26.3 {
+        /*stack.rotate(by);
+        *///?} else {
+        stack.mulPose(by);
+        //?}
+    }
+
+    public static boolean isAxe(ItemStack stack) {
+        //? if >=26.3 {
+        /*return stack.is(net.minecraft.tags.ItemTags.AXES);
+        *///?} else {
+        return stack.getItem() instanceof net.minecraft.world.item.AxeItem;
+        //?}
+    }
+
+    public static boolean isShovel(ItemStack stack) {
+        //? if >=26.3 {
+        /*return stack.is(net.minecraft.tags.ItemTags.SHOVELS);
+        *///?} else {
+        return stack.getItem() instanceof net.minecraft.world.item.ShovelItem;
+        //?}
+    }
+
+    public static boolean isHoe(ItemStack stack) {
+        //? if >=26.3 {
+        /*return stack.is(net.minecraft.tags.ItemTags.HOES);
+        *///?} else {
+        return stack.getItem() instanceof net.minecraft.world.item.HoeItem;
         //?}
     }
 

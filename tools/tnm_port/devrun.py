@@ -1,7 +1,7 @@
 """Runs a port of Touch'n Motion from its build (Loom's runClient) with the mctest driver in it, for a loader and
 version no Modrinth profile exists for, and drives it the way tools/mctest/mctest.py does.
 
-    python3 tools/tnm_port/devrun.py launch [world]     # prepares run/mctest/<name>, starts the game
+    python3 tools/tnm_port/devrun.py [--node 26.3-fabric] launch [world]     # prepares run/mctest/<name>, starts the game
     python3 tools/tnm_port/devrun.py steps '<json>'      # queues steps for the driver, prints its answer
     python3 tools/tnm_port/devrun.py status | stop
 
@@ -11,10 +11,15 @@ import json, os, shutil, signal, subprocess, sys, time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-NAME, MODULE = "Fabric-1.21.1", ":touch-n-motion:1.21.1-fabric"
+# The node to run: --node <minecraft>-<loader> before the command; Fabric 1.21.1 when not given.
+NODE = sys.argv.pop(sys.argv.index("--node") + 1) if "--node" in sys.argv else "1.21.1-fabric"
+if "--node" in sys.argv:
+    sys.argv.remove("--node")
+NAME, MODULE = "Fabric-" + NODE.split("-")[0], ":touch-n-motion:" + NODE
 RUN = REPO / "run" / "mctest" / NAME
-PROFILE = Path.home() / "Modrinth" / "profiles" / "Test"
-PACKS = ["FreshAnimations_v1.10.4", "FA+Player-v1.1.zip", "JustExpressions_v1.2.1.zip"]
+# Where the packs, the options and the world come from: a profile of the same span of versions.
+PROFILE = Path.home() / "Modrinth" / "profiles" / ("Test" if NODE.startswith("1.21.1-") else "Test 26.2")
+PACKS = ["FreshAnimations_v1.10.4", "FreshAnimations_v1.10.5.zip", "FA+Player-v1.1.zip", "JustExpressions_v1.2.1.zip"]
 OPTIONS = {"pauseOnLostFocus": "false", "fullscreen": "false", "onboardAccessibility": "false", "skipMultiplayerWarning": "true",
            "joinedFirstServer": "true", "tutorialStep": "none", "narrator": "0", "soundCategory_master": "0.0", "maxFps": "60",
            "toggleCrouch": "false", "toggleSprint": "false"}

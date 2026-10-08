@@ -118,7 +118,7 @@ public final class FenceLean implements InteractionProvider {
         AbstractClientPlayer player = context.player();
         long now = context.now();
         State state = STATES.seen(player.getUUID(), now).value;
-        boolean still = Body.planted(player) && player.getPose() == Pose.STANDING && !player.swinging && !player.isUsingItem()
+        boolean still = Body.planted(player) && player.getPose() == Pose.STANDING && !strm.touchnmotion.platform.Platform.swinging(player) && !player.isUsingItem()
                 && !player.isSleeping();
         if (now - state.lookedAt >= LOOK_EVERY_NANOS) {
             state.lookedAt = now;
@@ -207,7 +207,7 @@ public final class FenceLean implements InteractionProvider {
         IKFrame frame = IKFrame.capture(stack.last().pose(), strm.touchnmotion.platform.Platform.cameraPosition());
         Vec3 origin = frame.jointWorld(new Vector3f());
         Vector3f toward = Body.model(frame, origin.add(state.rail.towards)), up = Body.model(frame, origin.add(0, 1, 0));
-        stack.mulPose(new org.joml.Quaternionf().slerp(CockpitFacing.orientation(toward, up), state.square));
+        strm.touchnmotion.platform.Platform.rotate(stack, new org.joml.Quaternionf().slerp(CockpitFacing.orientation(toward, up), state.square));
     }
 
     /** The fence the player stands up against, square on to it; {@code null} when there is none. */

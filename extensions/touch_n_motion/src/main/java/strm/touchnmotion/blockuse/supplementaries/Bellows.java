@@ -61,10 +61,10 @@ public final class Bellows implements BlockTarget {
         Object count = MANUAL.read(player.level().getBlockEntity(pos));
         // The mod tells only the game that pressed of the press: for anyone else the arm's swing at the plate is the word on it.
         boolean pressed = player != Minecraft.getInstance().player || count instanceof Number n && n.intValue() > 0;
-        if (player.swinging && (!p.swinging || player.swingTime < p.swing) && pressed)
+        if (strm.touchnmotion.platform.Platform.swinging(player) && (!p.swinging || strm.touchnmotion.platform.Platform.swingTime(player) < p.swing) && pressed)
             p.until = player.level().getGameTime() + 18;
-        p.swinging = player.swinging;
-        p.swing = player.swingTime;
+        p.swinging = strm.touchnmotion.platform.Platform.swinging(player);
+        p.swing = strm.touchnmotion.platform.Platform.swingTime(player);
         return contact(player, pos, block, true);
     }
     @Override public Spot supportHand(AbstractClientPlayer player, BlockPos pos, BlockState block) { return usable(player, block) && plateAccessible(player, pos, block) ? contact(player, pos, block, false) : null; }

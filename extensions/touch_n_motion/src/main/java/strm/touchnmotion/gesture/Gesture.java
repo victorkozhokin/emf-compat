@@ -413,9 +413,9 @@ public abstract class Gesture implements InteractionProvider {
             play.frame = context.frame();
             play.poised = isEnabled() && ready(player) && poised(context, play);
             if (!mine) {
-                play.swingBegan = player.swinging && (!play.swinging || player.swingTime < play.swingTime);
-                play.swinging = player.swinging;
-                play.swingTime = player.swingTime;
+                play.swingBegan = strm.touchnmotion.platform.Platform.swinging(player) && (!play.swinging || strm.touchnmotion.platform.Platform.swingTime(player) < play.swingTime);
+                play.swinging = strm.touchnmotion.platform.Platform.swinging(player);
+                play.swingTime = strm.touchnmotion.platform.Platform.swingTime(player);
                 // Told of the click itself (see ClientHands), there is nothing to guess from the swing.
                 if (isEnabled() && !strm.touchnmotion.net.Inputs.told(player)) remote(context, play);
             }

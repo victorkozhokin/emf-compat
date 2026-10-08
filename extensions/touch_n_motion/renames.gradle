@@ -33,6 +33,7 @@ stonecutter.replacements {
     ].each { from, to ->
         string(deobf) { replace(from, to) }
     }
+    string(since('26.3')) { replace('.getAttackAnim(', '.getSwingAnimation(') }
     // Every boat was a Boat; now a Boat is one kind of AbstractBoat.
     regex(modern) { replace('\\bBoat\\b(?!\\.Type)', 'AbstractBoat', '\\bAbstractBoat\\b', 'Boat') }
     regex(modern) { replace('\\bChestBoat\\b', 'AbstractChestBoat', '\\bAbstractChestBoat\\b', 'ChestBoat') }
