@@ -8,6 +8,7 @@
   ],
   "client": [
     "modern.StateEntityMixin",
+    "modern.SwingQuietMixin",
     "modern.ModelSpaceMixin",
     "modern.RidingPoseMixin",
     "modern.BoatChestModelMixin",
