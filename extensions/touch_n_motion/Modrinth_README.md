@@ -83,7 +83,7 @@ A great addition to **[Punchy!](https://modrinth.com/mod/punchy-fpa)** or **[Hol
 
 </details>
 
-**Machines.** With Create, Aeronautics or Supplementaries, your hands find cranks, valves, wheels and throttles. Turning a crank takes the whole body; at a wheel one hand keeps its grip while the other moves around the rim.
+**Machines.** With [Create](https://modrinth.com/mod/create), [Aeronautics](https://modrinth.com/mod/create-aeronautics) or [Supplementaries](https://modrinth.com/mod/supplementaries), your hands find cranks, valves, wheels and throttles. Turning a crank takes the whole body; at a wheel one hand keeps its grip while the other moves around the rim.
 
 <details>
 <summary>Show animation examples</summary>
@@ -103,11 +103,11 @@ All of this shows on other players too. And if there’s a movement you don’t 
 
 **Vanilla:** buttons, levers, doors, fence gates, chests, barrels, lectern, chiseled bookshelf, jukebox, note block, composter, cauldron, beehive and bee nest, respawn anchor, cake, candles and candle cake, flower pot, repeater, comparator, daylight detector, enchanting table, cartography table, brewing stand, crafting table, stonecutter, crafter, vault, bell, TNT, campfire.
 
-**Create:** hand crank, valve handles, weighted ejector, train controls, contraption controls, factory gauge, content observer, track station, depot, basin, item drain, blaze burner, mechanical arm, deployer, mechanical crafter, package frogport, packager and repackager, postbox, rotation speed controller, sequenced gearshift, stockpile switch, display link, redstone link, elevator contact, stock ticker, redstone requester, funnels, smart chute, creative motor, mechanical bearing.
+**[Create](https://modrinth.com/mod/create):** hand crank, valve handles, weighted ejector, train controls, contraption controls, factory gauge, content observer, track station, depot, basin, item drain, blaze burner, mechanical arm, deployer, mechanical crafter, package frogport, packager and repackager, postbox, rotation speed controller, sequenced gearshift, stockpile switch, display link, redstone link, elevator contact, stock ticker, redstone requester, funnels, smart chute, creative motor, mechanical bearing.
 
-**Create Aeronautics:** steering wheel, throttle lever, linked typewriter, navigation table, physics assembler, mounted potato cannon, portable engine, adjustable burner, rope winch, propeller bearings.
+**[Create Aeronautics](https://modrinth.com/mod/create-aeronautics):** steering wheel, throttle lever, linked typewriter, navigation table, physics assembler, mounted potato cannon, portable engine, adjustable burner, rope winch, propeller bearings.
 
-**Supplementaries:** crank, bellows, gold door, iron gate, globes, sconce lever, item shelf, pedestal, blackboard, safe, lunch basket, presents, cage, notice board, hourglass, faucet, speaker block, turn table, book piles, jars, sack, flower box and planter, cannon, pulley block, lock block, doormat.
+**[Supplementaries](https://modrinth.com/mod/supplementaries):** crank, bellows, gold door, iron gate, globes, sconce lever, item shelf, pedestal, blackboard, safe, lunch basket, presents, cage, notice board, hourglass, faucet, speaker block, turn table, book piles, jars, sack, flower box and planter, cannon, pulley block, lock block, doormat.
 
 Cranks, valves, wheels and bellows have their own working motions. For most other blocks, your hand reaches the place where you press, put something in or take something out.
 
@@ -123,19 +123,19 @@ Have one of these installed? Touch'n Motion adds the matching gestures when it f
 | **[Create Aeronautics](https://modrinth.com/mod/create-aeronautics)** | Steering wheel, throttle, typewriter, navigation table, rope; the seated cockpit |
 | **[Supplementaries](https://modrinth.com/mod/supplementaries)** | Crank, bellows, faucet, globe, jars, shelves and other blocks used by hand |
 | **[Curios](https://modrinth.com/mod/curios)** | Putting on accessories |
-| **Not Enough Animations** | Its rowing and horse-riding poses give way to Touch'n Motion's while **NEA Compat** is on |
+| **[Not Enough Animations](https://modrinth.com/mod/not-enough-animations)** | Its rowing and horse-riding poses give way to Touch'n Motion's while **NEA Compat** is on |
 | **[Enchanted Fishing Line](https://modrinth.com/mod/enchanted-fishing-line)** | The line starts at the rod's tip as the fishing pose has it (1.21.1 and newer) |
 
 ## What about other players?
 
 Touch'n Motion works on the client alone, on any server. It works out other players’ gestures from what you can see them doing: where they look, how they swing, and what changes around them.
 
-Put the matching jar on the **server** too (NeoForge, Forge or Fabric; a server needs neither EMF nor Core), and players with the mod share the details. A crank being turned, a wheel being held or an animal being fed then looks to others as it does to you. Players without the mod can still join.
+Put the matching jar on the **server** too (NeoForge, Forge or Fabric; a server needs neither [Entity Model Features](https://modrinth.com/mod/entity-model-features) nor [EMF Compat: Core](https://modrinth.com/mod/emf-compat-core)), and players with the mod share the details. A crank being turned, a wheel being held or an animal being fed then looks to others as it does to you. Players without the mod can still join.
 
 ## Can I choose which movements I want?
 
-Yes — each feature has its own switch. Open **Mods → Touch'n Motion → Config** (Fabric needs Mod Menu), pick a category, and turn off what you don’t want. **Reset** goes back to the defaults; the switch at the top turns the whole mod off and keeps your choices for later.
+Yes — each feature has its own switch. Open **Mods → Touch'n Motion → Config** (Fabric needs [Mod Menu](https://modrinth.com/mod/modmenu)), pick a category, and turn off what you don’t want. **Reset** goes back to the defaults; the switch at the top turns the whole mod off and keeps your choices for later.
 
-With Not Enough Animations installed, the **NEA Compat** option (on by default) keeps its rowing and horse-riding animations out of the way while Touch'n Motion’s are on. NEA’s own settings file is left unchanged.
+With [Not Enough Animations](https://modrinth.com/mod/not-enough-animations) installed, the **NEA Compat** option (on by default) keeps its rowing and horse-riding animations out of the way while Touch'n Motion’s are on. NEA’s own settings file is left unchanged.
 
 enjoy ^_^

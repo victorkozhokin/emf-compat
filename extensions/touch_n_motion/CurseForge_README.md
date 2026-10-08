@@ -48,7 +48,7 @@ A great addition to **[Punchy!](https://www.curseforge.com/minecraft/mc-mods/pun
 
 ![Reacting to a sudden scare](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fear.webp?raw=true)
 
-**Machines.** With Create, Aeronautics or Supplementaries, your hands find cranks, valves, wheels and throttles. Turning a crank takes the whole body; at a wheel one hand keeps its grip while the other moves around the rim.
+**Machines.** With [Create](https://www.curseforge.com/minecraft/mc-mods/create), [Aeronautics](https://www.curseforge.com/minecraft/mc-mods/create-aeronautics) or [Supplementaries](https://www.curseforge.com/minecraft/mc-mods/supplementaries), your hands find cranks, valves, wheels and throttles. Turning a crank takes the whole body; at a wheel one hand keeps its grip while the other moves around the rim.
 
 ![Turning a crank with the whole body](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_crank.webp?raw=true)
 
@@ -58,11 +58,11 @@ All of this shows on other players too. And if there’s a movement you don’t 
 
 **Vanilla:** buttons, levers, doors, fence gates, chests, barrels, lectern, chiseled bookshelf, jukebox, note block, composter, cauldron, beehive and bee nest, respawn anchor, cake, candles and candle cake, flower pot, repeater, comparator, daylight detector, enchanting table, cartography table, brewing stand, crafting table, stonecutter, crafter, vault, bell, TNT, campfire.
 
-**Create:** hand crank, valve handles, weighted ejector, train controls, contraption controls, factory gauge, content observer, track station, depot, basin, item drain, blaze burner, mechanical arm, deployer, mechanical crafter, package frogport, packager and repackager, postbox, rotation speed controller, sequenced gearshift, stockpile switch, display link, redstone link, elevator contact, stock ticker, redstone requester, funnels, smart chute, creative motor, mechanical bearing.
+**[Create](https://www.curseforge.com/minecraft/mc-mods/create):** hand crank, valve handles, weighted ejector, train controls, contraption controls, factory gauge, content observer, track station, depot, basin, item drain, blaze burner, mechanical arm, deployer, mechanical crafter, package frogport, packager and repackager, postbox, rotation speed controller, sequenced gearshift, stockpile switch, display link, redstone link, elevator contact, stock ticker, redstone requester, funnels, smart chute, creative motor, mechanical bearing.
 
-**Create Aeronautics:** steering wheel, throttle lever, linked typewriter, navigation table, physics assembler, mounted potato cannon, portable engine, adjustable burner, rope winch, propeller bearings.
+**[Create Aeronautics](https://www.curseforge.com/minecraft/mc-mods/create-aeronautics):** steering wheel, throttle lever, linked typewriter, navigation table, physics assembler, mounted potato cannon, portable engine, adjustable burner, rope winch, propeller bearings.
 
-**Supplementaries:** crank, bellows, gold door, iron gate, globes, sconce lever, item shelf, pedestal, blackboard, safe, lunch basket, presents, cage, notice board, hourglass, faucet, speaker block, turn table, book piles, jars, sack, flower box and planter, cannon, pulley block, lock block, doormat.
+**[Supplementaries](https://www.curseforge.com/minecraft/mc-mods/supplementaries):** crank, bellows, gold door, iron gate, globes, sconce lever, item shelf, pedestal, blackboard, safe, lunch basket, presents, cage, notice board, hourglass, faucet, speaker block, turn table, book piles, jars, sack, flower box and planter, cannon, pulley block, lock block, doormat.
 
 Cranks, valves, wheels and bellows have their own working motions. For most other blocks, your hand reaches the place where you press, put something in or take something out.
 
@@ -83,12 +83,12 @@ Have one of these installed? Touch'n Motion adds the matching gestures when it f
 
 Touch'n Motion works on the client alone, on any server. It works out other players’ gestures from what you can see them doing: where they look, how they swing, and what changes around them.
 
-Put the matching jar on the **server** too (NeoForge, Forge or Fabric; a server needs neither EMF nor Core), and players with the mod share the details. A crank being turned, a wheel being held or an animal being fed then looks to others as it does to you. Players without the mod can still join.
+Put the matching jar on the **server** too (NeoForge, Forge or Fabric; a server needs neither [Entity Model Features](https://www.curseforge.com/minecraft/mc-mods/entity-model-features) nor [EMF Compat: Core](https://www.curseforge.com/minecraft/mc-mods/emf-compat-core)), and players with the mod share the details. A crank being turned, a wheel being held or an animal being fed then looks to others as it does to you. Players without the mod can still join.
 
 ## Can I choose which movements I want?
 
-Yes — each feature has its own switch. Open **Mods → Touch'n Motion → Config** (Fabric needs Mod Menu), pick a category, and turn off what you don’t want. **Reset** goes back to the defaults; the switch at the top turns the whole mod off and keeps your choices for later.
+Yes — each feature has its own switch. Open **Mods → Touch'n Motion → Config** (Fabric needs [Mod Menu](https://www.curseforge.com/minecraft/mc-mods/modmenu)), pick a category, and turn off what you don’t want. **Reset** goes back to the defaults; the switch at the top turns the whole mod off and keeps your choices for later.
 
-With Not Enough Animations installed, the **NEA Compat** option (on by default) keeps its rowing and horse-riding animations out of the way while Touch'n Motion’s are on. NEA’s own settings file is left unchanged.
+With [Not Enough Animations](https://www.curseforge.com/minecraft/mc-mods/not-enough-animations) installed, the **NEA Compat** option (on by default) keeps its rowing and horse-riding animations out of the way while Touch'n Motion’s are on. NEA’s own settings file is left unchanged.
 
 enjoy ^_^
