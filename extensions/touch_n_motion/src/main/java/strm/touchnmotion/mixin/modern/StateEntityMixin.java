@@ -15,8 +15,8 @@ import strm.touchnmotion.interaction.DrawnEntities;
 /**
  * A render state being filled from its entity: whose state it is, noted for what is drawn from
  * it ({@link DrawnEntities}); and the swing kept off a player whose hand is on a crank, for as
- * long as the state is read off the entity (up to 26.2; from 26.3 on the swing is no longer two
- * fields of the entity and {@link SwingQuietMixin} does it).
+ * long as the common part of the state is read off the entity (up to 26.2, where the swing is two
+ * fields of the entity a pack may read; what the renderer asks for is {@link SwingQuietMixin}'s).
  */
 @Mixin(LivingEntityRenderer.class)
 public class StateEntityMixin {

@@ -56,8 +56,6 @@ ext.tnmNodes = [
     ],
     '1.21.11-fabric': [
         loader         : 'fabric',
-        // From 26.3 on only: the swing is asked of the entity there, a field before.
-        dropMixins     : ['modern.SwingQuietMixin'],
         span           : 'modern',
         java           : 21,
         core           : ':core-fabric-1.21.11',
@@ -70,7 +68,6 @@ ext.tnmNodes = [
     ],
     '26.1.2-fabric': [
         loader         : 'fabric',
-        dropMixins     : ['modern.SwingQuietMixin'],
         span           : 'modern',
         java           : 25,
         core           : ':core-fabric-26.1.2',
@@ -83,7 +80,7 @@ ext.tnmNodes = [
     ],
     '26.2-fabric': [
         loader         : 'fabric',
-        dropMixins     : ['LevelRendererAccessor', 'modern.SwingQuietMixin'],
+        dropMixins     : ['LevelRendererAccessor'],
         span           : 'modern',
         java           : 25,
         core           : ':core-fabric-26.2',
