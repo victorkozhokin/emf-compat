@@ -36,6 +36,9 @@ public final class EMFCompatConfig {
     /** Boolean options, keyed by option id. Sparse: absent keys fall back to their default. */
     public Map<String, Boolean> booleans = new LinkedHashMap<>();
 
+    /** Stepped values ({@link ConfigRegistry.ChoiceOption}), keyed by option id. Sparse like the booleans. */
+    public Map<String, Double> numbers = new LinkedHashMap<>();
+
     private static volatile EMFCompatConfig instance = new EMFCompatConfig();
     private static File file;
 
@@ -78,6 +81,16 @@ public final class EMFCompatConfig {
         return v != null ? v : defaultValue;
     }
 
+    /** Reads a stepped value; the registered default when it was never set. */
+    public static double getNumber(String key, double defaultValue) {
+        Double v = instance.numbers.get(key);
+        return v != null ? v : ConfigRegistry.numberDefaultOf(key, defaultValue);
+    }
+
+    public static void setNumber(String key, double value) {
+        instance.numbers.put(key, value);
+    }
+
     public static void setBoolean(String key, boolean value) {
         instance.booleans.put(key, value);
         if (EMFCompatCore.KEY_COMPAT_ENABLED.equals(key)) {
@@ -98,6 +111,9 @@ public final class EMFCompatConfig {
                 if (loaded != null) {
                     if (loaded.booleans == null) {
                         loaded.booleans = new LinkedHashMap<>();
+                    }
+                    if (loaded.numbers == null) {
+                        loaded.numbers = new LinkedHashMap<>();
                     }
                     instance = loaded;
                 }
