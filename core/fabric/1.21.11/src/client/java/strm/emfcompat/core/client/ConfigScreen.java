@@ -1,24 +1,38 @@
 package strm.emfcompat.core.client;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import strm.emfcompat.core.ConfigRegistry;
+import strm.emfcompat.core.ConfigRows;
 import strm.emfcompat.core.EMFCompatConfig;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Tabbed configuration screen. A column of tabs on the left selects which compat mod to
- * configure (Core first, selected by default); the panel on the right shows that mod's
- * options. Tabs and options come from {@link ConfigRegistry}, so an addon adds a whole tab
- * just by registering a section.
+ * configure (Core first, selected by default); the panel on the right lists that mod's options
+ * in a scrolling list, under collapsible group headers where the mod declared groups, with
+ * child options indented under their parent. Above the list sit the mod's master switch (if it
+ * has one) and a reset button; below it, the description of the option under the cursor. Tabs
+ * and options come from {@link ConfigRegistry}, the rows from {@link ConfigRows}.
  */
 public class ConfigScreen extends Screen {
 
@@ -28,6 +42,16 @@ public class ConfigScreen extends Screen {
     private static final int ROW_HEIGHT = 20;
     private static final int ROW_GAP = 4;
     private static final int PANEL_TOP = 40;
+    /** Room under the list for the description of the hovered option. */
+    private static final int DESCRIPTION_LINES = 2;
+    private static final int INDENT = 12;
+    private static final int RESET_WIDTH = 50;
+    private static final int MASTER_WIDTH = 170;
+
+    private static final ConfigRows.Values RAW = EMFCompatConfig::getBooleanRaw;
+
+    /** Which groups the player folded or opened, kept while the game runs. Key: section/group. */
+    private static final Map<String, Boolean> COLLAPSED = new HashMap<>();
 
     private final Screen parent;
     private String selectedSectionId = ConfigRegistry.CORE_ID;
@@ -35,6 +59,11 @@ public class ConfigScreen extends Screen {
     /** How many tabs are scrolled off the top of the column, and the current max. */
     private int tabScroll = 0;
     private int tabMaxScroll = 0;
+
+    private OptionList list;
+    private Button resetButton;
+    /** Set by a click inside the list; the rows are rebuilt before the next frame, not under it. */
+    private boolean rowsDirty;
 
     public ConfigScreen(Screen parent) {
         super(Component.literal("EMF Compat"));
@@ -68,6 +97,7 @@ public class ConfigScreen extends Screen {
             ConfigRegistry.Section section = sections.get(i);
             Button tab = Button.builder(Component.literal(section.title), b -> {
                         selectedSectionId = section.id;
+                        list = null;
                         rebuildWidgets();
                     })
                     .bounds(tabX, tabY, TAB_WIDTH, TAB_HEIGHT)
@@ -80,27 +110,59 @@ public class ConfigScreen extends Screen {
 
         int optX = tabX + TAB_WIDTH + 16;
         int optW = this.width - optX - 16;
-        int optY = PANEL_TOP;
+        resetButton = null;
         ConfigRegistry.Section selected = ConfigRegistry.get(selectedSectionId);
-        if (selected != null) {
-            for (ConfigRegistry.BooleanOption opt : selected.booleans) {
+        if (selected != null && !selected.booleans.isEmpty()) {
+            int headerY = PANEL_TOP - ROW_HEIGHT - ROW_GAP;
+            resetButton = Button.builder(Component.literal("Reset"), b -> resetSection(selected))
+                    .bounds(optX + optW - RESET_WIDTH, headerY, RESET_WIDTH, ROW_HEIGHT)
+                    .tooltip(Tooltip.create(Component.literal("Set every option of this tab back to its default.")))
+                    .build();
+            addRenderableWidget(resetButton);
+
+            ConfigRegistry.BooleanOption master = selected.master();
+            if (master != null) {
+                int masterW = Math.min(MASTER_WIDTH, optW - RESET_WIDTH - ROW_GAP);
                 // 1.21.11 takes the initial value in builder(...) instead of withInitialValue.
-                // Raw: show what each option is actually set to, even when the global switch is
-                // currently forcing every addon off.
                 addRenderableWidget(CycleButton.<Boolean>builder(
-                                v -> Component.literal(v ? opt.onText : opt.offText),
-                                EMFCompatConfig.getBooleanRaw(opt.key, opt.defaultValue))
+                                v -> Component.literal(v ? master.onText : master.offText),
+                                EMFCompatConfig.getBooleanRaw(master.key, master.defaultValue))
                         .withValues(Boolean.TRUE, Boolean.FALSE)
-                        .withTooltip(v -> Tooltip.create(Component.literal(v ? opt.onTooltip : opt.offTooltip)))
-                        .create(optX, optY, optW, ROW_HEIGHT, Component.literal(opt.label),
-                                (btn, value) -> EMFCompatConfig.setBoolean(opt.key, value)));
-                optY += ROW_HEIGHT + ROW_GAP;
+                        .withTooltip(v -> Tooltip.create(Component.literal(v ? master.onTooltip : master.offTooltip)))
+                        .create(optX + optW - RESET_WIDTH - ROW_GAP - masterW, headerY, masterW, ROW_HEIGHT,
+                                Component.literal(master.label),
+                                (btn, value) -> EMFCompatConfig.setBoolean(master.key, value)));
             }
+
+            int listBottom = this.height - 36 - DESCRIPTION_LINES * (this.font.lineHeight + 1) - 4;
+            double scroll = list != null ? list.scrollAmount() : 0;
+            list = new OptionList(this.minecraft, optW, Math.max(ROW_HEIGHT, listBottom - PANEL_TOP), PANEL_TOP);
+            list.setX(optX);
+            list.fill(selected);
+            list.setScrollAmount(scroll);
+            addRenderableWidget(list);
+        } else {
+            list = null;
         }
 
         addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> this.onClose())
                 .bounds(this.width / 2 - 100, this.height - 28, 200, ROW_HEIGHT)
                 .build());
+    }
+
+    private void resetSection(ConfigRegistry.Section section) {
+        for (ConfigRegistry.BooleanOption opt : section.booleans) {
+            EMFCompatConfig.setBoolean(opt.key, opt.defaultValue);
+            if (opt instanceof ConfigRegistry.ChoiceOption choice) {
+                EMFCompatConfig.setNumber(choice.key, choice.defaultNumber);
+            }
+        }
+        rebuildWidgets();
+    }
+
+    private static boolean isCollapsed(ConfigRegistry.Section section, ConfigRegistry.Group group) {
+        Boolean stored = COLLAPSED.get(section.id + "/" + group.id);
+        return stored != null ? stored : group.isCollapsedByDefault();
     }
 
     @Override
@@ -114,30 +176,78 @@ public class ConfigScreen extends Screen {
             }
             return true;
         }
+        // Anywhere else, scroll the options - also from beside or below the list.
+        if (list != null && !list.isMouseOver(mouseX, mouseY)) {
+            return list.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        ConfigRegistry.Section selected = ConfigRegistry.get(selectedSectionId);
+        if (rowsDirty && list != null && selected != null) {
+            rowsDirty = false;
+            double scroll = list.scrollAmount();
+            list.fill(selected);
+            list.setScrollAmount(scroll);
+        }
+        if (resetButton != null && selected != null) {
+            resetButton.active = ConfigRows.anyModified(selected, RAW);
+        }
+
         super.render(graphics, mouseX, mouseY, partialTick);
-        graphics.drawCenteredString(this.font, this.title, this.width / 2, 16, 0xFFFFFF);
+        graphics.drawString(this.font, this.title, 12, 16, 0xFFFFFFFF);
 
         // Arrows hint that the tab column scrolls (mouse wheel over the tabs).
         if (tabMaxScroll > 0) {
             int cx = 12 + TAB_WIDTH / 2;
             if (tabScroll > 0) {
-                graphics.drawCenteredString(this.font, Component.literal("▲"), cx, PANEL_TOP - 10, 0xFFFFFF);
+                graphics.drawCenteredString(this.font, Component.literal("▲"), cx, PANEL_TOP - 10, 0xFFFFFFFF);
             }
             if (tabScroll < tabMaxScroll) {
-                graphics.drawCenteredString(this.font, Component.literal("▼"), cx, this.height - 38, 0xFFFFFF);
+                graphics.drawCenteredString(this.font, Component.literal("▼"), cx, this.height - 38, 0xFFFFFFFF);
             }
         }
 
-        ConfigRegistry.Section selected = ConfigRegistry.get(selectedSectionId);
-        if (selected != null && selected.booleans.isEmpty()) {
-            int optX = 12 + TAB_WIDTH + 16;
-            graphics.drawString(this.font, Component.literal("No options yet."), optX, PANEL_TOP + 4, 0xA0A0A0);
+        int optX = 12 + TAB_WIDTH + 16;
+        if (selected != null) {
+            graphics.drawString(this.font, Component.literal(selected.title), optX, 16, 0xFFFFFFFF);
+            if (selected.booleans.isEmpty()) {
+                graphics.drawString(this.font, Component.literal("No options yet."), optX, PANEL_TOP + 4, 0xFFA0A0A0);
+            }
         }
+
+        if (list != null && selected != null) {
+            ConfigRegistry.BooleanOption described = list.described(mouseX, mouseY);
+            if (described != null) {
+                boolean on = EMFCompatConfig.getBooleanRaw(described.key, described.defaultValue);
+                String text = on ? described.onTooltip : described.offTooltip;
+                if (ConfigRows.locked(selected, described, RAW)) {
+                    text = "Has no effect while " + lockedBy(selected, described) + " is off. " + text;
+                }
+                List<FormattedCharSequence> lines = this.font.split(Component.literal(text), this.width - optX - 16);
+                int y = list.getBottom() + 4;
+                for (int i = 0; i < Math.min(lines.size(), DESCRIPTION_LINES); i++) {
+                    graphics.drawString(this.font, lines.get(i), optX, y, 0xFFFFFFFF);
+                    y += this.font.lineHeight + 1;
+                }
+            }
+        }
+    }
+
+    /** The label of whatever holds {@code opt} off: its parent if that is off, else the master. */
+    private static String lockedBy(ConfigRegistry.Section section, ConfigRegistry.BooleanOption opt) {
+        if (opt.parent != null) {
+            for (ConfigRegistry.BooleanOption other : section.booleans) {
+                if (other.key.equals(opt.parent)
+                        && !EMFCompatConfig.getBooleanRaw(other.key, other.defaultValue)) {
+                    return "\"" + other.label + "\"";
+                }
+            }
+        }
+        ConfigRegistry.BooleanOption master = section.master();
+        return master != null ? "\"" + master.label + "\"" : "its parent";
     }
 
     @Override
@@ -145,6 +255,164 @@ public class ConfigScreen extends Screen {
         EMFCompatConfig.save();
         if (this.minecraft != null) {
             this.minecraft.setScreen(parent);
+        }
+    }
+
+    /** The scrolling list of one section's rows. */
+    private final class OptionList extends ContainerObjectSelectionList<RowEntry> {
+
+        OptionList(Minecraft minecraft, int width, int height, int y) {
+            super(minecraft, width, height, y, ROW_HEIGHT + ROW_GAP);
+        }
+
+        void fill(ConfigRegistry.Section section) {
+            int valueWidth = 36;
+            for (ConfigRegistry.BooleanOption opt : section.booleans) {
+                valueWidth = Math.max(valueWidth, Math.max(font.width(opt.onText), font.width(opt.offText)) + 12);
+                if (opt instanceof ConfigRegistry.ChoiceOption choice) {
+                    for (String text : choice.texts) {
+                        valueWidth = Math.max(valueWidth, font.width(text) + 12);
+                    }
+                }
+            }
+            List<RowEntry> entries = new ArrayList<>();
+            for (ConfigRows.Row row : ConfigRows.build(section, g -> isCollapsed(section, g))) {
+                entries.add(row.isHeader() ? new HeaderEntry(section, row.group)
+                        : new OptionEntry(section, row, valueWidth));
+            }
+            replaceEntries(entries);
+        }
+
+        /** The option to describe under the list: the one under the cursor, else the focused one. */
+        ConfigRegistry.BooleanOption described(int mouseX, int mouseY) {
+            RowEntry entry = isMouseOver(mouseX, mouseY) ? getEntryAtPosition(mouseX, mouseY) : null;
+            if (entry == null) {
+                entry = getFocused();
+            }
+            return entry instanceof OptionEntry option ? option.row.option : null;
+        }
+
+        @Override
+        public int getRowWidth() {
+            return this.width - 16;
+        }
+
+        @Override
+        protected int scrollBarX() {
+            return this.getRight() - 6;
+        }
+    }
+
+    private abstract static class RowEntry extends ContainerObjectSelectionList.Entry<RowEntry> {
+    }
+
+    /** A group's title; a click folds or opens the group. */
+    private final class HeaderEntry extends RowEntry {
+        private final ConfigRegistry.Section section;
+        private final ConfigRegistry.Group group;
+
+        HeaderEntry(ConfigRegistry.Section section, ConfigRegistry.Group group) {
+            this.section = section;
+            this.group = group;
+        }
+
+        @Override
+        public void renderContent(GuiGraphics graphics, int mouseX, int mouseY, boolean hovering, float partialTick) {
+            int left = getX(), top = getY(), width = getWidth(), height = getHeight();
+            graphics.fill(left, top, left + width, top + height, hovering ? 0x50FFFFFF : 0x30FFFFFF);
+            int textY = top + (height - font.lineHeight) / 2 + 1;
+            String arrow = isCollapsed(section, group) ? "▶ " : "▼ ";
+            graphics.drawString(font, Component.literal(arrow + group.title).withStyle(ChatFormatting.BOLD),
+                    left + 4, textY, 0xFFFFFFFF);
+            String count = ConfigRows.enabledCount(section, group, RAW) + "/" + ConfigRows.optionsOf(section, group).size();
+            graphics.drawString(font, count, left + width - 4 - font.width(count), textY, 0xFFA0A0A0);
+        }
+
+        @Override
+        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+            if (event.button() != 0) {
+                return false;
+            }
+            COLLAPSED.put(section.id + "/" + group.id, !isCollapsed(section, group));
+            rowsDirty = true;
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            return true;
+        }
+
+        @Override
+        public List<? extends GuiEventListener> children() {
+            return List.of();
+        }
+
+        @Override
+        public List<? extends NarratableEntry> narratables() {
+            return List.of();
+        }
+    }
+
+    /** An option: its label on the left, the on/off button on the right. */
+    private final class OptionEntry extends RowEntry {
+        private final ConfigRegistry.Section section;
+        private final ConfigRows.Row row;
+        private final CycleButton<?> button;
+
+        OptionEntry(ConfigRegistry.Section section, ConfigRows.Row row, int valueWidth) {
+            this.section = section;
+            this.row = row;
+            ConfigRegistry.BooleanOption opt = row.option;
+            this.button = opt instanceof ConfigRegistry.ChoiceOption choice ? stepped(choice, valueWidth)
+                    // Raw: show what each option is actually set to, even when the global
+                    // switch is currently forcing every addon off.
+                    : CycleButton.<Boolean>builder(v -> Component.literal(v ? opt.onText : opt.offText),
+                            EMFCompatConfig.getBooleanRaw(opt.key, opt.defaultValue))
+                    .withValues(Boolean.TRUE, Boolean.FALSE)
+                    .displayOnlyValue()
+                    .create(0, 0, valueWidth, ROW_HEIGHT, Component.literal(opt.label),
+                            (btn, value) -> EMFCompatConfig.setBoolean(opt.key, value));
+        }
+
+        /** A button that steps through a {@link ConfigRegistry.ChoiceOption}'s values. */
+        private static CycleButton<Integer> stepped(ConfigRegistry.ChoiceOption choice, int valueWidth) {
+            List<Integer> steps = new ArrayList<>();
+            for (int i = 0; i < choice.values.length; i++) {
+                steps.add(i);
+            }
+            return CycleButton.<Integer>builder(i -> Component.literal(choice.texts[i]),
+                            choice.indexOf(EMFCompatConfig.getNumber(choice.key, choice.defaultNumber)))
+                    .withValues(steps)
+                    .displayOnlyValue()
+                    .create(0, 0, valueWidth, ROW_HEIGHT, Component.literal(choice.label),
+                            (btn, i) -> EMFCompatConfig.setNumber(choice.key, choice.values[i]));
+        }
+
+        @Override
+        public void renderContent(GuiGraphics graphics, int mouseX, int mouseY, boolean hovering, float partialTick) {
+            int left = getX(), top = getY(), width = getWidth(), height = getHeight();
+            ConfigRegistry.BooleanOption opt = row.option;
+            boolean locked = ConfigRows.locked(section, opt, RAW);
+            int textX = left + 4 + row.depth * INDENT;
+            int textY = top + (height - font.lineHeight) / 2 + 1;
+            // The label gives way to the button; a changed option is marked.
+            String mark = ConfigRows.modified(opt, RAW) ? " *" : "";
+            int room = left + width - button.getWidth() - 6 - textX - font.width(mark);
+            String label = font.width(opt.label) <= room ? opt.label
+                    : font.plainSubstrByWidth(opt.label, room - font.width("...")) + "...";
+            graphics.drawString(font, label + mark, textX, textY, locked ? 0xFF808080 : 0xFFFFFFFF);
+
+            button.active = !locked;
+            button.setX(left + width - button.getWidth());
+            button.setY(top);
+            button.render(graphics, mouseX, mouseY, partialTick);
+        }
+
+        @Override
+        public List<? extends GuiEventListener> children() {
+            return List.of(button);
+        }
+
+        @Override
+        public List<? extends NarratableEntry> narratables() {
+            return List.of(button);
         }
     }
 }

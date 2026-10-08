@@ -230,6 +230,17 @@ public final class Driver {
                 }
                 case "hideGui" -> mc.options.hideGui = v.getAsBoolean();
                 case "closeScreen" -> mc.setScreen(null);
+                // The EMF Compat settings on one mod's tab; by reflection, the driver does not build against the core.
+                case "openConfig" -> {
+                    try {
+                        Object screen = Class.forName("strm.emfcompat.core.client.ConfigScreen")
+                                .getConstructor(net.minecraft.client.gui.screens.Screen.class, String.class)
+                                .newInstance(null, v.getAsString());
+                        mc.setScreen((net.minecraft.client.gui.screens.Screen) screen);
+                    } catch (ReflectiveOperationException failure) {
+                        result.addProperty("error", String.valueOf(failure));
+                    }
+                }
                 case "screenshot" -> {
                     String name = v.getAsString().replaceAll("[^A-Za-z0-9._-]", "_") + ".png";
                     Screenshot.grab(mc.gameDirectory, name, mc.getMainRenderTarget(), 1, msg -> { });
@@ -559,7 +570,7 @@ public final class Driver {
         try {
             Object value = f.get(part);
             return value == null ? fallback : (T) value;
-        } catch (ReflectiveOperationException e) {
+        } catch (ReflectiveOperationException failure) {
             return fallback;
         }
     }

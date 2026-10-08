@@ -31,8 +31,39 @@ public final class ConfigRegistry {
     /** Id of the core section, always rendered first and selected by default. */
     public static final String CORE_ID = "core";
 
+    /**
+     * An option with a few values to step through - a time, a strength - instead of on and off.
+     * Listed and gated like any option (so it is a {@link BooleanOption} to the rows); its value
+     * is read with {@link EMFCompatConfig#getNumber}.
+     */
+    public static final class ChoiceOption extends BooleanOption {
+        public final double[] values;
+        /** What the button shows for each value. */
+        public final String[] texts;
+        public final double defaultNumber;
+        public final String tooltip;
+
+        ChoiceOption(String key, String label, double[] values, String[] texts, double defaultNumber,
+                     String tooltip, String group, String parent) {
+            super(key, label, true, "", tooltip, "", tooltip, group, parent);
+            this.values = values;
+            this.texts = texts;
+            this.defaultNumber = defaultNumber;
+            this.tooltip = tooltip;
+        }
+
+        /** The index of the value nearest to {@code number}. */
+        public int indexOf(double number) {
+            int best = 0;
+            for (int i = 1; i < values.length; i++) {
+                if (Math.abs(values[i] - number) < Math.abs(values[best] - number)) best = i;
+            }
+            return best;
+        }
+    }
+
     /** A single boolean option: an on/off choice with per-state label text and tooltip. */
-    public static final class BooleanOption {
+    public static class BooleanOption {
         public final String key;
         public final String label;
         public final boolean defaultValue;
@@ -91,6 +122,20 @@ public final class ConfigRegistry {
                 throw new IllegalArgumentException("Option " + key + " needs a parent other than itself");
             }
             section.add(new BooleanOption(key, label, defaultValue, onText, onTooltip, offText, offTooltip, id, parentKey));
+            return this;
+        }
+
+        /**
+         * Registers a stepped value under {@code parentKey} ({@code null} for a top-level one):
+         * the button steps through {@code values}, showing {@code texts}.
+         */
+        public Group addChoice(String parentKey, String key, String label, double[] values, String[] texts,
+                               double defaultNumber, String tooltip) {
+            if (values.length == 0 || values.length != texts.length) {
+                throw new IllegalArgumentException("Option " + key + " needs a text for each value");
+            }
+            NUMBER_DEFAULTS.put(key, defaultNumber);
+            section.add(new ChoiceOption(key, label, values, texts, defaultNumber, tooltip, id, parentKey));
             return this;
         }
 
@@ -188,6 +233,13 @@ public final class ConfigRegistry {
     /** Option key -> the key that must be on for it to read as on (its parent, else the master). */
     private static final Map<String, String> GATES = new ConcurrentHashMap<>();
     private static final Map<String, Boolean> DEFAULTS = new ConcurrentHashMap<>();
+    private static final Map<String, Double> NUMBER_DEFAULTS = new ConcurrentHashMap<>();
+
+    /** The registered default of a stepped value; {@code fallback} for a key nobody registered. */
+    public static double numberDefaultOf(String key, double fallback) {
+        Double v = NUMBER_DEFAULTS.get(key);
+        return v != null ? v : fallback;
+    }
 
     /** The option that must be on for {@code key} to read as on, or {@code null}. */
     public static String gateOf(String key) {
