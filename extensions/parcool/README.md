@@ -30,6 +30,8 @@ The body rotation of flips and dives is ParCool's own and was never affected by 
 
 ParCool's keyframed poses sit oddly next to a procedural pack, so the jar also ships an animation module for FA+Player, made with FreshLX's permission: the fast run and charge jump, hands that rest on a ledge or hold a bar (with hand-over-hand shimmying and brachiation), FA's own crawl, swim and ladder climb for ParCool's crawl, fast swim and pole climb, and a cape that stays on the back. It is in the resource pack list as **EMF Compat: ParCool Animations** and goes **above FA+Player**, which it needs under it; it is not turned on by itself.
 
+The pack's `player.jem`, `player_slim.jem`, `player_cape.jem` and `a_player_variables.jpm` are FreshLX's files with our edits. They are not covered by this repository's GPL-3.0 licence: Fresh Animations' own terms apply to them, and they may not be shared or reused further without FreshLX's permission. `a_player_parcool.jpm` is ours and is under GPL-3.0.
+
 Generated from a copy of FA+Player, so rebuild it whenever FA+Player is updated:
 
 ```bash

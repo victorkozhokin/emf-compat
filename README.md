@@ -33,3 +33,7 @@ Resource-pack animations through EMF override everything the player model does, 
 ```
 
 Built jars are placed in `upload/<Project>/<loader>/<minecraft-version>/`.
+
+## License
+
+[GPL-3.0](LICENSE), with one exception: the Fresh Animations: Player Extension files inside the ParCool addon's optional pack (`extensions/parcool/**/resourcepacks/parcool_animations`) belong to FreshLX and stay under [Fresh Animations' terms](https://modrinth.com/resourcepack/fresh-animations) - see that pack's `credits.txt`.

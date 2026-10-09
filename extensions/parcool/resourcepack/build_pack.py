@@ -170,7 +170,12 @@ def main(argv: list[str]) -> None:
         "Player models edited from Fresh Animations: Player Extension by FreshLX\n"
         "https://modrinth.com/resourcepack/fa-player-extension\n"
         "ParCool animation module: EMF Compat (STRadaT)\n"
-        "Shipped with FreshLX's permission\n", encoding="utf-8")
+        "Shipped with FreshLX's permission\n"
+        "\n"
+        "player.jem, player_slim.jem, player_cape.jem and a_player_variables.jpm are (c) FreshLX.\n"
+        "They are not under this mod's GPL-3.0 licence: Fresh Animations' own terms apply to them,\n"
+        "and they may not be shared or reused further without FreshLX's permission.\n"
+        "a_player_parcool.jpm is EMF Compat's own and is under GPL-3.0.\n", encoding="utf-8")
     print(out)
 
 
