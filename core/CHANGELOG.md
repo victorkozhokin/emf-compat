@@ -7,9 +7,6 @@
 - An addon's entry in the mod list opens the settings on that addon's tab
 - Shared hand and foot reach helpers for addons — Touch'n Motion is built on them
 - Added a Fabric 26.3 build
-
-## 2.2.0
-
 - Your pack keeps animating while another mod plays a Player Animation Library animation — sitting, carrying or playing an instrument no longer freezes the model
 - Poses now blend smoothly into your pack's animation instead of snapping. Setting: "Smooth pose transitions"
 - Fixed crouching while a mod animates you: no more sinking into the ground or hopping up on every attack. Setting: "Crouch fix"

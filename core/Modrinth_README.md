@@ -30,25 +30,9 @@ Settings and addon tabs scroll with the mouse wheel. Click a category heading to
 
 The **Core** tab controls **EMF compatibility**, **Smooth pose transitions** and **Crouch fix**. The global compatibility switch disables all installed addons while keeping their individual settings.
 
-## Dependencies
-
-- [Entity Model Features](https://modrinth.com/mod/entity-model-features) 3.3.2+ (3.3.11+ on Minecraft 26.3).
-- Entity Texture Features, required by EMF.
-- A resource pack that animates the player model.
-
-## Supported loaders / versions
-
-| Loader | Minecraft versions |
-|--------|-------------------|
-| NeoForge | 1.21.1 |
-| Forge | 1.20.1 |
-| Fabric | 1.21.1, 1.21.11, 26.1.2, 26.2, 26.3 |
-
-Addon coverage varies per loader — check each addon's page.
-
 ## Projects
 
-- **[Touch'n Motion](https://modrinth.com/mod/touch-and-motion)** — procedural animations, including horse sync, rowing and hands that interact with the world.
+- **[Touch'n Motion](https://modrinth.com/mod/touch-and-motion)**
 - **[EMF Compat: Not Enough Animations](https://modrinth.com/project/emf-compat-not-enough-animations)**
 - **[EMF Compat: Create](https://modrinth.com/project/emf-compat-create)**
 - **[EMF Compat: Better Combat](https://modrinth.com/project/emf-compat-better-combat)**
@@ -69,6 +53,18 @@ Addon coverage varies per loader — check each addon's page.
 <summary>Spoiler</summary>
 
 
+![Reaching for and pulling a lever](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_lever.webp?raw=true)
+![Balancing on a narrow fence](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fence.webp?raw=true)
+![Body movement and leaning with the surroundings](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_lean.webp?raw=true)
+![Brushing past crops](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_plant_reach.webp?raw=true)
+![Using a lead and shearing animals](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_lead_and_shear.webp?raw=true)
+![Casting and fishing](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fishing.webp?raw=true)
+![Shaking off water](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_afterwater.webp?raw=true)
+![Rowing and riding in a boat](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_boat.webp?raw=true)
+![Resting hands on a fence](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fence_interact.webp?raw=true)
+![Looking towards nearby creatures](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_look_at.webp?raw=true)
+![Reacting to a sudden scare](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fear.webp?raw=true)
+![Turning a crank with the whole body](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_crank.webp?raw=true)
 ![Supplementaries](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/supplementaries.webp?raw=true)
 ![Carry On](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/carry-on.webp?raw=true)
 ![Better Combat](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/better-combat.webp?raw=true)
