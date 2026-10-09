@@ -22,7 +22,7 @@
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
-    "minecraft": ">=${minecraft_version}",
+    "minecraft": "${minecraft_version}",
     "bettercombat": ">=2.3.0",
     "entity_model_features": ">=${emf_version}",
     "emf_compat_core": ">=2.3.0"

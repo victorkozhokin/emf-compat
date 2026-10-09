@@ -20,7 +20,7 @@
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
-    "minecraft": ">=${minecraft_version}",
+    "minecraft": "${minecraft_version}",
     "create": "*",
     "entity_model_features": ">=${emf_version}",
     "emf_compat_core": ">=2.3.0"

@@ -22,7 +22,7 @@ ext.tnmNodes = [
         loader                 : 'neoforge',
         span                   : 'legacy',
         core                   : ':core-neoforge-1.21.1',
-        minecraft_version_range: '[1.21.1,1.22)',
+        minecraft_version_range: '[1.21.1,1.21.2)',
         neo_version            : '21.1.230',
         neo_version_range      : '[21,)',
         loader_version_range   : '[4,)',
