@@ -54,6 +54,8 @@ A great addition to **[Punchy!](https://www.curseforge.com/minecraft/mc-mods/pun
 
 ![Turning a crank with the whole body](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_crank.webp?raw=true)
 
+![Another crank interaction](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_crank2.webp?raw=true)
+
 All of this shows on other players too. And if there’s a movement you don’t want, you can switch it off.
 
 ## Blocks you can interact with

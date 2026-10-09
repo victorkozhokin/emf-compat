@@ -92,6 +92,8 @@ A great addition to **[Punchy!](https://modrinth.com/mod/punchy-fpa)** or **[Hol
 
 ![Turning a crank with the whole body](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_crank.webp?raw=true)
 
+![Another crank interaction](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_crank2.webp?raw=true)
+
 <iframe width="560" height="315" src="https://www.youtube.com/embed/29HQZcHLYbU" title="Touch'n Motion — machines" frameborder="0" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
 
 </details>
