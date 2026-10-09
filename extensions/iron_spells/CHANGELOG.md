@@ -1,5 +1,9 @@
 # EMF Compat: Iron's Spells 'n Spellbooks — Changelog
 
+## 2.1.1
+
+- Forge 1.20.1: the game no longer refuses to start asking for Iron's Spells 'n Spellbooks 3.16.3 when it is already installed
+
 ## 2.1.0
 
 - Requires EMF Compat Core 2.3.0
