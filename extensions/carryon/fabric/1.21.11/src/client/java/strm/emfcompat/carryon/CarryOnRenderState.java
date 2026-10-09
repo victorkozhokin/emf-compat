@@ -42,6 +42,21 @@ public final class CarryOnRenderState {
         try {
             EMFAnimationApi.registerAnimationHook(new EMFAnimationApi.EMFAnimationHook() {
                 @Override
+                public boolean onAnimationStart(AnimationContext context, boolean cancelled) {
+                    // Carry On draws the mob inside its carrier's own draw, and EMF then animates that mob's
+                    // model once more as the carrier's - first thing in the frame, before the mob's own pass:
+                    // the mob's animation then runs on the player's variables and writes its own into
+                    // them - a villager's "swim", "walk" and "run" are the player pack's too, and the
+                    // player was posed by them. That pass is called off, and the mob drawn as its own
+                    // pass left it.
+                    if (!EMFCarryOnClient.isEnabled() || context.activeState() == null) return true;
+                    Map<ModelPart, PoseSnapshot> own = ownPose(context.animatingModelRoot());
+                    if (own == null || !(context.activeState().emfEntity() instanceof net.minecraft.world.entity.player.Player)) return true;
+                    own.forEach((part, pose) -> pose.apply(part));
+                    return false;
+                }
+
+                @Override
                 public void onAnimationEnd(AnimationContext context, boolean wasCancelledByHook) {
                     UUID uuid = context.activeState() == null ? null : context.activeState().uuid();
                     // Not CARRIED_ENTITIES: from 1.21.11 on, a render is extracted inside Carry On's
@@ -51,6 +66,12 @@ public final class CarryOnRenderState {
                     if (uuid != null && carriedThisFrame(uuid)
                             && EMFCarryOnClient.isEnabled() && EMFCarryOnClient.pauseCarriedAnimations()) {
                         freeze(uuid, context.animatingModelRoot());
+                    }
+                    // The pose a carried mob's model was left in by its own pass, for the pass called off above.
+                    // A carried player is left out: its model is its carrier's too.
+                    if (uuid != null && carriedThisFrame(uuid) && EMFCarryOnClient.isEnabled()
+                            && !(context.activeState().emfEntity() instanceof net.minecraft.world.entity.player.Player)) {
+                        keepOwnPose(context.animatingModelRoot());
                     }
                 }
             });
@@ -91,6 +112,27 @@ public final class CarryOnRenderState {
     private static boolean carriedThisFrame(UUID uuid) {
         Float frame = MARKED_FRAME.get(uuid);
         return frame != null && frame == EMFState.getFrameCounter();
+    }
+
+    // The models last animated as a carried mob's own, with the pose that pass left them in and its frame.
+    private static final Map<EMFModelPartRoot, Map<ModelPart, PoseSnapshot>> OWN_POSES = new IdentityHashMap<>();
+    private static final Map<EMFModelPartRoot, Float> OWN_FRAMES = new IdentityHashMap<>();
+    // Frames such a pose stands for: the pass that has to be called off comes before the mob's own in a frame.
+    private static final float OWN_POSE_FRAMES = 3f;
+
+    private static void keepOwnPose(EMFModelPartRoot root) {
+        float frame = EMFState.getFrameCounter();
+        OWN_FRAMES.entrySet().removeIf(kept -> Math.abs(frame - kept.getValue()) > OWN_POSE_FRAMES);
+        OWN_POSES.keySet().retainAll(OWN_FRAMES.keySet());
+        Map<ModelPart, PoseSnapshot> pose = new IdentityHashMap<>();
+        root.getAllParts().forEach(part -> pose.put(part, new PoseSnapshot(part)));
+        OWN_POSES.put(root, pose);
+        OWN_FRAMES.put(root, frame);
+    }
+
+    private static Map<ModelPart, PoseSnapshot> ownPose(EMFModelPartRoot root) {
+        Float frame = OWN_FRAMES.get(root);
+        return frame != null && Math.abs(EMFState.getFrameCounter() - frame) <= OWN_POSE_FRAMES ? OWN_POSES.get(root) : null;
     }
 
     private static void freeze(UUID uuid, EMFModelPartRoot root) {

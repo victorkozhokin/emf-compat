@@ -3,6 +3,7 @@
 ## 2.1.0
 
 - Requires EMF Compat Core 2.3.0
+- Fabric 1.21.11 and newer: carrying a villager no longer poses the player with the villager's own animation, and the carried mob is drawn by its own animation instead of the player's
 - Added Fabric 1.21.1 and Fabric 26.3 builds, and the Fabric 26.2 build is back
 - Fixed carried objects drifting away from the hands in the mirrored third-person camera
 - Frozen now keeps a per-entity EMF pose in both first and third person, so another visible mob of the same type cannot animate the carried model
