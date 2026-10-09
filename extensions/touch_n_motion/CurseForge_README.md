@@ -1,5 +1,7 @@
 # Touch'n Motion
 
+![Reacting to a sudden scare](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fear.webp?raw=true)
+
 Do you feel it too? In Minecraft, we interact with our surroundings all the time, yet our characters barely seem to touch them. They open chests, press buttons, feed animals — and just wave a hand in the air. Why shouldn’t they actually reach for the things they use?
 
 That question is where Touch'n Motion began.
