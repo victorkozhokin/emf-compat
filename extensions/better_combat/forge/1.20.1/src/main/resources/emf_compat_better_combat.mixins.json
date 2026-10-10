@@ -6,6 +6,7 @@
   "mixins": [],
   "client": [
     "PlayerModelMixin",
+    "GenericPlayerAnimMixin",
     "AttackAnimationSubStackMixin"
   ],
   "injectors": {

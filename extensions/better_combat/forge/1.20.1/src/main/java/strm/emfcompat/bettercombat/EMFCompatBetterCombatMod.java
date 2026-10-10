@@ -3,6 +3,7 @@ package strm.emfcompat.bettercombat;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -36,6 +37,20 @@ public class EMFCompatBetterCombatMod {
      * as the weapon is held, and on this loader nothing freezes without it — Better Combat drives the
      * stance through kosmx Player Animator, which EMF does not pause for, so EMF just animates over it.
      */
+    /**
+     * Generic Player Animator capture (temporary home for what will become a core feature): keeps
+     * arm poses from Spell Engine / RPG Series casts (and any other Player Animator animation) over
+     * EMF. Only runs when Spell Engine is installed, so it never works idle otherwise.
+     */
+    public static final String KEY_RPG_SERIES = "bettercombat.rpgSeriesAnim";
+
+    /** Low-priority pose source for the generic capture (a dedicated addon would override it). */
+    public static final String GENERIC_SOURCE = "playeranim_base";
+
+    /** Spell Engine mod id — the common dependency of the whole RPG Series. */
+    private static final String SPELL_ENGINE_ID = "spell_engine";
+    private static boolean spellEnginePresent = false;
+
     public static final String KEY_WEAPON_STANCES = "bettercombat.weaponStances";
 
     /**
@@ -46,6 +61,10 @@ public class EMFCompatBetterCombatMod {
     public static final String POSE_SOURCE = "better_combat_pose";
 
     public EMFCompatBetterCombatMod() {
+        // The generic capture is a low-priority base; Better Combat's own attack capture (and any
+        // future dedicated addon) overrides it per the pose merge.
+        PoseManager.setSourcePriority(GENERIC_SOURCE, -20);
+        spellEnginePresent = ModList.get().isLoaded(SPELL_ENGINE_ID);
         // Below the attack capture (default 0) so an attack takes the arms from the stance.
         PoseManager.setSourcePriority(POSE_SOURCE, -10);
 
@@ -59,11 +78,14 @@ public class EMFCompatBetterCombatMod {
                         "Rotation-only (legacy)",
                         "Attack arm poses keep only their rotation.")
                 .addBoolean(KEY_ATTACK_LEGS, "Attack legs", true,
-                        "On", "Restore the legs during attacks while standing still (rotation only, stays attached); moving keeps EMF's walk cycle.",
+                        "On", "Restore the legs during attacks and RPG Series casts while standing still (rotation only, stays attached); moving keeps EMF's walk cycle.",
                         "Off", "Leave the legs to EMF (arms only).")
                 .addBoolean(KEY_WEAPON_STANCES, "Weapon stances", true,
                         "On", "Keep Better Combat's two-handed weapon stances (spear, trident, claymore...) over EMF. Overrides both arms for as long as the weapon is held.",
-                        "Off", "Leave the stance to EMF — the resource pack's idle arm animation plays instead.");
+                        "Off", "Leave the stance to EMF — the resource pack's idle arm animation plays instead.")
+                .addBoolean(KEY_RPG_SERIES, "RPG Series & other animations", true,
+                        "On", "Keep arm poses from Spell Engine / RPG Series casts (and other Player Animator animations) over EMF. Only active when Spell Engine is installed.",
+                        "Off", "Leave those animations to EMF.");
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::clientSetup);
@@ -79,6 +101,15 @@ public class EMFCompatBetterCombatMod {
 
     public static boolean isAttackLegs() {
         return EMFCompatConfig.getBoolean(KEY_ATTACK_LEGS, true);
+    }
+
+    public static boolean isGenericPlayerAnim() {
+        return EMFCompatConfig.getBoolean(KEY_RPG_SERIES, true);
+    }
+
+    /** {@code true} only when Spell Engine is installed, so the generic capture never runs idle. */
+    public static boolean isSpellEnginePresent() {
+        return spellEnginePresent;
     }
 
     public static boolean isWeaponStances() {

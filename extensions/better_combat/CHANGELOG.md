@@ -2,6 +2,7 @@
 
 ## 2.1.1
 
+- Forge 1.20.1: Spell Engine and the RPG Series are covered there too - casting poses stay visible, with the **RPG Series & other animations** option in the settings
 - Weapon stances are on by default: two-handed weapons keep their stance without a visit to the settings (Forge 1.20.1, NeoForge 1.21.1, Fabric 1.21.1; newer versions always had it)
 
 ## 2.1.0
