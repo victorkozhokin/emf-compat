@@ -172,12 +172,21 @@ public final class PlantReach implements InteractionProvider {
             // Two blocks each way: a hand hangs up to a block from the body's middle and looks a block round itself.
             for (BlockPos pos : BlockPos.betweenClosed(here.offset(-2, -2, -2), here.offset(2, 2, 2))) {
                 BlockState state = level.getBlockState(pos);
-                if (!(state.getBlock() instanceof BushBlock) || !all && !crop(state)) continue;
+                if (!plant(state) || !all && !crop(state)) continue;
                 VoxelShape shape = state.getShape(level, pos);
                 if (!shape.isEmpty()) plants.put(pos.immutable(), shape.bounds().move(pos));
             }
             return plants;
         }
+    }
+
+    /** Anything that grows out of the ground as a plant does. From 1.21.5 the game calls that kind a vegetation block, and a bush is one plant of it. */
+    private static boolean plant(BlockState state) {
+        //? if >=1.21.11 {
+        /*return state.getBlock() instanceof net.minecraft.world.level.block.VegetationBlock;
+        *///?} else {
+        return state.getBlock() instanceof BushBlock;
+        //?}
     }
 
     /** A crop: what is sown and reaped in a field. By its kind, and by the game's own list of crops, which a mod's crop is put on. */
