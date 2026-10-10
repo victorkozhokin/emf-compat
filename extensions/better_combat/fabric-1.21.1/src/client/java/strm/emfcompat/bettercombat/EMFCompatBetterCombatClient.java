@@ -35,10 +35,10 @@ public class EMFCompatBetterCombatClient implements ClientModInitializer {
     public static final String KEY_RPG_SERIES = "bettercombat.rpgSeriesAnim";
 
     /**
-     * Keep Better Combat's weapon stances (spear, trident, claymore…) over EMF. Off by default:
-     * unlike an attack this is a permanent override of both arms for as long as the weapon is
-     * held, and on this loader nothing is broken without it — Better Combat drives the stance
-     * through kosmx Player Animator, which EMF does not pause for, so EMF just animates over it.
+     * Keep Better Combat's weapon stances (spear, trident, claymore…) over EMF. On by default; it can
+     * be turned off because, unlike an attack, this is a permanent override of both arms for as long
+     * as the weapon is held, and on this loader nothing freezes without it — Better Combat drives the
+     * stance through kosmx Player Animator, which EMF does not pause for, so EMF just animates over it.
      */
     public static final String KEY_WEAPON_STANCES = "bettercombat.weaponStances";
 
@@ -77,7 +77,7 @@ public class EMFCompatBetterCombatClient implements ClientModInitializer {
                 .addBoolean(KEY_ATTACK_LEGS, "Attack legs", true,
                         "On", "Restore the legs during attacks and RPG Series casts while standing still (rotation only, stays attached); moving keeps EMF's walk cycle.",
                         "Off", "Leave the legs to EMF (arms only).")
-                .addBoolean(KEY_WEAPON_STANCES, "Weapon stances", false,
+                .addBoolean(KEY_WEAPON_STANCES, "Weapon stances", true,
                         "On", "Keep Better Combat's two-handed weapon stances (spear, trident, claymore...) over EMF. Overrides both arms for as long as the weapon is held.",
                         "Off", "Leave the stance to EMF — the resource pack's idle arm animation plays instead.")
                 .addBoolean(KEY_RPG_SERIES, "RPG Series & other animations", true,
@@ -106,7 +106,7 @@ public class EMFCompatBetterCombatClient implements ClientModInitializer {
     }
 
     public static boolean isWeaponStances() {
-        return EMFCompatConfig.getBoolean(KEY_WEAPON_STANCES, false);
+        return EMFCompatConfig.getBoolean(KEY_WEAPON_STANCES, true);
     }
 
     public static boolean isGenericPlayerAnim() {

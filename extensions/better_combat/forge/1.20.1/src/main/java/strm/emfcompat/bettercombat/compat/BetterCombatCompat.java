@@ -55,7 +55,7 @@ public final class BetterCombatCompat {
      * <p>Unlike on Fabric this is purely cosmetic here: Better Combat drives these through kosmx
      * Player Animator, which EMF does not pause for (its built-in pause covers zigythebird PAL
      * only), so without capturing the stance EMF simply animates over it and the stance is lost —
-     * nothing freezes. That is why the capture is opt-in on this loader.</p>
+     * nothing freezes. That is why the capture can be turned off on this loader.</p>
      */
     public static boolean isPoseStackActive(AbstractClientPlayer player) {
         for (Field field : POSE_ANIMATION_FIELDS) {

@@ -37,6 +37,7 @@ Open the in-game config screen (Mods → EMF Compat Core → Config) and pick th
 | EMF compatibility | Master switch — turn the whole addon off to get plain Better Combat behaviour.                                                                                                |
 | Arm sync | **Body-follow** keeps attack poses attached to your moving torso. **Rotation-only** is the older, simpler behaviour, but in some cases it gives smoother animations. |
 | Attack legs | Shows the attack/cast footwork on your legs while standing still. Turn off to leave legs to the resource pack.                                                                |
+| Weapon stances | Keeps Better Combat's two-handed stances (spear, trident, claymore and the rest) for as long as the weapon is held. On by default; always on from 1.21.11. |
 | RPG Series & other animations | Covers Spell Engine casts and other Player Animator animations. Only active when Spell Engine is installed.                                                                   |
 
 ## Additional Compatibility

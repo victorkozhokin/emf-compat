@@ -93,11 +93,11 @@
    "addon": "better_combat",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "emf-compat-better-combat",
    "project_id": "Smytm33T",
    "publish": true,
-   "file": "upload/Better Combat/fabric/1.21.1/emf_compat_better_combat_fabric_1.21.1_2.1.0.jar",
+   "file": "upload/Better Combat/fabric/1.21.1/emf_compat_better_combat_fabric_1.21.1_2.1.1.jar",
    "changelog": "extensions/better_combat/CHANGELOG.md",
    "dependencies": [
     {
@@ -243,11 +243,11 @@
    "addon": "better_combat",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "emf-compat-better-combat",
    "project_id": "Smytm33T",
    "publish": true,
-   "file": "upload/Better Combat/forge/1.20.1/emf_compat_better_combat_forge_1.20.1_2.1.0.jar",
+   "file": "upload/Better Combat/forge/1.20.1/emf_compat_better_combat_forge_1.20.1_2.1.1.jar",
    "changelog": "extensions/better_combat/CHANGELOG.md",
    "dependencies": [
     {
@@ -273,11 +273,11 @@
    "addon": "better_combat",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "emf-compat-better-combat",
    "project_id": "Smytm33T",
    "publish": true,
-   "file": "upload/Better Combat/neoforge/1.21.1/emf_compat_better_combat_neoforge_1.21.1_2.1.0.jar",
+   "file": "upload/Better Combat/neoforge/1.21.1/emf_compat_better_combat_neoforge_1.21.1_2.1.1.jar",
    "changelog": "extensions/better_combat/CHANGELOG.md",
    "dependencies": [
     {

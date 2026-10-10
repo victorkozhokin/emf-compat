@@ -58,7 +58,7 @@ public class PlayerModelMixin {
         PlayerModel<AbstractClientPlayer> model = (PlayerModel<AbstractClientPlayer>) (Object) this;
 
         // Weapon stance (spear, trident, claymore...): a Better Combat pose stack holds the player
-        // in it for as long as the weapon is held, independently of any attack. Opt-in here — see
+        // in it for as long as the weapon is held, independently of any attack. Can be turned off here — see
         // KEY_WEAPON_STANCES. Captured under its own lower-priority source so an attack still wins
         // the arms; arms only, since the player walks around in this pose and the legs must keep
         // EMF's walk cycle.
