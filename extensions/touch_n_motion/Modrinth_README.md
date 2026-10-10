@@ -1,6 +1,6 @@
 # Touch'n Motion
 
-![Reacting to a sudden scare](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fear.webp?raw=true)
+![Reacting to a sudden scare](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_fear.webp?raw=true)
 
 Do you feel it too? In Minecraft, we interact with our surroundings all the time, yet our characters barely seem to touch them. They open chests, press buttons, feed animals — and just wave a hand in the air. Why shouldn’t they actually reach for the things they use?
 
@@ -19,7 +19,7 @@ A great addition to **[Punchy!](https://modrinth.com/mod/punchy-fpa)** or **[Hol
 <details>
 <summary>Show animation examples</summary>
 
-![Reaching for and pulling a lever](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_lever.webp?raw=true)
+![Reaching for and pulling a lever](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_lever.webp?raw=true)
 
 </details>
 
@@ -28,7 +28,7 @@ A great addition to **[Punchy!](https://modrinth.com/mod/punchy-fpa)** or **[Hol
 <details>
 <summary>Show animation examples</summary>
 
-![Balancing on a narrow fence](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fence.webp?raw=true)
+![Balancing on a narrow fence](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_fence.webp?raw=true)
 
 </details>
 
@@ -37,9 +37,9 @@ A great addition to **[Punchy!](https://modrinth.com/mod/punchy-fpa)** or **[Hol
 <details>
 <summary>Show animation examples</summary>
 
-![Body movement and leaning with the surroundings](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_lean.webp?raw=true)
+![Body movement and leaning with the surroundings](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_lean.webp?raw=true)
 
-![Brushing past crops](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_plant_reach.webp?raw=true)
+![Brushing past crops](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_plant_reach.webp?raw=true)
 
 </details>
 
@@ -48,7 +48,7 @@ A great addition to **[Punchy!](https://modrinth.com/mod/punchy-fpa)** or **[Hol
 <details>
 <summary>Show animation examples</summary>
 
-![Using a lead and shearing animals](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_lead_and_shear.webp?raw=true)
+![Using a lead and shearing animals](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_lead_and_shear.webp?raw=true)
 
 </details>
 
@@ -57,9 +57,9 @@ A great addition to **[Punchy!](https://modrinth.com/mod/punchy-fpa)** or **[Hol
 <details>
 <summary>Show animation examples</summary>
 
-![Casting and fishing](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fishing.webp?raw=true)
+![Casting and fishing](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_fishing.webp?raw=true)
 
-![Shaking off water](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_afterwater.webp?raw=true)
+![Shaking off water](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_afterwater.webp?raw=true)
 
 </details>
 
@@ -68,7 +68,7 @@ A great addition to **[Punchy!](https://modrinth.com/mod/punchy-fpa)** or **[Hol
 <details>
 <summary>Show animation examples</summary>
 
-![Rowing and riding in a boat](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_boat.webp?raw=true)
+![Rowing and riding in a boat](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_boat.webp?raw=true)
 
 </details>
 
@@ -77,11 +77,11 @@ A great addition to **[Punchy!](https://modrinth.com/mod/punchy-fpa)** or **[Hol
 <details>
 <summary>Show animation examples</summary>
 
-![Resting hands on a fence](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fence_interact.webp?raw=true)
+![Resting hands on a fence](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_fence_interact.webp?raw=true)
 
-![Looking towards nearby creatures](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_look_at.webp?raw=true)
+![Looking towards nearby creatures](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_look_at.webp?raw=true)
 
-![Reacting to a sudden scare](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fear.webp?raw=true)
+![Reacting to a sudden scare](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_fear.webp?raw=true)
 
 </details>
 
@@ -90,9 +90,9 @@ A great addition to **[Punchy!](https://modrinth.com/mod/punchy-fpa)** or **[Hol
 <details>
 <summary>Show animation examples</summary>
 
-![Turning a crank with the whole body](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_crank.webp?raw=true)
+![Turning a crank with the whole body](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_crank.webp?raw=true)
 
-![Another crank interaction](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_crank2.webp?raw=true)
+![Another crank interaction](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_crank2.webp?raw=true)
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/29HQZcHLYbU" title="Touch'n Motion — machines" frameborder="0" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
 

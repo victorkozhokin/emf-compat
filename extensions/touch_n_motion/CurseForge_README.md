@@ -1,6 +1,6 @@
 # Touch'n Motion
 
-![Reacting to a sudden scare](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fear.webp?raw=true)
+![Reacting to a sudden scare](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_fear.webp?raw=true)
 
 Do you feel it too? In Minecraft, we interact with our surroundings all the time, yet our characters barely seem to touch them. They open chests, press buttons, feed animals — and just wave a hand in the air. Why shouldn’t they actually reach for the things they use?
 
@@ -16,45 +16,45 @@ A great addition to **[Punchy!](https://www.curseforge.com/minecraft/mc-mods/pun
 
 **Hands on what you use.** Open a door, pull a lever, turn a page, look through a chest: your hands go to the thing itself, at the height where it actually is. Reach further and the body leans with them, the feet step into a stance, and the other arm helps you balance.
 
-![Reaching for and pulling a lever](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_lever.webp?raw=true)
+![Reaching for and pulling a lever](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_lever.webp?raw=true)
 
 **Feet on the ground.** Feet rest on stairs, slabs and uneven surfaces. On a fence or a narrow wall you take a more careful stance.
 
-![Balancing on a narrow fence](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fence.webp?raw=true)
+![Balancing on a narrow fence](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_fence.webp?raw=true)
 
 **The world around you.** Stand beside a wall and a hand rests against it. Walk through crops and your hands brush past them. Face a gap that’s too narrow and your body turns to fit.
 
-![Body movement and leaning with the surroundings](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_lean.webp?raw=true)
+![Body movement and leaning with the surroundings](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_lean.webp?raw=true)
 
-![Brushing past crops](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_plant_reach.webp?raw=true)
+![Brushing past crops](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_plant_reach.webp?raw=true)
 
 **Animals and gear.** Food goes to an animal’s mouth, followed by a stroke with your other hand. You bend down to milk or shear, plant a seed in the soil, dress an armour stand. Getting dressed has gestures of its own: a helmet pushed into place, a chestplate settled with both hands.
 
-![Using a lead and shearing animals](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_lead_and_shear.webp?raw=true)
+![Using a lead and shearing animals](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_lead_and_shear.webp?raw=true)
 
 **Work.** Mining puts your tool against the block, with stances and swings for different tools. Fishing follows the cast, the wait, the bite and the haul. A handful of picked-up items goes into your pocket in one gesture. Come out of water, powder snow or mud and you shake it off.
 
-![Casting and fishing](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fishing.webp?raw=true)
+![Casting and fishing](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_fishing.webp?raw=true)
 
-![Shaking off water](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_afterwater.webp?raw=true)
+![Shaking off water](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_afterwater.webp?raw=true)
 
 **Riding.** You rise and fall with an animated horse, hold the oars while rowing, and brace against the sides of a minecart on a bend or a drop. A boat’s passenger sits in the bow facing the rower; a chest boat keeps its chest there instead.
 
-![Rowing and riding in a boat](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_boat.webp?raw=true)
+![Rowing and riding in a boat](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_boat.webp?raw=true)
 
 **Just standing there.** You glance at a creature nearby, turn to read a sign, or lean on a fence with your hands on top. A sudden hiss or thunder can make you flinch, step back and look towards it.
 
-![Resting hands on a fence](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fence_interact.webp?raw=true)
+![Resting hands on a fence](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_fence_interact.webp?raw=true)
 
-![Looking towards nearby creatures](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_look_at.webp?raw=true)
+![Looking towards nearby creatures](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_look_at.webp?raw=true)
 
-![Reacting to a sudden scare](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fear.webp?raw=true)
+![Reacting to a sudden scare](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_fear.webp?raw=true)
 
 **Machines.** With [Create](https://www.curseforge.com/minecraft/mc-mods/create), [Aeronautics](https://www.curseforge.com/minecraft/mc-mods/create-aeronautics) or [Supplementaries](https://www.curseforge.com/minecraft/mc-mods/supplementaries), your hands find cranks, valves, wheels and throttles. Turning a crank takes the whole body; at a wheel one hand keeps its grip while the other moves around the rim.
 
-![Turning a crank with the whole body](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_crank.webp?raw=true)
+![Turning a crank with the whole body](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_crank.webp?raw=true)
 
-![Another crank interaction](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_crank2.webp?raw=true)
+![Another crank interaction](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch_and_motion/touch_and_motion_crank2.webp?raw=true)
 
 All of this shows on other players too. And if there’s a movement you don’t want, you can switch it off.
 
