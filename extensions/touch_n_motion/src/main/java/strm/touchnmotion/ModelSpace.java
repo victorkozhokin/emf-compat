@@ -55,23 +55,38 @@ public final class ModelSpace {
     public static void before(LivingEntity entity, PoseStack stack, float partialTick, Consumer<AbstractClientPlayer> model) {
         // Every creature drawn comes through here: all but the players and the horses leave at once, before anything is worked out.
         if (!(entity instanceof AbstractClientPlayer) && !HorseFootGrounding.handles(entity)) return;
+        // A shader mod draws the entity once more for the shadows, on a stack that starts from the sun's view.
+        if (strm.touchnmotion.compat.ShadowPass.drawing()) {
+            org.joml.Matrix4f view = strm.touchnmotion.compat.ShadowPass.view();
+            if (view != null) under(new org.joml.Matrix4f(view), entity, stack, partialTick, model);
+            return;
+        }
         //? if <1.20.5 {
         /*// Before 1.20.5 the stack an entity is drawn on has the camera's turn in it as well, under everything
         // else; from then on that is the game's own matrix and the stack is the world, moved to the camera.
-        // Everything here reads the stack as the latter, so the turn is taken off for it and put back after.
-        org.joml.Matrix3f unturn = new org.joml.Matrix3f(com.mojang.blaze3d.systems.RenderSystem.getInverseViewRotationMatrix());
-        org.joml.Matrix3f turn = new org.joml.Matrix3f(unturn).invert();
-        stack.last().pose().mulLocal(new org.joml.Matrix4f(unturn));
+        under(new org.joml.Matrix4f(new org.joml.Matrix3f(com.mojang.blaze3d.systems.RenderSystem.getInverseViewRotationMatrix()).invert()),
+                entity, stack, partialTick, model);
+        *///?} else {
+        unturned(entity, stack, partialTick, model);
+        //?}
+    }
+
+    /**
+     * Everything here reads the stack as the world, moved to the camera. Where something else lies under that
+     * on the stack, it is taken off for the work and put back after.
+     */
+    private static void under(org.joml.Matrix4f view, LivingEntity entity, PoseStack stack, float partialTick,
+                              Consumer<AbstractClientPlayer> model) {
+        org.joml.Matrix4f off = new org.joml.Matrix4f(view).invert();
+        org.joml.Matrix3f turn = new org.joml.Matrix3f(view), unturn = new org.joml.Matrix3f(off);
+        stack.last().pose().mulLocal(off);
         stack.last().normal().mulLocal(unturn);
         try {
             unturned(entity, stack, partialTick, model);
         } finally {
-            stack.last().pose().mulLocal(new org.joml.Matrix4f(turn));
+            stack.last().pose().mulLocal(view);
             stack.last().normal().mulLocal(turn);
         }
-        *///?} else {
-        unturned(entity, stack, partialTick, model);
-        //?}
     }
 
     private static void unturned(LivingEntity entity, PoseStack stack, float partialTick, Consumer<AbstractClientPlayer> model) {
