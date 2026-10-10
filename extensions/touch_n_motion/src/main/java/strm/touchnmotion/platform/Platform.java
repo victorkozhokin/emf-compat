@@ -163,6 +163,15 @@ public final class Platform {
         //?}
     }
 
+    /** A cow of any kind, a mooshroom among them: from 1.21.11 on that one is a cow's sibling and not a cow. */
+    public static boolean cow(net.minecraft.world.entity.Entity entity) {
+        //? if >=1.21.11 {
+        /*return entity instanceof net.minecraft.world.entity.animal.cow.AbstractCow;
+        *///?} else {
+        return entity instanceof net.minecraft.world.entity.animal.Cow;
+        //?}
+    }
+
     public static boolean isAxe(ItemStack stack) {
         //? if >=26.3 {
         /*return stack.is(net.minecraft.tags.ItemTags.AXES);

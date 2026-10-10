@@ -10,7 +10,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Shearable;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -153,7 +152,7 @@ public final class AnimalCare extends Gesture {
 
     private static int kind(ItemStack stack, Entity target) {
         if (stack.is(Items.SHEARS) && target instanceof Shearable wool && wool.readyForShearing()) return SHEAR;
-        if (stack.is(Items.BUCKET) && (target instanceof Cow || target instanceof Goat) && !((Animal) target).isBaby()) return MILK;
+        if (stack.is(Items.BUCKET) && (strm.touchnmotion.platform.Platform.cow(target) || target instanceof Goat) && !((Animal) target).isBaby()) return MILK;
         // All the client knows of whether it will eat: not in love already. (Its age is the server's.)
         return target instanceof Animal animal && !stack.isEmpty() && animal.isFood(stack)
                 && (animal.isBaby() || animal.canFallInLove()) ? FEED : -1;

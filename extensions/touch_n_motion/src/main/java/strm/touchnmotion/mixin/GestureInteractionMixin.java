@@ -9,7 +9,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Shearable;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
@@ -92,7 +91,7 @@ public class GestureInteractionMixin {
         ItemStack used = emfcompat$used;
         boolean main = hand == InteractionHand.MAIN_HAND;
         int kind = used.is(Items.SHEARS) && target instanceof Shearable ? AnimalCare.SHEAR
-                : used.is(Items.BUCKET) && (target instanceof Cow || target instanceof Goat) ? AnimalCare.MILK
+                : used.is(Items.BUCKET) && (strm.touchnmotion.platform.Platform.cow(target) || target instanceof Goat) ? AnimalCare.MILK
                 : target instanceof Animal animal && !used.isEmpty() && animal.isFood(used) ? AnimalCare.FEED : -1;
         if (kind < 0) return;
         AnimalCare.done(client, target, kind, main);
@@ -138,7 +137,7 @@ public class GestureInteractionMixin {
         }
         ItemStack used = emfcompat$used;
         int kind = used.is(Items.SHEARS) && target instanceof Shearable ? AnimalCare.SHEAR
-                : used.is(Items.BUCKET) && (target instanceof Cow || target instanceof Goat) ? AnimalCare.MILK
+                : used.is(Items.BUCKET) && (strm.touchnmotion.platform.Platform.cow(target) || target instanceof Goat) ? AnimalCare.MILK
                 : target instanceof Animal animal && !used.isEmpty() && animal.isFood(used) ? AnimalCare.FEED : -1;
         if (kind < 0) return;
         AnimalCare.done(client, target, kind, main);
