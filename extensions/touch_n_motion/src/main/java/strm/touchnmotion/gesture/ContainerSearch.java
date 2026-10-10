@@ -48,6 +48,8 @@ public final class ContainerSearch extends Gesture {
     }
 
     private static final java.util.Map<BlockPos, Claim> CLAIMS = new java.util.HashMap<>();
+    /** Who was last known to have a container's screen up, and when: see {@link #another}. */
+    private static final java.util.Map<BlockPos, Claim> KNOWN = new java.util.HashMap<>();
 
     private static final class Open {
         BlockPos pos;
@@ -90,14 +92,14 @@ public final class ContainerSearch extends Gesture {
         // The block the screen is of when that is known; else the one under the crosshair.
         BlockPos pos = Boolean.FALSE.equals(menu) ? null : strm.touchnmotion.net.Inputs.menuPos(player);
         if (pos == null && !Boolean.FALSE.equals(menu)) pos = looked(player);
-        if (pos != null && (!opened(player, pos) || !claim(player, pos, menu != null, now))) pos = null;
+        if (pos != null && (!opened(player, pos) || another(player, pos) || !claim(player, pos, menu != null, now))) pos = null;
         if (pos != null) open.seenAt = now;
         // The one it started with is kept while it stays open: with its screen up wherever the eyes
         // wander inside it, on a guess only for a glance away.
         if (open.pos != null && play.playing && pos == null && opened(player, open.pos)
                 && (menu != null ? menu : now - open.seenAt < AWAY_NANOS)
                 && player.getEyePosition().distanceTo(Vec3.atCenterOf(open.pos)) < REACH + 1
-                && claim(player, open.pos, menu != null, now)) pos = open.pos;
+                && !another(player, open.pos) && claim(player, open.pos, menu != null, now)) pos = open.pos;
         open.open = pos != null;
         if (pos == null) return;
         if (!pos.equals(open.pos)) { open.contents = null; open.actedAt = 0; }
@@ -144,12 +146,46 @@ public final class ContainerSearch extends Gesture {
     }
 
     /**
+     * Whether somebody else is known to have this container's screen up - our own player, or one whose
+     * game tells it. Asked of the players themselves and not of the claims: a claim is made as its
+     * owner is drawn, and our own player in first person is not, so a chest they opened was nobody's
+     * and whoever stood by looking at it was taken for the one going through it.
+     */
+    private static boolean another(AbstractClientPlayer player, BlockPos pos) {
+        long now = System.nanoTime();
+        for (net.minecraft.world.entity.player.Player other : player.level().players()) {
+            if (other == player || !(other instanceof AbstractClientPlayer known)) continue;
+            BlockPos at = strm.touchnmotion.net.Inputs.menuPos(known);
+            if (at == null || !same(player.level(), at, pos)) continue;
+            if (KNOWN.size() > 256) KNOWN.clear();
+            KNOWN.put(at.immutable(), new Claim(known.getUUID(), true, now));
+            return true;
+        }
+        // Their screen has just shut and the lid is still coming down: not yet anybody else's.
+        for (java.util.Map.Entry<BlockPos, Claim> was : KNOWN.entrySet()) {
+            if (now - was.getValue().at < CLAIM_NANOS && !was.getValue().owner.equals(player.getUUID())
+                    && same(player.level(), was.getKey(), pos)) return true;
+        }
+        return false;
+    }
+
+    /** One container: the same block, or the two halves of a double chest. */
+    private static boolean same(net.minecraft.world.level.Level level, BlockPos one, BlockPos other) {
+        if (one.equals(other)) return true;
+        net.minecraft.world.level.block.state.BlockState state = level.getBlockState(one);
+        return state.getBlock() instanceof net.minecraft.world.level.block.ChestBlock
+                && state.getValue(net.minecraft.world.level.block.ChestBlock.TYPE) != net.minecraft.world.level.block.state.properties.ChestType.SINGLE
+                && one.relative(net.minecraft.world.level.block.ChestBlock.getConnectedDirection(state)).equals(other);
+    }
+
+    /**
      * Whether an open container is this player's to have hands on: theirs by {@link #claim}, or
      * nobody's yet. For what else reaches for a chest - the hands on its lid.
      */
     public static boolean free(AbstractClientPlayer player, BlockPos pos) {
         Boolean menu = menu(player);
         if (Boolean.TRUE.equals(menu)) return true;
+        if (another(player, pos)) return false;
         Claim claim = CLAIMS.get(pos);
         boolean claimed = claim != null && System.nanoTime() - claim.at < CLAIM_NANOS;
         // The screen just shut: the lid comes down under the hands that held it, and under no others.
