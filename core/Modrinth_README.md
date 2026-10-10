@@ -65,6 +65,7 @@ The **Core** tab controls **EMF compatibility**, **Smooth pose transitions** and
 ![Looking towards nearby creatures](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_look_at.webp?raw=true)
 ![Reacting to a sudden scare](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_fear.webp?raw=true)
 ![Turning a crank with the whole body](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_crank.webp?raw=true)
+![Another crank interaction](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/touch%20and%20motion/touch_and_motion_crank2.webp?raw=true)
 ![Supplementaries](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/supplementaries.webp?raw=true)
 ![Carry On](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/carry-on.webp?raw=true)
 ![Better Combat](https://github.com/victorkozhokin/emf-compat/blob/main/resources/previews/better-combat.webp?raw=true)

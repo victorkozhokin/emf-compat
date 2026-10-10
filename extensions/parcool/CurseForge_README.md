@@ -20,7 +20,7 @@ Tested with **[Fresh Animations: Player Extension](https://www.curseforge.com/mi
 
 ## Fresh Animations module
 
-The mod includes an optional animation module for **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)**, made with **[FreshLX's]([https://modrinth.com/user/FreshLX](https://www.curseforge.com/members/freshlx/projects))** permission. The player models and variables inside it are FreshLX's, edited: they are not covered by this mod's GPL-3.0 licence and stay under Fresh Animations' terms.
+The mod includes an optional animation module for **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)**, made with **[FreshLX's](https://www.curseforge.com/members/freshlx/projects)** permission. The player models and variables inside it are FreshLX's, edited: they are not covered by this mod's GPL-3.0 licence and stay under Fresh Animations' terms.
 
 This pack gives ParCool moves animations that match the Fresh Animations style, including fast running, jumping, ledge and bar movement, climbing, crawling and swimming.
 
