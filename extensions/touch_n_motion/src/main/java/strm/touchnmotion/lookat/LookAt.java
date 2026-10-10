@@ -266,9 +266,13 @@ public final class LookAt implements InteractionProvider {
     private static LivingEntity pick(AbstractClientPlayer player, IKFrame frame, State state, float round) {
         LivingEntity best = null;
         double bestDistance = Double.MAX_VALUE;
+        net.minecraft.client.Minecraft minecraft = net.minecraft.client.Minecraft.getInstance();
         for (LivingEntity e : player.level().getEntitiesOfClass(LivingEntity.class,
                 player.getBoundingBox().inflate(RANGE))) {
             if (e == player || !e.isAlive() || e.isInvisible() || e.isSpectator() || !wanted(e)) continue;
+            // What the view is from, when that is not the player's own eyes, is no one to look at: a free
+            // camera is a player of its own in the world, standing wherever the view has been taken to.
+            if (e == minecraft.getCameraEntity() && e != minecraft.player) continue;
             if (player.isPassengerOfSameVehicle(e) || e.hasPassenger(player) || player.hasPassenger(e)) continue;
             double distance = e.distanceTo(player);
             if (distance > RANGE) continue;
