@@ -17,13 +17,15 @@ import java.util.function.Function;
  * where the pack's torso was and came off the back.
  *
  * <p>What was done to the torso is kept as one transform - from the pack's pose of it to the one
- * it is drawn with - and the cape is carried by the same.</p>
+ * it is drawn with - and the cape is carried by the same; an elytra's wings too.</p>
  */
 public final class CapeFollow {
     private CapeFollow() {
     }
 
     private static final Map<UUID, Matrix4f> CARRIED = new HashMap<>();
+    /** How far behind the player's model the game draws the wings' ({@code ElytraLayer}, {@code WingsLayer}): the model's units. */
+    private static final float WINGS_BEHIND = 0.125f;
 
     /** The torso's pose, as a transform, without its scale. */
     public static Matrix4f pose(ModelPart part) {
@@ -54,6 +56,12 @@ public final class CapeFollow {
         ModelPart cape = parts.apply("cloak");
         if (cape == null) cape = parts.apply("cape");
         if (cape != null) set(cape, new Matrix4f(by).mul(pose(cape)));
+        // An elytra's wings are a model of their own, drawn a little behind the player's: the same there.
+        ModelPart left = parts.apply("left_wing"), right = parts.apply("right_wing");
+        if (left == null && right == null) return;
+        Matrix4f behind = new Matrix4f().translation(0f, 0f, -WINGS_BEHIND).mul(by).translate(0f, 0f, WINGS_BEHIND);
+        if (left != null) set(left, new Matrix4f(behind).mul(pose(left)));
+        if (right != null) set(right, new Matrix4f(behind).mul(pose(right)));
     }
 
     private static void set(ModelPart part, Matrix4f pose) {
