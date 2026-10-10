@@ -55,6 +55,7 @@ public final class ModelSpace {
     public static void before(LivingEntity entity, PoseStack stack, float partialTick, Consumer<AbstractClientPlayer> model) {
         // Every creature drawn comes through here: all but the players and the horses leave at once, before anything is worked out.
         if (!(entity instanceof AbstractClientPlayer) && !HorseFootGrounding.handles(entity)) return;
+        if (!strm.touchnmotion.interaction.DrawnEntities.inWorld(entity)) return;
         // A shader mod draws the entity once more for the shadows, on a stack that starts from the sun's view.
         if (strm.touchnmotion.compat.ShadowPass.drawing()) {
             org.joml.Matrix4f view = strm.touchnmotion.compat.ShadowPass.view();

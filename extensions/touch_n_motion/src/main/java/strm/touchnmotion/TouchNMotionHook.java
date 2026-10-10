@@ -72,6 +72,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             // EMF runs this for every creature it animates; ours are the players and the horses.
             boolean player = state.emfEntity() instanceof Player;
             if (!player && !HorseFootGrounding.handles(state.emfEntity())) return;
+            if (state.emfEntity() instanceof net.minecraft.world.entity.Entity drawn && !strm.touchnmotion.interaction.DrawnEntities.inWorld(drawn)) return;
             Map<String, EMFModelPartVanilla> parts = context.animatingModelRoot().getAllVanillaPartsByNameEMF();
             if (!player) {
                 // A horse: its hooves, and nothing of what a player gets.
@@ -111,7 +112,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             UUID uuid = state.uuid();
             if (uuid == null || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
             // Armour is only a player's concern here: nothing of ours is on any other biped.
-            if (!(state.emfEntity() instanceof Player)) return;
+            if (!(state.emfEntity() instanceof Player drawn) || !strm.touchnmotion.interaction.DrawnEntities.inWorld(drawn)) return;
             //? if <1.21.11 {
             applyAll(uuid, name -> switch (name) {
                 case "head" -> model.head;
