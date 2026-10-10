@@ -92,14 +92,14 @@ public final class ContainerSearch extends Gesture {
         // The block the screen is of when that is known; else the one under the crosshair.
         BlockPos pos = Boolean.FALSE.equals(menu) ? null : strm.touchnmotion.net.Inputs.menuPos(player);
         if (pos == null && !Boolean.FALSE.equals(menu)) pos = looked(player);
-        if (pos != null && (!opened(player, pos) || another(player, pos) || !claim(player, pos, menu != null, now))) pos = null;
+        if (pos != null && (!opened(player, pos) || !Boolean.TRUE.equals(menu) && another(player, pos) || !claim(player, pos, menu != null, now))) pos = null;
         if (pos != null) open.seenAt = now;
         // The one it started with is kept while it stays open: with its screen up wherever the eyes
         // wander inside it, on a guess only for a glance away.
         if (open.pos != null && play.playing && pos == null && opened(player, open.pos)
                 && (menu != null ? menu : now - open.seenAt < AWAY_NANOS)
                 && player.getEyePosition().distanceTo(Vec3.atCenterOf(open.pos)) < REACH + 1
-                && !another(player, open.pos) && claim(player, open.pos, menu != null, now)) pos = open.pos;
+                && (Boolean.TRUE.equals(menu) || !another(player, open.pos)) && claim(player, open.pos, menu != null, now)) pos = open.pos;
         open.open = pos != null;
         if (pos == null) return;
         if (!pos.equals(open.pos)) { open.contents = null; open.actedAt = 0; }
@@ -149,7 +149,8 @@ public final class ContainerSearch extends Gesture {
      * Whether somebody else is known to have this container's screen up - our own player, or one whose
      * game tells it. Asked of the players themselves and not of the claims: a claim is made as its
      * owner is drawn, and our own player in first person is not, so a chest they opened was nobody's
-     * and whoever stood by looking at it was taken for the one going through it.
+     * and whoever stood by looking at it was taken for the one going through it. Not asked about a player
+     * who is known to have the screen up too: two at one chest both go through it.
      */
     private static boolean another(AbstractClientPlayer player, BlockPos pos) {
         long now = System.nanoTime();
