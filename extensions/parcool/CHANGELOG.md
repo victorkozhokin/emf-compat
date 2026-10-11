@@ -1,5 +1,9 @@
 # EMF Compat: ParCool — Changelog
 
+## 1.0.1
+
+- Hanging off a ledge or under a bar and climbing up show ParCool's own pose again when no resource pack animates them - without the Fresh Animations module turned on the arms hung at the sides
+
 ## 1.0.0
 
 - First release

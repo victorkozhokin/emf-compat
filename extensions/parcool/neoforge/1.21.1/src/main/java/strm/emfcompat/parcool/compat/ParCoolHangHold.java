@@ -30,7 +30,7 @@ import java.util.UUID;
  */
 public final class ParCoolHangHold {
 
-    /** The claim's owner. It saves no poses of its own; the pack draws the hang. */
+    /** The claim's owner while a pack draws the hang. It saves no poses of its own. */
     public static final String SOURCE = "parcool_hang";
 
     /** Climbing up off a ledge is the same two-handed move continuing, so it is claimed too. */
@@ -47,10 +47,21 @@ public final class ParCoolHangHold {
     public static void capture(AbstractClientPlayer player) {
         UUID uuid = player.getUUID();
         if (EMFCompatParCoolMod.isEnabled() && hanging(player)) {
-            PoseManager.setExclusive(uuid, SOURCE);
+            // The claim is the pack's only where a pack draws this hang. With none that does - the
+            // module is not turned on, or the pack is another one - it is ParCool's own pose that is
+            // kept: claimed for nobody, the hang was drawn by nobody and the arms hung at the sides.
+            PoseManager.setExclusive(uuid, packDraws(player) ? SOURCE : ParCoolPose.SOURCE);
         } else {
             PoseManager.clearExclusive(uuid, SOURCE);
+            PoseManager.clearExclusive(uuid, ParCoolPose.SOURCE);
         }
+    }
+
+    /** Whether a pack is animating the hang this player is in, by having read its variables. */
+    private static boolean packDraws(AbstractClientPlayer player) {
+        if (ParCoolPackVariables.underBar(player)) return ParCoolPackVariables.packAnimates(player, "bar");
+        if (ParCoolPackVariables.onLedge(player)) return ParCoolPackVariables.packAnimates(player, "hang");
+        return ParCoolPackVariables.packAnimates(player, "climb");
     }
 
     /**

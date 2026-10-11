@@ -1553,11 +1553,11 @@
    "addon": "parcool",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "1.0.0",
+   "version_number": "1.0.1",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/ParCool/neoforge/1.21.1/emf_compat_parcool_neoforge_1.21.1_1.0.0.jar",
+   "file": "upload/ParCool/neoforge/1.21.1/emf_compat_parcool_neoforge_1.21.1_1.0.1.jar",
    "changelog": "extensions/parcool/CHANGELOG.md",
    "dependencies": [
     {
