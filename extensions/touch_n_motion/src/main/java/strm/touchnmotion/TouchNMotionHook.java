@@ -83,7 +83,11 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             if (main) FootGrounding.recordAnimated(uuid, parts::get);
             ModelPart torso = parts.get("body");
             org.joml.Matrix4f packTorso = torso == null ? null : strm.touchnmotion.cape.CapeFollow.pose(torso);
-            applyAll(uuid, parts::get, player, main);
+            // A model that comes in the very pose the player's was just drawn with is a copy of it - the
+            // game hands the pose on to armour, and a pack's armour model is animated here like any other:
+            // everything is on it already, and doing it again would do it twice.
+            if (main || !Posed.same(uuid, parts::get)) applyAll(uuid, parts::get, player, main);
+            if (main) Posed.keep(uuid, parts::get);
             // The cape goes where the torso has been taken: of the main model first, then of whichever model has the cape.
             if (main && torso != null) strm.touchnmotion.cape.CapeFollow.keep(uuid, new org.joml.Matrix4f(packTorso), torso);
             strm.touchnmotion.cape.CapeFollow.carry(uuid, parts::get, packTorso);
@@ -145,6 +149,45 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
         }
     }
 
+    /** The pose a player's own model was last drawn with, to tell a copy of it from a model with a pose of its own. */
+    private static final class Posed {
+        private static final String[] NAMES = {"head", "body", "right_arm", "left_arm", "right_leg", "left_leg"};
+        private static final Map<UUID, float[]> BY_PLAYER = new java.util.HashMap<>();
+
+        static void keep(UUID uuid, Function<String, ModelPart> parts) {
+            float[] kept = BY_PLAYER.computeIfAbsent(uuid, id -> new float[NAMES.length * 6]);
+            for (int i = 0; i < NAMES.length; i++) {
+                ModelPart part = parts.apply(NAMES[i]);
+                if (part == null) {
+                    java.util.Arrays.fill(kept, i * 6, i * 6 + 6, Float.NaN);
+                    continue;
+                }
+                kept[i * 6] = part.x;
+                kept[i * 6 + 1] = part.y;
+                kept[i * 6 + 2] = part.z;
+                kept[i * 6 + 3] = part.xRot;
+                kept[i * 6 + 4] = part.yRot;
+                kept[i * 6 + 5] = part.zRot;
+            }
+        }
+
+        static boolean same(UUID uuid, Function<String, ModelPart> parts) {
+            float[] kept = BY_PLAYER.get(uuid);
+            if (kept == null) return false;
+            for (int i = 0; i < NAMES.length; i++) {
+                ModelPart part = parts.apply(NAMES[i]);
+                if (part == null || Float.isNaN(kept[i * 6])) return false;
+                if (Math.abs(part.x - kept[i * 6]) > 1e-3f || Math.abs(part.y - kept[i * 6 + 1]) > 1e-3f || Math.abs(part.z - kept[i * 6 + 2]) > 1e-3f
+                        || Math.abs(part.xRot - kept[i * 6 + 3]) > 1e-4f || Math.abs(part.yRot - kept[i * 6 + 4]) > 1e-4f || Math.abs(part.zRot - kept[i * 6 + 5]) > 1e-4f) return false;
+            }
+            return true;
+        }
+
+        static void clear() {
+            BY_PLAYER.clear();
+        }
+    }
+
     /**
      * From 1.21.11 on: the six parts of a player's model as they are drawn this frame, kept for the
      * models that are drawn over it - armour, a cape's or a mod's copy of the body.
@@ -191,6 +234,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             BY_PLAYER.clear();
             ROOTS.clear();
             strm.touchnmotion.cape.CapeFollow.clear();
+            Posed.clear();
         }
     }
 
