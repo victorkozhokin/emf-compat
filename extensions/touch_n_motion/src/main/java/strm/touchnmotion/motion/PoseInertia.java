@@ -35,6 +35,7 @@ public final class PoseInertia {
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatMotion");
 
     private static final String[] PARTS = {"head", "body", "right_arm", "left_arm", "right_leg", "left_leg"};
+    private static final int HEAD = 0, TORSO = 1;
     /** Half-life of the settling, seconds, per part: the limbs quicker than the torso and head. */
     private static final double[] HALFLIFE = {0.10, 0.12, 0.09, 0.09, 0.07, 0.07};
     /**
@@ -112,9 +113,18 @@ public final class PoseInertia {
             part.xRot += off[0].value;
             part.yRot += off[1].value;
             part.zRot += off[2].value;
+            // The head sits on the torso: where its pivot is held back is the torso's to say, below.
+            if (i == HEAD) continue;
             part.x += off[3].value;
             part.y += off[4].value;
             part.z += off[5].value;
+        }
+        ModelPart head = parts.apply(PARTS[HEAD]);
+        if (head != null && parts.apply(PARTS[TORSO]) != null) {
+            Spring[] torso = s.offset[TORSO];
+            head.x += torso[3].value;
+            head.y += torso[4].value;
+            head.z += torso[5].value;
         }
     }
 
@@ -129,7 +139,14 @@ public final class PoseInertia {
         }
         for (int c = 0; c < CHANNELS; c++) {
             // The head's pitch and yaw are the look: they follow the camera as it is, never late.
-            if (i == 0 && c < 2) continue;
+            if (i == HEAD && c < 2) continue;
+            // Its pivot moves with the torso's. Judged on its own it was held back at the start of a jump
+            // when the torso was not, or by more - the two start from different speeds, and the fewer
+            // the frames the bigger one frame's change - and the head stood off the neck until it settled.
+            if (i == HEAD && c >= 3) {
+                last[c] = value[c];
+                continue;
+            }
             boolean turn = c < 3;
             float change = turn ? IKMath.wrap(value[c] - last[c]) : value[c] - last[c];
             float rate = (float) (change / dt);
