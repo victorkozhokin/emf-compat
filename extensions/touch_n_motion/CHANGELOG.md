@@ -1,9 +1,12 @@
 # Touch'n Motion — Changelog
 
-## 1.0.2
+## 1.0.3
 
 - 3D Armor and other packs with armour models of their own: the armour no longer slides off the body in a pose - it was posed twice
 - The head no longer comes off the neck for a few frames at the start of a jump; it showed more the lower the frame rate
+
+## 1.0.2
+
 - A cape and an elytra stay on the back while the torso leans or shifts in a gesture, instead of hanging where the resource pack's torso would be
 - A player standing by a chest no longer reaches into it when you are the one who opened it; two players with the same chest open both go through it
 
