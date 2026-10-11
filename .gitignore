@@ -89,3 +89,5 @@ __pycache__/
 
 # The in-game test tool: launcher, drivers, scenarios - kept locally
 /tools/mctest/
+# Notes and test material beside an addon: they live outside the repository.
+/extensions/*/docs/
