@@ -18,7 +18,9 @@
     "LevelRendererAccessor",
     "legacy.BoatChestMixin",
     "FishingHookAccessor",
-    "FishingLineMixin"
+    "FishingLineMixin",
+    "compat.ShoulderTurnMixin",
+    "compat.ShoulderControlCameraMixin"
   ],
   "injectors": {
     "defaultRequire": 1

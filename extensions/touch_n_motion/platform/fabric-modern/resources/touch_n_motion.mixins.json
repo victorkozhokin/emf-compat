@@ -19,7 +19,9 @@
     "GestureInteractionMixin",
     "LevelRendererAccessor",
     "FishingHookAccessor",
-    "FishingLineMixin"
+    "FishingLineMixin",
+    "compat.ShoulderTurnMixin",
+    "compat.ShoulderControlCameraMixin"
   ],
   "injectors": {
     "defaultRequire": 1

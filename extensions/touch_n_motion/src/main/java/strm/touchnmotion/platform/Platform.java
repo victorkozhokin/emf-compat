@@ -117,6 +117,18 @@ public final class Platform {
         //?}
     }
 
+    /** Where the camera looks, a unit vector. Client only. */
+    public static net.minecraft.world.phys.Vec3 cameraForward() {
+        //? if >=26.2 {
+        /*org.joml.Vector3fc view = net.minecraft.client.Minecraft.getInstance().gameRenderer.mainCamera().forwardVector();
+        *///?} elif >=1.21.11 {
+        /*org.joml.Vector3fc view = net.minecraft.client.Minecraft.getInstance().gameRenderer.getMainCamera().forwardVector();
+        *///?} else {
+        org.joml.Vector3fc view = net.minecraft.client.Minecraft.getInstance().gameRenderer.getMainCamera().getLookVector();
+        //?}
+        return new net.minecraft.world.phys.Vec3(view.x(), view.y(), view.z());
+    }
+
     /** The screen that is open; {@code null} for none. Client only. */
     public static net.minecraft.client.gui.screens.Screen screen() {
         //? if >=26.2 {

@@ -170,7 +170,7 @@ public final class CockpitControls implements InteractionProvider {
                 }
             }
             Vec3 origin = context.frame().jointWorld(new Vector3f());
-            Vector3f view = Body.model(context.frame(), origin.add(player.getViewVector(1)));
+            Vector3f view = Body.model(context.frame(), origin.add(strm.touchnmotion.compat.ShoulderCamera.worldView(player)));
             float[] look = CockpitFacing.look(view);
             state.headYaw += IKMath.wrap(look[0] - state.headYaw) * Smoothing.follow(context.dt(), .12);
             state.headPitch += IKMath.wrap(look[1] - state.headPitch) * Smoothing.follow(context.dt(), .12);

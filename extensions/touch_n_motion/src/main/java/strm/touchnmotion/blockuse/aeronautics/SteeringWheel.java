@@ -80,6 +80,11 @@ public final class SteeringWheel implements BlockTarget {
     public boolean holds(AbstractClientPlayer player, Level level, BlockPos pos, BlockState block) {
         // Another player's hold is their own game's to say.
         if (player != Minecraft.getInstance().player) return strm.touchnmotion.net.Inputs.holds(player, pos);
+        return held(pos);
+    }
+
+    /** Whether the local player holds a steering wheel: {@code pos} names which one, {@code null} any. */
+    public static boolean held(BlockPos pos) {
         if (holdFailed) return false;
         try {
             if (handler == null) {
@@ -90,8 +95,12 @@ public final class SteeringWheel implements BlockTarget {
                 held = manager.getMethod("isActive", interaction);
                 activeBlock = handler.getClass().getMethod("isBlockActive", BlockPos.class);
             }
-            return (boolean) held.invoke(null, handler) && (boolean) activeBlock.invoke(handler, pos);
-        } catch (ReflectiveOperationException | ClassCastException e) {
+            return (boolean) held.invoke(null, handler) && (pos == null || (boolean) activeBlock.invoke(handler, pos));
+        } catch (ClassNotFoundException absent) {
+            // No Simulated: nobody holds a wheel, and there is nothing to report.
+            holdFailed = true;
+            return false;
+        } catch (ReflectiveOperationException | ClassCastException | LinkageError e) {
             holdFailed = true;
             org.slf4j.LoggerFactory.getLogger("EMFCompatBlockUse").warn("[BlockUse] cannot read held steering wheel", e);
             return false;

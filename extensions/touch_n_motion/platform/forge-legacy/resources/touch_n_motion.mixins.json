@@ -17,7 +17,9 @@
     "legacy.BoatChestMixin",
     "FishingHookAccessor",
     "FishingLineMixin",
-    "ItemPickupMixin"
+    "ItemPickupMixin",
+    "compat.ShoulderTurnMixin",
+    "compat.ShoulderControlCameraMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -5,6 +5,7 @@
 - 3D Armor and other packs with armour models of their own: the armour no longer slides off the body in a pose - it was posed twice
 - The head no longer comes off the neck for a few frames at the start of a jump; it showed more the lower the frame rate
 - 1.20.1 and 1.21.1: a cape no longer tilts and shifts the wrong way when the torso leans to the side, as on a step
+- Shoulder Surfing: steering a moving Sable craft from its seat, the camera no longer drifts to the left or right, and the player no longer turns after the camera
 - First Person Model: the camera stays at the head while a gesture leans or shifts the torso
 - Aeronautics cockpit: a hand on a wheel or a throttle keeps hold of it while the craft tilts, instead of letting go or switching hands
 
