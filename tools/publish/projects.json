@@ -1643,11 +1643,11 @@
    "addon": "supplementaries",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "1.1.0",
+   "version_number": "1.1.1",
    "project": "emf-compat-supplementaries",
    "project_id": "z4FSlBqI",
    "publish": true,
-   "file": "upload/Supplementaries/fabric/1.21.1/emf_compat_supplementaries_fabric_1.21.1_1.1.0.jar",
+   "file": "upload/Supplementaries/fabric/1.21.1/emf_compat_supplementaries_fabric_1.21.1_1.1.1.jar",
    "changelog": "extensions/supplementaries/CHANGELOG.md",
    "dependencies": [
     {
@@ -1667,17 +1667,17 @@
     }
    ],
    "display": "Supplementaries",
-   "name": "EMF Compat: Supplementaries 1.1.0"
+   "name": "EMF Compat: Supplementaries 1.1.1"
   },
   {
    "addon": "supplementaries",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "1.1.0",
+   "version_number": "1.1.1",
    "project": "emf-compat-supplementaries",
    "project_id": "z4FSlBqI",
    "publish": true,
-   "file": "upload/Supplementaries/forge/1.20.1/emf_compat_supplementaries_forge_1.20.1_1.1.0.jar",
+   "file": "upload/Supplementaries/forge/1.20.1/emf_compat_supplementaries_forge_1.20.1_1.1.1.jar",
    "changelog": "extensions/supplementaries/CHANGELOG.md",
    "dependencies": [
     {
@@ -1697,17 +1697,17 @@
     }
    ],
    "display": "Supplementaries",
-   "name": "EMF Compat: Supplementaries 1.1.0"
+   "name": "EMF Compat: Supplementaries 1.1.1"
   },
   {
    "addon": "supplementaries",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "1.1.0",
+   "version_number": "1.1.1",
    "project": "emf-compat-supplementaries",
    "project_id": "z4FSlBqI",
    "publish": true,
-   "file": "upload/Supplementaries/neoforge/1.21.1/emf_compat_supplementaries_neoforge_1.21.1_1.1.0.jar",
+   "file": "upload/Supplementaries/neoforge/1.21.1/emf_compat_supplementaries_neoforge_1.21.1_1.1.1.jar",
    "changelog": "extensions/supplementaries/CHANGELOG.md",
    "dependencies": [
     {
@@ -1727,7 +1727,7 @@
     }
    ],
    "display": "Supplementaries",
-   "name": "EMF Compat: Supplementaries 1.1.0"
+   "name": "EMF Compat: Supplementaries 1.1.1"
   },
   {
    "addon": "tacz",
