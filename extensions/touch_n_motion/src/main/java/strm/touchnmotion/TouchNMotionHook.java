@@ -286,6 +286,9 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
     }
 
     private static void applyAllParts(UUID uuid, Function<String, ModelPart> parts, boolean player, boolean mainModel) {
+        // First Person Model: the neck as the pack left it, before anything here moves the torso.
+        var neck = strm.touchnmotion.compat.FirstPersonHead.active(uuid)
+                ? strm.touchnmotion.compat.FirstPersonHead.Neck.of(parts.apply("body"), parts.apply("head")) : null;
         // First, on the pack's own pose: its cuts settle before anything corrects it. A player's only:
         // the hook runs for every creature EMF animates.
         if (player) PoseInertia.apply(uuid, parts, EMFState.getFrameCounter());
@@ -323,6 +326,16 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
         strm.touchnmotion.buttonpress.aeronautics.HeavyThrottle.reachContact(uuid, parts);
         strm.touchnmotion.fishing.Fishing.reach(uuid, parts);
         InteractionRuntime.finishSupport(uuid, parts, supportBase, EMFState.getFrameCounter(), mainModel);
+        // Anchor this draw before final hand aiming, so IK uses the compensated shoulders.
+        if (neck != null) {
+            java.util.List<ModelPart> anchored = new java.util.ArrayList<>();
+            for (String name : new String[]{"head", "hat", "body", "right_arm", "left_arm", "right_leg", "left_leg",
+                    "jacket", "right_sleeve", "left_sleeve", "right_pants", "left_pants", "cape", "cloak"}) {
+                ModelPart part = parts.apply(name);
+                if (part != null) anchored.add(part);
+            }
+            strm.touchnmotion.compat.FirstPersonHead.apply(neck, parts.apply("body"), anchored);
+        }
         var contactBase = InteractionRuntime.beginHands(uuid, parts);
         strm.touchnmotion.lookat.LookAt.apply(uuid, parts);
         InteractionRuntime.apply(uuid, parts);

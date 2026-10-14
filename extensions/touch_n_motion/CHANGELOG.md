@@ -5,6 +5,7 @@
 - 3D Armor and other packs with armour models of their own: the armour no longer slides off the body in a pose - it was posed twice
 - The head no longer comes off the neck for a few frames at the start of a jump; it showed more the lower the frame rate
 - 1.20.1 and 1.21.1: a cape no longer tilts and shifts the wrong way when the torso leans to the side, as on a step
+- First Person Model: the camera stays at the head while a gesture leans or shifts the torso
 
 ## 1.0.2
 
