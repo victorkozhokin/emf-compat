@@ -40,6 +40,7 @@ public final class CockpitControls implements InteractionProvider {
         final Vector3f[] reachGrips = {new Vector3f(), new Vector3f()};
         final Vector3f[] shoulders = {new Vector3f(-5, 2, 0), new Vector3f(5, 2, 0)};
         final CockpitMotion motion = new CockpitMotion();
+        final ControlHand controlHand = new ControlHand();
         final Vector3f lean = new Vector3f();
         final Quaternionf contact = new Quaternionf();
         final FrameClock contactClock = new FrameClock();
@@ -87,12 +88,14 @@ public final class CockpitControls implements InteractionProvider {
             if (!Seated.seated(player) || player.isSleeping() || strm.touchnmotion.platform.Platform.inWater(player)) {
                 state.seat = null;
                 state.wheel = null;
+                state.controlHand.clear();
                 context.decide("off:seat");
                 return;
             }
             UUID seat = player.getVehicle().getUUID();
             if (!seat.equals(state.seat)) {
                 state.seat = seat;
+                state.controlHand.clear();
                 state.seatSince = player.tickCount;
                 state.seatClock.reset();
                 state.seatHeight = Double.NaN;
@@ -116,9 +119,11 @@ public final class CockpitControls implements InteractionProvider {
                 Arrays.fill(state.rim, null);
                 state.motion.away = state.motion.moving = -1;
                 state.motion.progress = 1;
-                Vec3 forward = SubLevels.toWorld(player.level(), state.wheel,
-                        WHEEL.swayCentre(player.level(), state.wheel, player.level().getBlockState(state.wheel))).subtract(player.position());
-                state.right = SubLevels.at(player.level(), state.wheel).directionToLocal(new Vec3(-forward.z, 0, forward.x).normalize());
+                var wheelSpace = SubLevels.at(player.level(), state.wheel);
+                Vec3 forward = WHEEL.swayCentre(player.level(), state.wheel, player.level().getBlockState(state.wheel))
+                        .subtract(wheelSpace.toLocal(seatWorld(player)));
+                state.right = new Vec3(-forward.z, 0, forward.x).normalize();
+                state.controlHand.clear();
             }
             if (state.wheel == null || !WHEEL.matches(player.level().getBlockState(state.wheel))) {
                 state.wheel = null;
@@ -127,7 +132,7 @@ public final class CockpitControls implements InteractionProvider {
             }
             var mount = player.level().getBlockState(state.wheel);
             Vec3 centre = SubLevels.toWorld(player.level(), state.wheel, WHEEL.swayCentre(player.level(), state.wheel, mount));
-            if (centre.distanceTo(player.getEyePosition()) > 2.25 || !Visibility.visible(player, state.wheel, centre)) {
+            if (centre.distanceTo(seatWorld(player)) > 3.0) {
                 state.wheel = null;
                 context.decide("off:wheel-range");
                 return;
@@ -142,6 +147,8 @@ public final class CockpitControls implements InteractionProvider {
             }
             if (requested == null && hit != null && ThrottleLever.is(player.level().getBlockState(hit.getBlockPos())))
                 requested = hit.getBlockPos();
+            state.held |= typing;
+            if (requested == null) state.controlHand.clear();
             state.keys.advance(typing ? Typewriter.pressedKey(player) : -1, context.dt());
             Vec3 knob = requested == null ? null : typing
                     ? Typewriter.cockpitSpot(requested, player.level().getBlockState(requested), -1, true).point()
@@ -150,8 +157,11 @@ public final class CockpitControls implements InteractionProvider {
             int request = -1;
             if (knob != null && knob.distanceTo(centre) < 2.5 && (state.held || Visibility.visible(player, requested, knob))) {
                 Vector3f model = Body.model(context.frame(), knob);
-                request = knob.subtract(player.position()).dot(SubLevels.at(player.level(), state.wheel).directionToWorld(state.right)) >= 0 ? 0 : 1;
-                if (new Vector3f(model).sub(SHOULDERS[request]).length() > (state.held ? 24 : 22)) request = -1;
+                var wheelSpace = SubLevels.at(player.level(), state.wheel);
+                double lateral = wheelSpace.toLocal(knob).subtract(wheelSpace.toLocal(seatWorld(player))).dot(state.right);
+                request = state.held ? state.controlHand.choose(requested, lateral) : lateral >= 0 ? 0 : 1;
+                // An active control survives a transient reach/visibility change as the deck tilts.
+                if (!state.held && new Vector3f(model).sub(SHOULDERS[request]).length() > 22) request = -1;
                 if (request >= 0 && (state.motion.working() < 0 || state.motion.working() != request
                         || state.motion.moving < 0)) {
                     if (state.motion.mix(request) == 0) { state.lever[request].set(model); state.controlLocal[request] = null; }
@@ -175,7 +185,7 @@ public final class CockpitControls implements InteractionProvider {
             var space = SubLevels.at(player.level(), state.wheel);
             if (state.craft == null || !space.same(state.craft)) {
                 state.craft = space;
-                state.reference = space.tickToLocal(player.position());
+                state.reference = space.toLocal(seatWorld(player));
                 state.transport = new strm.touchnmotion.transport.TransportMotion();
                 state.pelvisLocal = null;
             }
@@ -259,7 +269,7 @@ public final class CockpitControls implements InteractionProvider {
         var block = player.level().getBlockState(state.wheel);
         if (!WHEEL.matches(block)) return 0;
         Vec3 centre = SubLevels.toWorld(player.level(), state.wheel, WHEEL.swayCentre(player.level(), state.wheel, block));
-        if (centre.distanceTo(player.getEyePosition()) > 2.25) return 0;
+        if (centre.distanceTo(seatWorld(player)) > 3.0) return 0;
         var frame = strm.emfcompat.core.ik.IKFrame.capture(stack.last().pose(),
                 strm.touchnmotion.platform.Platform.cameraPosition());
         Vec3 origin = frame.jointWorld(new Vector3f());
