@@ -8,9 +8,11 @@ That question is where Touch'n Motion began.
 
 It adds those missing movements to your **[Entity Model Features](https://www.curseforge.com/minecraft/mc-mods/entity-model-features)** player model. A hand reaches for a button. Feet find their place on a step. The body leans into what the hands are doing.
 
+**Requires an enabled resource pack that adds an EMF player model**, such as [Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension) or [Just Expressions](https://www.curseforge.com/minecraft/texture-packs/just-expressions). Any resource pack that provides an EMF player model can be used.
+
 Made for and tested with **[Fresh Animations: Player Extension](https://www.curseforge.com/minecraft/texture-packs/fa-player-extension)**.
 
-A great addition to **[Punchy!](https://www.curseforge.com/minecraft/mc-mods/punchy)** or **[Hold My Items](https://www.curseforge.com/minecraft/mc-mods/hold-my-items)**!
+A great addition to **[Punchy!](https://www.curseforge.com/minecraft/mc-mods/punchy)** or **[Hold My Items](https://modrinth.com/mod/hold-my-items)**!
 
 ## So what does it do?
 
