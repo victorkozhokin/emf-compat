@@ -83,10 +83,11 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             if (main) FootGrounding.recordAnimated(uuid, parts::get);
             ModelPart torso = parts.get("body");
             org.joml.Matrix4f packTorso = torso == null ? null : strm.touchnmotion.cape.CapeFollow.pose(torso);
-            // A model that comes in the very pose the player's was just drawn with is a copy of it - the
-            // game hands the pose on to armour, and a pack's armour model is animated here like any other:
-            // everything is on it already, and doing it again would do it twice.
-            if (main || !Posed.same(uuid, parts::get)) applyAll(uuid, parts::get, player, main);
+            // A model that is a copy of the player's has everything on it already, and doing it again would
+            // do it twice. A copy is known by the copy callback marking it, or - where the game hands the
+            // pose on to armour itself and no callback comes (1.21.1, a pack's armour models) - by coming
+            // in the very pose the player's was just drawn with.
+            if (main || !Posed.copied(uuid, parts::get)) applyAll(uuid, parts::get, player, main);
             if (main) Posed.keep(uuid, parts::get);
             // The cape goes where the torso has been taken: of the main model first, then of whichever model has the cape.
             if (main && torso != null) strm.touchnmotion.cape.CapeFollow.keep(uuid, new org.joml.Matrix4f(packTorso), torso);
@@ -125,9 +126,15 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             EMFEntityRenderState state = EMFState.state();
             if (state == null) return;
             UUID uuid = state.uuid();
-            if (uuid == null || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
+            if (uuid == null) return;
             // Armour is only a player's concern here: nothing of ours is on any other biped.
             if (!(state.emfEntity() instanceof Player drawn) || !strm.touchnmotion.interaction.DrawnEntities.inWorld(drawn)) return;
+            // In first person the copy is left as it comes - the main model's pose, ours in it - and is
+            // still a copy: a pack's armour model must not be posed over it (First Person Model draws it).
+            if (EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) {
+                Posed.mark(uuid, model.body);
+                return;
+            }
             //? if <1.21.11 {
             applyAll(uuid, name -> switch (name) {
                 case "head" -> model.head;
@@ -145,6 +152,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             // drawn, so doing it again would do it twice: the copy gets the drawn pose itself.
             Drawn.put(uuid, model);
             *///?}
+            Posed.mark(uuid, model.body);
         } catch (Throwable t) {
             // Same as above: never throw out of an EMF hook, and say so once.
             if (!armourFailureLogged) {
@@ -154,11 +162,22 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
         }
     }
 
-    /** The pose a player's own model was last drawn with, to tell a copy of it from a model with a pose of its own. */
+    /** What tells a copy of the player's model from a model with a pose of its own. */
     private static final class Posed {
         private static final String[] NAMES = {"head", "body", "right_arm", "left_arm", "right_leg", "left_leg"};
         private static final Map<UUID, float[]> BY_PLAYER = new java.util.HashMap<>();
+        private static final CopiedPoseTracker COPIES = new CopiedPoseTracker();
 
+        /** The copy callback's word for it, this frame. */
+        static void mark(UUID uuid, ModelPart body) {
+            COPIES.mark(uuid, body, EMFState.getFrameCounter());
+        }
+
+        static boolean copied(UUID uuid, Function<String, ModelPart> parts) {
+            return COPIES.copied(uuid, parts.apply("body"), EMFState.getFrameCounter()) || same(uuid, parts);
+        }
+
+        /** The pose the player's own model was last drawn with. */
         static void keep(UUID uuid, Function<String, ModelPart> parts) {
             float[] kept = BY_PLAYER.computeIfAbsent(uuid, id -> new float[NAMES.length * 6]);
             for (int i = 0; i < NAMES.length; i++) {
@@ -176,7 +195,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             }
         }
 
-        static boolean same(UUID uuid, Function<String, ModelPart> parts) {
+        private static boolean same(UUID uuid, Function<String, ModelPart> parts) {
             float[] kept = BY_PLAYER.get(uuid);
             if (kept == null) return false;
             for (int i = 0; i < NAMES.length; i++) {
@@ -190,6 +209,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
 
         static void clear() {
             BY_PLAYER.clear();
+            COPIES.clear();
         }
     }
 
