@@ -90,7 +90,12 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             if (main) Posed.keep(uuid, parts::get);
             // The cape goes where the torso has been taken: of the main model first, then of whichever model has the cape.
             if (main && torso != null) strm.touchnmotion.cape.CapeFollow.keep(uuid, new org.joml.Matrix4f(packTorso), torso);
-            strm.touchnmotion.cape.CapeFollow.carry(uuid, parts::get, packTorso);
+            org.joml.Matrix4f capeFrame = null;
+            //? if <1.21.11 {
+            if (parts.get("cloak") != null && state.emfEntity() instanceof Player wearer)
+                capeFrame = strm.touchnmotion.cape.CapeFollow.capeFrame(wearer, strm.touchnmotion.platform.Platform.partialTick(false));
+            //?}
+            strm.touchnmotion.cape.CapeFollow.carry(uuid, parts::get, packTorso, capeFrame);
             //? if >=1.21.11 {
             /*if (context.animatingModelRoot().isMainModel) Drawn.keep(uuid, parts::get);
             *///?}
