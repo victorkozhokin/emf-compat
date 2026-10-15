@@ -1,5 +1,10 @@
 # Touch'n Motion — Changelog
 
+## 1.0.4
+
+- Horse riding: an error while posing the horse no longer makes EMF stop animating it for the rest of the session
+- With "Log decisions" on, a chat message says when EMF is not animating the player's model, and why: the model switched off in EMF's settings (Smooth Player Animations does this while its CEM Animation Engine is on), no player pack, or animations dropped after an error
+
 ## 1.0.3
 
 - 3D Armor and other packs with armour models of their own: the armour no longer slides off the body in a pose - it was posed twice
@@ -8,8 +13,6 @@
 - Shoulder Surfing: steering a moving Sable craft from its seat, the camera no longer drifts to the left or right, and the player no longer turns after the camera
 - First Person Model: the camera stays at the head while a gesture leans or shifts the torso
 - Aeronautics cockpit: a hand on a wheel or a throttle keeps hold of it while the craft tilts, instead of letting go or switching hands
-- Horse riding: an error while posing the horse no longer makes EMF stop animating it for the rest of the session
-- With "Log decisions" on, a chat message says when EMF is not animating the player's model, and why: the model switched off in EMF's settings (Smooth Player Animations does this while its CEM Animation Engine is on), no player pack, or animations dropped after an error
 
 ## 1.0.2
 

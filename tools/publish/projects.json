@@ -2453,11 +2453,11 @@
    "addon": "touch_n_motion",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "1.0.3",
+   "version_number": "1.0.4",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/Touch'n Motion/forge/1.20.1/touch_n_motion_forge_1.20.1_1.0.3.jar",
+   "file": "upload/Touch'n Motion/forge/1.20.1/touch_n_motion_forge_1.20.1_1.0.4.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
     {
@@ -2473,17 +2473,17 @@
      "cf_slug": "emf-compat-core"
     }
    ],
-   "name": "Touch'n Motion 1.0.3"
+   "name": "Touch'n Motion 1.0.4"
   },
   {
    "addon": "touch_n_motion",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "1.0.3",
+   "version_number": "1.0.4",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/Touch'n Motion/neoforge/1.21.1/touch_n_motion_neoforge_1.21.1_1.0.3.jar",
+   "file": "upload/Touch'n Motion/neoforge/1.21.1/touch_n_motion_neoforge_1.21.1_1.0.4.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
     {
@@ -2499,17 +2499,17 @@
      "cf_slug": "emf-compat-core"
     }
    ],
-   "name": "Touch'n Motion 1.0.3"
+   "name": "Touch'n Motion 1.0.4"
   },
   {
    "addon": "touch_n_motion",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "1.0.3",
+   "version_number": "1.0.4",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/Touch'n Motion/fabric/1.21.1/touch_n_motion_fabric_1.21.1_1.0.3.jar",
+   "file": "upload/Touch'n Motion/fabric/1.21.1/touch_n_motion_fabric_1.21.1_1.0.4.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
     {
@@ -2531,17 +2531,17 @@
      "cf_slug": "fabric-api"
     }
    ],
-   "name": "Touch'n Motion 1.0.3"
+   "name": "Touch'n Motion 1.0.4"
   },
   {
    "addon": "touch_n_motion",
    "loader": "fabric",
    "game_version": "1.21.11",
-   "version_number": "1.0.3",
+   "version_number": "1.0.4",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/Touch'n Motion/fabric/1.21.11/touch_n_motion_fabric_1.21.11_1.0.3.jar",
+   "file": "upload/Touch'n Motion/fabric/1.21.11/touch_n_motion_fabric_1.21.11_1.0.4.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
     {
@@ -2563,17 +2563,17 @@
      "cf_slug": "fabric-api"
     }
    ],
-   "name": "Touch'n Motion 1.0.3"
+   "name": "Touch'n Motion 1.0.4"
   },
   {
    "addon": "touch_n_motion",
    "loader": "fabric",
    "game_version": "26.1.2",
-   "version_number": "1.0.3",
+   "version_number": "1.0.4",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/Touch'n Motion/fabric/26.1.2/touch_n_motion_fabric_26.1.2_1.0.3.jar",
+   "file": "upload/Touch'n Motion/fabric/26.1.2/touch_n_motion_fabric_26.1.2_1.0.4.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
     {
@@ -2595,17 +2595,17 @@
      "cf_slug": "fabric-api"
     }
    ],
-   "name": "Touch'n Motion 1.0.3"
+   "name": "Touch'n Motion 1.0.4"
   },
   {
    "addon": "touch_n_motion",
    "loader": "fabric",
    "game_version": "26.2",
-   "version_number": "1.0.3",
+   "version_number": "1.0.4",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/Touch'n Motion/fabric/26.2/touch_n_motion_fabric_26.2_1.0.3.jar",
+   "file": "upload/Touch'n Motion/fabric/26.2/touch_n_motion_fabric_26.2_1.0.4.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
     {
@@ -2627,17 +2627,17 @@
      "cf_slug": "fabric-api"
     }
    ],
-   "name": "Touch'n Motion 1.0.3"
+   "name": "Touch'n Motion 1.0.4"
   },
   {
    "addon": "touch_n_motion",
    "loader": "fabric",
    "game_version": "26.3",
-   "version_number": "1.0.3",
+   "version_number": "1.0.4",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/Touch'n Motion/fabric/26.3/touch_n_motion_fabric_26.3_1.0.3.jar",
+   "file": "upload/Touch'n Motion/fabric/26.3/touch_n_motion_fabric_26.3_1.0.4.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
     {
@@ -2659,7 +2659,7 @@
      "cf_slug": "fabric-api"
     }
    ],
-   "name": "Touch'n Motion 1.0.3"
+   "name": "Touch'n Motion 1.0.4"
   }
  ],
  "featured": false
