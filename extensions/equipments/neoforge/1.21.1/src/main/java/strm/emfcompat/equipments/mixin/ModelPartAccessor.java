@@ -1,4 +1,4 @@
-package strm.emfcompat.armorpacks.mixin;
+package strm.emfcompat.equipments.mixin;
 
 import java.util.List;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package strm.emfcompat.armorpacks;
+package strm.emfcompat.equipments;
 
 import java.io.InputStream;
 import java.util.HashMap;

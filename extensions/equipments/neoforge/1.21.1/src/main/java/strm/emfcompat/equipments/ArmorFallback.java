@@ -1,4 +1,4 @@
-package strm.emfcompat.armorpacks;
+package strm.emfcompat.equipments;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.ClientHooks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import strm.emfcompat.armorpacks.mixin.ModelPartAccessor;
+import strm.emfcompat.equipments.mixin.ModelPartAccessor;
 import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 
@@ -36,7 +36,7 @@ import traben.entity_model_features.models.parts.EMFModelPartRoot;
  */
 public final class ArmorFallback {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("EMF Compat: Armor Packs");
+    private static final Logger LOGGER = LoggerFactory.getLogger("EMF Compat: Equipments");
 
     /** The vanilla layout: every vanilla armour layer is baked at 64x32. */
     public static final int[] VANILLA_SIZE = {64, 32};
@@ -72,7 +72,7 @@ public final class ArmorFallback {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Model choose(Model model, LivingEntity entity, EquipmentSlot slot) {
-        if (!ArmorPacksEMFCompat.fallbackEnabled()) return model;
+        if (!EquipmentsEMFCompat.fallbackEnabled()) return model;
         EMFModelPartRoot root = emfRoot(model);
         if (root == null) return model;
         int[] layout = jemSize(root);
@@ -95,7 +95,7 @@ public final class ArmorFallback {
         copyVisibility(posed, fallback);
 
         if (LOGGED.add(root.modelName + "|" + texture)) {
-            LOGGER.info("[ArmorPacks] {} ({}x{}) does not fit {} ({}x{}): drawn with the vanilla model",
+            LOGGER.info("[Equipments] {} ({}x{}) does not fit {} ({}x{}): drawn with the vanilla model",
                     texture, size[0], size[1], root.modelName, layout[0], layout[1]);
         }
         return fallback;
@@ -118,7 +118,7 @@ public final class ArmorFallback {
             return model;
         } catch (RuntimeException e) {
             // A vanilla tree without the humanoid parts: leave this model to the pack.
-            LOGGER.warn("[ArmorPacks] no vanilla armour model for {}: {}", root.modelName, e.toString());
+            LOGGER.warn("[Equipments] no vanilla armour model for {}: {}", root.modelName, e.toString());
             return null;
         }
     }

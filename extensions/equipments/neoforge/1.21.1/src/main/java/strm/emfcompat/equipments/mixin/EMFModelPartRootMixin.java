@@ -1,10 +1,10 @@
-package strm.emfcompat.armorpacks.mixin;
+package strm.emfcompat.equipments.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import strm.emfcompat.armorpacks.ArmorFallback;
+import strm.emfcompat.equipments.ArmorFallback;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 

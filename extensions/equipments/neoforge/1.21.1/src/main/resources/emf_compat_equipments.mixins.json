@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "strm.emfcompat.armorpacks.mixin",
+  "package": "strm.emfcompat.equipments.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [],
   "client": [
