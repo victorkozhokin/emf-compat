@@ -38,19 +38,33 @@ public final class CarryOnAnimationHook extends EMFAnimationApi.EMFAnimationHook
 
     @Override
     public void onAnimationEnd(AnimationContext context, boolean wasCancelledByHook) {
-        if (!EMFCarryOnMod.isEnabled() || EMFCarryOnMod.isBodyFollow()) {
-            return;
+        try {
+            if (!EMFCarryOnMod.isEnabled() || EMFCarryOnMod.isBodyFollow()) {
+                return;
+            }
+
+            EMFEntityRenderState state = context.activeState();
+            if (state == null) return;
+
+            UUID uuid = state.uuid();
+            if (uuid == null) return;
+
+            EMFModelPartVanilla body = context.animatingModelRoot().getAllVanillaPartsByNameEMF().get("body");
+            if (body != null) {
+                BodyPartSync.captureCurrent(uuid, "body", body);
+            }
+        } catch (Throwable t) {
+            // A throw out of an EMF hook makes EMF drop the model's animations until resources reload.
+            emfcompat$failed(t);
         }
+    }
 
-        EMFEntityRenderState state = context.activeState();
-        if (state == null) return;
+    private static boolean emfcompat$failureLogged;
 
-        UUID uuid = state.uuid();
-        if (uuid == null) return;
-
-        EMFModelPartVanilla body = context.animatingModelRoot().getAllVanillaPartsByNameEMF().get("body");
-        if (body != null) {
-            BodyPartSync.captureCurrent(uuid, "body", body);
-        }
+    private static void emfcompat$failed(Throwable t) {
+        if (emfcompat$failureLogged) return;
+        emfcompat$failureLogged = true;
+        org.slf4j.LoggerFactory.getLogger("emf_compat").warn("[EMF Compat] {} failed; skipped so EMF keeps animating the model",
+                CarryOnAnimationHook.class.getSimpleName(), t);
     }
 }

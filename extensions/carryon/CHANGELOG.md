@@ -1,5 +1,9 @@
 # EMF Compat: Carry On — Changelog
 
+## 2.1.1
+
+- An error while posing the carry no longer makes EMF stop animating the player's model for the rest of the session
+
 ## 2.1.0
 
 - Requires EMF Compat Core 2.3.0
