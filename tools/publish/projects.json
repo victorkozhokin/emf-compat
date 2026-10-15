@@ -5,87 +5,171 @@
   "core": {
    "slug": "emf-compat-core",
    "id": "hbGct5uU",
-   "publish": true
+   "publish": true,
+   "cf_slug": "emf-compat-core",
+   "cf_id": 1605113,
+   "cf_environments": [
+    "Client",
+    "Server"
+   ]
   },
   "better_combat": {
    "slug": "emf-compat-better-combat",
    "id": "Smytm33T",
-   "publish": true
+   "publish": true,
+   "cf_slug": "emf-compat-better-combat",
+   "cf_id": 1605147,
+   "cf_environments": [
+    "Client"
+   ]
   },
   "carry_on": {
    "slug": "emf-compat-carry-on",
    "id": "BPD5ZhBo",
-   "publish": true
+   "publish": true,
+   "cf_slug": "emf-compat-carry-on",
+   "cf_id": 1605159,
+   "cf_environments": [
+    "Client"
+   ]
   },
   "create": {
    "slug": "create-emf-compat-skyhook",
    "id": "J9McOdzy",
-   "publish": true
+   "publish": true,
+   "cf_slug": "emf-compat-create",
+   "cf_id": 1605167,
+   "cf_environments": [
+    "Client"
+   ]
   },
   "exposure": {
    "slug": "emf-compat-exposure",
    "id": "mHqWFw6Z",
-   "publish": true
+   "publish": true,
+   "cf_slug": "emf-compat-exposure",
+   "cf_id": 1629285,
+   "cf_environments": [
+    "Client"
+   ]
   },
   "gliders": {
    "slug": "emf-compat-gliders",
    "id": "PsGWhwc8",
-   "publish": true
+   "publish": true,
+   "cf_slug": "emf-compat-gliders",
+   "cf_id": 1629264,
+   "cf_environments": [
+    "Client"
+   ]
   },
   "immersive_melodies": {
    "slug": "emf-compat-immersive-melodies",
    "id": "XLUpeCri",
-   "publish": true
+   "publish": true,
+   "cf_slug": "emf-compat-immersive-melodies",
+   "cf_id": 1605177,
+   "cf_environments": [
+    "Client"
+   ]
   },
   "iron_spells": {
    "slug": "emf-compat-irons-spells-n-spellbooks",
    "id": "rk0DMjc3",
-   "publish": true
+   "publish": true,
+   "cf_slug": "emf-compat-irons-spells-n-spellbooks",
+   "cf_id": 1629298,
+   "cf_environments": [
+    "Client"
+   ]
   },
   "not_enough_animations": {
    "slug": "not-enough-animations-emf-compat",
    "id": "IGCrWfL7",
-   "publish": true
+   "publish": true,
+   "cf_slug": "emf-compat-not-enough-animations",
+   "cf_id": 1605181,
+   "cf_environments": [
+    "Client"
+   ]
   },
   "quark": {
    "slug": "emf-compat-quark",
    "id": "UvuFGp0l",
-   "publish": true
+   "publish": true,
+   "cf_slug": "emf-compat-quark",
+   "cf_id": 1605187,
+   "cf_environments": [
+    "Client"
+   ]
   },
   "supplementaries": {
    "slug": "emf-compat-supplementaries",
    "id": "z4FSlBqI",
-   "publish": true
+   "publish": true,
+   "cf_slug": "emf-compat-supplementaries",
+   "cf_id": 1605189,
+   "cf_environments": [
+    "Client"
+   ]
   },
   "tacz": {
    "slug": "emf-compat-tacz",
    "id": "vPnbqVkb",
-   "publish": true
+   "publish": true,
+   "cf_slug": "emf-compat-tacz",
+   "cf_id": 1629329,
+   "cf_environments": [
+    "Client"
+   ]
   },
   "takeaseat": {
    "slug": "emf-compat-take-a-seat",
    "id": "npIU8sEo",
-   "publish": true
+   "publish": true,
+   "cf_slug": "emf-compat-take-a-seat",
+   "cf_id": 1629302,
+   "cf_environments": [
+    "Client"
+   ]
   },
   "watut": {
    "slug": "emf-compat-watut",
    "id": "PIxeWxJ0",
-   "publish": true
+   "publish": true,
+   "cf_slug": "emf-compat-watut",
+   "cf_id": 1629292,
+   "cf_environments": [
+    "Client"
+   ]
   },
   "hackers_and_slashers": {
    "slug": null,
    "id": null,
-   "publish": false
-  },
-  "horse_sync": {
-   "slug": null,
-   "id": null,
-   "publish": false
+   "publish": false,
+   "cf_slug": null,
+   "cf_id": null
   },
   "parcool": {
    "slug": null,
    "id": null,
-   "publish": false
+   "publish": false,
+   "cf_slug": "emf-compat-parcool",
+   "cf_id": 1707027,
+   "cf_environments": [
+    "Client"
+   ]
+  },
+  "touch_n_motion": {
+   "slug": null,
+   "id": null,
+   "publish": false,
+   "cf_slug": "touch-and-motion",
+   "cf_id": 1734204,
+   "cf_environments": [
+    "Client",
+    "Server"
+   ]
   }
  },
  "modules": [
@@ -103,21 +187,24 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "better-combat",
      "project_id": "5sy6g3kz",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "better-combat-by-daedelus"
     }
    ],
    "display": "Better Combat",
-   "name": "EMF Compat: Better Combat 2.1.0"
+   "name": "EMF Compat: Better Combat 2.1.1"
   },
   {
    "addon": "better_combat",
@@ -133,17 +220,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "better-combat",
      "project_id": "5sy6g3kz",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "better-combat-by-daedelus"
     }
    ],
    "display": "Better Combat",
@@ -163,17 +253,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "better-combat",
      "project_id": "5sy6g3kz",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "better-combat-by-daedelus"
     }
    ],
    "display": "Better Combat",
@@ -193,17 +286,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "better-combat",
      "project_id": "5sy6g3kz",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "better-combat-by-daedelus"
     }
    ],
    "display": "Better Combat",
@@ -223,17 +319,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "better-combat",
      "project_id": "5sy6g3kz",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "better-combat-by-daedelus"
     }
    ],
    "display": "Better Combat",
@@ -253,21 +352,24 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "better-combat",
      "project_id": "5sy6g3kz",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "better-combat-by-daedelus"
     }
    ],
    "display": "Better Combat",
-   "name": "EMF Compat: Better Combat 2.1.0"
+   "name": "EMF Compat: Better Combat 2.1.1"
   },
   {
    "addon": "better_combat",
@@ -283,21 +385,24 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "better-combat",
      "project_id": "5sy6g3kz",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "better-combat-by-daedelus"
     }
    ],
    "display": "Better Combat",
-   "name": "EMF Compat: Better Combat 2.1.0"
+   "name": "EMF Compat: Better Combat 2.1.1"
   },
   {
    "addon": "carry_on",
@@ -313,17 +418,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "carry-on",
      "project_id": "joEfVgkn",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "carry-on"
     }
    ],
    "display": "Carry On",
@@ -343,17 +451,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "carry-on",
      "project_id": "joEfVgkn",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "carry-on"
     }
    ],
    "display": "Carry On",
@@ -373,17 +484,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "carry-on",
      "project_id": "joEfVgkn",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "carry-on"
     }
    ],
    "display": "Carry On",
@@ -403,17 +517,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "carry-on",
      "project_id": "joEfVgkn",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "carry-on"
     }
    ],
    "display": "Carry On",
@@ -433,17 +550,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "carry-on",
      "project_id": "joEfVgkn",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "carry-on"
     }
    ],
    "display": "Carry On",
@@ -463,17 +583,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "carry-on",
      "project_id": "joEfVgkn",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "carry-on"
     }
    ],
    "display": "Carry On",
@@ -493,17 +616,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "carry-on",
      "project_id": "joEfVgkn",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "carry-on"
     }
    ],
    "display": "Carry On",
@@ -513,141 +639,148 @@
    "addon": "core",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "2.3.0",
+   "version_number": "2.3.1",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/1.21.1/emf_compat_core_fabric_1.21.1_2.3.0.jar",
+   "file": "upload/Core/fabric/1.21.1/emf_compat_core_fabric_1.21.1_2.3.1.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.0"
+   "name": "EMF Compat: Core 2.3.1"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "1.21.11",
-   "version_number": "2.3.0",
+   "version_number": "2.3.1",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/1.21.11/emf_compat_core_fabric_1.21.11_2.3.0.jar",
+   "file": "upload/Core/fabric/1.21.11/emf_compat_core_fabric_1.21.11_2.3.1.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.0"
+   "name": "EMF Compat: Core 2.3.1"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "26.1.2",
-   "version_number": "2.3.0",
+   "version_number": "2.3.1",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/26.1.2/emf_compat_core_fabric_26.1.2_2.3.0.jar",
+   "file": "upload/Core/fabric/26.1.2/emf_compat_core_fabric_26.1.2_2.3.1.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.0"
+   "name": "EMF Compat: Core 2.3.1"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "26.2",
-   "version_number": "2.3.0",
+   "version_number": "2.3.1",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/26.2/emf_compat_core_fabric_26.2_2.3.0.jar",
+   "file": "upload/Core/fabric/26.2/emf_compat_core_fabric_26.2_2.3.1.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.0"
+   "name": "EMF Compat: Core 2.3.1"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "26.3",
-   "version_number": "2.3.0",
+   "version_number": "2.3.1",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/26.3/emf_compat_core_fabric_26.3_2.3.0.jar",
+   "file": "upload/Core/fabric/26.3/emf_compat_core_fabric_26.3_2.3.1.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.0"
+   "name": "EMF Compat: Core 2.3.1"
   },
   {
    "addon": "core",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "2.3.0",
+   "version_number": "2.3.1",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/forge/1.20.1/emf_compat_core_forge_1.20.1_2.3.0.jar",
+   "file": "upload/Core/forge/1.20.1/emf_compat_core_forge_1.20.1_2.3.1.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.0"
+   "name": "EMF Compat: Core 2.3.1"
   },
   {
    "addon": "core",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "2.3.0",
+   "version_number": "2.3.1",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/neoforge/1.21.1/emf_compat_core_neoforge_1.21.1_2.3.0.jar",
+   "file": "upload/Core/neoforge/1.21.1/emf_compat_core_neoforge_1.21.1_2.3.1.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.0"
+   "name": "EMF Compat: Core 2.3.1"
   },
   {
    "addon": "create",
@@ -663,22 +796,26 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "create-fly",
      "project_id": "dKvj0eNn",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "create-fly"
     },
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "not-enough-animations"
     }
    ],
    "display": "Create",
@@ -698,22 +835,26 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "create-fly",
      "project_id": "dKvj0eNn",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "create-fly"
     },
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "not-enough-animations"
     }
    ],
    "display": "Create",
@@ -733,22 +874,26 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "create-fly",
      "project_id": "dKvj0eNn",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "create-fly"
     },
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "not-enough-animations"
     }
    ],
    "display": "Create",
@@ -768,27 +913,32 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "create",
      "project_id": "LNytGWDc",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "create"
     },
     {
      "slug": "create-stuff-additions",
      "project_id": "aq9qUUQG",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": null
     },
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "not-enough-animations"
     }
    ],
    "display": "Create",
@@ -808,47 +958,56 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "barehanded",
      "project_id": "NnSJuVRa",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "barehanded"
     },
     {
      "slug": "create",
      "project_id": "LNytGWDc",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "create"
     },
     {
      "slug": "create-aeronautics",
      "project_id": "oWaK0Q19",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "create-aeronautics"
     },
     {
      "slug": "create-cosmonatics",
      "project_id": "micg1iTH",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "create-cosmonautics"
     },
     {
      "slug": "create-grappling-hooks",
      "project_id": "zxlsvyWp",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "create-grappling-hooks"
     },
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "not-enough-animations"
     },
     {
      "slug": "sable-ragdolls",
      "project_id": "I3mWDgfy",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "sable-ragdolls"
     }
    ],
    "display": "Create",
@@ -868,17 +1027,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "exposure",
      "project_id": "hB899VmG",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "exposure"
     }
    ],
    "display": "Exposure",
@@ -898,17 +1060,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "exposure",
      "project_id": "hB899VmG",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "exposure"
     }
    ],
    "display": "Exposure",
@@ -928,17 +1093,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "exposure",
      "project_id": "hB899VmG",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "exposure"
     }
    ],
    "display": "Exposure",
@@ -958,22 +1126,26 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "gliders",
      "project_id": "XiC6HzoU",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "gliders"
     },
     {
      "slug": "reliable-gliders",
      "project_id": "pVIWsXir",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "reliable-gliders"
     }
    ],
    "display": "Gliders",
@@ -993,17 +1165,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "reliable-gliders",
      "project_id": "pVIWsXir",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "reliable-gliders"
     }
    ],
    "display": "Gliders",
@@ -1023,17 +1198,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "reliable-gliders",
      "project_id": "pVIWsXir",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "reliable-gliders"
     }
    ],
    "display": "Gliders",
@@ -1053,22 +1231,26 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "gliders",
      "project_id": "XiC6HzoU",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "gliders"
     },
     {
      "slug": "paragliders",
      "project_id": "esqWA0aQ",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "paragliders"
     }
    ],
    "display": "Gliders",
@@ -1088,27 +1270,32 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "gliders",
      "project_id": "XiC6HzoU",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "gliders"
     },
     {
      "slug": "paragliders",
      "project_id": "esqWA0aQ",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "paragliders"
     },
     {
      "slug": "reliable-gliders",
      "project_id": "pVIWsXir",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "reliable-gliders"
     }
    ],
    "display": "Gliders",
@@ -1128,66 +1315,18 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     }
    ],
    "display": "Hackers 'n Slashers",
    "name": "EMF Compat: Hackers 'n Slashers 1.0.0"
-  },
-  {
-   "addon": "horse_sync",
-   "loader": "fabric",
-   "game_version": "1.21.1",
-   "version_number": "2.0.0",
-   "project": null,
-   "project_id": null,
-   "publish": false,
-   "file": "upload/Horse Sync/fabric/1.21.1/emf_compat_horse_sync_fabric_1.21.1_2.0.0.jar",
-   "changelog": "extensions/horse-sync/CHANGELOG.md",
-   "dependencies": [
-    {
-     "slug": "entity-model-features",
-     "project_id": "4I1XuqiY",
-     "dependency_type": "required"
-    },
-    {
-     "slug": "emf-compat-core",
-     "project_id": "hbGct5uU",
-     "dependency_type": "required"
-    }
-   ],
-   "display": "Horse Sync",
-   "name": "EMF Compat: Horse Sync 2.0.0"
-  },
-  {
-   "addon": "horse_sync",
-   "loader": "neoforge",
-   "game_version": "1.21.1",
-   "version_number": "2.0.0",
-   "project": null,
-   "project_id": null,
-   "publish": false,
-   "file": "upload/Horse Sync/neoforge/1.21.1/emf_compat_horse_sync_neoforge_1.21.1_2.0.0.jar",
-   "changelog": "extensions/horse-sync/CHANGELOG.md",
-   "dependencies": [
-    {
-     "slug": "entity-model-features",
-     "project_id": "4I1XuqiY",
-     "dependency_type": "required"
-    },
-    {
-     "slug": "emf-compat-core",
-     "project_id": "hbGct5uU",
-     "dependency_type": "required"
-    }
-   ],
-   "display": "Horse Sync",
-   "name": "EMF Compat: Horse Sync 2.0.0"
   },
   {
    "addon": "immersive_melodies",
@@ -1203,17 +1342,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "immersive-melodies",
      "project_id": "TaSmHw8V",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "immersive-melodies"
     }
    ],
    "display": "Immersive Melodies",
@@ -1233,17 +1375,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "immersive-melodies",
      "project_id": "TaSmHw8V",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "immersive-melodies"
     }
    ],
    "display": "Immersive Melodies",
@@ -1263,17 +1408,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "immersive-melodies",
      "project_id": "TaSmHw8V",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "immersive-melodies"
     }
    ],
    "display": "Immersive Melodies",
@@ -1283,31 +1431,34 @@
    "addon": "iron_spells",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "emf-compat-irons-spells-n-spellbooks",
    "project_id": "rk0DMjc3",
    "publish": true,
-   "file": "upload/Iron's Spells/forge/1.20.1/emf_compat_iron_spells_forge_1.20.1_2.1.0.jar",
+   "file": "upload/Iron's Spells/forge/1.20.1/emf_compat_iron_spells_forge_1.20.1_2.1.1.jar",
    "changelog": "extensions/iron_spells/CHANGELOG.md",
    "dependencies": [
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "irons-spells-n-spellbooks",
      "project_id": "s4OWxYQQ",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "irons-spells-n-spellbooks"
     }
    ],
    "display": "Iron's Spells",
-   "name": "EMF Compat: Iron's Spells 2.1.0"
+   "name": "EMF Compat: Iron's Spells 2.1.1"
   },
   {
    "addon": "iron_spells",
@@ -1323,17 +1474,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "irons-spells-n-spellbooks",
      "project_id": "s4OWxYQQ",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "irons-spells-n-spellbooks"
     }
    ],
    "display": "Iron's Spells",
@@ -1353,17 +1507,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "not-enough-animations"
     }
    ],
    "display": "Not Enough Animations",
@@ -1383,17 +1540,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "not-enough-animations"
     }
    ],
    "display": "Not Enough Animations",
@@ -1413,17 +1573,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "not-enough-animations"
     }
    ],
    "display": "Not Enough Animations",
@@ -1443,17 +1606,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "not-enough-animations"
     }
    ],
    "display": "Not Enough Animations",
@@ -1473,17 +1639,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "not-enough-animations"
     }
    ],
    "display": "Not Enough Animations",
@@ -1503,17 +1672,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "not-enough-animations"
     }
    ],
    "display": "Not Enough Animations",
@@ -1533,17 +1705,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "not-enough-animations"
     }
    ],
    "display": "Not Enough Animations",
@@ -1563,17 +1738,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "parcool",
      "project_id": "Fsvx2bdR",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "parcool"
     }
    ],
    "display": "ParCool",
@@ -1593,17 +1771,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "quark",
      "project_id": "qnQsVE2z",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "quark"
     }
    ],
    "display": "Quark",
@@ -1623,17 +1804,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "quark",
      "project_id": "qnQsVE2z",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "quark"
     }
    ],
    "display": "Quark",
@@ -1653,17 +1837,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "supplementaries",
      "project_id": "fFEIiSDQ",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "supplementaries"
     }
    ],
    "display": "Supplementaries",
@@ -1683,17 +1870,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "supplementaries",
      "project_id": "fFEIiSDQ",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "supplementaries"
     }
    ],
    "display": "Supplementaries",
@@ -1713,17 +1903,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "supplementaries",
      "project_id": "fFEIiSDQ",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "supplementaries"
     }
    ],
    "display": "Supplementaries",
@@ -1743,17 +1936,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "timeless-and-classics-zero",
      "project_id": "SzzJttH8",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "timeless-and-classics-zero"
     }
    ],
    "display": "TACZ",
@@ -1773,17 +1969,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "tacz-1.21.1",
      "project_id": "OypNE65K",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "tacz-1-21-1"
     }
    ],
    "display": "TACZ",
@@ -1803,17 +2002,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "tas",
      "project_id": "Gg7qMzxE",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "take-a-seat"
     }
    ],
    "display": "Take a Seat",
@@ -1833,17 +2035,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "tas",
      "project_id": "Gg7qMzxE",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "take-a-seat"
     }
    ],
    "display": "Take a Seat",
@@ -1863,17 +2068,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "tas",
      "project_id": "Gg7qMzxE",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "take-a-seat"
     }
    ],
    "display": "Take a Seat",
@@ -1893,17 +2101,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "sitting+",
      "project_id": "RVtIOlYX",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "sitting"
     }
    ],
    "display": "Take a Seat",
@@ -1923,17 +2134,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "tas",
      "project_id": "Gg7qMzxE",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "take-a-seat"
     }
    ],
    "display": "Take a Seat",
@@ -1953,17 +2167,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "what-are-they-up-to",
      "project_id": "AtB5mHky",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "what-are-they-up-to-watut"
     }
    ],
    "display": "WATUT",
@@ -1983,17 +2200,20 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "what-are-they-up-to",
      "project_id": "AtB5mHky",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "what-are-they-up-to-watut"
     }
    ],
    "display": "WATUT",
@@ -2013,21 +2233,206 @@
     {
      "slug": "entity-model-features",
      "project_id": "4I1XuqiY",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
     },
     {
      "slug": "emf-compat-core",
      "project_id": "hbGct5uU",
-     "dependency_type": "required"
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
     },
     {
      "slug": "what-are-they-up-to",
      "project_id": "AtB5mHky",
-     "dependency_type": "optional"
+     "dependency_type": "optional",
+     "cf_slug": "what-are-they-up-to-watut"
     }
    ],
    "display": "WATUT",
    "name": "EMF Compat: WATUT 1.0.0"
+  },
+  {
+   "addon": "touch_n_motion",
+   "loader": "forge",
+   "game_version": "1.20.1",
+   "version_number": "1.0.3",
+   "project": null,
+   "project_id": null,
+   "publish": false,
+   "file": "upload/Touch'n Motion/forge/1.20.1/touch_n_motion_forge_1.20.1_1.0.3.jar",
+   "changelog": "extensions/touch_n_motion/CHANGELOG.md",
+   "dependencies": [
+    {
+     "slug": "entity-model-features",
+     "project_id": "4I1XuqiY",
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
+    },
+    {
+     "slug": "emf-compat-core",
+     "project_id": "hbGct5uU",
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
+    }
+   ],
+   "name": "Touch'n Motion 1.0.3"
+  },
+  {
+   "addon": "touch_n_motion",
+   "loader": "neoforge",
+   "game_version": "1.21.1",
+   "version_number": "1.0.3",
+   "project": null,
+   "project_id": null,
+   "publish": false,
+   "file": "upload/Touch'n Motion/neoforge/1.21.1/touch_n_motion_neoforge_1.21.1_1.0.3.jar",
+   "changelog": "extensions/touch_n_motion/CHANGELOG.md",
+   "dependencies": [
+    {
+     "slug": "entity-model-features",
+     "project_id": "4I1XuqiY",
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
+    },
+    {
+     "slug": "emf-compat-core",
+     "project_id": "hbGct5uU",
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
+    }
+   ],
+   "name": "Touch'n Motion 1.0.3"
+  },
+  {
+   "addon": "touch_n_motion",
+   "loader": "fabric",
+   "game_version": "1.21.1",
+   "version_number": "1.0.3",
+   "project": null,
+   "project_id": null,
+   "publish": false,
+   "file": "upload/Touch'n Motion/fabric/1.21.1/touch_n_motion_fabric_1.21.1_1.0.3.jar",
+   "changelog": "extensions/touch_n_motion/CHANGELOG.md",
+   "dependencies": [
+    {
+     "slug": "entity-model-features",
+     "project_id": "4I1XuqiY",
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
+    },
+    {
+     "slug": "emf-compat-core",
+     "project_id": "hbGct5uU",
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
+    }
+   ],
+   "name": "Touch'n Motion 1.0.3"
+  },
+  {
+   "addon": "touch_n_motion",
+   "loader": "fabric",
+   "game_version": "1.21.11",
+   "version_number": "1.0.3",
+   "project": null,
+   "project_id": null,
+   "publish": false,
+   "file": "upload/Touch'n Motion/fabric/1.21.11/touch_n_motion_fabric_1.21.11_1.0.3.jar",
+   "changelog": "extensions/touch_n_motion/CHANGELOG.md",
+   "dependencies": [
+    {
+     "slug": "entity-model-features",
+     "project_id": "4I1XuqiY",
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
+    },
+    {
+     "slug": "emf-compat-core",
+     "project_id": "hbGct5uU",
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
+    }
+   ],
+   "name": "Touch'n Motion 1.0.3"
+  },
+  {
+   "addon": "touch_n_motion",
+   "loader": "fabric",
+   "game_version": "26.1.2",
+   "version_number": "1.0.3",
+   "project": null,
+   "project_id": null,
+   "publish": false,
+   "file": "upload/Touch'n Motion/fabric/26.1.2/touch_n_motion_fabric_26.1.2_1.0.3.jar",
+   "changelog": "extensions/touch_n_motion/CHANGELOG.md",
+   "dependencies": [
+    {
+     "slug": "entity-model-features",
+     "project_id": "4I1XuqiY",
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
+    },
+    {
+     "slug": "emf-compat-core",
+     "project_id": "hbGct5uU",
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
+    }
+   ],
+   "name": "Touch'n Motion 1.0.3"
+  },
+  {
+   "addon": "touch_n_motion",
+   "loader": "fabric",
+   "game_version": "26.2",
+   "version_number": "1.0.3",
+   "project": null,
+   "project_id": null,
+   "publish": false,
+   "file": "upload/Touch'n Motion/fabric/26.2/touch_n_motion_fabric_26.2_1.0.3.jar",
+   "changelog": "extensions/touch_n_motion/CHANGELOG.md",
+   "dependencies": [
+    {
+     "slug": "entity-model-features",
+     "project_id": "4I1XuqiY",
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
+    },
+    {
+     "slug": "emf-compat-core",
+     "project_id": "hbGct5uU",
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
+    }
+   ],
+   "name": "Touch'n Motion 1.0.3"
+  },
+  {
+   "addon": "touch_n_motion",
+   "loader": "fabric",
+   "game_version": "26.3",
+   "version_number": "1.0.3",
+   "project": null,
+   "project_id": null,
+   "publish": false,
+   "file": "upload/Touch'n Motion/fabric/26.3/touch_n_motion_fabric_26.3_1.0.3.jar",
+   "changelog": "extensions/touch_n_motion/CHANGELOG.md",
+   "dependencies": [
+    {
+     "slug": "entity-model-features",
+     "project_id": "4I1XuqiY",
+     "dependency_type": "required",
+     "cf_slug": "entity-model-features"
+    },
+    {
+     "slug": "emf-compat-core",
+     "project_id": "hbGct5uU",
+     "dependency_type": "required",
+     "cf_slug": "emf-compat-core"
+    }
+   ],
+   "name": "Touch'n Motion 1.0.3"
   }
  ],
  "featured": false
