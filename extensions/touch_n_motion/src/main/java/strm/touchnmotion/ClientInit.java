@@ -116,6 +116,7 @@ public final class ClientInit {
     public static void tickEnd() {
         strm.touchnmotion.net.ClientHands.tick();
         strm.touchnmotion.compat.NeaCompat.tick();
+        strm.touchnmotion.compat.PlayerModelCheck.tick();
     }
 
     /** Leaving a world drops every feature's per-entity state with it, and what was known of other players' hands. */

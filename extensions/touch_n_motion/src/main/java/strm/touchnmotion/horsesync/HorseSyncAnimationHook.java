@@ -38,33 +38,47 @@ public final class HorseSyncAnimationHook extends EMFAnimationApi.EMFAnimationHo
 
     @Override
     public void onAnimationEnd(AnimationContext context, boolean wasCancelledByHook) {
-        EMFEntityRenderState state = context.activeState();
-        if (state == null) return;
-        if (!(state.emfEntity() instanceof Entity entity)) return;
-        if (!(entity instanceof AbstractHorse horse)) return;
+        try {
+            EMFEntityRenderState state = context.activeState();
+            if (state == null) return;
+            if (!(state.emfEntity() instanceof Entity entity)) return;
+            if (!(entity instanceof AbstractHorse horse)) return;
 
-        if (!HorseSync.isEnabled()) {
-            EMFCompat.horseBodyOffsets.remove(horse.getUUID());
-            return;
+            if (!HorseSync.isEnabled()) {
+                EMFCompat.horseBodyOffsets.remove(horse.getUUID());
+                return;
+            }
+
+            EMFModelPartRoot root = context.animatingModelRoot();
+            if (!root.isMainModel) return;
+            if (EMFState.isLayerPhase) return;
+
+            EMFModelPartVanilla bodyPart = root.getAllVanillaPartsByNameEMF().get("body");
+            if (bodyPart == null) return;
+
+            // The value we inherit is the horse's CEM body.ty (the body bone's animated Y translation).
+            // EMF applies ty on top of the initial pose, so ModelPart.y - initialPose.y == body.ty.
+            float animatedY = bodyPart.y;
+            float baseY = strm.touchnmotion.platform.Platform.y(bodyPart.getInitialPose());
+            float bodyTy = animatedY - baseY;
+
+            float scale = strm.touchnmotion.platform.Platform.horseScale(horse);
+
+            // Model pixels -> world blocks (16 px per block), scaled by the horse renderer's scale.
+            float offsetBlocks = (bodyTy / 16.0f) * scale;
+            EMFCompat.horseBodyOffsets.put(horse.getUUID(), offsetBlocks);
+        } catch (Throwable t) {
+            // A throw out of an EMF hook makes EMF drop the model's animations until resources reload.
+            emfcompat$failed(t);
         }
+    }
 
-        EMFModelPartRoot root = context.animatingModelRoot();
-        if (!root.isMainModel) return;
-        if (EMFState.isLayerPhase) return;
+    private static boolean emfcompat$failureLogged;
 
-        EMFModelPartVanilla bodyPart = root.getAllVanillaPartsByNameEMF().get("body");
-        if (bodyPart == null) return;
-
-        // The value we inherit is the horse's CEM body.ty (the body bone's animated Y translation).
-        // EMF applies ty on top of the initial pose, so ModelPart.y - initialPose.y == body.ty.
-        float animatedY = bodyPart.y;
-        float baseY = strm.touchnmotion.platform.Platform.y(bodyPart.getInitialPose());
-        float bodyTy = animatedY - baseY;
-
-        float scale = strm.touchnmotion.platform.Platform.horseScale(horse);
-
-        // Model pixels -> world blocks (16 px per block), scaled by the horse renderer's scale.
-        float offsetBlocks = (bodyTy / 16.0f) * scale;
-        EMFCompat.horseBodyOffsets.put(horse.getUUID(), offsetBlocks);
+    private static void emfcompat$failed(Throwable t) {
+        if (emfcompat$failureLogged) return;
+        emfcompat$failureLogged = true;
+        org.slf4j.LoggerFactory.getLogger("emf_compat").warn("[EMF Compat] {} failed; skipped so EMF keeps animating the model",
+                HorseSyncAnimationHook.class.getSimpleName(), t);
     }
 }
