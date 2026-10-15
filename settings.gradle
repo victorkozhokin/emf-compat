@@ -40,6 +40,10 @@ project(":core-fabric-26.2").projectDir = file("core/fabric/26.2")
 include("core-fabric-26.3")
 project(":core-fabric-26.3").projectDir = file("core/fabric/26.3")
 
+// Armor Packs addon: armour textures that do not fit an EMF armour pack's model.
+include("armor-packs-neoforge-1.21.1")
+project(":armor-packs-neoforge-1.21.1").projectDir = file("extensions/armor_packs/neoforge/1.21.1")
+
 // Create addon.
 include("create-neoforge-1.21.1")
 project(":create-neoforge-1.21.1").projectDir = file("extensions/create/neoforge/1.21.1")

@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "strm.emfcompat.armorpacks.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [],
+  "client": [
+    "EMFModelPartRootMixin",
+    "HumanoidArmorLayerMixin",
+    "ModelPartAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
