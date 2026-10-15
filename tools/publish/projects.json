@@ -1,6 +1,6 @@
 {
  "version_type": "release",
- "notes": "Хосты — optional, EMF и ядро — required, ETF не указываем. publish=false у бета-аддонов.",
+ "notes": "Хосты — optional, EMF и ядро — required, у Fabric ещё Fabric API — required, ETF не указываем. publish=false у бета-аддонов.",
  "projects": {
   "core": {
    "slug": "emf-compat-core",
@@ -201,6 +201,12 @@
      "project_id": "5sy6g3kz",
      "dependency_type": "optional",
      "cf_slug": "better-combat-by-daedelus"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Better Combat",
@@ -234,6 +240,12 @@
      "project_id": "5sy6g3kz",
      "dependency_type": "optional",
      "cf_slug": "better-combat-by-daedelus"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Better Combat",
@@ -267,6 +279,12 @@
      "project_id": "5sy6g3kz",
      "dependency_type": "optional",
      "cf_slug": "better-combat-by-daedelus"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Better Combat",
@@ -300,6 +318,12 @@
      "project_id": "5sy6g3kz",
      "dependency_type": "optional",
      "cf_slug": "better-combat-by-daedelus"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Better Combat",
@@ -333,6 +357,12 @@
      "project_id": "5sy6g3kz",
      "dependency_type": "optional",
      "cf_slug": "better-combat-by-daedelus"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Better Combat",
@@ -408,11 +438,11 @@
    "addon": "carry_on",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/fabric/1.21.1/emf_compat_carry_on_fabric_1.21.1_2.1.0.jar",
+   "file": "upload/Carry On/fabric/1.21.1/emf_compat_carry_on_fabric_1.21.1_2.1.1.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -432,20 +462,26 @@
      "project_id": "joEfVgkn",
      "dependency_type": "optional",
      "cf_slug": "carry-on"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.1.0"
+   "name": "EMF Compat: Carry On 2.1.1"
   },
   {
    "addon": "carry_on",
    "loader": "fabric",
    "game_version": "1.21.11",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/fabric/1.21.11/emf_compat_carry_on_fabric_1.21.11_2.1.0.jar",
+   "file": "upload/Carry On/fabric/1.21.11/emf_compat_carry_on_fabric_1.21.11_2.1.1.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -465,20 +501,26 @@
      "project_id": "joEfVgkn",
      "dependency_type": "optional",
      "cf_slug": "carry-on"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.1.0"
+   "name": "EMF Compat: Carry On 2.1.1"
   },
   {
    "addon": "carry_on",
    "loader": "fabric",
    "game_version": "26.1.2",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/fabric/26.1.2/emf_compat_carry_on_fabric_26.1.2_2.1.0.jar",
+   "file": "upload/Carry On/fabric/26.1.2/emf_compat_carry_on_fabric_26.1.2_2.1.1.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -498,20 +540,26 @@
      "project_id": "joEfVgkn",
      "dependency_type": "optional",
      "cf_slug": "carry-on"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.1.0"
+   "name": "EMF Compat: Carry On 2.1.1"
   },
   {
    "addon": "carry_on",
    "loader": "fabric",
    "game_version": "26.2",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/fabric/26.2/emf_compat_carry_on_fabric_26.2_2.1.0.jar",
+   "file": "upload/Carry On/fabric/26.2/emf_compat_carry_on_fabric_26.2_2.1.1.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -531,20 +579,26 @@
      "project_id": "joEfVgkn",
      "dependency_type": "optional",
      "cf_slug": "carry-on"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.1.0"
+   "name": "EMF Compat: Carry On 2.1.1"
   },
   {
    "addon": "carry_on",
    "loader": "fabric",
    "game_version": "26.3",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/fabric/26.3/emf_compat_carry_on_fabric_26.3_2.1.0.jar",
+   "file": "upload/Carry On/fabric/26.3/emf_compat_carry_on_fabric_26.3_2.1.1.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -564,20 +618,26 @@
      "project_id": "joEfVgkn",
      "dependency_type": "optional",
      "cf_slug": "carry-on"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.1.0"
+   "name": "EMF Compat: Carry On 2.1.1"
   },
   {
    "addon": "carry_on",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/forge/1.20.1/emf_compat_carry_on_forge_1.20.1_2.1.0.jar",
+   "file": "upload/Carry On/forge/1.20.1/emf_compat_carry_on_forge_1.20.1_2.1.1.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -600,17 +660,17 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.1.0"
+   "name": "EMF Compat: Carry On 2.1.1"
   },
   {
    "addon": "carry_on",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/neoforge/1.21.1/emf_compat_carry_on_neoforge_1.21.1_2.1.0.jar",
+   "file": "upload/Carry On/neoforge/1.21.1/emf_compat_carry_on_neoforge_1.21.1_2.1.1.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -633,17 +693,17 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.1.0"
+   "name": "EMF Compat: Carry On 2.1.1"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "2.3.1",
+   "version_number": "2.3.2",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/1.21.1/emf_compat_core_fabric_1.21.1_2.3.1.jar",
+   "file": "upload/Core/fabric/1.21.1/emf_compat_core_fabric_1.21.1_2.3.2.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -651,20 +711,26 @@
      "project_id": "4I1XuqiY",
      "dependency_type": "required",
      "cf_slug": "entity-model-features"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.1"
+   "name": "EMF Compat: Core 2.3.2"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "1.21.11",
-   "version_number": "2.3.1",
+   "version_number": "2.3.2",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/1.21.11/emf_compat_core_fabric_1.21.11_2.3.1.jar",
+   "file": "upload/Core/fabric/1.21.11/emf_compat_core_fabric_1.21.11_2.3.2.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -672,20 +738,26 @@
      "project_id": "4I1XuqiY",
      "dependency_type": "required",
      "cf_slug": "entity-model-features"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.1"
+   "name": "EMF Compat: Core 2.3.2"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "26.1.2",
-   "version_number": "2.3.1",
+   "version_number": "2.3.2",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/26.1.2/emf_compat_core_fabric_26.1.2_2.3.1.jar",
+   "file": "upload/Core/fabric/26.1.2/emf_compat_core_fabric_26.1.2_2.3.2.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -693,20 +765,26 @@
      "project_id": "4I1XuqiY",
      "dependency_type": "required",
      "cf_slug": "entity-model-features"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.1"
+   "name": "EMF Compat: Core 2.3.2"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "26.2",
-   "version_number": "2.3.1",
+   "version_number": "2.3.2",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/26.2/emf_compat_core_fabric_26.2_2.3.1.jar",
+   "file": "upload/Core/fabric/26.2/emf_compat_core_fabric_26.2_2.3.2.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -714,20 +792,26 @@
      "project_id": "4I1XuqiY",
      "dependency_type": "required",
      "cf_slug": "entity-model-features"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.1"
+   "name": "EMF Compat: Core 2.3.2"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "26.3",
-   "version_number": "2.3.1",
+   "version_number": "2.3.2",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/26.3/emf_compat_core_fabric_26.3_2.3.1.jar",
+   "file": "upload/Core/fabric/26.3/emf_compat_core_fabric_26.3_2.3.2.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -735,20 +819,26 @@
      "project_id": "4I1XuqiY",
      "dependency_type": "required",
      "cf_slug": "entity-model-features"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.1"
+   "name": "EMF Compat: Core 2.3.2"
   },
   {
    "addon": "core",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "2.3.1",
+   "version_number": "2.3.2",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/forge/1.20.1/emf_compat_core_forge_1.20.1_2.3.1.jar",
+   "file": "upload/Core/forge/1.20.1/emf_compat_core_forge_1.20.1_2.3.2.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -759,17 +849,17 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.1"
+   "name": "EMF Compat: Core 2.3.2"
   },
   {
    "addon": "core",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "2.3.1",
+   "version_number": "2.3.2",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/neoforge/1.21.1/emf_compat_core_neoforge_1.21.1_2.3.1.jar",
+   "file": "upload/Core/neoforge/1.21.1/emf_compat_core_neoforge_1.21.1_2.3.2.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -780,7 +870,7 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.1"
+   "name": "EMF Compat: Core 2.3.2"
   },
   {
    "addon": "create",
@@ -816,6 +906,12 @@
      "project_id": "MPCX6s5C",
      "dependency_type": "optional",
      "cf_slug": "not-enough-animations"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Create",
@@ -855,6 +951,12 @@
      "project_id": "MPCX6s5C",
      "dependency_type": "optional",
      "cf_slug": "not-enough-animations"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Create",
@@ -894,6 +996,12 @@
      "project_id": "MPCX6s5C",
      "dependency_type": "optional",
      "cf_slug": "not-enough-animations"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Create",
@@ -1041,6 +1149,12 @@
      "project_id": "hB899VmG",
      "dependency_type": "optional",
      "cf_slug": "exposure"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Exposure",
@@ -1146,6 +1260,12 @@
      "project_id": "pVIWsXir",
      "dependency_type": "optional",
      "cf_slug": "reliable-gliders"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Gliders",
@@ -1179,6 +1299,12 @@
      "project_id": "pVIWsXir",
      "dependency_type": "optional",
      "cf_slug": "reliable-gliders"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Gliders",
@@ -1212,6 +1338,12 @@
      "project_id": "pVIWsXir",
      "dependency_type": "optional",
      "cf_slug": "reliable-gliders"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Gliders",
@@ -1332,11 +1464,11 @@
    "addon": "immersive_melodies",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "1.2.0",
+   "version_number": "1.2.1",
    "project": "emf-compat-immersive-melodies",
    "project_id": "XLUpeCri",
    "publish": true,
-   "file": "upload/Immersive Melodies/fabric/1.21.1/emf_compat_immersive_melodies_fabric_1.21.1_1.2.0.jar",
+   "file": "upload/Immersive Melodies/fabric/1.21.1/emf_compat_immersive_melodies_fabric_1.21.1_1.2.1.jar",
    "changelog": "extensions/immersive_melodies/CHANGELOG.md",
    "dependencies": [
     {
@@ -1356,20 +1488,26 @@
      "project_id": "TaSmHw8V",
      "dependency_type": "optional",
      "cf_slug": "immersive-melodies"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Immersive Melodies",
-   "name": "EMF Compat: Immersive Melodies 1.2.0"
+   "name": "EMF Compat: Immersive Melodies 1.2.1"
   },
   {
    "addon": "immersive_melodies",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "1.2.0",
+   "version_number": "1.2.1",
    "project": "emf-compat-immersive-melodies",
    "project_id": "XLUpeCri",
    "publish": true,
-   "file": "upload/Immersive Melodies/forge/1.20.1/emf_compat_immersive_melodies_forge_1.20.1_1.2.0.jar",
+   "file": "upload/Immersive Melodies/forge/1.20.1/emf_compat_immersive_melodies_forge_1.20.1_1.2.1.jar",
    "changelog": "extensions/immersive_melodies/CHANGELOG.md",
    "dependencies": [
     {
@@ -1392,17 +1530,17 @@
     }
    ],
    "display": "Immersive Melodies",
-   "name": "EMF Compat: Immersive Melodies 1.2.0"
+   "name": "EMF Compat: Immersive Melodies 1.2.1"
   },
   {
    "addon": "immersive_melodies",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "1.2.0",
+   "version_number": "1.2.1",
    "project": "emf-compat-immersive-melodies",
    "project_id": "XLUpeCri",
    "publish": true,
-   "file": "upload/Immersive Melodies/neoforge/1.21.1/emf_compat_immersive_melodies_neoforge_1.21.1_1.2.0.jar",
+   "file": "upload/Immersive Melodies/neoforge/1.21.1/emf_compat_immersive_melodies_neoforge_1.21.1_1.2.1.jar",
    "changelog": "extensions/immersive_melodies/CHANGELOG.md",
    "dependencies": [
     {
@@ -1425,7 +1563,7 @@
     }
    ],
    "display": "Immersive Melodies",
-   "name": "EMF Compat: Immersive Melodies 1.2.0"
+   "name": "EMF Compat: Immersive Melodies 1.2.1"
   },
   {
    "addon": "iron_spells",
@@ -1521,6 +1659,12 @@
      "project_id": "MPCX6s5C",
      "dependency_type": "optional",
      "cf_slug": "not-enough-animations"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Not Enough Animations",
@@ -1554,6 +1698,12 @@
      "project_id": "MPCX6s5C",
      "dependency_type": "optional",
      "cf_slug": "not-enough-animations"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Not Enough Animations",
@@ -1587,6 +1737,12 @@
      "project_id": "MPCX6s5C",
      "dependency_type": "optional",
      "cf_slug": "not-enough-animations"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Not Enough Animations",
@@ -1620,6 +1776,12 @@
      "project_id": "MPCX6s5C",
      "dependency_type": "optional",
      "cf_slug": "not-enough-animations"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Not Enough Animations",
@@ -1653,6 +1815,12 @@
      "project_id": "MPCX6s5C",
      "dependency_type": "optional",
      "cf_slug": "not-enough-animations"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Not Enough Animations",
@@ -1851,6 +2019,12 @@
      "project_id": "fFEIiSDQ",
      "dependency_type": "optional",
      "cf_slug": "supplementaries"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Supplementaries",
@@ -1992,11 +2166,11 @@
    "addon": "takeaseat",
    "loader": "fabric",
    "game_version": "1.21.11",
-   "version_number": "2.0.0",
+   "version_number": "2.0.1",
    "project": "emf-compat-take-a-seat",
    "project_id": "npIU8sEo",
    "publish": true,
-   "file": "upload/Take a Seat/fabric/1.21.11/emf_compat_takeaseat_fabric_1.21.11_2.0.0.jar",
+   "file": "upload/Take a Seat/fabric/1.21.11/emf_compat_takeaseat_fabric_1.21.11_2.0.1.jar",
    "changelog": "extensions/takeaseat/CHANGELOG.md",
    "dependencies": [
     {
@@ -2016,20 +2190,26 @@
      "project_id": "Gg7qMzxE",
      "dependency_type": "optional",
      "cf_slug": "take-a-seat"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Take a Seat",
-   "name": "EMF Compat: Take a Seat 2.0.0"
+   "name": "EMF Compat: Take a Seat 2.0.1"
   },
   {
    "addon": "takeaseat",
    "loader": "fabric",
    "game_version": "26.1.2",
-   "version_number": "2.0.0",
+   "version_number": "2.0.1",
    "project": "emf-compat-take-a-seat",
    "project_id": "npIU8sEo",
    "publish": true,
-   "file": "upload/Take a Seat/fabric/26.1.2/emf_compat_takeaseat_fabric_26.1.2_2.0.0.jar",
+   "file": "upload/Take a Seat/fabric/26.1.2/emf_compat_takeaseat_fabric_26.1.2_2.0.1.jar",
    "changelog": "extensions/takeaseat/CHANGELOG.md",
    "dependencies": [
     {
@@ -2049,20 +2229,26 @@
      "project_id": "Gg7qMzxE",
      "dependency_type": "optional",
      "cf_slug": "take-a-seat"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Take a Seat",
-   "name": "EMF Compat: Take a Seat 2.0.0"
+   "name": "EMF Compat: Take a Seat 2.0.1"
   },
   {
    "addon": "takeaseat",
    "loader": "fabric",
    "game_version": "26.2",
-   "version_number": "2.0.0",
+   "version_number": "2.0.1",
    "project": "emf-compat-take-a-seat",
    "project_id": "npIU8sEo",
    "publish": true,
-   "file": "upload/Take a Seat/fabric/26.2/emf_compat_takeaseat_fabric_26.2_2.0.0.jar",
+   "file": "upload/Take a Seat/fabric/26.2/emf_compat_takeaseat_fabric_26.2_2.0.1.jar",
    "changelog": "extensions/takeaseat/CHANGELOG.md",
    "dependencies": [
     {
@@ -2082,10 +2268,16 @@
      "project_id": "Gg7qMzxE",
      "dependency_type": "optional",
      "cf_slug": "take-a-seat"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "Take a Seat",
-   "name": "EMF Compat: Take a Seat 2.0.0"
+   "name": "EMF Compat: Take a Seat 2.0.1"
   },
   {
    "addon": "takeaseat",
@@ -2124,11 +2316,11 @@
    "addon": "takeaseat",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "2.0.0",
+   "version_number": "2.0.1",
    "project": "emf-compat-take-a-seat",
    "project_id": "npIU8sEo",
    "publish": true,
-   "file": "upload/Take a Seat/neoforge/1.21.1/emf_compat_takeaseat_neoforge_1.21.1_2.0.0.jar",
+   "file": "upload/Take a Seat/neoforge/1.21.1/emf_compat_takeaseat_neoforge_1.21.1_2.0.1.jar",
    "changelog": "extensions/takeaseat/CHANGELOG.md",
    "dependencies": [
     {
@@ -2151,7 +2343,7 @@
     }
    ],
    "display": "Take a Seat",
-   "name": "EMF Compat: Take a Seat 2.0.0"
+   "name": "EMF Compat: Take a Seat 2.0.1"
   },
   {
    "addon": "watut",
@@ -2181,6 +2373,12 @@
      "project_id": "AtB5mHky",
      "dependency_type": "optional",
      "cf_slug": "what-are-they-up-to-watut"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "display": "WATUT",
@@ -2326,6 +2524,12 @@
      "project_id": "hbGct5uU",
      "dependency_type": "required",
      "cf_slug": "emf-compat-core"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "name": "Touch'n Motion 1.0.3"
@@ -2352,6 +2556,12 @@
      "project_id": "hbGct5uU",
      "dependency_type": "required",
      "cf_slug": "emf-compat-core"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "name": "Touch'n Motion 1.0.3"
@@ -2378,6 +2588,12 @@
      "project_id": "hbGct5uU",
      "dependency_type": "required",
      "cf_slug": "emf-compat-core"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "name": "Touch'n Motion 1.0.3"
@@ -2404,6 +2620,12 @@
      "project_id": "hbGct5uU",
      "dependency_type": "required",
      "cf_slug": "emf-compat-core"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "name": "Touch'n Motion 1.0.3"
@@ -2430,6 +2652,12 @@
      "project_id": "hbGct5uU",
      "dependency_type": "required",
      "cf_slug": "emf-compat-core"
+    },
+    {
+     "slug": "fabric-api",
+     "project_id": "P7dR8mSH",
+     "dependency_type": "required",
+     "cf_slug": "fabric-api"
     }
    ],
    "name": "Touch'n Motion 1.0.3"
