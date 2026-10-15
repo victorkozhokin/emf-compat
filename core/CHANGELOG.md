@@ -1,5 +1,9 @@
 # EMF Compat Core — Changelog
 
+## 2.3.2
+
+- An error in this mod while posing a player no longer makes EMF stop animating that player's model for the rest of the session - the pose is skipped for that frame and the error is logged once
+
 ## 2.3.1
 
 - Crouch fix no longer moves armour from packs with their own armour models (3D Armor): while crouching, arms and armour stuck out in front of the body

@@ -102,7 +102,24 @@ public final class EMFCompatAnimationHook extends EMFAnimationApi.EMFAnimationHo
 
     @Override
     public void onAnimationEnd(AnimationContext context, boolean wasCancelledByHook) {
-        emfcompat$restore(context.activeState(), context.animatingModelRoot());
+        try {
+            emfcompat$restore(context.activeState(), context.animatingModelRoot());
+        } catch (Throwable t) {
+            emfcompat$failed("restore a pose", t);
+        }
+    }
+
+    private static boolean emfcompat$failureLogged;
+
+    /**
+     * EMF answers a throw out of a hook by dropping every animation of the model until resources
+     * reload - the pack stops for the player and every hook after this one goes quiet with it. A
+     * frame without the pose is the lesser harm; the first such failure is logged.
+     */
+    private static void emfcompat$failed(String what, Throwable t) {
+        if (emfcompat$failureLogged) return;
+        emfcompat$failureLogged = true;
+        LOGGER.warn("[EMF Compat] could not {}; skipped so EMF keeps animating the model", what, t);
     }
 
     /**
@@ -112,6 +129,14 @@ public final class EMFCompatAnimationHook extends EMFAnimationApi.EMFAnimationHo
      */
     @Override
     public void onBipedPoseCopyEnd(EMFBipedPose pose, HumanoidModel<?> model, boolean wasCancelledByHook) {
+        try {
+            emfcompat$copyPose(model);
+        } catch (Throwable t) {
+            emfcompat$failed("put the pose on the armour", t);
+        }
+    }
+
+    private static void emfcompat$copyPose(HumanoidModel<?> model) {
         // The biped hook carries no state of its own; this copy always belongs to the entity
         // being rendered right now.
         EMFEntityRenderState state = EMFState.state();
