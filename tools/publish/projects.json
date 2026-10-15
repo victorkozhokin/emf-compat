@@ -9,8 +9,7 @@
    "cf_slug": "emf-compat-core",
    "cf_id": 1605113,
    "cf_environments": [
-    "Client",
-    "Server"
+    "Client"
    ]
   },
   "better_combat": {
