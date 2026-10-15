@@ -21,7 +21,6 @@
 - 1.21.11 and newer: milking a mooshroom plays the milking gesture again
 - Enhanced Tooltips: hovering a piece of armour no longer makes the player put it on over and over
 - Freecam: the player no longer turns their head to look at the free camera
-- Each build now accepts only the Minecraft version it was made for
 
 ## 1.0.0
 

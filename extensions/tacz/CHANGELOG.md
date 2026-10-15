@@ -3,7 +3,6 @@
 ## 1.0.1
 
 - Forge 1.20.1: the addon no longer refuses to start without Better Combat
-- NeoForge 1.21.1: no changes, same version number as Forge
 
 ## 1.0.0
 

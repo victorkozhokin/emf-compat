@@ -3,8 +3,7 @@
 ## 1.1.1
 
 - Requires EMF Compat Core 2.3.0
-- Removed an unused first-person mixin; with older Immersive Melodies builds it logged a "Method overwrite conflict for restorePose" warning
-- Each build now accepts only the Minecraft version it was made for
+- No more "Method overwrite conflict" warning in the log next to older Immersive Melodies versions
 
 ## 1.1.0
 
