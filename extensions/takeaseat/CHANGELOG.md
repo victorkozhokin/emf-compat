@@ -1,5 +1,9 @@
 # EMF Compat: Take a Seat — Changelog
 
+## 2.0.1
+
+- An error while keeping the seated pose no longer makes EMF stop animating the player's model for the rest of the session
+
 ## 2.0.0
 
 - Requires Entity Model Features 3.3.2 and EMF Compat Core 2.0.0

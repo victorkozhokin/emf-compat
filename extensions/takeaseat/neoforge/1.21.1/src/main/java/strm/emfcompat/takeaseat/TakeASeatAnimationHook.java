@@ -47,43 +47,63 @@ public final class TakeASeatAnimationHook extends EMFAnimationApi.EMFAnimationHo
 
     @Override
     public boolean onAnimationStart(AnimationContext context, boolean isCancelledByHook) {
-        // Never cancels the animation: the head is supposed to keep playing it.
-        SNAPSHOTS.get().clear();
-
-        if (!TakeASeatEMFCompat.isEnabled()) return true;
-        if (!ModList.get().isLoaded("takeaseat")) return true;
-
-        EMFEntityRenderState state = context.activeState();
-        if (state == null || state.isFirstPersonHand()) return true;
-        if (!(state.emfEntity() instanceof Entity entity)) return true;
-        if (!(entity instanceof AbstractClientPlayer player)) return true;
-
-        IAnimation layer;
         try {
-            layer = PlayerAnimationAccess.getPlayerAnimationLayer(player, TakeASeatClient.SIT_LAYER);
-        } catch (Exception e) {
+            // Never cancels the animation: the head is supposed to keep playing it.
+            SNAPSHOTS.get().clear();
+
+            if (!TakeASeatEMFCompat.isEnabled()) return true;
+            if (!ModList.get().isLoaded("takeaseat")) return true;
+
+            EMFEntityRenderState state = context.activeState();
+            if (state == null || state.isFirstPersonHand()) return true;
+            if (!(state.emfEntity() instanceof Entity entity)) return true;
+            if (!(entity instanceof AbstractClientPlayer player)) return true;
+
+            IAnimation layer;
+            try {
+                layer = PlayerAnimationAccess.getPlayerAnimationLayer(player, TakeASeatClient.SIT_LAYER);
+            } catch (Exception e) {
+                return true;
+            }
+            if (layer == null || !layer.isActive()) return true;
+
+            EMFModelPartRoot root = context.animatingModelRoot();
+            if (!root.modelName.toString().startsWith("player")) return true;
+
+            Map<EMFModelPartVanilla, PoseSnapshot> snaps = SNAPSHOTS.get();
+            for (Map.Entry<String, EMFModelPartVanilla> entry : root.getAllVanillaPartsByNameEMF().entrySet()) {
+                String name = entry.getKey();
+                if ("head".equals(name) || "hat".equals(name)) continue;
+                snaps.put(entry.getValue(), new PoseSnapshot(entry.getValue()));
+            }
+            return true;
+        } catch (Throwable t) {
+            // A throw out of an EMF hook makes EMF drop the model's animations until resources reload.
+            emfcompat$failed(t);
             return true;
         }
-        if (layer == null || !layer.isActive()) return true;
-
-        EMFModelPartRoot root = context.animatingModelRoot();
-        if (!root.modelName.toString().startsWith("player")) return true;
-
-        Map<EMFModelPartVanilla, PoseSnapshot> snaps = SNAPSHOTS.get();
-        for (Map.Entry<String, EMFModelPartVanilla> entry : root.getAllVanillaPartsByNameEMF().entrySet()) {
-            String name = entry.getKey();
-            if ("head".equals(name) || "hat".equals(name)) continue;
-            snaps.put(entry.getValue(), new PoseSnapshot(entry.getValue()));
-        }
-        return true;
     }
 
     @Override
     public void onAnimationEnd(AnimationContext context, boolean wasCancelledByHook) {
-        Map<EMFModelPartVanilla, PoseSnapshot> snaps = SNAPSHOTS.get();
-        if (snaps.isEmpty()) return;
+        try {
+            Map<EMFModelPartVanilla, PoseSnapshot> snaps = SNAPSHOTS.get();
+            if (snaps.isEmpty()) return;
 
-        snaps.forEach((part, snap) -> snap.apply(part));
-        snaps.clear();
+            snaps.forEach((part, snap) -> snap.apply(part));
+            snaps.clear();
+        } catch (Throwable t) {
+            // A throw out of an EMF hook makes EMF drop the model's animations until resources reload.
+            emfcompat$failed(t);
+        }
+    }
+
+    private static boolean emfcompat$failureLogged;
+
+    private static void emfcompat$failed(Throwable t) {
+        if (emfcompat$failureLogged) return;
+        emfcompat$failureLogged = true;
+        org.slf4j.LoggerFactory.getLogger("emf_compat").warn("[EMF Compat] {} failed; skipped so EMF keeps animating the model",
+                TakeASeatAnimationHook.class.getSimpleName(), t);
     }
 }
