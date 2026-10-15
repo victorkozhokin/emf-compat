@@ -70,12 +70,26 @@ public final class IllagerArms extends EMFAnimationApi.EMFAnimationHook {
 
     @Override
     public void onAnimationEnd(AnimationContext context, boolean wasCancelledByHook) {
-        EMFEntityRenderState state = context.activeState();
-        if (state == null || PLAYING.isEmpty()) return;
-        UUID uuid = state.uuid();
-        if (uuid == null || !PLAYING.contains(uuid)) return;
+        try {
+            EMFEntityRenderState state = context.activeState();
+            if (state == null || PLAYING.isEmpty()) return;
+            UUID uuid = state.uuid();
+            if (uuid == null || !PLAYING.contains(uuid)) return;
 
-        Map<String, EMFModelPartVanilla> byName = context.animatingModelRoot().getAllVanillaPartsByNameEMF();
-        uncross(byName.get("arms"), byName.get("left_arm"), byName.get("right_arm"));
+            Map<String, EMFModelPartVanilla> byName = context.animatingModelRoot().getAllVanillaPartsByNameEMF();
+            uncross(byName.get("arms"), byName.get("left_arm"), byName.get("right_arm"));
+        } catch (Throwable t) {
+            // A throw out of an EMF hook makes EMF drop the model's animations until resources reload.
+            emfcompat$failed(t);
+        }
+    }
+
+    private static boolean emfcompat$failureLogged;
+
+    private static void emfcompat$failed(Throwable t) {
+        if (emfcompat$failureLogged) return;
+        emfcompat$failureLogged = true;
+        org.slf4j.LoggerFactory.getLogger("emf_compat").warn("[EMF Compat] {} failed; skipped so EMF keeps animating the model",
+                IllagerArms.class.getSimpleName(), t);
     }
 }

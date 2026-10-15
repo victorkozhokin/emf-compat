@@ -1,5 +1,9 @@
 # EMF Compat: Immersive Melodies — Changelog
 
+## 1.2.1
+
+- An error while posing an illager's arms no longer makes EMF stop animating its model for the rest of the session
+
 ## 1.2.0
 
 - Requires EMF Compat Core 2.3.0
