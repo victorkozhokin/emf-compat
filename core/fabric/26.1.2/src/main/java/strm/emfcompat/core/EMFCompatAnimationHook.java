@@ -83,6 +83,9 @@ public final class EMFCompatAnimationHook extends EMFAnimationApi.EMFAnimationHo
 
     private static void emfcompat$repairCrouchPose(EMFEntityRenderState state, EMFModelPartRoot root) {
         if (state == null || !state.isSneaking() || state.isFirstPersonHand()) return;
+        // The player's own model only: a copy of its pose (a pack's armour model) already has the pack's
+        // crouch in it, and vanilla's numbers written over that stay there and move the armour.
+        if (!root.isMainModel) return;
         // Shares its switch with CrouchNormalizer, which fixes the other half of the same crouch.
         if (!CrouchNormalizer.isEnabled()) return;
 

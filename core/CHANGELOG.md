@@ -1,5 +1,9 @@
 # EMF Compat Core — Changelog
 
+## 2.3.1
+
+- Crouch fix no longer moves armour from packs with their own armour models (3D Armor): while crouching, arms and armour stuck out in front of the body
+
 ## 2.3.0
 
 - The settings screen is rebuilt: options are sorted into groups you can fold, an option that depends on another sits under it, and the list scrolls when it does not fit
