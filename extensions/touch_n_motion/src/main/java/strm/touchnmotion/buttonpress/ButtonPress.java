@@ -327,7 +327,7 @@ public final class ButtonPress implements InteractionProvider {
         state.powered.addAll(powered);
     }
 
-    /** Levers require a direct block hit; ordinary buttons retain their existing look cone. */
+    /** Levers require a direct hit; a button a hit on it or on the block it is on, and then the look cone. */
     private static BlockPos look(AbstractClientPlayer player, IKFrame frame, State state) {
         Vec3 eye = player.getEyePosition();
         var hit = strm.touchnmotion.net.Inputs.sight(player, 3, 1);
@@ -348,6 +348,10 @@ public final class ButtonPress implements InteractionProvider {
                         && reachable(player, frame, pos)) return pos;
                 continue;
             }
+            // A button only when it is aimed at - it, or the block it is on: passing one by, or a
+            // look somewhere near it, reached for it and read as the player grabbing at walls.
+            if (!(hit instanceof net.minecraft.world.phys.BlockHitResult aimed)
+                    || !pos.equals(aimed.getBlockPos()) && !support(pos, block).equals(aimed.getBlockPos())) continue;
             Vec3 grip = grip(player, pos, block);
             double dot;
             if (fromAfar(block)) {
@@ -445,6 +449,12 @@ public final class ButtonPress implements InteractionProvider {
     private static Vec3 centre(Level level, BlockPos pos, BlockState block) {
         AABB box = block.getShape(level, pos).isEmpty() ? new AABB(0, 0, 0, 1, 1, 1) : block.getShape(level, pos).bounds();
         return box.getCenter().add(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    /** The block the button is on. */
+    private static BlockPos support(BlockPos pos, BlockState block) {
+        Vec3 out = outwards(block);
+        return pos.offset((int) -out.x, (int) -out.y, (int) -out.z);
     }
 
     /** Which way the button's face looks, out of what it is on. */

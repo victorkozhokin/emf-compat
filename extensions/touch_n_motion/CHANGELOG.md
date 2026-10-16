@@ -2,6 +2,7 @@
 
 ## 1.0.4
 
+- Buttons: the hand reaches for a button only while you aim at it or at the block it is on, not whenever one is near where you look
 - Horse riding: an error while posing the horse no longer makes EMF stop animating it for the rest of the session
 - With "Log decisions" on, a chat message says when EMF is not animating the player's model, and why: the model switched off in EMF's settings (Smooth Player Animations does this while its CEM Animation Engine is on), no player pack, or animations dropped after an error
 
