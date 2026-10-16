@@ -2,6 +2,7 @@
 
 ## 1.0.5
 
+- Create: Lights & Controls: its buttons, levers, lever panel, gear switch and card reader - the hand waits at the control you aim at and taps it when you use it
 - Create: Connected's crank wheel and large crank wheel are turned like Create's hand crank: the hand on the handle, going round with it
 - Levers with a handle: Create's analog lever (and Create: Connected's linked one), Design n' Decor's stepped lever and breaker switch, Compact Gearbox's controller. The hand goes to the handle when you aim at it and follows it as it moves; with Lever drugster it stays on the handle while you drag it
 - At a seat with a wheel these levers work like the throttle: one hand on the wheel, the other on the lever

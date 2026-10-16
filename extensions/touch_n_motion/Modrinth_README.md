@@ -134,6 +134,7 @@ Have one of these installed? Touch'n Motion adds the matching gestures when it f
 | **Design n' Decor, Compact Gearbox, Create's analog lever** | The hand on a lever's handle, following it; at a seat with a wheel, the second hand on the lever |
 | **Lever drugster** | The hand stays on the handle while you drag a lever |
 | **Create: Connected** | Crank wheels turned like the hand crank |
+| **Create: Lights & Controls** | The hand on the button or lever you aim at, tapping it when used |
 
 ## What about other players?
 

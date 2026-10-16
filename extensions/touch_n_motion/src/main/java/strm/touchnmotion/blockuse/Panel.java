@@ -26,6 +26,7 @@ import java.util.UUID;
 public final class Panel implements BlockTarget {
 
     private static final String SUPPLEMENTARIES = "net.mehvahdjukaar.supplementaries.common.block.blocks.";
+    private static final String LAC = "com.mouba.create_lac.block.";
 
     private static final List<ModBlock> BLOCKS = List.of(
             ModBlock.family("com.simibubi.create.content.kinetics.transmission.sequencer.SequencedGearshiftBlock", "create:sequenced_gearshift"),
@@ -45,6 +46,16 @@ public final class Panel implements BlockTarget {
             ModBlock.family("dev.simulated_team.simulated.content.blocks.handle.HandleBlock", "simulated:*_handle"),
             ModBlock.family("dev.simulated_team.simulated.content.blocks.portable_engine.PortableEngineBlock", "simulated:*_portable_engine"),
             ModBlock.family("dev.eriksonn.aeronautics.content.blocks.hot_air.hot_air_burner.HotAirBurnerBlock", "aeronautics:adjustable_burner"),
+            // Create: Lights & Controls: buttons, levers and switches, several on one block at times -
+            // the hand goes to the one the look is on.
+            ModBlock.family(LAC + "ElevatorPushButtonBlock", "create_lac:elevator_push_button"),
+            ModBlock.family(LAC + "EmergencyButtonBlock", "create_lac:emergency_button"),
+            ModBlock.family(LAC + "ModularButtonBlock", "create_lac:modular_button"),
+            ModBlock.family(LAC + "ModularLeverBlock", "create_lac:modular_lever"),
+            ModBlock.family(LAC + "QuadLeverPanelBlock", "create_lac:quad_lever_panel"),
+            ModBlock.family(LAC + "IndustrialGearSwitchBlock", "create_lac:industrial_gear_switch"),
+            ModBlock.family(LAC + "CardReaderBlock", "create_lac:card_reader"),
+            ModBlock.family(LAC + "CardInscriberBlock", "create_lac:card_inscriber"),
             // Supplementaries: lids, locks, and the rest.
             ModBlock.family(SUPPLEMENTARIES + "LunchBoxBlock", "supplementaries:lunch_basket"),
             ModBlock.family(SUPPLEMENTARIES + "AbstractPresentBlock", "supplementaries:present", "supplementaries:trapped_present", "supplementaries:present_*", "supplementaries:trapped_present_*"),
