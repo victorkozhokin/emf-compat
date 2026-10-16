@@ -1,6 +1,5 @@
 package strm.touchnmotion.blockuse.aeronautics;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -9,7 +8,6 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.touchnmotion.buttonpress.ButtonPress;
-import strm.touchnmotion.buttonpress.aeronautics.ThrottleLever;
 import strm.touchnmotion.interaction.*;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.ik.OneBoneIK;
@@ -21,19 +19,25 @@ import strm.touchnmotion.interaction.FrameClock;
 import strm.touchnmotion.DebugLog;
 import strm.touchnmotion.blockuse.*;
 
-/** Seated wheel / side throttle handovers. The seat supports the pelvis and seated thigh volume. */
+/**
+ * Seated at a wheel: one hand keeps the rim while the other works a control by the seat and comes
+ * back. The seat supports the pelvis and seated thigh volume. The controls are {@link CockpitControl}s,
+ * each saying only what is its own; this class seats, chooses the hand, carries it over and back.
+ */
 public final class CockpitControls implements InteractionProvider {
     public static final CockpitControls INSTANCE = new CockpitControls();
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
     private static final SteeringWheel WHEEL = new SteeringWheel();
-    private static final Typewriter TYPEWRITER = new Typewriter();
+    /** The controls by the seat, in the order a held one is looked for. */
+    static final List<CockpitControl> CONTROLS = List.of(new ThrottleControl(), new TypewriterControl());
     private static final Vector3f[] SHOULDERS = {new Vector3f(-5, 2, 0), new Vector3f(5, 2, 0)};
     private static final Candidate.Timing TIMING = new Candidate.Timing(.12, .18, .06);
     private static final class State {
         UUID seat;
         BlockPos wheel;
-        final BlockPos[] throttle = new BlockPos[2];
-        final boolean[] typing = new boolean[2];
+        /** What each hand works by the seat (0 right, 1 left), and where. */
+        final BlockPos[] controlPos = new BlockPos[2];
+        final CockpitControl[] control = new CockpitControl[2];
         final TypingMotion keys = new TypingMotion();
         final BlockTarget.Spot[] rim = new BlockTarget.Spot[2];
         final Vector3f[] grips = {new Vector3f(), new Vector3f()};
@@ -102,9 +106,9 @@ public final class CockpitControls implements InteractionProvider {
                 state.wheel = null;
                 state.motion.away = state.motion.moving = -1;
                 state.motion.progress = 1;
-                Arrays.fill(state.throttle, null);
+                Arrays.fill(state.controlPos, null);
                 Arrays.fill(state.rim, null);
-                Arrays.fill(state.typing, false);
+                Arrays.fill(state.control, null);
                 state.keys.reset();
                 state.pelvisLocal = null;
                 state.craft = null;
@@ -137,22 +141,23 @@ public final class CockpitControls implements InteractionProvider {
                 context.decide("off:wheel-range");
                 return;
             }
-            BlockPos requested = player == Minecraft.getInstance().player ? ThrottleLever.heldPosition() : strm.touchnmotion.net.Inputs.throttle(player);
-            state.held = requested != null;
-            boolean typing = false;
-            if (requested == null) {
-                requested = Typewriter.activePosition(player);
-                typing = requested != null && TYPEWRITER.matches(player.level().getBlockState(requested));
-                if (!typing) requested = null;
+            // A control being worked first; else one aimed at that is reached for before it is held.
+            BlockPos requested = null;
+            CockpitControl control = null;
+            for (CockpitControl each : CONTROLS) {
+                requested = each.held(player);
+                if (requested != null) { control = each; break; }
             }
-            if (requested == null && hit != null && ThrottleLever.is(player.level().getBlockState(hit.getBlockPos())))
-                requested = hit.getBlockPos();
-            state.held |= typing;
+            state.held = requested != null;
+            if (requested == null && hit != null) {
+                var aimed = player.level().getBlockState(hit.getBlockPos());
+                for (CockpitControl each : CONTROLS) {
+                    if (each.reachedWhenAimed() && each.matches(aimed)) { requested = hit.getBlockPos(); control = each; break; }
+                }
+            }
             if (requested == null) state.controlHand.clear();
-            state.keys.advance(typing ? Typewriter.pressedKey(player) : -1, context.dt());
-            Vec3 knob = requested == null ? null : typing
-                    ? Typewriter.cockpitSpot(requested, player.level().getBlockState(requested), -1, true).point()
-                    : ThrottleLever.knob(player.level(), requested);
+            state.keys.advance(control == null ? -1 : control.key(player), context.dt());
+            Vec3 knob = requested == null ? null : control.spot(player.level(), requested, player.level().getBlockState(requested), -1, true);
             if (knob != null) knob = SubLevels.toWorld(player.level(), requested, knob);
             int request = -1;
             if (knob != null && knob.distanceTo(centre) < 2.5 && (state.held || Visibility.visible(player, requested, knob))) {
@@ -165,8 +170,8 @@ public final class CockpitControls implements InteractionProvider {
                 if (request >= 0 && (state.motion.working() < 0 || state.motion.working() != request
                         || state.motion.moving < 0)) {
                     if (state.motion.mix(request) == 0) { state.lever[request].set(model); state.controlLocal[request] = null; }
-                    state.throttle[request] = requested.immutable();
-                    state.typing[request] = typing;
+                    state.controlPos[request] = requested.immutable();
+                    state.control[request] = control;
                 }
             }
             Vec3 origin = context.frame().jointWorld(new Vector3f());
@@ -204,21 +209,16 @@ public final class CockpitControls implements InteractionProvider {
                 Vec3 rim = SubLevels.toWorld(player.level(), state.wheel, state.rim[hand].point());
                 Vector3f target = Body.model(context.frame(), rim);
                 float mix = state.motion.mix(hand);
-                if (mix > 0 && state.throttle[hand] != null) {
-                    BlockPos control = state.throttle[hand];
-                    var controlBlock = player.level().getBlockState(control);
-                    Vec3 local = state.typing[hand]
-                            ? TYPEWRITER.matches(controlBlock) ? Typewriter.cockpitSpot(control, controlBlock, state.keys.key, hand == 0).point() : null
-                            : ThrottleLever.knob(player.level(), control);
+                if (mix > 0 && state.controlPos[hand] != null) {
+                    BlockPos at = state.controlPos[hand];
+                    Vec3 local = state.control[hand].spot(player.level(), at, player.level().getBlockState(at), state.keys.key, hand == 0);
                     if (local != null) {
                         // Smooth key/knob motion in the block's own space, never behind a moving craft.
                         state.controlLocal[hand] = state.controlLocal[hand] == null ? local : state.controlLocal[hand].lerp(local, Smoothing.follow(context.dt(), .06));
-                        state.lever[hand].set(Body.model(context.frame(), SubLevels.toWorld(player.level(), control, state.controlLocal[hand])));
+                        state.lever[hand].set(Body.model(context.frame(), SubLevels.toWorld(player.level(), at, state.controlLocal[hand])));
                     }
                     target.lerp(state.lever[hand], mix);
-                    wantedLean.y += (hand == 0 ? 1 : -1) * (float) Math.toRadians(10) * mix;
-                    wantedLean.z += (hand == 0 ? -1 : 1) * (float) Math.toRadians(state.typing[hand] ? 3 + 5 * state.keys.effort : 3) * mix;
-                    if (state.typing[hand]) wantedLean.x += (float) Math.toRadians(5) * state.keys.effort * mix;
+                    state.control[hand].lean(wantedLean, hand, mix, state.keys.effort);
                 }
                 // Prepare the torso against the destination path before the hand finishes its arc.
                 // Fitting only the shortened transfer arc defers all reach until the final frame.
@@ -242,7 +242,7 @@ public final class CockpitControls implements InteractionProvider {
             out.add(Candidate.of(id(), Category.USE, 14, 1, TIMING, aims).withQuietSwing(true));
             context.claimArms();
             state.shown = true;
-            context.decide(request < 0 ? "wheel" : request == 0 ? typing ? "typing-R" : "throttle-R" : typing ? "typing-L" : "throttle-L");
+            context.decide(request < 0 ? "wheel" : control.name() + (request == 0 ? "-R" : "-L"));
         } finally {
             state.lean.lerp(wantedLean, Smoothing.follow(context.dt(), .18));
             if (DebugLog.trace()
@@ -255,7 +255,7 @@ public final class CockpitControls implements InteractionProvider {
                         InteractionRuntime.weight(player.getUUID(), Effector.LEFT_ARM, id()), state.held, state.request,
                         state.rim[0] == null || state.wheel == null ? -1 : state.rim[0].point().distanceTo(WHEEL.swayCentre(player.level(), state.wheel, player.level().getBlockState(state.wheel))),
                         state.rim[1] == null || state.wheel == null ? -1 : state.rim[1].point().distanceTo(WHEEL.swayCentre(player.level(), state.wheel, player.level().getBlockState(state.wheel))),
-                        state.request >= 0 && state.typing[state.request], state.keys.key, state.keys.effort, state.grips[0], state.grips[1]);
+                        state.request >= 0 && state.control[state.request] instanceof TypewriterControl, state.keys.key, state.keys.effort, state.grips[0], state.grips[1]);
             }
         }
     }
