@@ -15,7 +15,8 @@ import strm.touchnmotion.blockuse.ModBlock;
 import strm.touchnmotion.buttonpress.*;
 
 /**
- * Create Aeronautics' throttle lever ({@code simulated}): a lever the player holds and drags, its
+ * Create Aeronautics' throttle lever ({@code simulated}), and Create: Connected's linked one built on
+ * it: a lever the player holds and drags, its
  * handle turning through 80 degrees. Optional: looked up by name, nothing when the mod is not
  * there.
  *
@@ -25,7 +26,10 @@ import strm.touchnmotion.buttonpress.*;
  */
 public final class ThrottleLever {
 
-    private static final ModBlock BLOCK = ModBlock.exact("dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverBlock", "simulated:throttle_lever");
+    // Create: Connected's linked throttle lever is the same lever with a link on it: its block and its
+    // block entity extend these, and the renderer's transform of the handle takes it as it is.
+    private static final ModBlock BLOCK = ModBlock.family("dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverBlock",
+            "simulated:throttle_lever", "create_connected:linked_throttle_lever");
     private static final String RENDERER = "dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverRenderer";
     private static final String ENTITY = "dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverBlockEntity";
     /** The middle of the knob in the handle's model, blocks. */
