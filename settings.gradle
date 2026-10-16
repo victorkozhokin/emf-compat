@@ -60,10 +60,6 @@ project(":create-fabric-26.1.2").projectDir = file("extensions/create/fabric/26.
 include("create-fabric-26.2")
 project(":create-fabric-26.2").projectDir = file("extensions/create/fabric/26.2")
 
-// Horse Sync addon.
-include("horse-sync-fabric-1.21.1")
-project(":horse-sync-fabric-1.21.1").projectDir = file("extensions/horse-sync/fabric/1.21.1")
-
 // Carry On addon.
 include("carryon-neoforge-1.21.1")
 project(":carryon-neoforge-1.21.1").projectDir = file("extensions/carryon/neoforge/1.21.1")
@@ -265,8 +261,6 @@ stonecutter {
 }
 
 // Touch'n Motion: frames for the ports - the settings tab and the mod-list entry, no animations yet.
-
-
 
 
 
