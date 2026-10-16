@@ -10,7 +10,7 @@ import strm.touchnmotion.buttonpress.aeronautics.ThrottleLever;
 import strm.touchnmotion.interaction.SubLevels;
 
 /**
- * A debugging aid: a spark on every point the hand takes hold of on the levers around the player -
+ * A debugging aid: a spark on every point the hand takes hold of on the levers and cranks around the player -
  * the handles worked out from each mod's model and renderer - so a grip off the handle shows at a
  * glance, without a body in the way. Off unless asked for.
  */
@@ -29,8 +29,10 @@ public final class GripMarkers {
         BlockPos centre = minecraft.player.blockPosition();
         for (BlockPos pos : BlockPos.betweenClosed(centre.offset(-RADIUS, -2, -RADIUS), centre.offset(RADIUS, 2, RADIUS))) {
             var block = minecraft.level.getBlockState(pos);
+            Vec3 crank = strm.touchnmotion.blockuse.create.HandCrank.grip(minecraft.level, pos);
             Vec3[] grips = HandleLevers.is(block) ? HandleLevers.grips(minecraft.level, pos)
-                    : ThrottleLever.is(block) ? ThrottleLever.grips(minecraft.level, pos) : null;
+                    : ThrottleLever.is(block) ? ThrottleLever.grips(minecraft.level, pos)
+                    : crank != null ? new Vec3[]{crank} : null;
             if (grips == null) continue;
             for (Vec3 grip : grips) {
                 Vec3 at = SubLevels.toWorld(minecraft.level, pos, grip);

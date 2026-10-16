@@ -31,9 +31,17 @@ import strm.touchnmotion.blockuse.*;
 public final class HandCrank implements BlockTarget {
 
     private static final ModBlock BLOCK = ModBlock.exact("com.simibubi.create.content.kinetics.crank.HandCrankBlock", "create:hand_crank");
+    /**
+     * Create: Connected's crank wheels, small and large: hand cranks underneath (their block and block
+     * entity extend these, the angle read the same way), drawn with a handle model of their own.
+     */
+    private static final ModBlock WHEELS = ModBlock.exact("com.hlysine.create_connected.content.crankwheel.CrankWheelBlock",
+            "create_connected:crank_wheel", "create_connected:large_crank_wheel");
     /** The middle of the grip in the handle's model, pixels; and the point on the axis level with it. */
     private static final Vector3f GRIP = new Vector3f(1f, 8f, 6f);
     private static final Vector3f AXIS = new Vector3f(8f, 8f, 6f);
+    private static final Vector3f WHEEL_GRIP = new Vector3f(2f, 8f, -2f);
+    private static final Vector3f WHEEL_AXIS = new Vector3f(8f, 8f, -2f);
 
     /** How the angle is read, by the block entity's class: the crank's and the valve handle's are two, and a method found on one cannot be called on the other. */
     private static final java.util.Map<Class<?>, Object[]> READERS = new java.util.concurrent.ConcurrentHashMap<>();
@@ -58,7 +66,15 @@ public final class HandCrank implements BlockTarget {
 
     @Override
     public boolean matches(BlockState block) {
-        return BLOCK.is(block);
+        return BLOCK.is(block) || WHEELS.is(block);
+    }
+
+    /** Where the grip is drawn now, in the block's own space; {@code null} when it cannot be told. */
+    public static Vec3 grip(Level level, BlockPos pos) {
+        BlockState block = level.getBlockState(pos);
+        if (!BLOCK.is(block) && !WHEELS.is(block)) return null;
+        Float angle = angle(level, pos);
+        return angle == null ? null : place(pos, block.getValue(BlockStateProperties.FACING), angle, WHEELS.is(block) ? WHEEL_GRIP : GRIP);
     }
 
     @Override
@@ -66,13 +82,13 @@ public final class HandCrank implements BlockTarget {
         Float angle = angle(player.level(), pos);
         if (angle == null) return null;
         Direction facing = block.getValue(BlockStateProperties.FACING);
-        return new Spot(place(pos, facing, angle, GRIP), Vec3.atLowerCornerOf(facing.getNormal()));
+        return new Spot(place(pos, facing, angle, WHEELS.is(block) ? WHEEL_GRIP : GRIP), Vec3.atLowerCornerOf(facing.getNormal()));
     }
 
     @Override
     public Vec3 swayCentre(Level level, BlockPos pos, BlockState block) {
         Direction facing = block.getValue(BlockStateProperties.FACING);
-        return place(pos, facing, 0f, AXIS);
+        return place(pos, facing, 0f, WHEELS.is(block) ? WHEEL_AXIS : AXIS);
     }
 
     @Override

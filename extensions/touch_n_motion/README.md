@@ -116,6 +116,7 @@ Everything below is optional — the matching animations turn on when the mod is
 | **TACZ** (with [EMF Compat: TACZ](https://modrinth.com/project/emf-compat-tacz)) | The same with a gun in hand; while aiming, the torso and the head are left to the gun too. Setting: **TACZ Compat**. |
 | **[Enchanted Fishing Line](https://modrinth.com/mod/enchanted-fishing-line)** | The line starts at the rod's tip as the fishing pose has it (1.21.1 and newer). |
 | **Create, Create: Connected, [Design n' Decor](https://modrinth.com/mod/create-design-n-decor), Compact Gearbox** | Analog and linked analog levers, stepped lever, breaker switch, gearbox controller: the hand on the handle, following it; at a seat with a wheel, the second hand on the lever. |
+| **[Create: Connected](https://modrinth.com/mod/create-connected)** | Crank wheel and large crank wheel, turned like the hand crank. |
 | **[Lever drugster](https://modrinth.com/mod/lever-drugster)** | The hand stays on the handle while you drag those levers. |
 
 Contacts follow a moving Sable sub-level, so they hold on a ship under way. Interactions on Create contraptions are not covered, apart from driving controls.

@@ -133,6 +133,7 @@ Have one of these installed? Touch'n Motion adds the matching gestures when it f
 | **[Enchanted Fishing Line](https://modrinth.com/mod/enchanted-fishing-line)** | The line starts at the rod's tip as the fishing pose has it (1.21.1 and newer) |
 | **Design n' Decor, Compact Gearbox, Create's analog lever** | The hand on a lever's handle, following it; at a seat with a wheel, the second hand on the lever |
 | **Lever drugster** | The hand stays on the handle while you drag a lever |
+| **Create: Connected** | Crank wheels turned like the hand crank |
 
 ## What about other players?
 
