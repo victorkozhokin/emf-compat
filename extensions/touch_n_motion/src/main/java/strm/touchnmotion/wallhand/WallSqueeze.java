@@ -156,7 +156,9 @@ public final class WallSqueeze {
                 && !strm.touchnmotion.compat.ParCoolActivity.fastRun(player)
                 // Leaning on a fence the body is drawn square to it whatever way the game has it facing: taken by
                 // the game's facing the fence is a wall brushed past, and the torso was turned from it.
-                && !FenceLean.squared(uuid) && !strm.touchnmotion.lookat.LookAt.turned(uuid);
+                && !FenceLean.squared(uuid) && !strm.touchnmotion.lookat.LookAt.turned(uuid)
+                // Turned in the gap, held arms - a carried chest, a gun - are dragged off with the torso.
+                && !strm.touchnmotion.compat.BodyClaims.arms(uuid);
         float squeezed = 0f, upRight = 0f, upLeft = 0f;
         boolean turned = false;
         boolean rightWall = false, leftWall = false;

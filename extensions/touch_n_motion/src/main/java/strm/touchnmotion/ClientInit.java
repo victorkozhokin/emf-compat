@@ -82,6 +82,7 @@ public final class ClientInit {
         strm.touchnmotion.transport.TransportGrip.register(riding, debug);
         // Only where there is something to be compatible with.
         if (strm.touchnmotion.platform.Platform.isModLoaded("notenoughanimations")) strm.touchnmotion.compat.NeaCompat.register(riding);
+        strm.touchnmotion.compat.BodyClaims.register(movement);
         DebugLog.register(debug);
         strm.touchnmotion.compat.ParCoolActivity.register(movement, debug);
         // Order is only the log's order; who wins is the arbiter's call.

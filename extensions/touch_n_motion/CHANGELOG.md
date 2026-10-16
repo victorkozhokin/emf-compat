@@ -1,5 +1,11 @@
 # Touch'n Motion — Changelog
 
+## 1.0.5
+
+- Requires EMF Compat Core 2.4.0
+- Carry On and TACZ: while you carry something or hold a gun, the arms are left to them - no reaching, gestures, turning in narrow gaps or leaning on walls, and half the lean with the motion; while aiming the torso and the head are left to TACZ too. The feet keep standing on the ground. Settings: "Carry On Compat", "TACZ Compat"
+- Resource packs can read what this mod is doing as EMF variables: emfc_tnm_reach, emfc_tnm_hold, emfc_tnm_lean, emfc_tnm_gesture, emfc_tnm_work, emfc_tnm_ride, how much of each arm, the head and the torso it holds (emfc_tnm_right_arm, emfc_tnm_left_arm, emfc_tnm_head, emfc_tnm_body), and the torso lean it adds (emfc_tnm_lean_x, emfc_tnm_lean_z)
+
 ## 1.0.4
 
 - Buttons: the hand reaches for a button only while you aim at it or at the block it is on, not whenever one is near where you look

@@ -282,6 +282,8 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
         }
         float[] before = client != null && mainModel ? strm.touchnmotion.compat.ParCoolActivity.before(parts) : null;
         applyAllParts(uuid, parts, player, mainModel);
+        // What this mod did with the player this frame, for packs and other mods.
+        if (player && mainModel) strm.touchnmotion.compat.PackStates.publish(uuid);
         if (before != null) strm.touchnmotion.compat.ParCoolActivity.after(client, parts, before);
     }
 

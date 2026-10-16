@@ -136,9 +136,11 @@ public final class TorsoLean {
             // Carried by a boat or a cart the body's motion is the vehicle's, and the ride answers for it itself.
             if (EMFCompatConfig.getBoolean(KEY_MOTION, true) && !player.isPassenger()) {
                 MotionRuntime.Motion m = MotionRuntime.get(uuid);
+                // Less of it with held arms another mod poses, none with the torso taken (aiming).
+                float share = strm.touchnmotion.compat.BodyClaims.motionShare(uuid);
                 // Speeding up forwards is +xRot (forwards); a turn to the right leans right, +zRot.
-                target[0] += clamp(m.accelForward() * ACCEL_PITCH);
-                target[2] += clamp(m.turnRate() * m.speed() * TURN_ROLL);
+                target[0] += clamp(m.accelForward() * ACCEL_PITCH) * share;
+                target[2] += clamp(m.turnRate() * m.speed() * TURN_ROLL) * share;
             }
             FootGrounding.Weight feet = FootGrounding.torsoHint(uuid);
             if (feet != null) {
@@ -158,6 +160,12 @@ public final class TorsoLean {
         float share = player.isCrouching() ? 0.35f : 0.15f;
         state.legShare += (share - state.legShare) * k;
         state.crouch += ((player.isCrouching() ? 1 : 0) - state.crouch) * k;
+    }
+
+    /** The torso's lean this mod adds, radians: forward ({@code xRot}) and to the side ({@code zRot}); {@code null} when none is known. */
+    public static float[] lean(UUID uuid) {
+        State state = STATES.fresh(uuid);
+        return state == null ? null : new float[]{state.lean[0], state.lean[2]};
     }
 
     /** Straightens the torso at once, with no easing out of the lean it had: for a pose that ends when its cause does, as on leaving a boat. */

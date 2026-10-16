@@ -112,6 +112,8 @@ Everything below is optional — the matching animations turn on when the mod is
 | **[Curios](https://modrinth.com/mod/curios)** | Putting on accessories: ring and bracelet, necklace, belt, back and head pieces. |
 | **[ParCool](https://modrinth.com/mod/parcool)** | Nothing of its own: the addon stands down in ParCool's hanging, climbing, vaulting, rolling and diving moves, and goes on working in a fast run. |
 | **Not Enough Animations** | Its rowing and horse-riding poses give way to Touch'n Motion while the matching poses and **NEA Compat** are enabled. |
+| **Carry On** (with [EMF Compat: Carry On](https://modrinth.com/project/emf-compat-carry-on)) | While you carry something the arms are left to the carry: no reaching, gestures, turning in narrow gaps or leaning on walls, and half the lean with the motion. Setting: **Carry On Compat**. |
+| **TACZ** (with [EMF Compat: TACZ](https://modrinth.com/project/emf-compat-tacz)) | The same with a gun in hand; while aiming, the torso and the head are left to the gun too. Setting: **TACZ Compat**. |
 | **[Enchanted Fishing Line](https://modrinth.com/mod/enchanted-fishing-line)** | The line starts at the rod's tip as the fishing pose has it (1.21.1 and newer). |
 
 Contacts follow a moving Sable sub-level, so they hold on a ship under way. Interactions on Create contraptions are not covered, apart from driving controls.
@@ -197,12 +199,26 @@ Use **Mods → Touch'n Motion → Config** to open its tab directly, or **Mods �
 | Row a boat | The hands on the oars, the body in the stroke. Under it: **Passenger in the bow** - a second rider sits in the bow facing the rower; **Chest in the bow** - a chest boat's chest is drawn in the bow, the rower aft. |
 | Ride in a minecart | The hands on the sides, the body thrown about by the ride. Under it: **Legs inside the cart**. |
 | NEA Compat | Shown when Not Enough Animations is installed. Gives Touch'n Motion control of rowing and horse riding while its matching poses are enabled. |
+| Carry On Compat | Shown when Carry On is installed. While carrying, leaves the arms to the carry. |
+| TACZ Compat | Shown when TACZ is installed. With a gun in hand, leaves the arms to the gun, and the torso and the head while aiming. |
 
 With **NEA Compat** enabled (the default), Not Enough Animations' rowing and horse-riding animations are temporarily switched off while the corresponding Touch'n Motion poses are enabled. They are restored when those poses or this compatibility option are disabled; NEA's settings file is left unchanged.
 
 Click category headings to fold or unfold them, and scroll to reach more options. Child options appear under their parent; numeric values change in fixed steps. **Reset** restores this tab's defaults.
 
 **Debug** holds logging switches; leave them off for normal play.
+
+## For resource pack authors
+
+What Touch'n Motion is doing with a player can be read in a pack's animations as EMF variables (EMF Compat Core 2.4.0 and newer registers them, so a pack that uses them does not break without Touch'n Motion; they read 0 there):
+
+| Variable | Value |
+|---|---|
+| `emfc_tnm_reach`, `emfc_tnm_hold`, `emfc_tnm_lean`, `emfc_tnm_gesture`, `emfc_tnm_work`, `emfc_tnm_ride` | 0 to 1: reaching for a block, holding a control, leaning on a wall or a fence (or squeezing through a gap), a gesture, mining or fishing, a ride |
+| `emfc_tnm_right_arm`, `emfc_tnm_left_arm`, `emfc_tnm_head`, `emfc_tnm_body` | 0 to 1: how much of the part Touch'n Motion holds |
+| `emfc_tnm_lean_x`, `emfc_tnm_lean_z` | the torso lean Touch'n Motion adds, radians (forward, to the side) |
+
+The EMF Compat addons add their own: `emfc_carrying` (Carry On), `emfc_holding_gun` and `emfc_aiming` (TACZ, 0 to 1).
 
 ## Dependencies
 

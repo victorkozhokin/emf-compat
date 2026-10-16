@@ -114,6 +114,12 @@ public final class InteractionRuntime {
                 context.decide("off:disabled");
                 continue;
             }
+            // Another mod has the parts this one would move: carrying, a gun in hand.
+            String yielded = strm.touchnmotion.compat.BodyClaims.yields(uuid, provider.id());
+            if (yielded != null) {
+                context.decide("off:" + yielded);
+                continue;
+            }
             try {
                 provider.collect(context, candidates);
             } catch (Throwable t) {
@@ -223,7 +229,8 @@ public final class InteractionRuntime {
     private static Set<Effector> reserved(AbstractClientPlayer player, boolean containerSearch, boolean swingClaimed) {
         Set<Effector> reserved = EnumSet.noneOf(Effector.class);
         // A swing, an item in use or another addon's arm pose owns the arms.
-        if (strm.touchnmotion.platform.Platform.swinging(player) && !swingClaimed || player.isUsingItem() || PoseManager.hasArmPoseExcept(player.getUUID(), containerSearch ? "watut" : "")) {
+        if (strm.touchnmotion.platform.Platform.swinging(player) && !swingClaimed || player.isUsingItem() || PoseManager.hasArmPoseExcept(player.getUUID(), containerSearch ? "watut" : "")
+                || strm.touchnmotion.compat.BodyClaims.arms(player.getUUID())) {
             reserved.add(Effector.RIGHT_ARM);
             reserved.add(Effector.LEFT_ARM);
         }
@@ -392,6 +399,21 @@ public final class InteractionRuntime {
         Slot slot = state.slots.get(effector);
         if (slot.aim == null || slot.weight < 1e-3f) return null;
         return new float[]{slot.aim[0], slot.aim[1], slot.weight};
+    }
+
+    /** Which provider has the part this frame, or {@code null}. */
+    public static String owner(UUID uuid, Effector effector) {
+        PlayerState state = STATES.fresh(uuid);
+        return state == null ? null : state.slots.get(effector).owner;
+    }
+
+    /** How much of the torso a hand's support holds this frame, 0 to 1: the weight of the part held by the provider that leans it. */
+    public static float bodyWeight(UUID uuid) {
+        PlayerState state = STATES.fresh(uuid);
+        if (state == null || state.bodyOwner == null) return 0f;
+        float weight = 0f;
+        for (Slot slot : state.slots.values()) if (state.bodyOwner.equals(slot.owner)) weight = Math.max(weight, slot.weight);
+        return weight;
     }
 
     /** How much of a part the runtime has this frame, 0 to 1. */
