@@ -1,5 +1,10 @@
 # EMF Compat: Carry On — Changelog
 
+## 2.2.0
+
+- Requires EMF Compat Core 2.4.0
+- Tells other mods and resource packs when you carry something (EMF variable emfc_carrying): Touch'n Motion leaves your arms and torso to the carry
+
 ## 2.1.1
 
 - An error while posing the carry no longer makes EMF stop animating the player's model for the rest of the session

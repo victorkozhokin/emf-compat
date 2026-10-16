@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.carryon.compat.CarryOnCompat;
+import strm.emfcompat.core.BodyStates;
 import strm.emfcompat.core.BodyPartSync;
 import strm.emfcompat.core.FirstPersonModelCompat;
 import strm.emfcompat.core.PoseManager;
@@ -32,6 +33,9 @@ public class HumanoidModelMixin {
         if (!(entity instanceof Player player)) return;
         if (player.level() == null) return;
         UUID uuid = player.getUUID();
+        // Told to other mods and packs whether this addon poses the carry or not.
+        if (CarryOnCompat.shouldRenderCarryPose(player)) BodyStates.set(player.getUUID(), BodyStates.CARRYING, 1f, BodyStates.Part.ARMS);
+        else BodyStates.clear(player.getUUID(), BodyStates.CARRYING);
         if (!EMFCarryOnMod.isEnabled() || !CarryOnCompat.shouldRenderCarryPose(player)) {
             PoseManager.clearPoses(uuid, SOURCE);
             BodyPartSync.clear(uuid);
