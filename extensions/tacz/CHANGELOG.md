@@ -1,5 +1,10 @@
 # EMF Compat: TACZ — Changelog
 
+## 1.1.0
+
+- Requires EMF Compat Core 2.4.0
+- Tells other mods and resource packs when you hold a gun and how far you aim it (EMF variables emfc_holding_gun and emfc_aiming): Touch'n Motion leaves your arms to the gun, and your torso and head too while you aim
+
 ## 1.0.1
 
 - Forge 1.20.1: the addon no longer refuses to start without Better Combat

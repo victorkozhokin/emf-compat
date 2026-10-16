@@ -62,4 +62,14 @@ public final class TACZCompat {
             return false;
         }
     }
+
+    /** How far the player has the gun up to the eye, 0 to 1, as TACZ syncs it; 0 when it cannot be told. */
+    public static float aimingProgress(Player player) {
+        try {
+            return com.tacz.guns.api.entity.IGunOperator.fromLivingEntity(player).getSynAimingProgress();
+        } catch (Throwable t) {
+            return 0f;
+        }
+    }
+
 }

@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.joml.Vector3f;
+import strm.emfcompat.core.BodyStates;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
 import strm.emfcompat.tacz.TACZEMFCompat;
@@ -55,6 +56,26 @@ public class PlayerModelMixin {
         }
         if (!(entity instanceof AbstractClientPlayer player)) {
             return;
+        }
+
+        // Told to other mods and packs whether this addon poses the gun or not.
+
+        if (TACZCompat.isGunPoseActive(player)) {
+
+            BodyStates.set(player.getUUID(), BodyStates.HOLDING_GUN, 1f, BodyStates.Part.ARMS);
+
+            float aim = TACZCompat.aimingProgress(player);
+
+            if (aim > 0f) BodyStates.set(player.getUUID(), BodyStates.AIMING, aim, BodyStates.Part.ARMS, BodyStates.Part.TORSO, BodyStates.Part.HEAD);
+
+            else BodyStates.clear(player.getUUID(), BodyStates.AIMING);
+
+        } else {
+
+            BodyStates.clear(player.getUUID(), BodyStates.HOLDING_GUN);
+
+            BodyStates.clear(player.getUUID(), BodyStates.AIMING);
+
         }
 
         if (!TACZEMFCompat.isEnabled() || !TACZCompat.isGunPoseActive(player)) {
