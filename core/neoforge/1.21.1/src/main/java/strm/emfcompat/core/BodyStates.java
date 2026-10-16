@@ -40,7 +40,7 @@ public final class BodyStates {
     public static final String[] VARIABLES = {
             CARRYING, HOLDING_GUN, AIMING,
             "tnm_reach", "tnm_hold", "tnm_lean", "tnm_gesture", "tnm_work", "tnm_ride",
-            "tnm_right_arm", "tnm_left_arm", "tnm_head", "tnm_body",
+            "tnm_right_arm", "tnm_left_arm", "tnm_head", "tnm_body", "tnm_catwalk",
             "tnm_lean_x", "tnm_lean_z"};
 
     /** A state not set again for this long is over. */
