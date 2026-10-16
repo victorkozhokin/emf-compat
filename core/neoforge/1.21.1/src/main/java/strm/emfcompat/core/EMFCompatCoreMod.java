@@ -34,6 +34,7 @@ public class EMFCompatCoreMod {
         if (FMLEnvironment.dist == Dist.CLIENT) {
             // EMF calls this back once per entity render, right after the pack animation.
             EMFCompatAnimationHook.register();
+            BodyStates.registerVariables();
             EMFCompatCoreClient.registerConfigScreen(modEventBus, container);
         }
     }

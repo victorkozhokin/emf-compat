@@ -1,5 +1,9 @@
 # EMF Compat Core — Changelog
 
+## 2.4.0
+
+- Shared player states for addons and resource packs: what a player is doing (carrying, holding or aiming a gun, and Touch'n Motion's own states) and which parts of the body that takes. Packs read them as EMF variables named emfc_<state>, which read 0 when no mod sets them
+
 ## 2.3.2
 
 - An error in this mod while posing a player no longer makes EMF stop animating that player's model for the rest of the session - the pose is skipped for that frame and the error is logged once

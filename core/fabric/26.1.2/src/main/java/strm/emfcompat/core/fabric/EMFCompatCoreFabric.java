@@ -2,6 +2,7 @@ package strm.emfcompat.core.fabric;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
+import strm.emfcompat.core.BodyStates;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.CrouchNormalizer;
 import strm.emfcompat.core.EMFCompatAnimationHook;
@@ -23,6 +24,7 @@ public class EMFCompatCoreFabric implements ClientModInitializer {
     public void onInitializeClient() {
         // EMF calls this back once per entity render, right after the pack animation.
         EMFCompatAnimationHook.register();
+        BodyStates.registerVariables();
         EMFCompatConfig.init(FabricLoader.getInstance().getConfigDir().resolve("emf_compat.json").toFile());
         // Core tab, shown first and selected by default. Addons register their own sections.
         ConfigRegistry.section(ConfigRegistry.CORE_ID, "Core")
