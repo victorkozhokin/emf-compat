@@ -437,11 +437,11 @@
    "addon": "carry_on",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "2.1.1",
+   "version_number": "2.2.0",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/fabric/1.21.1/emf_compat_carry_on_fabric_1.21.1_2.1.1.jar",
+   "file": "upload/Carry On/fabric/1.21.1/emf_compat_carry_on_fabric_1.21.1_2.2.0.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -470,17 +470,17 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.1.1"
+   "name": "EMF Compat: Carry On 2.2.0"
   },
   {
    "addon": "carry_on",
    "loader": "fabric",
    "game_version": "1.21.11",
-   "version_number": "2.1.1",
+   "version_number": "2.2.0",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/fabric/1.21.11/emf_compat_carry_on_fabric_1.21.11_2.1.1.jar",
+   "file": "upload/Carry On/fabric/1.21.11/emf_compat_carry_on_fabric_1.21.11_2.2.0.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -509,17 +509,17 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.1.1"
+   "name": "EMF Compat: Carry On 2.2.0"
   },
   {
    "addon": "carry_on",
    "loader": "fabric",
    "game_version": "26.1.2",
-   "version_number": "2.1.1",
+   "version_number": "2.2.0",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/fabric/26.1.2/emf_compat_carry_on_fabric_26.1.2_2.1.1.jar",
+   "file": "upload/Carry On/fabric/26.1.2/emf_compat_carry_on_fabric_26.1.2_2.2.0.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -548,17 +548,17 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.1.1"
+   "name": "EMF Compat: Carry On 2.2.0"
   },
   {
    "addon": "carry_on",
    "loader": "fabric",
    "game_version": "26.2",
-   "version_number": "2.1.1",
+   "version_number": "2.2.0",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/fabric/26.2/emf_compat_carry_on_fabric_26.2_2.1.1.jar",
+   "file": "upload/Carry On/fabric/26.2/emf_compat_carry_on_fabric_26.2_2.2.0.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -587,17 +587,17 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.1.1"
+   "name": "EMF Compat: Carry On 2.2.0"
   },
   {
    "addon": "carry_on",
    "loader": "fabric",
    "game_version": "26.3",
-   "version_number": "2.1.1",
+   "version_number": "2.2.0",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/fabric/26.3/emf_compat_carry_on_fabric_26.3_2.1.1.jar",
+   "file": "upload/Carry On/fabric/26.3/emf_compat_carry_on_fabric_26.3_2.2.0.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -626,17 +626,17 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.1.1"
+   "name": "EMF Compat: Carry On 2.2.0"
   },
   {
    "addon": "carry_on",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "2.1.1",
+   "version_number": "2.2.0",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/forge/1.20.1/emf_compat_carry_on_forge_1.20.1_2.1.1.jar",
+   "file": "upload/Carry On/forge/1.20.1/emf_compat_carry_on_forge_1.20.1_2.2.0.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -659,17 +659,17 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.1.1"
+   "name": "EMF Compat: Carry On 2.2.0"
   },
   {
    "addon": "carry_on",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "2.1.1",
+   "version_number": "2.2.0",
    "project": "emf-compat-carry-on",
    "project_id": "BPD5ZhBo",
    "publish": true,
-   "file": "upload/Carry On/neoforge/1.21.1/emf_compat_carry_on_neoforge_1.21.1_2.1.1.jar",
+   "file": "upload/Carry On/neoforge/1.21.1/emf_compat_carry_on_neoforge_1.21.1_2.2.0.jar",
    "changelog": "extensions/carryon/CHANGELOG.md",
    "dependencies": [
     {
@@ -692,17 +692,17 @@
     }
    ],
    "display": "Carry On",
-   "name": "EMF Compat: Carry On 2.1.1"
+   "name": "EMF Compat: Carry On 2.2.0"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "2.3.2",
+   "version_number": "2.4.0",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/1.21.1/emf_compat_core_fabric_1.21.1_2.3.2.jar",
+   "file": "upload/Core/fabric/1.21.1/emf_compat_core_fabric_1.21.1_2.4.0.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -719,17 +719,17 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.2"
+   "name": "EMF Compat: Core 2.4.0"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "1.21.11",
-   "version_number": "2.3.2",
+   "version_number": "2.4.0",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/1.21.11/emf_compat_core_fabric_1.21.11_2.3.2.jar",
+   "file": "upload/Core/fabric/1.21.11/emf_compat_core_fabric_1.21.11_2.4.0.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -746,17 +746,17 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.2"
+   "name": "EMF Compat: Core 2.4.0"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "26.1.2",
-   "version_number": "2.3.2",
+   "version_number": "2.4.0",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/26.1.2/emf_compat_core_fabric_26.1.2_2.3.2.jar",
+   "file": "upload/Core/fabric/26.1.2/emf_compat_core_fabric_26.1.2_2.4.0.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -773,17 +773,17 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.2"
+   "name": "EMF Compat: Core 2.4.0"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "26.2",
-   "version_number": "2.3.2",
+   "version_number": "2.4.0",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/26.2/emf_compat_core_fabric_26.2_2.3.2.jar",
+   "file": "upload/Core/fabric/26.2/emf_compat_core_fabric_26.2_2.4.0.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -800,17 +800,17 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.2"
+   "name": "EMF Compat: Core 2.4.0"
   },
   {
    "addon": "core",
    "loader": "fabric",
    "game_version": "26.3",
-   "version_number": "2.3.2",
+   "version_number": "2.4.0",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/fabric/26.3/emf_compat_core_fabric_26.3_2.3.2.jar",
+   "file": "upload/Core/fabric/26.3/emf_compat_core_fabric_26.3_2.4.0.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -827,17 +827,17 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.2"
+   "name": "EMF Compat: Core 2.4.0"
   },
   {
    "addon": "core",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "2.3.2",
+   "version_number": "2.4.0",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/forge/1.20.1/emf_compat_core_forge_1.20.1_2.3.2.jar",
+   "file": "upload/Core/forge/1.20.1/emf_compat_core_forge_1.20.1_2.4.0.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -848,17 +848,17 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.2"
+   "name": "EMF Compat: Core 2.4.0"
   },
   {
    "addon": "core",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "2.3.2",
+   "version_number": "2.4.0",
    "project": "emf-compat-core",
    "project_id": "hbGct5uU",
    "publish": true,
-   "file": "upload/Core/neoforge/1.21.1/emf_compat_core_neoforge_1.21.1_2.3.2.jar",
+   "file": "upload/Core/neoforge/1.21.1/emf_compat_core_neoforge_1.21.1_2.4.0.jar",
    "changelog": "core/CHANGELOG.md",
    "dependencies": [
     {
@@ -869,7 +869,7 @@
     }
    ],
    "display": "Core",
-   "name": "EMF Compat: Core 2.3.2"
+   "name": "EMF Compat: Core 2.4.0"
   },
   {
    "addon": "create",
@@ -2099,11 +2099,11 @@
    "addon": "tacz",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "1.0.1",
+   "version_number": "1.1.0",
    "project": "emf-compat-tacz",
    "project_id": "vPnbqVkb",
    "publish": true,
-   "file": "upload/TACZ/forge/1.20.1/emf_compat_tacz_forge_1.20.1_1.0.1.jar",
+   "file": "upload/TACZ/forge/1.20.1/emf_compat_tacz_forge_1.20.1_1.1.0.jar",
    "changelog": "extensions/tacz/CHANGELOG.md",
    "dependencies": [
     {
@@ -2126,17 +2126,17 @@
     }
    ],
    "display": "TACZ",
-   "name": "EMF Compat: TACZ 1.0.1"
+   "name": "EMF Compat: TACZ 1.1.0"
   },
   {
    "addon": "tacz",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "1.0.1",
+   "version_number": "1.1.0",
    "project": "emf-compat-tacz",
    "project_id": "vPnbqVkb",
    "publish": true,
-   "file": "upload/TACZ/neoforge/1.21.1/emf_compat_tacz_neoforge_1.21.1_1.0.1.jar",
+   "file": "upload/TACZ/neoforge/1.21.1/emf_compat_tacz_neoforge_1.21.1_1.1.0.jar",
    "changelog": "extensions/tacz/CHANGELOG.md",
    "dependencies": [
     {
@@ -2159,7 +2159,7 @@
     }
    ],
    "display": "TACZ",
-   "name": "EMF Compat: TACZ 1.0.1"
+   "name": "EMF Compat: TACZ 1.1.0"
   },
   {
    "addon": "takeaseat",
@@ -2453,11 +2453,11 @@
    "addon": "touch_n_motion",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "1.0.4",
+   "version_number": "1.0.5",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/Touch'n Motion/forge/1.20.1/touch_n_motion_forge_1.20.1_1.0.4.jar",
+   "file": "upload/Touch'n Motion/forge/1.20.1/touch_n_motion_forge_1.20.1_1.0.5.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
     {
@@ -2473,17 +2473,17 @@
      "cf_slug": "emf-compat-core"
     }
    ],
-   "name": "Touch'n Motion 1.0.4"
+   "name": "Touch'n Motion 1.0.5"
   },
   {
    "addon": "touch_n_motion",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "1.0.4",
+   "version_number": "1.0.5",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/Touch'n Motion/neoforge/1.21.1/touch_n_motion_neoforge_1.21.1_1.0.4.jar",
+   "file": "upload/Touch'n Motion/neoforge/1.21.1/touch_n_motion_neoforge_1.21.1_1.0.5.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
     {
@@ -2499,17 +2499,17 @@
      "cf_slug": "emf-compat-core"
     }
    ],
-   "name": "Touch'n Motion 1.0.4"
+   "name": "Touch'n Motion 1.0.5"
   },
   {
    "addon": "touch_n_motion",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "1.0.4",
+   "version_number": "1.0.5",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/Touch'n Motion/fabric/1.21.1/touch_n_motion_fabric_1.21.1_1.0.4.jar",
+   "file": "upload/Touch'n Motion/fabric/1.21.1/touch_n_motion_fabric_1.21.1_1.0.5.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
     {
@@ -2531,17 +2531,17 @@
      "cf_slug": "fabric-api"
     }
    ],
-   "name": "Touch'n Motion 1.0.4"
+   "name": "Touch'n Motion 1.0.5"
   },
   {
    "addon": "touch_n_motion",
    "loader": "fabric",
    "game_version": "1.21.11",
-   "version_number": "1.0.4",
+   "version_number": "1.0.5",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/Touch'n Motion/fabric/1.21.11/touch_n_motion_fabric_1.21.11_1.0.4.jar",
+   "file": "upload/Touch'n Motion/fabric/1.21.11/touch_n_motion_fabric_1.21.11_1.0.5.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
     {
@@ -2563,17 +2563,17 @@
      "cf_slug": "fabric-api"
     }
    ],
-   "name": "Touch'n Motion 1.0.4"
+   "name": "Touch'n Motion 1.0.5"
   },
   {
    "addon": "touch_n_motion",
    "loader": "fabric",
    "game_version": "26.1.2",
-   "version_number": "1.0.4",
+   "version_number": "1.0.5",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/Touch'n Motion/fabric/26.1.2/touch_n_motion_fabric_26.1.2_1.0.4.jar",
+   "file": "upload/Touch'n Motion/fabric/26.1.2/touch_n_motion_fabric_26.1.2_1.0.5.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
     {
@@ -2595,17 +2595,17 @@
      "cf_slug": "fabric-api"
     }
    ],
-   "name": "Touch'n Motion 1.0.4"
+   "name": "Touch'n Motion 1.0.5"
   },
   {
    "addon": "touch_n_motion",
    "loader": "fabric",
    "game_version": "26.2",
-   "version_number": "1.0.4",
+   "version_number": "1.0.5",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/Touch'n Motion/fabric/26.2/touch_n_motion_fabric_26.2_1.0.4.jar",
+   "file": "upload/Touch'n Motion/fabric/26.2/touch_n_motion_fabric_26.2_1.0.5.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
     {
@@ -2627,17 +2627,17 @@
      "cf_slug": "fabric-api"
     }
    ],
-   "name": "Touch'n Motion 1.0.4"
+   "name": "Touch'n Motion 1.0.5"
   },
   {
    "addon": "touch_n_motion",
    "loader": "fabric",
    "game_version": "26.3",
-   "version_number": "1.0.4",
+   "version_number": "1.0.5",
    "project": null,
    "project_id": null,
    "publish": false,
-   "file": "upload/Touch'n Motion/fabric/26.3/touch_n_motion_fabric_26.3_1.0.4.jar",
+   "file": "upload/Touch'n Motion/fabric/26.3/touch_n_motion_fabric_26.3_1.0.5.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
     {
@@ -2659,7 +2659,7 @@
      "cf_slug": "fabric-api"
     }
    ],
-   "name": "Touch'n Motion 1.0.4"
+   "name": "Touch'n Motion 1.0.5"
   }
  ],
  "featured": false
