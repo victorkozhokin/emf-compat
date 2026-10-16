@@ -329,6 +329,11 @@ public final class ButtonPress implements InteractionProvider {
 
     /** Levers require a direct hit; a button a hit on it or on the block it is on, and then the look cone. */
     private static BlockPos look(AbstractClientPlayer player, IKFrame frame, State state) {
+        // A lever held and dragged with Lever drugster keeps the hand, wherever the look goes meanwhile.
+        BlockPos dragged = player == net.minecraft.client.Minecraft.getInstance().player ? HandleLevers.dragged()
+                : strm.touchnmotion.net.Inputs.throttle(player);
+        if (dragged != null && state.nearby.contains(dragged) && HandleLevers.is(player.level().getBlockState(dragged))
+                && reachable(player, frame, dragged)) return dragged;
         Vec3 eye = player.getEyePosition();
         var hit = strm.touchnmotion.net.Inputs.sight(player, 3, 1);
         Vec3 view = player.getViewVector(1f);
@@ -343,7 +348,7 @@ public final class ButtonPress implements InteractionProvider {
             BlockState block = player.level().getBlockState(pos);
             if (!isTarget(block)) continue;
             // Proximity/body heading alone must never pull a hand toward a side lever.
-            if (block.getBlock() instanceof LeverBlock || ThrottleLever.is(block) || PhysicsAssembler.is(block)) {
+            if (block.getBlock() instanceof LeverBlock || ThrottleLever.is(block) || PhysicsAssembler.is(block) || HandleLevers.is(block)) {
                 if (hit instanceof net.minecraft.world.phys.BlockHitResult aimed && pos.equals(aimed.getBlockPos())
                         && reachable(player, frame, pos)) return pos;
                 continue;
@@ -394,14 +399,14 @@ public final class ButtonPress implements InteractionProvider {
      * pointing at it with no touch - as if thrown or pressed from a distance.
      */
     private static boolean fromAfar(BlockState block) {
-        return block.getBlock() instanceof LeverBlock || ThrottleLever.is(block) || PhysicsAssembler.is(block)
+        return block.getBlock() instanceof LeverBlock || ThrottleLever.is(block) || PhysicsAssembler.is(block) || HandleLevers.is(block)
                 || block.getValue(FaceAttachedHorizontalDirectionalBlock.FACE) == AttachFace.WALL;
     }
 
     /** A button or a lever. */
     private static boolean isTarget(BlockState block) {
         return block.getBlock() instanceof ButtonBlock || block.getBlock() instanceof LeverBlock || ThrottleLever.is(block)
-                || PhysicsAssembler.is(block);
+                || PhysicsAssembler.is(block) || HandleLevers.is(block);
     }
 
     /** Whether it is down or thrown. */
@@ -433,6 +438,10 @@ public final class ButtonPress implements InteractionProvider {
         }
         if (PhysicsAssembler.is(block)) {
             Vec3 knob = PhysicsAssembler.knob(level, pos, block);
+            if (knob != null) return knob;
+        }
+        if (HandleLevers.is(block)) {
+            Vec3 knob = HandleLevers.knob(level, pos);
             if (knob != null) return knob;
         }
         Vec3 centre = centre(level, pos, block);

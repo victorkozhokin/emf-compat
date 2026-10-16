@@ -86,6 +86,8 @@ Have one of these installed? Touch'n Motion adds the matching gestures when it f
 | **Carry On** (with [EMF Compat: Carry On](https://www.curseforge.com/minecraft/mc-mods/emf-compat-carry-on)) | While you carry something, the arms are left to the carry |
 | **TACZ** (with [EMF Compat: TACZ](https://www.curseforge.com/minecraft/mc-mods/emf-compat-tacz)) | With a gun in hand, the arms are left to the gun; while aiming, the torso and the head too |
 | **[Enchanted Fishing Line](https://modrinth.com/mod/enchanted-fishing-line)** | The line starts at the rod's tip as the fishing pose has it (1.21.1 and newer) |
+| **Design n' Decor, Compact Gearbox, Create's analog lever** | The hand on a lever's handle, following it; at a seat with a wheel, the second hand on the lever |
+| **Lever drugster** | The hand stays on the handle while you drag a lever |
 
 ## What about other players?
 

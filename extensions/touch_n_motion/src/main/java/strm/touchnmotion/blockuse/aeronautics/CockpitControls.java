@@ -29,7 +29,7 @@ public final class CockpitControls implements InteractionProvider {
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
     private static final SteeringWheel WHEEL = new SteeringWheel();
     /** The controls by the seat, in the order a held one is looked for. */
-    static final List<CockpitControl> CONTROLS = List.of(new ThrottleControl(), new TypewriterControl());
+    static final List<CockpitControl> CONTROLS = List.of(new ThrottleControl(), new TypewriterControl(), new HandleLeverControl());
     private static final Vector3f[] SHOULDERS = {new Vector3f(-5, 2, 0), new Vector3f(5, 2, 0)};
     private static final Candidate.Timing TIMING = new Candidate.Timing(.12, .18, .06);
     private static final class State {

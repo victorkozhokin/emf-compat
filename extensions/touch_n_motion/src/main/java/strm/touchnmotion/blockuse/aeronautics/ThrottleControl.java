@@ -16,7 +16,10 @@ final class ThrottleControl implements CockpitControl {
     public boolean matches(BlockState block) { return ThrottleLever.is(block); }
 
     public BlockPos held(AbstractClientPlayer player) {
-        return player == Minecraft.getInstance().player ? ThrottleLever.heldPosition() : strm.touchnmotion.net.Inputs.throttle(player);
+        if (player == Minecraft.getInstance().player) return ThrottleLever.heldPosition();
+        // Another player's held lever is told whatever it is: this one only when it is a throttle.
+        BlockPos told = strm.touchnmotion.net.Inputs.throttle(player);
+        return told != null && ThrottleLever.is(player.level().getBlockState(told)) ? told : null;
     }
 
     public boolean reachedWhenAimed() { return true; }

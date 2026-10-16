@@ -133,7 +133,9 @@ public final class ClientHands {
             flags |= HandsState.ENTITY;
             entity = entityHit.getEntity().getId();
         }
+        // A lever Lever drugster drags is held as a throttle is: told the same way.
         BlockPos throttle = ThrottleLever.heldPosition();
+        if (throttle == null) throttle = strm.touchnmotion.buttonpress.HandleLevers.dragged();
         if (throttle != null) flags |= HandsState.THROTTLE;
         BlockPos typing = Typewriter.activePosition(player);
         if (typing != null) {

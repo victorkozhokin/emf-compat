@@ -2,6 +2,9 @@
 
 ## 1.0.5
 
+- Levers with a handle: Create's analog lever (and Create: Connected's linked one), Design n' Decor's stepped lever and breaker switch, Compact Gearbox's controller. The hand goes to the handle when you aim at it and follows it as it moves; with Lever drugster it stays on the handle while you drag it
+- At a seat with a wheel these levers work like the throttle: one hand on the wheel, the other on the lever
+- Debug: "Show grip points" puts a spark on each point the hand takes hold of on the levers around you
 - Create: Connected's linked throttle lever is held and dragged like Aeronautics' own
 - Requires EMF Compat Core 2.4.0
 - Carry On and TACZ: while you carry something or hold a gun, the arms are left to them - no reaching, gestures, turning in narrow gaps or leaning on walls, and half the lean with the motion; while aiming the torso and the head are left to TACZ too. The feet keep standing on the ground. Settings: "Carry On Compat", "TACZ Compat"

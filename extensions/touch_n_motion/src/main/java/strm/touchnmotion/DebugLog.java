@@ -28,7 +28,10 @@ public final class DebugLog {
                         "Off", "Keep the log quiet.")
                 .addBoolean(KEY_TRACE, "Trace feet, motion and hands", false,
                         "On", "Log what the feet, the motion and the hands measure and do, every frame they do anything - for debugging only, it floods the log.",
-                        "Off", "No per-frame numbers in the log.");
+                        "Off", "No per-frame numbers in the log.")
+                .addBoolean(strm.touchnmotion.compat.GripMarkers.KEY, "Show grip points", false,
+                        "On", "A spark on each point the hand takes hold of on the levers around you - for checking that a hand goes to the handle.",
+                        "Off", "No sparks.");
     }
 
     public static boolean decisions() {
