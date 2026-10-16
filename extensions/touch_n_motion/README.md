@@ -216,6 +216,7 @@ What Touch'n Motion is doing with a player can be read in a pack's animations as
 |---|---|
 | `emfc_tnm_reach`, `emfc_tnm_hold`, `emfc_tnm_lean`, `emfc_tnm_gesture`, `emfc_tnm_work`, `emfc_tnm_ride` | 0 to 1: reaching for a block, holding a control, leaning on a wall or a fence (or squeezing through a gap), a gesture, mining or fishing, a ride |
 | `emfc_tnm_right_arm`, `emfc_tnm_left_arm`, `emfc_tnm_head`, `emfc_tnm_body` | 0 to 1: how much of the part Touch'n Motion holds |
+| `emfc_tnm_catwalk` | 0 to 1: walking or standing on top of a fence, a wall or a fence gate |
 | `emfc_tnm_lean_x`, `emfc_tnm_lean_z` | the torso lean Touch'n Motion adds, radians (forward, to the side) |
 
 The EMF Compat addons add their own: `emfc_carrying` (Carry On), `emfc_holding_gun` and `emfc_aiming` (TACZ, 0 to 1).

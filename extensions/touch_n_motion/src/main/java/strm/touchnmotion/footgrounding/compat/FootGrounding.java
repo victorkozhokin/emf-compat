@@ -749,6 +749,12 @@ public final class FootGrounding {
         return state == null ? .5f : state.support;
     }
 
+    /** Walking or standing on a narrow beam - a fence, a wall, a gate - 0 to 1, eased; 0 when unknown. */
+    public static float catwalk(UUID uuid) {
+        State state = STATES.fresh(uuid);
+        return state == null ? 0f : state.terrain.narrow();
+    }
+
     /** Direct additive torso angles and waist shift from the supporting surface. */
     public static float[] terrainHint(UUID uuid) {
         State state = STATES.fresh(uuid);

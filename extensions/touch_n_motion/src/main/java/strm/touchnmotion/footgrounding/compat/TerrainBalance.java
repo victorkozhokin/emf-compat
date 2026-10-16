@@ -211,6 +211,11 @@ final class TerrainBalance {
         arm.xRot *= 1 - 0.35f * weight;
     }
 
+    /** How much the feet are on a narrow beam - a fence, a wall - 0 to 1, eased. */
+    float narrow() {
+        return narrow;
+    }
+
     static Floor floor(AbstractClientPlayer player, Vec3 foot) {
         return floor(player, foot, SubLevels.around(player.level(), new AABB(foot, foot).inflate(1)));
     }

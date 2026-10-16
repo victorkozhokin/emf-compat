@@ -19,6 +19,7 @@ import java.util.UUID;
  *   of each this mod holds, 0 to 1;</li>
  *   <li>{@code tnm_reach}, {@code tnm_hold}, {@code tnm_lean}, {@code tnm_gesture},
  *   {@code tnm_work}, {@code tnm_ride}: what it is doing, as the weight of what it holds for it;</li>
+ *   <li>{@code tnm_catwalk}: walking or standing on a fence, a wall or a gate, 0 to 1;</li>
  *   <li>{@code tnm_lean_x}, {@code tnm_lean_z}: the torso's lean it adds, radians.</li>
  * </ul>
  */
@@ -45,13 +46,15 @@ public final class PackStates {
         for (Effector effector : Effector.values()) {
             float weight = InteractionRuntime.weight(uuid, effector);
             BodyStates.set(uuid, "tnm_" + effector.part, weight);
-            String group = GROUP.get(InteractionRuntime.owner(uuid, effector));
+            String owner = InteractionRuntime.owner(uuid, effector);
+            String group = owner == null ? null : GROUP.get(owner);
             if (group == null) continue;
             for (int i = 0; i < GROUPS.length; i++) if (GROUPS[i].equals(group)) groups[i] = Math.max(groups[i], weight);
         }
         if (WallSqueeze.isActive(uuid)) groups[2] = Math.max(groups[2], 1f);
         for (int i = 0; i < GROUPS.length; i++) BodyStates.set(uuid, GROUPS[i], groups[i]);
         BodyStates.set(uuid, "tnm_body", InteractionRuntime.bodyWeight(uuid));
+        BodyStates.set(uuid, "tnm_catwalk", strm.touchnmotion.footgrounding.compat.FootGrounding.catwalk(uuid));
         float[] lean = TorsoLean.lean(uuid);
         BodyStates.set(uuid, "tnm_lean_x", lean == null ? 0f : lean[0]);
         BodyStates.set(uuid, "tnm_lean_z", lean == null ? 0f : lean[1]);
