@@ -61,7 +61,7 @@ public final class TrainControls implements BlockTarget {
 
     private static final Map<UUID, Driven> DRIVEN = EntityStates.alsoClear(new HashMap<>());
     private static final Map<Class<?>, Boolean> CONTRAPTIONS = new HashMap<>();
-    private static Method controlling, toGlobal, getContraption, getBlocks, getActors, controlsPos, handlerContraption;
+    private static Method controlling, toGlobal, passengerAt, getContraption, getBlocks, getActors, controlsPos, handlerContraption;
     private static Field temporaryData, localPos, speed, steering, equip;
     private static Method lerped;
     private static boolean looked;
@@ -85,8 +85,9 @@ public final class TrainControls implements BlockTarget {
             float partial = strm.touchnmotion.platform.Platform.partialTick(false);
             float[] angles = angles(contraption, driven.controls, partial);
             Direction facing = info.state().getValue(BlockStateProperties.HORIZONTAL_FACING);
-            Vec3 first = (Vec3) toGlobal.invoke(entity, lever(driven.controls, facing, true, angles), partial);
-            Vec3 second = (Vec3) toGlobal.invoke(entity, lever(driven.controls, facing, false, angles), partial);
+            Vec3 lag = riderLag(entity, player, partial);
+            Vec3 first = ((Vec3) toGlobal.invoke(entity, lever(driven.controls, facing, true, angles), partial)).add(lag);
+            Vec3 second = ((Vec3) toGlobal.invoke(entity, lever(driven.controls, facing, false, angles), partial)).add(lag);
             // The lever on the player's right is the right hand's.
             Vec3 look = player.getLookAngle();
             Vec3 right = new Vec3(-look.z, 0, look.x);
@@ -99,6 +100,38 @@ public final class TrainControls implements BlockTarget {
         }
     }
 
+    /** The middle of the controls {@code player} drives with and the train's upright, in the world, as drawn now; {@code null} when they drive nothing. */
+    public static Vec3[] middleAndUp(AbstractClientPlayer player) {
+        if (FAILURES.off()) return null;
+        try {
+            look();
+            Driven driven = driven(player);
+            Entity entity = driven == null ? null : driven.contraption.get();
+            if (entity == null || entity.isRemoved()) return null;
+            float partial = strm.touchnmotion.platform.Platform.partialTick(false);
+            Vec3 local = Vec3.atCenterOf(driven.controls);
+            Vec3 at = (Vec3) toGlobal.invoke(entity, local, partial);
+            Vec3 up = ((Vec3) toGlobal.invoke(entity, local.add(0, 1, 0), partial)).subtract(at);
+            return new Vec3[]{at.add(riderLag(entity, player, partial)), up};
+        } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
+            FAILURES.failed(e);
+            return null;
+        }
+    }
+
+    /**
+     * How far {@code toGlobalVector} puts the rider's seat off the rider this frame, past what stays at a
+     * tick's end. Within a tick Create's measure of the train runs ahead of the train and the rider as they
+     * are drawn - at speed by up to the way it goes in a tick - and levers taken in it would leave the hands.
+     * Zero for a driver not seated on it.
+     */
+    private static Vec3 riderLag(Entity entity, AbstractClientPlayer player, float partial) throws ReflectiveOperationException {
+        if (player.getVehicle() != entity || passengerAt == null) return Vec3.ZERO;
+        Vec3 now = (Vec3) passengerAt.invoke(entity, player, partial), end = (Vec3) passengerAt.invoke(entity, player, 1f);
+        if (now == null || end == null) return Vec3.ZERO;
+        return player.getPosition(partial).subtract(now).subtract(player.position().subtract(end));
+    }
+
     /** Create's classes and methods, found once. */
     private static void look() throws ReflectiveOperationException {
         if (looked) return;
@@ -106,6 +139,7 @@ public final class TrainControls implements BlockTarget {
         Class<?> entity = Class.forName(ENTITY);
         controlling = entity.getMethod("getControllingPlayer");
         toGlobal = entity.getMethod("toGlobalVector", Vec3.class, float.class);
+        passengerAt = entity.getMethod("getPassengerPosition", Entity.class, float.class);
         getContraption = entity.getMethod("getContraption");
         getBlocks = getContraption.getReturnType().getMethod("getBlocks");
         getActors = getContraption.getReturnType().getMethod("getActors");

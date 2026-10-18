@@ -350,6 +350,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
         strm.touchnmotion.gesture.Gesture.aimArms(uuid, parts, contactBase);
         strm.touchnmotion.pocket.PocketStash.aimArm(uuid, parts);
         strm.touchnmotion.blockuse.aeronautics.CockpitControls.apply(uuid, parts);
+        strm.touchnmotion.blockuse.create.TrainCockpit.head(uuid, parts);
         HandContacts.apply(uuid, parts, contactBase, mainModel);
         strm.touchnmotion.buttonpress.aeronautics.HeavyThrottle.aimArms(uuid, parts);
         strm.touchnmotion.transport.TransportGrip.aim(uuid, parts);

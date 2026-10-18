@@ -102,6 +102,7 @@ public final class ModelSpace {
             return;
         }
         strm.touchnmotion.blockuse.aeronautics.CockpitControls.orient(player, stack);
+        strm.touchnmotion.blockuse.create.TrainCockpit.orient(player, stack);
         strm.touchnmotion.ride.MinecartRide.orient(player, stack);
         strm.touchnmotion.wallhand.FenceLean.orient(player, stack);
         strm.touchnmotion.lookat.LookAt.orient(player, stack);
