@@ -88,9 +88,10 @@ public final class TrainControls implements BlockTarget {
             Vec3 lag = riderLag(entity, player, partial);
             Vec3 first = ((Vec3) toGlobal.invoke(entity, lever(driven.controls, facing, true, angles), partial)).add(lag);
             Vec3 second = ((Vec3) toGlobal.invoke(entity, lever(driven.controls, facing, false, angles), partial)).add(lag);
-            // The lever on the player's right is the right hand's.
-            Vec3 look = player.getLookAngle();
-            Vec3 right = new Vec3(-look.z, 0, look.x);
+            // The lever on the driver's right is the right hand's: right of the way to the controls, not of the
+            // camera - looking back, that would cross the arms over to the other levers.
+            Vec3 toward = ((Vec3) toGlobal.invoke(entity, Vec3.atCenterOf(driven.controls), partial)).add(lag).subtract(player.getPosition(partial));
+            Vec3 right = new Vec3(-toward.z, 0, toward.x);
             boolean firstIsRight = first.subtract(second).dot(right) >= 0;
             boolean mainIsFirst = Body.right(player, firstIsRight);
             return new Grips(new Spot(mainIsFirst ? first : second, Spots.UP), new Spot(mainIsFirst ? second : first, Spots.UP));

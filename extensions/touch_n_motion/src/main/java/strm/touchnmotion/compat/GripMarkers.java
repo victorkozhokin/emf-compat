@@ -12,7 +12,7 @@ import strm.touchnmotion.interaction.SubLevels;
 /**
  * A debugging aid: a spark on every point the hand takes hold of on the levers and cranks around the player -
  * the handles worked out from each mod's model and renderer - so a grip off the handle shows at a
- * glance, without a body in the way. Off unless asked for.
+ * glance, without a body in the way. On a train's controls the main hand's grip is a flame. Off unless asked for.
  */
 public final class GripMarkers {
     public static final String KEY = "debug.grip_markers";
@@ -26,6 +26,13 @@ public final class GripMarkers {
         if (!EMFCompatConfig.getBoolean(KEY, false) || ticks++ % 2 != 0) return;
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null || minecraft.level == null) return;
+        // A train's levers are no blocks of the world: the ones driven with, the main hand's flame-marked.
+        var train = strm.touchnmotion.blockuse.create.TrainControls.held(minecraft.player);
+        if (train != null) {
+            Vec3 main = train.main().point(), support = train.support().point();
+            minecraft.level.addParticle(ParticleTypes.SMALL_FLAME, main.x, main.y, main.z, 0, 0, 0);
+            minecraft.level.addParticle(ParticleTypes.ELECTRIC_SPARK, support.x, support.y, support.z, 0, 0, 0);
+        }
         BlockPos centre = minecraft.player.blockPosition();
         for (BlockPos pos : BlockPos.betweenClosed(centre.offset(-RADIUS, -2, -RADIUS), centre.offset(RADIUS, 2, RADIUS))) {
             var block = minecraft.level.getBlockState(pos);
