@@ -8,6 +8,7 @@
 - At a seat with a wheel these levers work like the throttle: one hand on the wheel, the other on the lever
 - Debug: "Show grip points" puts a spark on each point the hand takes hold of on the levers around you
 - Create: Connected's linked throttle lever is held and dragged like Aeronautics' own
+- Aeronautics cockpit: turning sharply to a side lever no longer starts the far hand for a frame before the near one takes it, and the near hand starts a little sooner
 - Requires EMF Compat Core 2.4.0
 - Carry On and TACZ: while you carry something or hold a gun, the arms are left to them - no reaching, gestures, turning in narrow gaps or leaning on walls, and half the lean with the motion; while aiming the torso and the head are left to TACZ too. The feet keep standing on the ground. Settings: "Carry On Compat", "TACZ Compat"
 - Resource packs can read what this mod is doing as EMF variables: emfc_tnm_reach, emfc_tnm_hold, emfc_tnm_lean, emfc_tnm_gesture, emfc_tnm_work, emfc_tnm_ride, how much of each arm, the head and the torso it holds (emfc_tnm_right_arm, emfc_tnm_left_arm, emfc_tnm_head, emfc_tnm_body), walking on a fence or a wall (emfc_tnm_catwalk), and the torso lean it adds (emfc_tnm_lean_x, emfc_tnm_lean_z)

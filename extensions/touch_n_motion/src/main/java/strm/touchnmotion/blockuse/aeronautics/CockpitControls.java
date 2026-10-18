@@ -116,7 +116,11 @@ public final class CockpitControls implements InteractionProvider {
                 state.contactClock.restart();
                 state.transport = new strm.touchnmotion.transport.TransportMotion();
             }
-            BlockHitResult hit = strm.touchnmotion.net.Inputs.sight(player, 3, 1) instanceof BlockHitResult b ? b : null;
+            // Our own sight as it is now: the game's hit follows the view eased between two ticks, and its
+            // first frames after a sudden turn sweep across the other side - a lever there took the wrong hand.
+            var sight = player == net.minecraft.client.Minecraft.getInstance().player ? player.pick(3, 1, false)
+                    : strm.touchnmotion.net.Inputs.sight(player, 3, 1);
+            BlockHitResult hit = sight instanceof BlockHitResult b && b.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK ? b : null;
             if (hit != null && WHEEL.matches(player.level().getBlockState(hit.getBlockPos()))
                     && !hit.getBlockPos().equals(state.wheel)) {
                 state.wheel = hit.getBlockPos().immutable();
