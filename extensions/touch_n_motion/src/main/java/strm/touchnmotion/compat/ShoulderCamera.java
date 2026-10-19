@@ -3,7 +3,7 @@ package strm.touchnmotion.compat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
 
-/** Only the local player's held wheel/throttle owns facing; other Simulated holds do not. */
+/** Only the local player's held wheel/throttle, or a train they drive, owns facing; other Simulated holds do not. */
 public final class ShoulderCamera {
     private ShoulderCamera() {}
     public static boolean atControls(LivingEntity entity) {
@@ -11,7 +11,8 @@ public final class ShoulderCamera {
         if (player == null || entity != player) return false;
         return strm.touchnmotion.buttonpress.aeronautics.ThrottleLever.heldPosition() != null
                 || strm.touchnmotion.blockuse.aeronautics.Typewriter.activePosition(player) != null
-                || strm.touchnmotion.blockuse.aeronautics.SteeringWheel.held(null);
+                || strm.touchnmotion.blockuse.aeronautics.SteeringWheel.held(null)
+                || strm.touchnmotion.blockuse.create.TrainControls.held(player) != null;
     }
     /** A visible seated cockpit owns body facing even between individual held controls. */
     public static boolean cockpitCamera() {
