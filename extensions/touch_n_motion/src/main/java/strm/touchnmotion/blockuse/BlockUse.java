@@ -144,8 +144,6 @@ public final class BlockUse implements InteractionProvider {
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
     /** A train's driver: this much forward to the levers, and no further round to them than this, radians. */
     private static final float DRIVER_PITCH = (float) Math.toRadians(8), DRIVER_YAW = (float) Math.toRadians(25);
-    /** A driver short of a lever leans in by this much a second for each pixel short, at most by the most. */
-    private static final float DRIVER_REACH_RATE = .6f, DRIVER_REACH_MOST = (float) Math.toRadians(14);
 
 
     private BlockUse() {
@@ -186,9 +184,6 @@ public final class BlockUse implements InteractionProvider {
         long tableUntil;
         boolean tableUnloading;
         long contactAt;
-        /** How much further a train's driver leans in to keep both levers in hand, radians; and when it was last told. */
-        float driverReach;
-        long driverReachAt;
         final Quaternionf contactTurn = new Quaternionf();
     }
 
@@ -392,7 +387,7 @@ public final class BlockUse implements InteractionProvider {
                 if (held != null) {
                     // A driver leans to the levers a little, and turns to them when they are off to one side.
                     Vector3f levers = new Vector3f(state.grip).add(state.supportGrip).mul(.5f);
-                    state.lean[0] = DRIVER_PITCH + state.driverReach;
+                    state.lean[0] = DRIVER_PITCH;
                     state.lean[1] = Mth.clamp((float) Math.atan2(-levers.x, -levers.z) * .5f, -DRIVER_YAW, DRIVER_YAW);
                 }
                 Map<Effector, float[]> hands = new EnumMap<>(Effector.class);
@@ -640,17 +635,12 @@ public final class BlockUse implements InteractionProvider {
         ReachPose.contact(parts, state.right, state.grip, w, state.contactTurn, dt);
     }
 
-    /**
-     * A train's driver leans in while a hand falls short of its lever, and back as both reach: by how far
-     * past the arm's length each lever is from its shoulder as drawn (less than nothing within reach), so
-     * whatever the pack's seat and the levers' throw, the torso gives just what the arms lack.
-     */
-    private static void driverReach(State state, float mainShort, float supportShort) {
-        long now = System.nanoTime();
-        double dt = state.driverReachAt == 0 ? 0 : Math.min(.1, (now - state.driverReachAt) / 1e9);
-        state.driverReachAt = now;
-        float shortBy = Math.max(mainShort, supportShort) + .15f;
-        state.driverReach = Mth.clamp(state.driverReach + shortBy * DRIVER_REACH_RATE * (float) dt, 0f, DRIVER_REACH_MOST);
+    /** A train driver's grips as this frame's hands go to them, {right, left} in the model's space; {@code null} when not driving. */
+    public static Vector3f[] trainGrips(UUID uuid) {
+        State state = STATES.fresh(uuid);
+        if (state == null || state.target != TrainControls.TARGET || !state.support) return null;
+        return state.right ? new Vector3f[]{new Vector3f(state.grip), new Vector3f(state.supportGrip)}
+                : new Vector3f[]{new Vector3f(state.supportGrip), new Vector3f(state.grip)};
     }
 
     /** The torso turn this asks for; {@code null} when none. */
@@ -681,8 +671,6 @@ public final class BlockUse implements InteractionProvider {
             float otherWeight = InteractionRuntime.weight(uuid, other, INSTANCE.id());
             ModelPart otherArm = parts.apply(other.part);
             if (otherArm != null && otherWeight > 1e-3f) ArmAim.towards(otherArm, state.supportGrip, otherWeight, true);
-            if (state.target == TrainControls.TARGET && otherArm != null) driverReach(state, new Vector3f(state.grip).sub(arm.x, arm.y, arm.z).length() - ARM,
-                    new Vector3f(state.supportGrip).sub(otherArm.x, otherArm.y, otherArm.z).length() - ARM);
         }
         TableSupport.capture(state.table, parts, state.right, state.grip, state.supportGrip);
         TableSupport.capture(state.bellows, parts, state.right, state.grip, state.supportGrip);

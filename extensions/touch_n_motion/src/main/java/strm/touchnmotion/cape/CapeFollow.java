@@ -24,6 +24,8 @@ public final class CapeFollow {
     }
 
     private static final Map<UUID, Matrix4f> CARRIED = new HashMap<>();
+    /** How far round the model is drawn from the body the game turns it by, degrees: set by a seat that turns it to its controls. */
+    private static final Map<UUID, Float> TURNED = new HashMap<>();
     /** How far behind the player's model the game draws the wings' ({@code ElytraLayer}, {@code WingsLayer}): the model's units. */
     private static final float WINGS_BEHIND = 0.125f;
 
@@ -81,13 +83,37 @@ public final class CapeFollow {
                 .rotateY((float) Math.toRadians(turn));
     }
 
+    /** This draw of the model is turned this far round from the game's body, degrees. */
+    public static void turned(UUID uuid, float degrees) {
+        if (Math.abs(degrees) < .01f) TURNED.remove(uuid);
+        else TURNED.put(uuid, degrees);
+    }
+
     //? if <1.21.11 {
+    /**
+     * The cape of a model turned round from the game's body (to a train's controls, a wheel) swings as
+     * {@code CapeLayer} reckons it from that body: on the move, looking aside, the way the train goes is
+     * across it and the cape flies out sideways. It is set to swing as from the body as drawn.
+     */
+    public static void unturn(UUID uuid, Function<String, ModelPart> parts, net.minecraft.world.entity.player.Player player, float partialTick, Matrix4f drawnIn) {
+        Float degrees = TURNED.get(uuid);
+        ModelPart cape = parts.apply("cloak");
+        if (degrees == null || cape == null || drawnIn == null) return;
+        Matrix4f wanted = turnedFrame(player, partialTick, degrees);
+        set(cape, new Matrix4f(drawnIn).invert().mul(wanted).mul(pose(cape)));
+    }
+
     /** This player's cape frame this frame, worked out as {@code CapeLayer} does it. */
     public static Matrix4f capeFrame(net.minecraft.world.entity.player.Player player, float partialTick) {
+        return turnedFrame(player, partialTick, 0f);
+    }
+
+    /** As {@code CapeLayer} works it out, for a body turned {@code turn} degrees further round. */
+    private static Matrix4f turnedFrame(net.minecraft.world.entity.player.Player player, float partialTick, float turn) {
         double dx = net.minecraft.util.Mth.lerp(partialTick, player.xCloakO, player.xCloak) - net.minecraft.util.Mth.lerp(partialTick, player.xo, player.getX());
         double dy = net.minecraft.util.Mth.lerp(partialTick, player.yCloakO, player.yCloak) - net.minecraft.util.Mth.lerp(partialTick, player.yo, player.getY());
         double dz = net.minecraft.util.Mth.lerp(partialTick, player.zCloakO, player.zCloak) - net.minecraft.util.Mth.lerp(partialTick, player.zo, player.getZ());
-        float body = net.minecraft.util.Mth.rotLerp(partialTick, player.yBodyRotO, player.yBodyRot);
+        float body = net.minecraft.util.Mth.rotLerp(partialTick, player.yBodyRotO, player.yBodyRot) + turn;
         double sin = net.minecraft.util.Mth.sin(body * ((float) Math.PI / 180f)), cos = -net.minecraft.util.Mth.cos(body * ((float) Math.PI / 180f));
         float lift = net.minecraft.util.Mth.clamp((float) dy * 10f, -6f, 32f);
         float back = net.minecraft.util.Mth.clamp((float) (dx * sin + dz * cos) * 100f, 0f, 150f);
@@ -113,5 +139,6 @@ public final class CapeFollow {
     /** Leaving a world. */
     public static void clear() {
         CARRIED.clear();
+        TURNED.clear();
     }
 }

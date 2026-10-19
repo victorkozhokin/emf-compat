@@ -96,6 +96,11 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             if (parts.get("cloak") != null && state.emfEntity() instanceof Player wearer)
                 capeFrame = strm.touchnmotion.cape.CapeFollow.capeFrame(wearer, strm.touchnmotion.platform.Platform.partialTick(false));
             //?}
+            // Swung as from the body as drawn first, then carried with the torso: the torso's change sits over the true swing.
+            //? if <1.21.11 {
+            if (capeFrame != null && state.emfEntity() instanceof Player wearer)
+                strm.touchnmotion.cape.CapeFollow.unturn(uuid, parts::get, wearer, strm.touchnmotion.platform.Platform.partialTick(false), capeFrame);
+            //?}
             strm.touchnmotion.cape.CapeFollow.carry(uuid, parts::get, packTorso, capeFrame);
             //? if >=1.21.11 {
             /*if (context.animatingModelRoot().isMainModel) Drawn.keep(uuid, parts::get);
@@ -345,6 +350,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
         WallSqueeze.aimArms(uuid, parts);
         // Last: a hand on a button or a swing on a block aims from where its shoulder has finally been drawn.
         ButtonPress.aimArm(uuid, parts, contactBase);
+        strm.touchnmotion.blockuse.create.TrainCockpit.reach(uuid, parts);
         BlockUse.aimArm(uuid, parts);
         Mining.aimArm(uuid, parts, contactBase);
         strm.touchnmotion.gesture.Gesture.aimArms(uuid, parts, contactBase);

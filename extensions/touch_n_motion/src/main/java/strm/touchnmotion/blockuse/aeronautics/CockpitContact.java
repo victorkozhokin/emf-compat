@@ -12,7 +12,7 @@ public final class CockpitContact {
     static Quaternionf fit(Quaternionf previous, Vector3f right, Vector3f left, Vector3f rt, Vector3f lt) {
         return fit(previous, right, left, rt, lt, false);
     }
-    static Quaternionf fit(Quaternionf previous, Vector3f right, Vector3f left, Vector3f rt, Vector3f lt, boolean sideControl) {
+    public static Quaternionf fit(Quaternionf previous, Vector3f right, Vector3f left, Vector3f rt, Vector3f lt, boolean sideControl) {
         Vector3f prior = new Quaternionf(previous).getEulerAnglesZYX(new Vector3f());
         Vector3f a = new Vector3f(prior);
         // Two contact distances leave an unconstrained rotational direction. A discrete search

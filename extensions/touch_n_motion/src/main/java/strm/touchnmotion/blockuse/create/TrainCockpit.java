@@ -12,6 +12,7 @@ import strm.emfcompat.core.ik.IKFrame;
 import strm.emfcompat.core.ik.IKMath;
 import strm.touchnmotion.DebugLog;
 import strm.touchnmotion.blockuse.BlockUse;
+import strm.touchnmotion.blockuse.aeronautics.CockpitContact;
 import strm.touchnmotion.blockuse.aeronautics.CockpitFacing;
 import strm.touchnmotion.interaction.Body;
 import strm.touchnmotion.interaction.Effector;
@@ -49,6 +50,9 @@ public final class TrainCockpit {
         final Vector3f sway = new Vector3f();
         boolean driving;
         long at;
+        /** The upper body's turn about the waist that puts each shoulder an arm's length from its lever. */
+        final Quaternionf contact = new Quaternionf();
+        final strm.touchnmotion.interaction.FrameClock contactClock = new strm.touchnmotion.interaction.FrameClock();
     }
 
     private TrainCockpit() {
@@ -104,7 +108,11 @@ public final class TrainCockpit {
     private static void drive(AbstractClientPlayer player, State state, boolean driving) {
         if (driving == state.driving) return;
         state.driving = driving;
-        if (driving) state.transport = new TransportMotion();
+        if (driving) {
+            state.transport = new TransportMotion();
+            state.contact.identity();
+            state.contactClock.restart();
+        }
         if (DebugLog.decisions())
             org.slf4j.LoggerFactory.getLogger("EMFCompatTrainCockpit").info("[TrainCockpit] {} {}", player.getName().getString(), driving ? "train-cockpit" : "off");
     }
@@ -118,6 +126,41 @@ public final class TrainCockpit {
         State state = STATES.fresh(uuid);
         if (state == null || state.weight < 1e-3f) return null;
         return TorsoLean.Hint.turn(state.sway.x * state.weight, 0, state.sway.z * state.weight);
+    }
+
+    /**
+     * Each hand onto its own lever, as at a craft's wheel: the upper body turned about the waist - leant
+     * in, twisted towards the far lever - just so that each shoulder is an arm's length from its lever, and
+     * eased into it. Before the arms are aimed, which then aim from where the shoulders have gone.
+     */
+    public static void reach(UUID uuid, Function<String, ModelPart> parts) {
+        State state = STATES.fresh(uuid);
+        if (state == null || state.weight < 1e-3f) return;
+        Vector3f[] grips = BlockUse.trainGrips(uuid);
+        ModelPart right = parts.apply("right_arm"), left = parts.apply("left_arm"), rightLeg = parts.apply("right_leg"), leftLeg = parts.apply("left_leg");
+        if (grips == null || right == null || left == null || rightLeg == null || leftLeg == null) return;
+        float weight = state.weight * Math.min(InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, BlockUse.INSTANCE.id()),
+                InteractionRuntime.weight(uuid, Effector.LEFT_ARM, BlockUse.INSTANCE.id()));
+        if (weight < 1e-3f) return;
+        Vector3f waist = new Vector3f(rightLeg.x + leftLeg.x, rightLeg.y + leftLeg.y, rightLeg.z + leftLeg.z).mul(.5f);
+        Vector3f rightShoulder = new Vector3f(right.x, right.y, right.z).sub(waist), leftShoulder = new Vector3f(left.x, left.y, left.z).sub(waist);
+        Vector3f rightGrip = new Vector3f(grips[0]).sub(waist), leftGrip = new Vector3f(grips[1]).sub(waist);
+        double dt = state.contactClock.tick();
+        if (dt >= 0) {
+            Quaternionf wanted = CockpitContact.fit(state.contact, rightShoulder, leftShoulder, rightGrip, leftGrip, true);
+            state.contact.slerp(wanted, Smoothing.follow(dt, .06));
+        }
+        Quaternionf turn = new Quaternionf().slerp(state.contact, weight);
+        for (String name : new String[]{"body", "head", "hat", "right_arm", "left_arm"}) {
+            ModelPart part = parts.apply(name);
+            if (part == null) continue;
+            Vector3f at = turn.transform(new Vector3f(part.x, part.y, part.z).sub(waist)).add(waist);
+            part.setPos(at.x, at.y, at.z);
+            if (!name.equals("head") && !name.equals("hat")) {
+                Vector3f angles = new Quaternionf(turn).mul(new Quaternionf().rotationZYX(part.zRot, part.yRot, part.xRot)).getEulerAnglesZYX(new Vector3f());
+                part.setRotation(angles.x, angles.y, angles.z);
+            }
+        }
     }
 
     /** The head looks where the driver does, from a body turned to the controls. After the pack has animated. */
