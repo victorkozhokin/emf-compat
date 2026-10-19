@@ -4,12 +4,13 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 
 /**
- * Our own horse-riding pose for the player: a forward-leaning "jockey" seat — the whole upper body
- * (head, torso, arms) tips forward over the horse's neck as one unit while the legs grip the sides,
- * with a small looping bob driven by the horse's gait (still when it stands, bobs when it moves).
+ * Our own horse-riding pose for the player: a forward-leaning "jockey" seat — the torso and the
+ * hands on the reins tip forward over the horse's neck as one unit, the head carried with them still
+ * looking where the rider looks, while the legs grip the sides, with a small looping bob driven by
+ * the horse's gait (still when it stands, bobs when it moves).
  *
  * <p>The {@code crouch} parameter tilts the upper body forward <em>about the hip</em> as a rigid
- * body — each of the head/body/arms is rotated and repositioned so they stay joined at the seat
+ * body — the body and arms are rotated and repositioned, the head only repositioned, so they stay joined at the seat
  * (rotating a single part about its own neck pivot would detach it from the hips). The legs are
  * left out of the crouch so they keep hugging the barrel.</p>
  *
@@ -47,11 +48,6 @@ public final class RidingPose {
     private RidingPose() {
     }
 
-    /** The head is only captured/posed (losing its idle look-sway) while the crouch is active. */
-    public static boolean capturesHead() {
-        return CROUCH != 0.0f;
-    }
-
     /**
      * Writes the riding pose onto the model parts.
      *
@@ -59,8 +55,13 @@ public final class RidingPose {
      * @param horseLimbSpeed  the horse's limb-swing speed (0 when standing still)
      * @param upperBody       when {@code false}, only the leg seat is posed and the arms/torso/head
      *                        are left for an active action pose (gun aim, melee swing) to control
+     * @param rightOnReins    whether the right hand is on the reins; a hand in use is left as the game posed it
+     * @param leftOnReins     the same for the left hand
+     * @param upright         0 leant over the neck, 1 sat up - while a hand is off the reins, so the
+     *                        arm the game poses at a standing shoulder stays on it
      */
-    public static void apply(net.minecraft.client.model.HumanoidModel<?> model, float horseLimbSwing, float horseLimbSpeed, boolean upperBody) {
+    public static void apply(net.minecraft.client.model.HumanoidModel<?> model, float horseLimbSwing, float horseLimbSpeed, boolean upperBody,
+                             boolean rightOnReins, boolean leftOnReins, float upright) {
         float move = Mth.clamp(horseLimbSpeed * MOVE_GAIN, 0.0f, 1.0f);
         float bob = Mth.sin(horseLimbSwing * GAIT_FREQ) * move;
 
@@ -85,52 +86,55 @@ public final class RidingPose {
         if (!upperBody) {
             return;
         }
+        float lean = 1.0f - upright;
 
         // Arm base rotation (reins). Crouch adds to this below.
         float armPitch = ARM_PITCH + bob * ARM_BOB;
-        float armYaw = ARM_YAW;
-        float armRoll = ARM_ROLL;
-
         ModelPart rightArm = model.rightArm;
-        rightArm.xRot = armPitch;
-        rightArm.yRot = armYaw;
-        rightArm.zRot = armRoll;
-
+        if (rightOnReins) {
+            rightArm.xRot = armPitch;
+            rightArm.yRot = ARM_YAW;
+            rightArm.zRot = ARM_ROLL;
+        }
         ModelPart leftArm = model.leftArm;
-        leftArm.xRot = armPitch;
-        leftArm.yRot = -armYaw;
-        leftArm.zRot = -armRoll;
+        if (leftOnReins) {
+            leftArm.xRot = armPitch;
+            leftArm.yRot = -ARM_YAW;
+            leftArm.zRot = -ARM_ROLL;
+        }
 
         // Torso base rotation (micro-lean). Crouch adds to this below.
-        model.body.xRot = BODY_LEAN + bob * BODY_BOB;
+        model.body.xRot = (BODY_LEAN + bob * BODY_BOB) * lean;
         model.body.yRot = 0.0f;
         model.body.zRot = 0.0f;
 
-        // Gallop crouch: tilt head + body + arms forward about the hip, as one rigid unit, so they
-        // stay joined at the seat. The head keeps its look rotation (we only add to it).
-        if (CROUCH != 0.0f) {
-            leanAboutHip(model.body, 0.0f, 0.0f, CROUCH);
-            leanAboutHip(model.head, 0.0f, 0.0f, CROUCH);
-            leanAboutHip(rightArm, -ARM_BASE_X, ARM_BASE_Y, CROUCH);
-            leanAboutHip(leftArm, ARM_BASE_X, ARM_BASE_Y, CROUCH);
-        }
+        // Gallop crouch: tilt the body and the hands on the reins forward about the hip, as one rigid
+        // unit, so they stay joined at the seat. The head goes with the neck but keeps looking where
+        // the rider looks.
+        float crouch = CROUCH * lean;
+        leanAboutHip(model.body, 0.0f, 0.0f, crouch, true);
+        leanAboutHip(model.head, 0.0f, 0.0f, crouch, false);
+        if (rightOnReins) leanAboutHip(rightArm, -ARM_BASE_X, ARM_BASE_Y, crouch, true);
+        if (leftOnReins) leanAboutHip(leftArm, ARM_BASE_X, ARM_BASE_Y, crouch, true);
     }
 
     /**
      * Rotates {@code part} forward by {@code a} radians about the hip point {@code (0, HIP_Y, 0)},
      * repositioning its pivot so the upper body tilts as a rigid unit instead of detaching. The
-     * part's own {@code xRot} is added to (not overwritten), preserving e.g. head look-tracking.
+     * part's own {@code xRot} is added to (not overwritten) when it turns with the lean.
      *
      * @param baseX the part's default pivot X offset
      * @param baseY the part's default pivot Y offset
+     * @param turn  whether the part turns with the lean, or only its pivot moves (the head, which
+     *              keeps the look)
      */
-    private static void leanAboutHip(ModelPart part, float baseX, float baseY, float a) {
+    private static void leanAboutHip(ModelPart part, float baseX, float baseY, float a, boolean turn) {
         float cos = Mth.cos(a);
         float sin = Mth.sin(a);
         float dy = baseY - HIP_Y;
         part.x = baseX;
         part.y = HIP_Y + dy * cos;
         part.z = dy * sin;
-        part.xRot += a;
+        if (turn) part.xRot += a;
     }
 }
