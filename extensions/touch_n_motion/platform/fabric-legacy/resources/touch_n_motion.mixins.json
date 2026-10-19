@@ -18,6 +18,7 @@
     "GestureInteractionMixin",
     "LevelRendererAccessor",
     "legacy.BoatChestMixin",
+    "legacy.CapeTurnMixin",
     "FishingHookAccessor",
     "FishingLineMixin",
     "compat.ShoulderTurnMixin",

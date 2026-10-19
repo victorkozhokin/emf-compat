@@ -58,6 +58,26 @@ public final class TrainCockpit {
     private TrainCockpit() {
     }
 
+    /**
+     * The end of a client tick: a seated driver's body is turned to the controls, as a boat turns its
+     * rider's. The game keeps a body within 50 degrees of the look, and a train turning under its driver
+     * would leave it lagging there - the pack then turns the torso after the head, and the cape swings
+     * as from the lagging body. Every player in sight, not only ours.
+     */
+    public static void tick() {
+        var level = net.minecraft.client.Minecraft.getInstance().level;
+        if (level == null || !BlockUse.INSTANCE.isEnabled() || !EMFCompatCore.isCompatEnabled()) return;
+        for (var player : level.players()) {
+            if (!Seated.seated(player)) continue;
+            Vec3[] controls = TrainControls.middleAndUp(player);
+            if (controls == null) continue;
+            Vec3 toward = controls[0].subtract(player.position());
+            if (toward.horizontalDistanceSqr() < 1e-4) continue;
+            float yaw = (float) Math.toDegrees(Math.atan2(-toward.x, toward.z));
+            player.yBodyRot += net.minecraft.util.Mth.wrapDegrees(yaw - player.yBodyRot);
+        }
+    }
+
     /** Turns this draw of the model to the controls, before the pack animates it. */
     public static void orient(AbstractClientPlayer player, PoseStack stack) {
         UUID uuid = player.getUUID();

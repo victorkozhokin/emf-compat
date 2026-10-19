@@ -9,7 +9,8 @@
 - Debug: "Show grip points" puts a spark on each point the hand takes hold of on the levers around you
 - Create: Connected's linked throttle lever is held and dragged like Aeronautics' own
 - Create trains: a driver seated on the train sits turned to the controls whichever way the camera looks, the head following the camera as far as a neck turns, and sways back speeding up, forwards braking and out of a bend. On the move the hands no longer slip off the levers for a frame. The right hand keeps the right lever and the left the left one, whichever way the driver looks,, each hand reaching its own lever as at a craft's wheel: the upper body leans and turns just enough for both. "Show grip points" marks the two levers too
-- 1.20.1 and 1.21.1: on a seat that turns the body to its controls (a train's, a craft's wheel), a cape no longer flies out sideways on the move when the player looks aside
+- A train driver's body stays turned to the controls through the bends, as a boat keeps its rider's: the torso no longer twists after the camera, and the cape hangs behind
+- 1.20.1 and 1.21.1: where the body is drawn turned from the way the game turns it (a craft's wheel, a minecart, looking at someone), the cape swings as from the body drawn, not out to the side
 - Aeronautics cockpit: turning sharply to a side lever no longer starts the far hand for a frame before the near one takes it, and the near hand starts a little sooner
 - Requires EMF Compat Core 2.4.0
 - Carry On and TACZ: while you carry something or hold a gun, the arms are left to them - no reaching, gestures, turning in narrow gaps or leaning on walls, and half the lean with the motion; while aiming the torso and the head are left to TACZ too. The feet keep standing on the ground. Settings: "Carry On Compat", "TACZ Compat"

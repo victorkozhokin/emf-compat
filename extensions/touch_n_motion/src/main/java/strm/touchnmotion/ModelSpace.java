@@ -99,6 +99,7 @@ public final class ModelSpace {
         if (strm.touchnmotion.compat.ParCoolActivity.active(player)
                 || strm.touchnmotion.compat.WholeBody.held(player)) {
             InteractionRuntime.suspend(player.getUUID());
+            strm.touchnmotion.cape.CapeFollow.turned(player.getUUID(), 0);
             return;
         }
         org.joml.Vector3f before = stack.last().pose().transformDirection(new org.joml.Vector3f(0, 0, 1));
@@ -110,7 +111,7 @@ public final class ModelSpace {
         // How far round all that has turned the model from the body the game turns it by: the cape's swing is reckoned from the latter.
         org.joml.Vector3f after = stack.last().pose().transformDirection(new org.joml.Vector3f(0, 0, 1));
         strm.touchnmotion.cape.CapeFollow.turned(player.getUUID(),
-                net.minecraft.util.Mth.wrapDegrees((float) Math.toDegrees(Math.atan2(-before.x, before.z) - Math.atan2(-after.x, after.z))));
+                net.minecraft.util.Mth.wrapDegrees((float) Math.toDegrees(Math.atan2(-after.x, after.z) - Math.atan2(-before.x, before.z))));
         model.accept(player);
         FootGrounding.modelPose(player, stack);
         IKFrame frame = frame(player, stack);

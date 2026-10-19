@@ -119,6 +119,7 @@ public final class ClientInit {
         strm.touchnmotion.compat.NeaCompat.tick();
         strm.touchnmotion.compat.PlayerModelCheck.tick();
         strm.touchnmotion.compat.GripMarkers.tick();
+        strm.touchnmotion.blockuse.create.TrainCockpit.tick();
     }
 
     /** Leaving a world drops every feature's per-entity state with it, and what was known of other players' hands. */

@@ -83,6 +83,12 @@ public final class CapeFollow {
                 .rotateY((float) Math.toRadians(turn));
     }
 
+    /** How far round from the game's body this player's model is drawn now, degrees; 0 when it is not turned. */
+    public static float turned(UUID uuid) {
+        Float degrees = TURNED.get(uuid);
+        return degrees == null ? 0f : degrees;
+    }
+
     /** This draw of the model is turned this far round from the game's body, degrees. */
     public static void turned(UUID uuid, float degrees) {
         if (Math.abs(degrees) < .01f) TURNED.remove(uuid);
@@ -90,22 +96,9 @@ public final class CapeFollow {
     }
 
     //? if <1.21.11 {
-    /**
-     * The cape of a model turned round from the game's body (to a train's controls, a wheel) swings as
-     * {@code CapeLayer} reckons it from that body: on the move, looking aside, the way the train goes is
-     * across it and the cape flies out sideways. It is set to swing as from the body as drawn.
-     */
-    public static void unturn(UUID uuid, Function<String, ModelPart> parts, net.minecraft.world.entity.player.Player player, float partialTick, Matrix4f drawnIn) {
-        Float degrees = TURNED.get(uuid);
-        ModelPart cape = parts.apply("cloak");
-        if (degrees == null || cape == null || drawnIn == null) return;
-        Matrix4f wanted = turnedFrame(player, partialTick, degrees);
-        set(cape, new Matrix4f(drawnIn).invert().mul(wanted).mul(pose(cape)));
-    }
-
-    /** This player's cape frame this frame, worked out as {@code CapeLayer} does it. */
+    /** This player's cape frame this frame, worked out as {@code CapeLayer} does it - from the body the model is drawn with ({@code CapeTurnMixin}). */
     public static Matrix4f capeFrame(net.minecraft.world.entity.player.Player player, float partialTick) {
-        return turnedFrame(player, partialTick, 0f);
+        return turnedFrame(player, partialTick, turned(player.getUUID()));
     }
 
     /** As {@code CapeLayer} works it out, for a body turned {@code turn} degrees further round. */
