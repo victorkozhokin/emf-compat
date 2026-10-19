@@ -62,7 +62,7 @@ public final class TrainCockpit {
      * The end of a client tick: a seated driver's body is turned to the controls, as a boat turns its
      * rider's. The game keeps a body within 50 degrees of the look, and a train turning under its driver
      * would leave it lagging there - the pack then turns the torso after the head, and the cape swings
-     * as from the lagging body. Every player in sight, not only ours.
+     * as from the lagging body. The cape is carried along, as in a cab. Every player in sight, not only ours.
      */
     public static void tick() {
         var level = net.minecraft.client.Minecraft.getInstance().level;
@@ -75,6 +75,16 @@ public final class TrainCockpit {
             if (toward.horizontalDistanceSqr() < 1e-4) continue;
             float yaw = (float) Math.toDegrees(Math.atan2(-toward.x, toward.z));
             player.yBodyRot += net.minecraft.util.Mth.wrapDegrees(yaw - player.yBodyRot);
+            // The cape trails behind where the player was; in a cab the train's speed is no wind, so it is
+            // carried with the player and hangs.
+            //? if <1.21.11 {
+            player.xCloakO = player.xo;
+            player.yCloakO = player.yo;
+            player.zCloakO = player.zo;
+            player.xCloak = player.getX();
+            player.yCloak = player.getY();
+            player.zCloak = player.getZ();
+            //?}
         }
     }
 
