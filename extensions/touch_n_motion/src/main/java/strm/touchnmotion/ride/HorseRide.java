@@ -53,7 +53,7 @@ public final class HorseRide implements InteractionProvider {
     private static final float FIST = Riders.FIST;
 
     /** Blocks, from the waist, along the horse, to its side and up: where the hands hold the reins, the nearest and furthest forward. */
-    private static final double GRIP_UP = 0.12, GRIP_WIDE = 0.15, GRIP_NEAR = 0.22, GRIP_AT = 0.45;
+    private static final double GRIP_UP = 0.12, GRIP_WIDE = 0.15, GRIP_NEAR = 0.22, GRIP_AT = 0.6;
     /** Blocks the hands go on along the neck for each radian the horse's nose is up: over a jump the rider gives it the reins. */
     private static final double RELEASE = 0.5;
     /** Blocks: the hands going after the head as the horse grazes (forward, down) and as it rears (up). */
@@ -61,7 +61,7 @@ public final class HorseRide implements InteractionProvider {
     /** Radians: the jockey's lean over the neck; and the legs gripping the sides. */
     private static final float JOCKEY = 0.55f, LEG_ROLL = 0.5f, LEG_X = 2.9f;
     /** Model pixels: the rider sits this far back from where the game seats them - in the middle of the saddle, not on the withers. */
-    private static final float SIT_BACK = 4f;
+    private static final float SIT_BACK = 0f;
     /** Seconds the rider takes to sit up as a hand leaves the reins, and to lean in again. */
     private static final double SIT_UP_SECONDS = 0.08;
     private static final int RIGHT = 1, LEFT = 2, TORSO = 4;

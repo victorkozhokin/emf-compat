@@ -20,6 +20,8 @@ public class ClientEventHandler {
     private static int cleanupCounter = 0;
     /** Whether the rider drawn now was carried, and the stack has a pose of ours to take off after. */
     private static boolean carried;
+    /** Blocks the game moves a rearing horse's rider back and up, at full rear. */
+    private static final double REAR_BACK = 0.7, REAR_UP = 0.15;
 
     public static void onClientTick() {
         if (!HorseSync.isEnabled()) {
@@ -68,7 +70,12 @@ public class ClientEventHandler {
         float partial = strm.touchnmotion.platform.Platform.partialTick(false);
         double yaw = Math.toRadians(net.minecraft.util.Mth.rotLerp(partial, horse.yBodyRotO, horse.yBodyRot));
         Vec3 along = new Vec3(-Math.sin(yaw), 0, Math.cos(yaw)), right = new Vec3(-Math.cos(yaw), 0, -Math.sin(yaw));
-        Vec3 horseAt = horse.getPosition(partial).subtract(player.getPosition(partial));
+        // Rearing - and a horse rears to jump - the game moves its rider back and up, for the body turned up about its
+        // hind end; the pack turns the body itself, and the rider is carried with that below, so the game's move is undone.
+        float stand = horse.getStandAnim(partial);
+        Vec3 undo = along.scale(REAR_BACK * stand).add(0, -REAR_UP * stand, 0);
+        stack.translate(undo.x, undo.y, undo.z);
+        Vec3 horseAt = horse.getPosition(partial).subtract(player.getPosition(partial)).subtract(undo);
         float s = saddle.scale();
         // The model's pixels in the world: y down from 1.501 blocks up, z towards the tail.
         Vec3 pivot = horseAt.add(0, s * (1.501 - saddle.y0() / 16.0), 0).subtract(along.scale(s * saddle.z0() / 16.0));

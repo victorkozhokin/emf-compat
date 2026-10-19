@@ -58,14 +58,41 @@ public final class HorseSyncAnimationHook extends EMFAnimationApi.EMFAnimationHo
 
             // The body bone as the pack has animated it: EMF puts its translations on top of the model's own pose.
             float scale = strm.touchnmotion.platform.Platform.horseScale(horse);
-            EMFCompat.horseSaddles.put(horse.getUUID(), new EMFCompat.Saddle(
-                    strm.touchnmotion.platform.Platform.y(bodyPart.getInitialPose()), strm.touchnmotion.platform.Platform.z(bodyPart.getInitialPose()),
-                    bodyPart.y, bodyPart.z, bodyPart.xRot, scale));
+            // Where the pack keeps the body at rest is its own, not the game's - Fresh Animations has the pivot 5 pixels
+            // forward and 1.6 up from it, its cubes with it - and it says nothing of it: it is taken from where the body is
+            // while the horse is on the ground, evened out over seconds. Only the body moving away from that is the
+            // saddle moving: over a jump, up, back and turned.
+            long now = System.nanoTime();
+            Rest rest = REST.computeIfAbsent(horse.getUUID(), k -> new Rest(bodyPart.y, bodyPart.z, now));
+            float dt = Math.min(0.1f, (now - rest.at) / 1e9f);
+            rest.at = now;
+            if (horse.onGround()) {
+                float k = 1f - (float) Math.exp(-dt / REST_SECONDS);
+                rest.y += (bodyPart.y - rest.y) * k;
+                rest.z += (bodyPart.z - rest.z) * k;
+            }
+            EMFCompat.horseSaddles.put(horse.getUUID(), new EMFCompat.Saddle(rest.y, rest.z, bodyPart.y, bodyPart.z, bodyPart.xRot, scale));
         } catch (Throwable t) {
             // A throw out of an EMF hook makes EMF drop the model's animations until resources reload.
             emfcompat$failed(t);
         }
     }
+
+    /** A horse's body at rest as the pack has it: the pivot's y and z, and when it was last seen. */
+    private static final class Rest {
+        float y, z;
+        long at;
+
+        Rest(float y, float z, long at) {
+            this.y = y;
+            this.z = z;
+            this.at = at;
+        }
+    }
+
+    private static final java.util.Map<java.util.UUID, Rest> REST = strm.touchnmotion.interaction.EntityStates.alsoClear(new java.util.HashMap<>());
+    /** Seconds the rest is evened out over: long against a stride, short against settling after a reload. */
+    private static final float REST_SECONDS = 2f;
 
     private static boolean emfcompat$failureLogged;
 
