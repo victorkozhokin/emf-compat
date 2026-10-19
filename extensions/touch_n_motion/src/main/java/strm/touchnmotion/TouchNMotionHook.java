@@ -296,6 +296,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
         if (player) PoseInertia.apply(uuid, parts, EMFState.getFrameCounter());
         FootGrounding.apply(uuid, parts);
         strm.touchnmotion.ride.MinecartRide.legs(uuid, parts);
+        strm.touchnmotion.ride.HorseRide.legs(uuid, parts);
         strm.touchnmotion.ride.BoatRide.seat(uuid, parts);
         strm.touchnmotion.ride.BoatPassenger.legs(uuid, parts);
         EjectorLaunch.apply(uuid, parts);
@@ -359,6 +360,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
         strm.touchnmotion.ride.BoatRide.grip(uuid, parts);
         strm.touchnmotion.ride.BoatPassenger.grip(uuid, parts);
         strm.touchnmotion.ride.MinecartRide.grip(uuid, parts);
+        strm.touchnmotion.ride.HorseRide.grip(uuid, parts);
         strm.touchnmotion.wallhand.FenceLean.grip(uuid, parts);
         strm.touchnmotion.fishing.Fishing.grip(uuid, parts);
         strm.touchnmotion.fright.Fright.apply(uuid, parts);

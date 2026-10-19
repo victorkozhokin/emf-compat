@@ -2,31 +2,27 @@ package strm.touchnmotion.horsesync;
 
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
-import strm.emfcompat.core.PoseManager;
 
-/** Horse Sync: keeps the rider on a horse animated by EMF and gives them a riding pose. */
+/** Horse Sync: keeps the rider on a horse animated by EMF; the riding pose is {@link strm.touchnmotion.ride.HorseRide}'s. */
 public final class HorseSync {
 
     public static final String KEY_ENABLED = "horsesync.enabled";
     public static final String KEY_RIDING_ANIMATION = "horsesync.ridingAnimation";
-
-    /** Pose source name for the riding animation. */
-    public static final String RIDING_SOURCE = "horse_riding";
+    public static final String KEY_JOCKEY = "horsesync.jockey";
 
     private HorseSync() {
     }
 
     public static void register(ConfigRegistry.Group config) {
-        // The riding seat is a low-priority base: action poses (guns, attacks) take the arms while
-        // the seat keeps the legs/body.
-        PoseManager.setSourcePriority(RIDING_SOURCE, -10);
-
         config.addBoolean(KEY_ENABLED, "Horse sync", true,
                         "On", "Sync the ridden-horse animation onto the EMF player model.",
                         "Off", "Disable horse-sync EMF compatibility.")
                 .addChild(KEY_ENABLED, KEY_RIDING_ANIMATION, "Riding animation", true,
-                        "On", "Play a proper riding pose (legs straddling, hands on the reins) while on a horse.",
-                        "Off", "Leave the mounted pose to the vanilla / resource-pack animation.");
+                        "On", "On a horse the hands hold the reins over its withers and go with its head, the legs grip its sides; a hand you use lets go and the other keeps hold.",
+                        "Off", "Leave the mounted pose to the vanilla / resource-pack animation.")
+                .addChild(KEY_RIDING_ANIMATION, KEY_JOCKEY, "Jockey lean", true,
+                        "On", "The rider leans over the horse's neck, sitting up while a hand is off the reins.",
+                        "Off", "The rider sits upright.");
     }
 
     public static boolean isEnabled() {

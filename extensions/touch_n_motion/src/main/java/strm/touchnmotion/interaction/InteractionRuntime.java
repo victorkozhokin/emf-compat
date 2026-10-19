@@ -227,6 +227,9 @@ public final class InteractionRuntime {
 
     /** Parts something outside the runtime owns this frame. */
     private static Set<Effector> reserved(AbstractClientPlayer player, boolean containerSearch, boolean swingClaimed) {
+        // On a horse only the arm in use leaves the reins.
+        Set<Effector> riding = strm.touchnmotion.ride.HorseRide.reserved(player);
+        if (riding != null) return riding;
         Set<Effector> reserved = EnumSet.noneOf(Effector.class);
         // A swing, an item in use or another addon's arm pose owns the arms.
         if (strm.touchnmotion.platform.Platform.swinging(player) && !swingClaimed || player.isUsingItem() || PoseManager.hasArmPoseExcept(player.getUUID(), containerSearch ? "watut" : "")

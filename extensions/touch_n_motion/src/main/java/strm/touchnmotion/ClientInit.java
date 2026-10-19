@@ -110,6 +110,7 @@ public final class ClientInit {
         InteractionRuntime.register(strm.touchnmotion.ride.BoatRide.INSTANCE);
         InteractionRuntime.register(strm.touchnmotion.ride.BoatPassenger.INSTANCE);
         InteractionRuntime.register(strm.touchnmotion.ride.MinecartRide.INSTANCE);
+        InteractionRuntime.register(strm.touchnmotion.ride.HorseRide.INSTANCE);
         TouchNMotionHook.register();
     }
 

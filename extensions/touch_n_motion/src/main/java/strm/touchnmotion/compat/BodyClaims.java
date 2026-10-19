@@ -21,7 +21,7 @@ public final class BodyClaims {
     public static final String KEY_TACZ = "compat.tacz";
 
     /** What still runs with the arms taken: the look, and the rides, which carry the body as a seat. */
-    private static final Set<String> ARMS_FREE = Set.of("LookAt", "BoatRide", "BoatPassenger", "MinecartRide", "Furniture");
+    private static final Set<String> ARMS_FREE = Set.of("LookAt", "BoatRide", "BoatPassenger", "MinecartRide", "HorseRide", "Furniture");
 
     private BodyClaims() {
     }

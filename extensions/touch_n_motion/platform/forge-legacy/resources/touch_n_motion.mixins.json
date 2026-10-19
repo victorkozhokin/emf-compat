@@ -8,7 +8,6 @@
   ],
   "client": [
     "legacy.horsesync.AbstractHorseRendererAccessor",
-    "legacy.horsesync.PlayerModelMixin",
     "legacy.TouchNMotionRenderMixin",
     "LeadPlayerMixin",
     "LeadInteractionMixin",

@@ -33,7 +33,7 @@ public final class PackStates {
             Map.entry("AnimalCare", "tnm_gesture"), Map.entry("ShakeOff", "tnm_gesture"), Map.entry("PocketStash", "tnm_gesture"),
             Map.entry("Fright", "tnm_gesture"),
             Map.entry("Mining", "tnm_work"), Map.entry("Fishing", "tnm_work"),
-            Map.entry("BoatRide", "tnm_ride"), Map.entry("BoatPassenger", "tnm_ride"), Map.entry("MinecartRide", "tnm_ride"),
+            Map.entry("BoatRide", "tnm_ride"), Map.entry("BoatPassenger", "tnm_ride"), Map.entry("MinecartRide", "tnm_ride"), Map.entry("HorseRide", "tnm_ride"),
             Map.entry("Furniture", "tnm_ride"));
     private static final String[] GROUPS = {"tnm_reach", "tnm_hold", "tnm_lean", "tnm_gesture", "tnm_work", "tnm_ride"};
 
