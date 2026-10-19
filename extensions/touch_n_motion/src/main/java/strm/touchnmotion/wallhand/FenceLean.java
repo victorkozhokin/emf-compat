@@ -19,7 +19,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Vector3f;
 import strm.touchnmotion.interaction.Body;
 import strm.touchnmotion.interaction.Candidate;
-import strm.touchnmotion.blockuse.aeronautics.CockpitFacing;
+import strm.touchnmotion.seat.CockpitFacing;
 import strm.touchnmotion.interaction.Effector;
 import strm.touchnmotion.interaction.EntityStates;
 import strm.touchnmotion.interaction.InteractionContext;
@@ -185,12 +185,7 @@ public final class FenceLean implements InteractionProvider {
         if (state == null || !INSTANCE.isEnabled()) return;
         ModelPart head = parts.apply("head"), hat = parts.apply("hat");
         if (state.square > 1e-3f && head != null && InteractionRuntime.aim(uuid, Effector.HEAD) == null) {
-            head.yRot += Mth.wrapDegrees((float) Math.toDegrees(state.headYaw - head.yRot)) * Mth.DEG_TO_RAD * state.square;
-            head.xRot += (state.headPitch - head.xRot) * state.square;
-            if (hat != null) {
-                hat.yRot = head.yRot;
-                hat.xRot = head.xRot;
-            }
+            strm.touchnmotion.seat.SeatedBody.turnHead(head, hat, state.headYaw, state.headPitch, state.square);
         }
         if (state.held) Riders.grip(uuid, parts, INSTANCE.id(), state.place, state.gap);
     }

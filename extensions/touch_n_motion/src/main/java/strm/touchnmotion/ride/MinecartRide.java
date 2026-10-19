@@ -211,7 +211,7 @@ public final class MinecartRide implements InteractionProvider {
         state.floor = up;
         // Where the rider looks, against the body as it is drawn.
         Vector3f view = strm.touchnmotion.interaction.Body.model(frame, origin.add(player.getViewVector(partial)));
-        float[] look = strm.touchnmotion.blockuse.aeronautics.CockpitFacing.look(view);
+        float[] look = strm.touchnmotion.seat.CockpitFacing.look(view);
         state.headYaw = look[0];
         state.headPitch = look[1];
         Vec3 base = middle.add(0, LIFT, 0);
@@ -332,7 +332,7 @@ public final class MinecartRide implements InteractionProvider {
         stack.translate(moved.x / 16f, moved.y / 16f, moved.z / 16f);
         Vector3f toward = strm.touchnmotion.interaction.Body.model(frame, origin.add(face));
         Vector3f normal = strm.touchnmotion.interaction.Body.model(frame, origin.add(drawn.up));
-        strm.touchnmotion.platform.Platform.rotate(stack, strm.touchnmotion.blockuse.aeronautics.CockpitFacing.orientation(toward, normal));
+        strm.touchnmotion.platform.Platform.rotate(stack, strm.touchnmotion.seat.CockpitFacing.orientation(toward, normal));
     }
 
     /** The last word on the hands: each fist kept on its place on the rim from where the shoulder has been thrown to. */
@@ -343,12 +343,7 @@ public final class MinecartRide implements InteractionProvider {
         ModelPart head = parts.apply("head"), hat = parts.apply("hat");
         if (head != null && !strm.emfcompat.core.EMFCompatCore.isLocalPlayerInFirstPerson(uuid)
                 && strm.touchnmotion.interaction.InteractionRuntime.aim(uuid, Effector.HEAD) == null) {
-            head.yRot += Mth.wrapDegrees((float) Math.toDegrees(state.headYaw - head.yRot)) * Mth.DEG_TO_RAD * state.weight;
-            head.xRot += (state.headPitch - head.xRot) * state.weight;
-            if (hat != null) {
-                hat.yRot = head.yRot;
-                hat.xRot = head.xRot;
-            }
+            strm.touchnmotion.seat.SeatedBody.turnHead(head, hat, state.headYaw, state.headPitch, state.weight);
         }
         Riders.grip(uuid, parts, INSTANCE.id(), state.place, state.gap);
         if (strm.touchnmotion.DebugLog.trace() && state.trace.due(30_000_000L)) {

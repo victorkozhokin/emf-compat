@@ -1,9 +1,8 @@
-package strm.touchnmotion.blockuse.aeronautics;
+package strm.touchnmotion.seat;
 import org.junit.jupiter.api.Test;
 import org.joml.Vector3f;
 import org.joml.Quaternionf;
 import static org.junit.jupiter.api.Assertions.*;
-import strm.touchnmotion.blockuse.*;
 class CockpitFacingTest {
     @Test void facingTracksWheelThroughoutCameraTurn() {
         for (int degrees = -180; degrees <= 180; degrees += 5) {

@@ -12,8 +12,9 @@ import strm.emfcompat.core.ik.IKFrame;
 import strm.emfcompat.core.ik.IKMath;
 import strm.touchnmotion.DebugLog;
 import strm.touchnmotion.blockuse.BlockUse;
-import strm.touchnmotion.blockuse.aeronautics.CockpitContact;
-import strm.touchnmotion.blockuse.aeronautics.CockpitFacing;
+import strm.touchnmotion.seat.CockpitContact;
+import strm.touchnmotion.seat.CockpitFacing;
+import strm.touchnmotion.seat.SeatedBody;
 import strm.touchnmotion.interaction.Body;
 import strm.touchnmotion.interaction.Effector;
 import strm.touchnmotion.interaction.EntityStates;
@@ -38,8 +39,6 @@ public final class TrainCockpit {
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
     /** Seconds the body takes to come round to the controls, and back when driving ends. */
     private static final double TURN_SECONDS = .15;
-    /** The sway against the train's acceleration, as at a craft's wheel: radians per block/s² and at most. */
-    private static final float SWAY = .025f, MAX_SWAY = .14f;
 
     private static final class State {
         /** Towards the controls and the train's upright, in the world: kept to turn back from when driving ends. */
@@ -127,11 +126,7 @@ public final class TrainCockpit {
         float[] look = CockpitFacing.look(Body.model(turned, at.add(strm.touchnmotion.compat.ShoulderCamera.worldView(player))));
         state.headYaw = look[0];
         state.headPitch = look[1];
-        var a = state.transport.acceleration;
-        Vector3f force = Body.model(turned, at.add(a.x, a.y, a.z)).div(16);
-        // Speeding up forwards (-z) the body sways back (-xRot); braking, forwards; round a bend, out of it.
-        Vector3f sway = state.transport.warped || controls == null ? new Vector3f()
-                : new Vector3f(clamp(force.z * SWAY), 0, clamp(-force.x * SWAY));
+        Vector3f sway = state.transport.warped || controls == null ? new Vector3f() : SeatedBody.sway(turned, state.transport.acceleration);
         state.sway.lerp(sway, Smoothing.follow(dt, .2));
     }
 
@@ -145,10 +140,6 @@ public final class TrainCockpit {
         }
         if (DebugLog.decisions())
             org.slf4j.LoggerFactory.getLogger("EMFCompatTrainCockpit").info("[TrainCockpit] {} {}", player.getName().getString(), driving ? "train-cockpit" : "off");
-    }
-
-    private static float clamp(float v) {
-        return Math.max(-MAX_SWAY, Math.min(MAX_SWAY, v));
     }
 
     /** The sway this asks of the torso; {@code null} when none. */
@@ -180,30 +171,13 @@ public final class TrainCockpit {
             Quaternionf wanted = CockpitContact.fit(state.contact, rightShoulder, leftShoulder, rightGrip, leftGrip, true);
             state.contact.slerp(wanted, Smoothing.follow(dt, .06));
         }
-        Quaternionf turn = new Quaternionf().slerp(state.contact, weight);
-        for (String name : new String[]{"body", "head", "hat", "right_arm", "left_arm"}) {
-            ModelPart part = parts.apply(name);
-            if (part == null) continue;
-            Vector3f at = turn.transform(new Vector3f(part.x, part.y, part.z).sub(waist)).add(waist);
-            part.setPos(at.x, at.y, at.z);
-            if (!name.equals("head") && !name.equals("hat")) {
-                Vector3f angles = new Quaternionf(turn).mul(new Quaternionf().rotationZYX(part.zRot, part.yRot, part.xRot)).getEulerAnglesZYX(new Vector3f());
-                part.setRotation(angles.x, angles.y, angles.z);
-            }
-        }
+        SeatedBody.turnUpperBody(parts, new Quaternionf().slerp(state.contact, weight), waist);
     }
 
     /** The head looks where the driver does, from a body turned to the controls. After the pack has animated. */
     public static void head(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
         if (state == null || state.weight < 1e-3f || InteractionRuntime.aim(uuid, Effector.HEAD) != null) return;
-        ModelPart head = parts.apply("head"), hat = parts.apply("hat");
-        if (head == null) return;
-        head.yRot += IKMath.wrap(state.headYaw - head.yRot) * state.weight;
-        head.xRot += IKMath.wrap(state.headPitch - head.xRot) * state.weight;
-        if (hat != null) {
-            hat.yRot = head.yRot;
-            hat.xRot = head.xRot;
-        }
+        SeatedBody.turnHead(parts.apply("head"), parts.apply("hat"), state.headYaw, state.headPitch, state.weight);
     }
 }

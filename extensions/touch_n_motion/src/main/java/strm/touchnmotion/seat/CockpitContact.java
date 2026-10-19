@@ -1,10 +1,9 @@
-package strm.touchnmotion.blockuse.aeronautics;
+package strm.touchnmotion.seat;
 import org.joml.Vector3f;
 import org.joml.Quaternionf;
 import org.joml.Matrix3f;
-import strm.touchnmotion.blockuse.*;
 
-/** Continuous upper-body reach correction for two fixed-length FA arms. */
+/** Continuous upper-body reach correction for two fixed-length FA arms on two contacts: a craft's wheel and its controls, a train's levers. */
 public final class CockpitContact {
     static Quaternionf fit(Vector3f right, Vector3f left, Vector3f rt, Vector3f lt) {
         return fit(new Quaternionf(), right, left, rt, lt);
@@ -93,7 +92,7 @@ public final class CockpitContact {
         return Math.max(Math.abs(q.transform(new Vector3f(right)).distance(rt) - 11),
                 Math.abs(q.transform(new Vector3f(left)).distance(lt) - 11));
     }
-    static Quaternionf follow(Quaternionf current, Quaternionf wanted, float blend,
+    public static Quaternionf follow(Quaternionf current, Quaternionf wanted, float blend,
             Vector3f right, Vector3f left, Vector3f rt, Vector3f lt) {
         return new Quaternionf(current).slerp(wanted, blend);
     }

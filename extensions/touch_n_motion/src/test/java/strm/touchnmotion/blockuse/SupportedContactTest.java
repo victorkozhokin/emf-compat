@@ -3,7 +3,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import strm.touchnmotion.blockuse.aeronautics.*;
+import strm.touchnmotion.seat.CockpitContact;
 
 class SupportedContactTest {
     @Test void discontinuousTargetNeverBypassesTheAngularSpeedLimit() {

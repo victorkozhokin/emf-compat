@@ -1,8 +1,7 @@
-package strm.touchnmotion.blockuse.aeronautics;
+package strm.touchnmotion.seat;
 
-import strm.touchnmotion.blockuse.*;
 
-/** Angle carrying model forward (-Z) to the projected wheel direction. */
+/** Turning a seated model to what it sits facing - a wheel, a train's controls, a cart, a fence - and its head to where the player looks. */
 public final class CockpitFacing {
     public static org.joml.Quaternionf orientation(org.joml.Vector3f toward, org.joml.Vector3f up) {
         var y = new org.joml.Vector3f(up).normalize().negate();

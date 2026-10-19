@@ -18,6 +18,9 @@ import strm.touchnmotion.interaction.Body;
 import strm.touchnmotion.interaction.FrameClock;
 import strm.touchnmotion.DebugLog;
 import strm.touchnmotion.blockuse.*;
+import strm.touchnmotion.seat.CockpitContact;
+import strm.touchnmotion.seat.CockpitFacing;
+import strm.touchnmotion.seat.SeatedBody;
 
 /**
  * Seated at a wheel: one hand keeps the rim while the other works a control by the seat and comes
@@ -202,9 +205,7 @@ public final class CockpitControls implements InteractionProvider {
             var worldReference = space.tickToWorld(state.reference);
             state.transport.sample(player.tickCount, new org.joml.Vector3d(worldReference.x, worldReference.y, worldReference.z));
             var a = state.transport.acceleration;
-            Vec3 originPoint = context.frame().jointWorld(new Vector3f());
-            Vector3f force = Body.model(context.frame(), originPoint.add(a.x, 0, a.z)).div(16);
-            Vector3f reaction = new Vector3f(Math.max(-.14f, Math.min(.14f, force.z * .025f)), 0, Math.max(-.14f, Math.min(.14f, -force.x * .025f)));
+            Vector3f reaction = SeatedBody.sway(context.frame(), a);
             if (state.transport.warped) { reaction.zero(); state.pelvisLocal = null; }
             state.inertia.lerp(reaction, Smoothing.follow(context.dt(), .2));
             wantedLean.add(state.inertia);
@@ -410,21 +411,10 @@ public final class CockpitControls implements InteractionProvider {
                     new Vector3f(ra.x, ra.y, ra.z).sub(waist), new Vector3f(la.x, la.y, la.z).sub(waist),
                     new Vector3f(state.reachGrips[0]).sub(waist), new Vector3f(state.reachGrips[1]).sub(waist)));
         }
-        for (String name : new String[]{"body", "head", "hat", "right_arm", "left_arm"}) {
-            var p = parts.apply(name);
-            if (p == null) continue;
-            Vector3f at = state.contact.transform(new Vector3f(p.x, p.y, p.z).sub(waist)).add(waist);
-            p.setPos(at.x, at.y, at.z);
-            if (!name.equals("head") && !name.equals("hat")) {
-                var angles = new Quaternionf(state.contact).mul(new Quaternionf().rotationZYX(p.zRot, p.yRot, p.xRot)).getEulerAnglesZYX(new Vector3f());
-                p.setRotation(angles.x, angles.y, angles.z);
-            }
-        }
-        ModelPart head = parts.apply("head");
-        if (head != null && InteractionRuntime.aim(uuid, Effector.HEAD) == null) {
-            head.yRot += IKMath.wrap(state.headYaw - head.yRot) * weight;
-            head.xRot += IKMath.wrap(state.headPitch - head.xRot) * weight;
-        }
+        SeatedBody.turnUpperBody(parts, state.contact, waist);
+        // The hat is left as the pack has it here, as it always was at a craft's wheel.
+        if (InteractionRuntime.aim(uuid, Effector.HEAD) == null)
+            SeatedBody.turnHead(parts.apply("head"), null, state.headYaw, state.headPitch, weight);
         for (int hand = 0; hand < 2; hand++) {
             ModelPart arm = parts.apply(hand == 0 ? "right_arm" : "left_arm");
             if (arm == null) continue;

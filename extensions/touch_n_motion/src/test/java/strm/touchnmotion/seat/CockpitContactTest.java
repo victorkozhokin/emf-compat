@@ -1,9 +1,8 @@
-package strm.touchnmotion.blockuse.aeronautics;
+package strm.touchnmotion.seat;
 import org.joml.Vector3f;
 import org.joml.Quaternionf;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import strm.touchnmotion.blockuse.*;
 class CockpitContactTest {
     @Test void nearKeyCorrectionIsBoundedAndImprovesBothContactErrorsTogether() {
         var r = new Vector3f(-7, -11, 0);
