@@ -53,14 +53,32 @@ public final class HorseRide implements InteractionProvider {
     private static final float FIST = Riders.FIST;
 
     /** Blocks, from the waist, along the horse, to its side and up: where the hands hold the reins, the nearest and furthest forward. */
-    private static final double GRIP_UP = 0.12, GRIP_WIDE = 0.15, GRIP_NEAR = 0.22, GRIP_FAR = 0.55;
+    private static final double GRIP_UP = 0.12, GRIP_WIDE = 0.15, GRIP_NEAR = 0.22, GRIP_AT = 0.45;
+    /** Blocks the hands go on along the neck for each radian the horse's nose is up: over a jump the rider gives it the reins. */
+    private static final double RELEASE = 0.5;
     /** Blocks: the hands going after the head as the horse grazes (forward, down) and as it rears (up). */
     private static final double GRAZE_FORWARD = 0.1, GRAZE_DOWN = 0.08, REAR_UP = 0.2;
     /** Radians: the jockey's lean over the neck; and the legs gripping the sides. */
-    private static final float JOCKEY = 0.38f, LEG_ROLL = 0.5f, LEG_X = 2.9f;
+    private static final float JOCKEY = 0.55f, LEG_ROLL = 0.5f, LEG_X = 2.9f;
+    /** Model pixels: the rider sits this far back from where the game seats them - in the middle of the saddle, not on the withers. */
+    private static final float SIT_BACK = 4f;
     /** Seconds the rider takes to sit up as a hand leaves the reins, and to lean in again. */
     private static final double SIT_UP_SECONDS = 0.08;
     private static final int RIGHT = 1, LEFT = 2, TORSO = 4;
+    /** Of the saddle's turn nose up or down, the share the torso takes back: the rider stays more level than the horse. */
+    private static final float COUNTER = 0.85f;
+    /** The body on the saddle: how fast it comes back, a second, and how soon it settles (1 would be with no overshoot). */
+    private static final double STIFF = 2 * Math.PI * 1.8, DAMP = 0.5;
+    /** Blocks a second a second: a harder shove than this is no harder on the body; the share of a tick's speed taken in. */
+    private static final double HARDEST = 40, EVEN = 0.3;
+    /** Radians of lean for a block the body is left behind; the bow over the neck for a block it is driven down. */
+    private static final float GIVE = 2.0f, BOW = 2.5f;
+    /** Radians: as far as it leans forward, back, to a side and bows; model pixels it comes up off the saddle, per block thrown and at most. */
+    private static final float FORWARD_LIMIT = 0.3f, BACK_LIMIT = 0.18f, SIDE_LIMIT = 0.15f, BOW_LIMIT = 0.3f, RISE = 1.5f, RISE_LIMIT = 1.5f;
+    /** Seconds: the torso follows what it is asked a moment late, so it is asked that much ahead. */
+    private static final float LEAD = 0.1f;
+    /** Radians: as far over the neck as the torso goes, all of it together - further, the shoulders drop below the reins. */
+    private static final float MOST_LEAN = 0.95f;
 
     private static final class State {
         float weight, upright;
@@ -69,6 +87,14 @@ public final class HorseRide implements InteractionProvider {
         float headYaw, headPitch;
         final Vector3f[] place = {new Vector3f(), new Vector3f()};
         final float[] gap = new float[2];
+        /** The horse a tick ago and its speed, blocks and blocks a second; the shove on the saddle, blocks a second a second. */
+        int tick = -1;
+        boolean moving;
+        Vec3 at = Vec3.ZERO, speed = Vec3.ZERO, shove = Vec3.ZERO;
+        /** The body against its saddle, blocks and blocks a second: forward, to the right, up. */
+        final double[] off = new double[3], rate = new double[3];
+        float pitch, roll, rise, pitchRate, rollRate, noseUp;
+        final strm.touchnmotion.DebugLog.Pace trace = new strm.touchnmotion.DebugLog.Pace();
     }
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
@@ -97,6 +123,10 @@ public final class HorseRide implements InteractionProvider {
             state.riding = false;
             state.weight = state.upright = 0;
             state.busy = -1;
+            state.tick = -1;
+            state.moving = false;
+            state.pitch = state.roll = state.rise = state.pitchRate = state.rollRate = state.noseUp = 0;
+            for (int i = 0; i < 3; i++) state.off[i] = state.rate[i] = 0;
             context.decide("off");
             return;
         }
@@ -111,7 +141,12 @@ public final class HorseRide implements InteractionProvider {
         IKFrame frame = context.frame();
         // The horse's own measure: along its body as it is drawn, to its right, and up.
         double yaw = Math.toRadians(Mth.rotLerp(partial, horse.yBodyRotO, horse.yBodyRot));
-        Vec3 along = new Vec3(-Math.sin(yaw), 0, Math.cos(yaw)), right = new Vec3(-Math.cos(yaw), 0, -Math.sin(yaw)), up = new Vec3(0, 1, 0);
+        Vec3 level = new Vec3(-Math.sin(yaw), 0, Math.cos(yaw)), right = new Vec3(-Math.cos(yaw), 0, -Math.sin(yaw));
+        ride(state, horse, level, right, dt);
+        // Along the saddle as the pack turns the horse's body, nose up or down.
+        state.noseUp = strm.touchnmotion.horsesync.ClientEventHandler.noseUp(player);
+        double c = Math.cos(state.noseUp), sn = Math.sin(state.noseUp);
+        Vec3 along = level.scale(c).add(0, sn, 0), up = new Vec3(0, c, 0).subtract(level.scale(sn));
         Vec3 waist = frame.jointWorld(new Vector3f(Skeleton.WAIST));
         Vec3 origin = frame.jointWorld(new Vector3f());
         // Where the rider looks, against the body as it is drawn.
@@ -121,23 +156,69 @@ public final class HorseRide implements InteractionProvider {
 
         // Each hand as far before its shoulder as an arm reaches, the shoulder where the lean will have put it; never
         // closer to the rider than the saddle's front, nor further than the withers.
-        float lean = -jockey(state);
+        float lean = -Math.min(MOST_LEAN, jockey(state) + COUNTER * state.noseUp + state.pitch);
         double px = Skeleton.SCALE / 16.0, reach = FIST * px;
         float graze = horse.getEatAnim(partial), rear = horse.getStandAnim(partial);
         Vec3[] grips = new Vec3[2];
         for (int hand = 0; hand < 2; hand++) {
             float side = hand == 0 ? RIGHT_SHOULDER.x : -RIGHT_SHOULDER.x;
-            Vec3 shoulder = frame.jointWorld(Riders.shoulder(side, lean, 0f));
+            Vec3 shoulder = frame.jointWorld(Riders.shoulder(side, lean, SIT_BACK * state.weight));
             Vec3 base = waist.add(up.scale(GRIP_UP)).add(right.scale((hand == 0 ? 1 : -1) * GRIP_WIDE));
             Vec3 d = base.subtract(shoulder);
             double ahead = d.dot(along);
             double far = -ahead + Math.sqrt(Math.max(0, ahead * ahead - d.lengthSqr() + reach * reach));
-            far = Mth.clamp(far, GRIP_NEAR, GRIP_FAR);
+            // The reins are where they are, over the withers: the hands reach for them from the middle of the saddle,
+            // and an arm too short - the rider sat up - goes as far towards them as it reaches.
+            // Over a jump, folded over the neck, the rider gives the horse its head: the hands go on along it.
+            far = Mth.clamp(far, GRIP_NEAR, GRIP_AT + RELEASE * Math.max(0, state.noseUp));
             grips[hand] = base.add(along.scale(far + graze * GRAZE_FORWARD)).add(up.scale(rear * REAR_UP - graze * GRAZE_DOWN));
             state.place[hand].set(Body.model(frame, grips[hand]));
         }
         boolean held = Riders.hold(out, id(), TIMING, frame, grips[0], grips[1], MAX_REACH);
         context.decide(!held ? "out-of-reach" : busy == 0 ? "reins" : busy == RIGHT ? "reins:left" : busy == LEFT ? "reins:right" : "reins:free");
+    }
+
+    /**
+     * The body on the saddle as a weight on a spring: the horse's own change of speed, tick by tick, shoves the
+     * saddle and the body is left behind and comes after, overshooting once - back as the horse sets off, forward
+     * as it stops, out of a bend, down onto the neck as it lands and up off the saddle as it springs.
+     */
+    private static void ride(State state, AbstractHorse horse, Vec3 along, Vec3 right, double dt) {
+        if (horse.tickCount != state.tick) {
+            Vec3 at = horse.position();
+            int ticks = horse.tickCount - state.tick;
+            boolean next = state.tick >= 0 && ticks >= 1 && ticks <= 5 && at.distanceToSqr(state.at) < 9.0 * ticks * ticks;
+            // From where the horse was and is: on a client it moves in catches, so its speed is evened over a few ticks.
+            Vec3 raw = next ? at.subtract(state.at).scale(20.0 / ticks) : Vec3.ZERO;
+            Vec3 speed = next && state.moving ? state.speed.lerp(raw, 1.0 - Math.pow(1.0 - EVEN, ticks)) : raw;
+            state.shove = next && state.moving ? speed.subtract(state.speed).scale(20.0 / ticks) : Vec3.ZERO;
+            state.moving = next;
+            double hard = state.shove.length();
+            if (hard > HARDEST) state.shove = state.shove.scale(HARDEST / hard);
+            state.speed = speed;
+            state.at = at;
+            state.tick = horse.tickCount;
+        }
+        double[] shove = {state.shove.dot(along), state.shove.dot(right), state.shove.y};
+        for (double left = Math.min(dt, 0.1); left > 1e-6; left -= 1.0 / 240) {
+            double step = Math.min(left, 1.0 / 240);
+            for (int i = 0; i < 3; i++) {
+                state.rate[i] += (-shove[i] - STIFF * STIFF * state.off[i] - 2 * DAMP * STIFF * state.rate[i]) * step;
+                state.off[i] += state.rate[i] * step;
+            }
+        }
+        // Left behind is a lean back (-xRot), pushed right a lean left (-zRot); driven down it bows forward.
+        float give = (float) state.off[0] * GIVE, down = (float) Math.max(0.0, -state.off[2]);
+        state.pitch = soft(give, give < 0 ? BACK_LIMIT : FORWARD_LIMIT) + soft(down * BOW, BOW_LIMIT);
+        state.pitchRate = (float) state.rate[0] * GIVE - (state.off[2] < 0 ? (float) state.rate[2] * BOW : 0f);
+        state.roll = soft((float) state.off[1] * GIVE, SIDE_LIMIT);
+        state.rollRate = (float) state.rate[1] * GIVE;
+        state.rise = soft((float) Math.max(0.0, state.off[2]) * 16f / Skeleton.SCALE * RISE, RISE_LIMIT);
+    }
+
+    /** {@code value}, but never past {@code limit} either way: the nearer the limit the less it gives. */
+    private static float soft(float value, float limit) {
+        return limit * (float) Math.tanh(value / limit);
     }
 
     /** The jockey's lean over the neck now, radians forward: none sat up, or with the option off. */
@@ -206,8 +287,12 @@ public final class HorseRide implements InteractionProvider {
     public static TorsoLean.Hint torsoHint(UUID uuid) {
         State state = STATES.fresh(uuid);
         if (state == null || !state.riding || !INSTANCE.isEnabled() || (state.busy & TORSO) != 0) return null;
-        // Leaning forward is +xRot.
-        return TorsoLean.Hint.turn(jockey(state), 0f, 0f);
+        // Leaning forward is +xRot: the jockey's lean, the saddle's turn partly taken back, the body on its spring
+        // asked a little ahead.
+        float pitch = Math.min(MOST_LEAN, jockey(state) + COUNTER * state.noseUp
+                + Mth.clamp(state.pitch + state.pitchRate * LEAD, -BACK_LIMIT, FORWARD_LIMIT + BOW_LIMIT));
+        float roll = Mth.clamp(state.roll + state.rollRate * LEAD, -SIDE_LIMIT, SIDE_LIMIT);
+        return TorsoLean.Hint.turn(pitch * state.weight, 0f, roll * state.weight);
     }
 
     /** The legs gripping the horse's sides; before anything that works from where they are. */
@@ -217,6 +302,8 @@ public final class HorseRide implements InteractionProvider {
         ModelPart r = parts.apply("right_leg"), l = parts.apply("left_leg");
         if (r == null || l == null) return;
         float w = state.weight;
+        // Sat back to the middle of the saddle, and thrown up off it, the whole rider rises.
+        Riders.shift(parts, SIT_BACK * w, state.rise * w);
         // Hanging straight down the barrel, spread to its width; turned out from the hip, the right leg is +zRot.
         r.x += (-LEG_X - r.x) * w;
         l.x += (LEG_X - l.x) * w;
@@ -238,5 +325,20 @@ public final class HorseRide implements InteractionProvider {
             strm.touchnmotion.seat.SeatedBody.turnHead(head, hat, state.headYaw, state.headPitch, state.weight);
         }
         Riders.grip(uuid, parts, INSTANCE.id(), state.place, state.gap);
+        if (strm.touchnmotion.DebugLog.trace() && state.trace.due(30_000_000L)) {
+            ModelPart body = parts.apply("body");
+            float[] lean = TorsoLean.lean(uuid);
+            TorsoLean.Hint hint = torsoHint(uuid);
+            org.slf4j.LoggerFactory.getLogger("EMFCompatRide").info("[HorseTrace] noseUp={} shove=({} {} {}) off=({} {} {}) pitch={} roll={} rise={} hint={} lean={} bodyPitch={} gapR={} gapL={}",
+                    r2(Math.toDegrees(state.noseUp)), r2(state.shove.x), r2(state.shove.y), r2(state.shove.z),
+                    r2(state.off[0] * 16), r2(state.off[1] * 16), r2(state.off[2] * 16),
+                    r2(Math.toDegrees(state.pitch)), r2(Math.toDegrees(state.roll)), r2(state.rise),
+                    hint == null ? 0 : r2(Math.toDegrees(hint.pitch())), lean == null ? 0 : r2(Math.toDegrees(lean[0])),
+                    body == null ? 0 : r2(Math.toDegrees(body.xRot)), r2(state.gap[0]), r2(state.gap[1]));
+        }
+    }
+
+    private static double r2(double v) {
+        return Math.round(v * 100) / 100.0;
     }
 }

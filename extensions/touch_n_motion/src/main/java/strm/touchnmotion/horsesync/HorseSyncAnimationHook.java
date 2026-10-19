@@ -15,7 +15,7 @@ import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 
 
 /**
- * Records how far a resource pack has moved the horse's body, so the rider can be moved with it.
+ * Records how a resource pack has moved and turned the horse's body, so the rider can be carried with it.
  *
  * <p>Reads the pose through EMF's animation hook, which fires once per rendered entity right
  * after the pack animation has been applied — where the addon's mixin on
@@ -45,7 +45,7 @@ public final class HorseSyncAnimationHook extends EMFAnimationApi.EMFAnimationHo
             if (!(entity instanceof AbstractHorse horse)) return;
 
             if (!HorseSync.isEnabled()) {
-                EMFCompat.horseBodyOffsets.remove(horse.getUUID());
+                EMFCompat.horseSaddles.remove(horse.getUUID());
                 return;
             }
 
@@ -56,17 +56,11 @@ public final class HorseSyncAnimationHook extends EMFAnimationApi.EMFAnimationHo
             EMFModelPartVanilla bodyPart = root.getAllVanillaPartsByNameEMF().get("body");
             if (bodyPart == null) return;
 
-            // The value we inherit is the horse's CEM body.ty (the body bone's animated Y translation).
-            // EMF applies ty on top of the initial pose, so ModelPart.y - initialPose.y == body.ty.
-            float animatedY = bodyPart.y;
-            float baseY = strm.touchnmotion.platform.Platform.y(bodyPart.getInitialPose());
-            float bodyTy = animatedY - baseY;
-
+            // The body bone as the pack has animated it: EMF puts its translations on top of the model's own pose.
             float scale = strm.touchnmotion.platform.Platform.horseScale(horse);
-
-            // Model pixels -> world blocks (16 px per block), scaled by the horse renderer's scale.
-            float offsetBlocks = (bodyTy / 16.0f) * scale;
-            EMFCompat.horseBodyOffsets.put(horse.getUUID(), offsetBlocks);
+            EMFCompat.horseSaddles.put(horse.getUUID(), new EMFCompat.Saddle(
+                    strm.touchnmotion.platform.Platform.y(bodyPart.getInitialPose()), strm.touchnmotion.platform.Platform.z(bodyPart.getInitialPose()),
+                    bodyPart.y, bodyPart.z, bodyPart.xRot, scale));
         } catch (Throwable t) {
             // A throw out of an EMF hook makes EMF drop the model's animations until resources reload.
             emfcompat$failed(t);
