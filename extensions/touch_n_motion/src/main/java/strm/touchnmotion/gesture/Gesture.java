@@ -2,12 +2,10 @@ package strm.touchnmotion.gesture;
 
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import strm.touchnmotion.interaction.ArmAim;
 import strm.touchnmotion.interaction.Candidate;
 import strm.touchnmotion.interaction.Category;
 import strm.touchnmotion.interaction.Effector;
@@ -15,13 +13,12 @@ import strm.touchnmotion.interaction.EntityStates;
 import strm.touchnmotion.interaction.InteractionContext;
 import strm.touchnmotion.interaction.InteractionProvider;
 import strm.touchnmotion.interaction.InteractionRuntime;
-import strm.touchnmotion.interaction.Skeleton;
-import strm.touchnmotion.torso.BraceSteps;
 import strm.touchnmotion.torso.TorsoLean;
+import strm.touchnmotion.pose.BodyPose;
+import strm.touchnmotion.pose.PoseRunner;
 import strm.emfcompat.core.ik.IKFrame;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -42,9 +39,6 @@ public abstract class Gesture implements InteractionProvider {
     /** A short release: the runtime eases off the last pose over some six times this (see PocketStash). */
     private static final Candidate.Timing TIMING = new Candidate.Timing(.07, .05, .05);
     private static final long BUSY_NANOS = 14_000_000_000L;
-    private static final float NECK = (float) Math.toRadians(70);
-    private static final Vector3f HOME = new Vector3f();
-    private static final float FIT = (float) Math.toRadians(20);
 
     /** Off by default: the game does what was clicked at once and the gesture goes with it. */
     public static final String KEY_ACT_AFTER = "gesture.actAfter";
@@ -103,71 +97,8 @@ public abstract class Gesture implements InteractionProvider {
         }
     }
 
-    /** What a gesture asks for at one moment. Angles in radians, points in model pixels. */
-    public static final class Pose {
-        /** {xRot, yRot, zRot, the whole arm moved along y}; {@code null} leaves the arm alone. */
-        public float[] right, left;
-        /**
-         * A point the hand goes to instead, from where the shoulder really is, and how far it has
-         * got there from hanging by the side, 0..1. {@code onBody}: the point is a place on the
-         * player's own body, given for an upright one, and goes with the shoulder as the torso bends.
-         */
-        public Vector3f rightAt, leftAt;
-        public float rightReach, leftReach;
-        public boolean onBody;
-        /**
-         * What the torso is fitted to, if not the hand that is further out: this arm's hand on this
-         * point, this much, followed this slowly - for a gesture whose hands come and go while the
-         * body should make one move of it.
-         */
-        public Vector3f fitAt;
-        public boolean fitRight;
-        public float fitWeight, fitSeconds;
-
-        public void hand(boolean right, Vector3f at, float reach) {
-            if (right) {
-                rightAt = at;
-                rightReach = reach;
-            } else {
-                leftAt = at;
-                leftReach = reach;
-            }
-        }
-        /** The arm with nothing to do, out from the side and back a little, as an arm goes when the body leans the other way. */
-        public void free(boolean right, float amount) {
-            if (!on(KEY_FREE_ARM)) return;
-            float[] angles = {.42f * amount, 0, (right ? .2f : -.2f) * amount, 0};
-            if (right) this.right = angles;
-            else left = angles;
-        }
-
-        /** {pitch, yaw} added to where the head looks. */
-        public float[] head;
-        /** A point the eyes go to, and how much of the way from where they look, 0..1. */
-        public Vector3f look;
-        public float looking;
-        public float pitch, yaw, roll;
-        /** Grounded weight transfer in model pixels, before solving the hands. */
-        public float weightSide, weightForward;
-        /** {xRot, yRot, zRot} added to a leg after the feet are set: a leg lifted, a foot shaken. */
-        public float[] rightLeg, leftLeg;
-        /** Where the soles stand from where the pack has them, while {@link #apart}. */
-        public Vector3f rightFoot, leftFoot;
-        public boolean apart;
-        /** From this phase on the arms and the head are the pack's again. */
-        public float letGo = .9f;
-
-        void reset() {
-            right = left = head = rightLeg = leftLeg = null;
-            rightAt = leftAt = rightFoot = leftFoot = look = fitAt = null;
-            fitWeight = 0;
-            fitSeconds = .14f;
-            looking = 0;
-            pitch = yaw = roll = weightSide = weightForward = 0;
-            apart = onBody = false;
-            rightReach = leftReach = 0;
-            letGo = .9f;
-        }
+    /** What a gesture asks for at one moment: a {@link BodyPose}, by its old name in the gestures. */
+    public static final class Pose extends BodyPose {
     }
 
     /** One player's run of a gesture. */
@@ -186,7 +117,8 @@ public abstract class Gesture implements InteractionProvider {
         /** A gesture's own notes for this player. */
         public Object notes;
         final Pose pose = new Pose();
-        final BraceSteps.State stance = new BraceSteps.State();
+        /** The pose carried out: the hands followed, the feet stepped, the torso fitted. */
+        final PoseRunner run = new PoseRunner();
         Effector primary = Effector.RIGHT_ARM;
         boolean shows;
         /**
@@ -203,16 +135,6 @@ public abstract class Gesture implements InteractionProvider {
         Runnable deferred;
         public float level, work;
         float speed;
-        /** Where the hands are drawn to this frame: the pose's points, followed with a little give. */
-        final Vector3f[] hand = {new Vector3f(), new Vector3f()}, handSpeed = {new Vector3f(), new Vector3f()};
-        final boolean[] handSet = new boolean[2];
-        /** The hands' points and the eyes' as last asked for at work, model pixels: what they come back from. */
-        final Vector3f[] kept = new Vector3f[3];
-        /** The fit of the torso and the pelvis that brings the hand on to its point, and the hand and point it was last made for. */
-        final strm.touchnmotion.torso.LowReach.State fit = new strm.touchnmotion.torso.LowReach.State();
-        final Vector3f fitAt = new Vector3f();
-        boolean fitRight = true;
-        boolean keeps;
     }
 
     private final EntityStates<Play> states = new EntityStates<>(Play::new);
@@ -480,58 +402,28 @@ public abstract class Gesture implements InteractionProvider {
         }
         Pose pose = play.pose;
         pose.reset();
+        pose.freeArms = on(KEY_FREE_ARM);
         pose(play, poises() ? play.work : play.phase, pose);
         float dt = (float) Math.min(.1, context.dt());
         if (poises()) {
-            // Coming back, the hands leave from where they were by the body - not from the thing they
-            // were at, which a player who has turned away from it has behind them by now.
-            if (!play.back) {
-                play.kept[0] = pose.rightAt == null ? null : new Vector3f(pose.rightAt);
-                play.kept[1] = pose.leftAt == null ? null : new Vector3f(pose.leftAt);
-                play.kept[2] = pose.look == null ? null : new Vector3f(pose.look);
-                play.keeps = true;
-            } else if (play.keeps) {
-                pose.rightAt = play.kept[0] == null ? null : new Vector3f(play.kept[0]);
-                pose.leftAt = play.kept[1] == null ? null : new Vector3f(play.kept[1]);
-                pose.look = play.kept[2] == null ? null : new Vector3f(play.kept[2]);
-            }
+            if (!play.back) play.run.keep(pose);
+            else play.run.comeBack(pose);
         }
-        pose.rightAt = follow(play, 0, pose.rightAt, pose.rightReach, dt);
-        pose.leftAt = follow(play, 1, pose.leftAt, pose.leftReach, dt);
+        play.run.follow(pose, dt);
         if (!on(KEY_LOOK)) pose.look = null;
-        if (pose.look != null) {
-            // The eyes go to it from where they look, and lead the hands there.
-            float length = pose.look.length(), amount = Ease.unit(pose.looking);
-            if (length > 1e-3f) {
-                float pitch = (float) Math.asin(Math.max(-1f, Math.min(1f, pose.look.y / length)));
-                float yaw = (float) Math.atan2(-pose.look.x, -pose.look.z);
-                float nowPitch = (float) Math.toRadians(player.getXRot()), nowYaw = Body.headYaw(player);
-                float[] add = pose.head == null ? new float[2] : pose.head;
-                pose.head = new float[]{add[0] + (pitch - nowPitch) * amount, add[1] + Mth.wrapDegrees((float) Math.toDegrees(yaw - nowYaw)) * (float) (Math.PI / 180) * amount};
-            }
-        }
+        PoseRunner.lookToHead(pose, player);
         if (!poises() && play.phase >= pose.letGo) {
             context.decide("let go");
             return;
         }
-        Map<Effector, float[]> aims = new EnumMap<>(Effector.class);
-        float[] r = arm(pose.right, pose.rightAt, pose.rightReach, Skeleton.RIGHT_SHOULDER);
-        float[] l = arm(pose.left, pose.leftAt, pose.leftReach, Skeleton.LEFT_SHOULDER);
-        if (r != null) aims.put(Effector.RIGHT_ARM, r);
-        if (l != null) aims.put(Effector.LEFT_ARM, l);
-        if (pose.head != null) {
-            // The head leaves from where it looks and comes back to it, whatever the camera does meanwhile.
-            float yaw = Body.headYaw(player);
-            aims.put(Effector.HEAD, new float[]{(float) Math.toRadians(player.getXRot()) + pose.head[0],
-                    Math.max(-NECK, Math.min(NECK, yaw + pose.head[1]))});
-        }
+        Map<Effector, float[]> aims = PoseRunner.aims(pose, player);
         if (aims.isEmpty()) {
             context.decide("body");
             play.shows = true;
             play.primary = null;
             return;
         }
-        play.primary = r != null ? Effector.RIGHT_ARM : l != null ? Effector.LEFT_ARM : Effector.HEAD;
+        play.primary = aims.containsKey(Effector.RIGHT_ARM) ? Effector.RIGHT_ARM : aims.containsKey(Effector.LEFT_ARM) ? Effector.LEFT_ARM : Effector.HEAD;
         play.shows = true;
         // The click swings the arm; with the hands already on their way that swing is not shown over them.
         out.add(Candidate.of(id(), Category.USE, priority(), 1f, TIMING, aims).withQuietSwing(true));
@@ -540,11 +432,6 @@ public abstract class Gesture implements InteractionProvider {
         context.decide(play.phase < holdAt() ? "play" : "hold");
     }
 
-    /**
-     * The aim of an arm from {@code pivot} at a point, {@code reach} of the way there from hanging.
-     * The way is taken in the arm's angles, not along a line for the hand: a hand brought down
-     * from the head along a line passes the shoulder itself and the arm whips round it.
-     */
     /**
      * One frame of a poised gesture: out to where it waits, all the way and through the work once
      * the act has come, back when the work is done or the player turned away. The level follows
@@ -587,58 +474,10 @@ public abstract class Gesture implements InteractionProvider {
         }
         play.level = Math.max(0, Math.min(1.1f, play.level));
         if (play.back && play.level < .015f && Math.abs(play.speed) < .25f) {
-            play.playing = play.acted = play.back = play.keeps = false;
+            play.playing = play.acted = play.back = false;
+            play.run.forget();
             play.level = play.speed = play.work = 0;
         }
-    }
-
-    /**
-     * The point a hand is drawn to: the pose's, followed by a spring a touch short of critical, so
-     * a hand at work swings through its turns instead of tracking them, overshoots a hair and
-     * settles; and lifted in passing, so the way out and back is an arc and not a line.
-     */
-    private static Vector3f follow(Play play, int which, Vector3f at, float reach, float dt) {
-        if (at == null) {
-            play.handSet[which] = false;
-            return null;
-        }
-        Vector3f now = play.hand[which], speed = play.handSpeed[which];
-        if (!play.handSet[which]) {
-            now.set(at);
-            speed.zero();
-            play.handSet[which] = true;
-        } else {
-            int steps = Math.max(1, (int) Math.ceil(dt / .008f));
-            float h = dt / steps, stiff = 24f, damp = .8f;
-            for (int i = 0; i < steps; i++) {
-                speed.add(new Vector3f(at).sub(now).mul(stiff * stiff).sub(new Vector3f(speed).mul(2 * damp * stiff)).mul(h));
-                now.add(new Vector3f(speed).mul(h));
-            }
-        }
-        float way = Ease.unit(reach);
-        return new Vector3f(now).sub(0, 1.8f * 4 * way * (1 - way), 0);
-    }
-
-    private static float[] arm(float[] angles, Vector3f at, float reach, Vector3f pivot) {
-        if (angles != null) return new float[]{angles[0], angles[1]};
-        if (at == null) return null;
-        float[] aim = towards(at.x - pivot.x, at.y - pivot.y, at.z - pivot.z);
-        if (aim == null) return null;
-        // A hair past is let through: the arm carries on a little and comes back.
-        reach = Math.max(0, Math.min(1.1f, reach));
-        return new float[]{aim[0] * reach, aim[1] * reach};
-    }
-
-    /**
-     * {xRot, yRot} that point an arm that way. Which way round a hanging arm is turned says nothing
-     * - nearly straight down, a point a pixel behind the shoulder would spin it half round - so the
-     * turn is taken only as far as the point is out to a side.
-     */
-    static float[] towards(float x, float y, float z) {
-        float[] aim = ArmAim.angles(x, y, z);
-        if (aim == null) return null;
-        aim[1] *= Ease.smooth((float) Math.hypot(x, z) / 5f);
-        return aim;
     }
 
     private float shown(UUID uuid, Play play) {
@@ -670,27 +509,9 @@ public abstract class Gesture implements InteractionProvider {
             if (gesture.quiet(now)) continue;
             Play play = gesture.states.fresh(uuid);
             if (play == null || play.player == null) continue;
-            Pose pose = play.pose;
-            boolean stance = on(KEY_STANCE);
-            boolean apart = stance && play.playing && pose.apart && pose.rightFoot != null && pose.leftFoot != null;
-            float shown = gesture.shown(uuid, play);
-            float held = apart ? shown : play.playing && gesture.isEnabled() && !play.stance.resting() ? 1 : shown;
-            if (!(held < .05f && play.stance.resting()))
-                BraceSteps.apply(play.stance, play.player, play.frame, parts, apart ? pose.rightFoot : HOME,
-                        apart ? pose.leftFoot : HOME, held, 0, LOGGER, gesture.id());
-            if (!play.playing || shown < 1e-3f) continue;
-            if (stance && Body.planted(play.player))
-                strm.touchnmotion.torso.PelvisFollow.shift(parts, pose.weightSide * shown, pose.weightForward * shown);
-            leg(parts.apply("right_leg"), pose.rightLeg, shown);
-            leg(parts.apply("left_leg"), pose.leftLeg, shown);
+            play.run.support(play.pose, play.player, play.frame, parts, play.playing, gesture.isEnabled(), on(KEY_STANCE),
+                    gesture.shown(uuid, play), LOGGER, gesture.id());
         }
-    }
-
-    private static void leg(ModelPart leg, float[] turn, float weight) {
-        if (leg == null || turn == null) return;
-        leg.xRot += turn[0] * weight;
-        leg.yRot += turn[1] * weight;
-        leg.zRot += turn[2] * weight;
     }
 
     /**
@@ -705,29 +526,8 @@ public abstract class Gesture implements InteractionProvider {
             if (gesture.quiet(now)) continue;
             Play play = gesture.states.fresh(uuid);
             if (play == null || play.player == null) continue;
-            Pose pose = play.pose;
-            float weight = 0;
-            Vector3f other = null;
-            if (play.playing && play.shows && !pose.onBody && on(KEY_FIT) && Body.planted(play.player)) {
-                float r = pose.rightAt == null ? 0 : Math.min(1, pose.rightReach), l = pose.leftAt == null ? 0 : Math.min(1, pose.leftReach);
-                // The hand further out leads; it gives the lead up only to one clearly further.
-                if (play.fitRight ? l > r + .15f : r > l + .15f) play.fitRight = !play.fitRight;
-                Vector3f at = play.fitRight ? pose.rightAt : pose.leftAt, second = play.fitRight ? pose.leftAt : pose.rightAt;
-                if (pose.fitAt != null) {
-                    play.fitRight = pose.fitRight;
-                    play.fitAt.set(pose.fitAt);
-                    weight = gesture.shown(uuid, play) * Ease.unit(pose.fitWeight);
-                } else if (at != null) {
-                    play.fitAt.set(at);
-                    weight = gesture.shown(uuid, play) * Ease.smooth((Math.max(r, l) - .5f) / .5f);
-                    if (second != null && Math.min(r, l) > .6f) other = second;
-                }
-            }
-            if (weight < 1e-3f && !play.fit.active()) continue;
-            // A moderate lean after the hand and no more: a thing further off is held out to, not lunged at.
-            play.fit.angleLimit = FIT;
-            play.fit.followSeconds = pose.fitSeconds;
-            strm.touchnmotion.torso.LowReach.apply(parts, play.fitRight, play.fitAt, other, weight, play.fit);
+            play.run.reach(play.pose, parts, play.playing && play.shows && on(KEY_FIT) && Body.planted(play.player),
+                    gesture.shown(uuid, play));
         }
     }
 
@@ -740,32 +540,8 @@ public abstract class Gesture implements InteractionProvider {
             if (play == null || !play.playing) continue;
             float shown = gesture.shown(uuid, play);
             if (shown < 1e-3f || (!gesture.poises() && play.phase >= play.pose.letGo)) continue;
-            Pose pose = play.pose;
-            one(parts.apply("right_arm"), pose.right, contact(parts, pose.rightAt, pose.onBody), pose.rightReach, base.get(Effector.RIGHT_ARM), InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, gesture.id()));
-            one(parts.apply("left_arm"), pose.left, contact(parts, pose.leftAt, pose.onBody), pose.leftReach, base.get(Effector.LEFT_ARM), InteractionRuntime.weight(uuid, Effector.LEFT_ARM, gesture.id()));
-        }
-    }
-
-    private static Vector3f contact(Function<String, ModelPart> parts, Vector3f at, boolean onBody) {
-        if (at == null || !onBody) return at;
-        ModelPart body = parts.apply("body"), r = parts.apply("right_leg"), l = parts.apply("left_leg");
-        if (body == null || r == null || l == null) return at;
-        return GestureMath.bodyPoint(at, new Vector3f((r.x + l.x) * .5f, (r.y + l.y) * .5f, (r.z + l.z) * .5f),
-                body.xRot, body.yRot, body.zRot);
-    }
-
-    private static void one(ModelPart arm, float[] angles, Vector3f at, float reach, float[] base, float weight) {
-        if (arm == null || weight < 1e-3f) return;
-        if (angles != null) {
-            arm.zRot += (angles[2] - arm.zRot) * weight;
-            arm.y += angles[3] * weight;
-        } else if (at != null && base != null) {
-            float[] aim = arm(null, at, reach, new Vector3f(arm.x, arm.y, arm.z));
-            if (aim == null) return;
-            // Replace the preliminary canonical-shoulder aim. Blend once from the post-torso base.
-            arm.xRot = base[0] + strm.emfcompat.core.ik.IKMath.wrap(aim[0] - base[0]) * weight;
-            arm.yRot = base[1] + strm.emfcompat.core.ik.IKMath.wrap(aim[1] - base[1]) * weight;
-            arm.zRot = base[2] * (1 - weight);
+            PoseRunner.aimArms(play.pose, parts, base, InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, gesture.id()),
+                    InteractionRuntime.weight(uuid, Effector.LEFT_ARM, gesture.id()));
         }
     }
 }
