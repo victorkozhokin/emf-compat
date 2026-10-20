@@ -5,7 +5,6 @@ import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.touchnmotion.platform.Platform;
 
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -20,8 +19,6 @@ public final class BodyClaims {
     public static final String KEY_CARRYON = "compat.carryon";
     public static final String KEY_TACZ = "compat.tacz";
 
-    /** What still runs with the arms taken: the look, and the rides, which carry the body as a seat. */
-    private static final Set<String> ARMS_FREE = Set.of("LookAt", "BoatRide", "BoatPassenger", "MinecartRide", "HorseRide", "Furniture");
 
     private BodyClaims() {
     }
@@ -60,9 +57,9 @@ public final class BodyClaims {
     }
 
     /** Why a feature sits out now, or {@code null}: the arms, or the head for the look, are taken. */
-    public static String yields(UUID uuid, String feature) {
-        if ("LookAt".equals(feature)) return head(uuid) ? "head-taken" : null;
-        return !ARMS_FREE.contains(feature) && arms(uuid) ? "arms-taken" : null;
+    public static String yields(UUID uuid, strm.touchnmotion.interaction.InteractionProvider feature) {
+        if (feature.headOnly()) return head(uuid) ? "head-taken" : null;
+        return !feature.armsFree() && arms(uuid) ? "arms-taken" : null;
     }
 
     /** How much of the lean with the motion is kept: all, half with the arms taken, none with the torso. */

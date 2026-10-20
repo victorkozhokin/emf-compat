@@ -85,32 +85,7 @@ public final class ClientInit {
         strm.touchnmotion.compat.BodyClaims.register(movement);
         DebugLog.register(debug);
         strm.touchnmotion.compat.ParCoolActivity.register(movement, debug);
-        // Order is only the log's order; who wins is the arbiter's call.
-        InteractionRuntime.register(WallHand.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.wallhand.FenceLean.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.fishing.Fishing.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.fright.Fright.INSTANCE);
-        InteractionRuntime.register(PlantReach.INSTANCE);
-        InteractionRuntime.register(LookAt.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.lead.LeadHold.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.pocket.PocketStash.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.gesture.AnimalCare.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.gesture.HandTo.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.gesture.ShakeOff.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.gesture.ArmorDon.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.gesture.ContainerSearch.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.transport.TransportGrip.INSTANCE);
-        InteractionRuntime.register(ButtonPress.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.buttonpress.aeronautics.HeavyThrottle.INSTANCE);
-        InteractionRuntime.register(BlockUse.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.blockuse.aeronautics.CockpitControls.INSTANCE);
-        InteractionRuntime.register(DoorHold.INSTANCE);
-        InteractionRuntime.register(Furniture.INSTANCE);
-        InteractionRuntime.register(Mining.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.ride.BoatRide.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.ride.BoatPassenger.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.ride.MinecartRide.INSTANCE);
-        InteractionRuntime.register(strm.touchnmotion.ride.HorseRide.INSTANCE);
+        strm.touchnmotion.stages.BodyStages.PROVIDERS.forEach(InteractionRuntime::register);
         TouchNMotionHook.register();
     }
 
@@ -119,8 +94,7 @@ public final class ClientInit {
         strm.touchnmotion.net.ClientHands.tick();
         strm.touchnmotion.compat.NeaCompat.tick();
         strm.touchnmotion.compat.PlayerModelCheck.tick();
-        strm.touchnmotion.compat.GripMarkers.tick();
-        strm.touchnmotion.blockuse.create.TrainCockpit.tick();
+        strm.touchnmotion.stages.BodyStages.TICK.forEach(Runnable::run);
     }
 
     /** Leaving a world drops every feature's per-entity state with it, and what was known of other players' hands. */

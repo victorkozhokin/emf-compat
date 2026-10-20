@@ -18,8 +18,6 @@ import java.util.stream.StreamSupport;
 public class ClientEventHandler {
 
     private static int cleanupCounter = 0;
-    /** Whether the rider drawn now was carried, and the stack has a pose of ours to take off after. */
-    private static boolean carried;
     /** Blocks the game moves a rearing horse's rider back and up, at full rear. */
     private static final double REAR_BACK = 0.7, REAR_UP = 0.15;
 
@@ -63,14 +61,13 @@ public class ClientEventHandler {
     /**
      * Carries the rider with the horse's body as the pack moves it - up, down, along, and turned about the
      * body's pivot - as a rider sits a saddle: the stack is at the rider, world-aligned, before the rider is drawn.
+     * Whether it pushed a pose on the stack (see {@link strm.touchnmotion.stages.BodyStages#RIDER}).
      */
-    public static void onRenderPlayerPre(Entity player, PoseStack stack) {
-        carried = false;
+    public static boolean carryRider(Entity player, PoseStack stack, float partialTick) {
         EMFCompat.Saddle saddle = saddle(player);
         if (saddle == null || !(player.getVehicle() instanceof AbstractHorse horse)
-                || !strm.touchnmotion.interaction.WorldDraw.inWorld(player, stack)) return;
+                || !strm.touchnmotion.interaction.WorldDraw.inWorld(player, stack)) return false;
         stack.pushPose();
-        carried = true;
         float partial = strm.touchnmotion.platform.Platform.partialTick(false);
         double yaw = Math.toRadians(net.minecraft.util.Mth.rotLerp(partial, horse.yBodyRotO, horse.yBodyRot));
         Vec3 along = new Vec3(-Math.sin(yaw), 0, Math.cos(yaw)), right = new Vec3(-Math.cos(yaw), 0, -Math.sin(yaw));
@@ -88,10 +85,6 @@ public class ClientEventHandler {
         // Nose up is a turn about the horse's right that brings its front up.
         strm.touchnmotion.platform.Platform.rotate(stack, new Quaternionf().rotationAxis(-saddle.pitch(), (float) right.x, 0f, (float) right.z));
         stack.translate(-pivot.x, -pivot.y, -pivot.z);
-    }
-
-    public static void onRenderPlayerPost(Entity player, PoseStack stack) {
-        if (carried) stack.popPose();
-        carried = false;
+        return true;
     }
 }

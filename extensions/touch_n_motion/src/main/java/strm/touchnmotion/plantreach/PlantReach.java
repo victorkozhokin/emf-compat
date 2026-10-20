@@ -87,6 +87,11 @@ public final class PlantReach implements InteractionProvider {
     }
 
     @Override
+    public String packState() {
+        return "tnm_reach";
+    }
+
+    @Override
     public boolean isEnabled() {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }

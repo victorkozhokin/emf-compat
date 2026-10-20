@@ -181,6 +181,16 @@ public final class ButtonPress implements InteractionProvider {
     }
 
     @Override
+    public String packState() {
+        return "tnm_reach";
+    }
+
+    @Override
+    public boolean holdsBody() {
+        return true;
+    }
+
+    @Override
     public boolean isEnabled() {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }

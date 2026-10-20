@@ -105,6 +105,21 @@ public final class HorseRide implements InteractionProvider {
     }
 
     @Override
+    public String packState() {
+        return "tnm_ride";
+    }
+
+    @Override
+    public boolean armsFree() {
+        return true;
+    }
+
+    @Override
+    public java.util.Set<Effector> reserves(AbstractClientPlayer player) {
+        return reserved(player);
+    }
+
+    @Override
     public boolean isEnabled() {
         return HorseSync.isEnabled() && HorseSync.isRidingAnimation();
     }

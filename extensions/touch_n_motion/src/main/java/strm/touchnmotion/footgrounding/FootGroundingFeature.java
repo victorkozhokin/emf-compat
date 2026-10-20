@@ -24,7 +24,6 @@ public final class FootGroundingFeature {
     public static final String KEY_TERRAIN = "footgrounding.terrain_balance";
 
     /** Whether the rider being drawn was moved with its horse, so the post event undoes it. */
-    private static boolean riderMoved;
 
     private FootGroundingFeature() {
     }
@@ -50,21 +49,16 @@ public final class FootGroundingFeature {
     }
 
     /**
-     * The rider goes down and pitches with its horse. Innermost of what moves the rider: called
-     * last before the draw and undone first after it (the loader's own part calls both).
+     * The rider goes down and pitches with its horse. Innermost of what moves the rider (see
+     * {@link strm.touchnmotion.stages.BodyStages#RIDER}); whether it pushed a pose on the stack.
      */
-    public static void onRenderPlayerPre(net.minecraft.world.entity.player.Player player, com.mojang.blaze3d.vertex.PoseStack stack, float partialTick) {
-        riderMoved = false;
+    public static boolean tiltRider(net.minecraft.world.entity.player.Player player, com.mojang.blaze3d.vertex.PoseStack stack, float partialTick) {
         if (!(player.getVehicle() instanceof AbstractHorse horse)
-                || !strm.touchnmotion.interaction.WorldDraw.inWorld(player, stack)) return;
+                || !strm.touchnmotion.interaction.WorldDraw.inWorld(player, stack)) return false;
         stack.pushPose();
-        riderMoved = HorseFootGrounding.moveRider(horse, player, stack, partialTick);
-        if (!riderMoved) stack.popPose();
-    }
-
-    public static void onRenderPlayerPost(com.mojang.blaze3d.vertex.PoseStack stack) {
-        if (riderMoved) stack.popPose();
-        riderMoved = false;
+        if (HorseFootGrounding.moveRider(horse, player, stack, partialTick)) return true;
+        stack.popPose();
+        return false;
     }
 
     public static boolean isEnabled() {

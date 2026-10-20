@@ -5,7 +5,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import strm.emfcompat.core.ik.IKFrame;
-import strm.touchnmotion.footgrounding.compat.FootGrounding;
 import strm.touchnmotion.footgrounding.compat.HorseFootGrounding;
 import strm.touchnmotion.interaction.InteractionRuntime;
 
@@ -104,7 +103,7 @@ public final class ModelSpace {
         strm.touchnmotion.cape.CapeFollow.turned(player.getUUID(),
                 net.minecraft.util.Mth.wrapDegrees((float) Math.toDegrees(Math.atan2(-after.x, after.z) - Math.atan2(-before.x, before.z))));
         model.accept(player);
-        FootGrounding.modelPose(player, stack);
+        for (var lower : strm.touchnmotion.stages.BodyStages.MODEL) lower.accept(player, stack);
         IKFrame frame = frame(player, stack);
         for (var read : strm.touchnmotion.stages.BodyStages.FRAME) read.accept(player, frame);
     }

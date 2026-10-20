@@ -79,6 +79,11 @@ public final class CockpitControls implements InteractionProvider {
         float headYaw, headPitch;
     }
     public String id() { return "CockpitControls"; }
+
+    @Override
+    public String packState() {
+        return "tnm_hold";
+    }
     public boolean isEnabled() { return BlockUse.INSTANCE.isEnabled() && ButtonPress.INSTANCE.isEnabled(); }
 
     public void collect(InteractionContext context, List<Candidate> out) {

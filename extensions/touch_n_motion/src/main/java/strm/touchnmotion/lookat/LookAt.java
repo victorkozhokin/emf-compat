@@ -150,6 +150,16 @@ public final class LookAt implements InteractionProvider {
     }
 
     @Override
+    public boolean armsFree() {
+        return true;
+    }
+
+    @Override
+    public boolean headOnly() {
+        return true;
+    }
+
+    @Override
     public boolean isEnabled() {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }

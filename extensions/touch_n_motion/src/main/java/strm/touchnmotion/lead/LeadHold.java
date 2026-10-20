@@ -49,6 +49,16 @@ public final class LeadHold implements InteractionProvider {
         final DebugLog.Pace tracePace = new DebugLog.Pace();
     }
     public String id() { return "LeadHold"; }
+
+    @Override
+    public String packState() {
+        return "tnm_hold";
+    }
+
+    @Override
+    public boolean holdsBody() {
+        return true;
+    }
     public boolean isEnabled() { return EMFCompatConfig.getBoolean(KEY_ENABLED, true); }
     public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Hold animal leads", true,

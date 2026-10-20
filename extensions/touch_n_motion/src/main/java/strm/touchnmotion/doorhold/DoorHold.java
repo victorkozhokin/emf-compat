@@ -80,6 +80,11 @@ public final class DoorHold implements InteractionProvider {
     }
 
     @Override
+    public String packState() {
+        return "tnm_hold";
+    }
+
+    @Override
     public boolean isEnabled() {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }

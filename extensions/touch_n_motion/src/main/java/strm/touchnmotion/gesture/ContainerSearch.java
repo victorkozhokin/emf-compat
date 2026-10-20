@@ -64,6 +64,11 @@ public final class ContainerSearch extends Gesture {
         return "ContainerSearch";
     }
 
+    @Override
+    public String packState() {
+        return "tnm_reach";
+    }
+
     public boolean isEnabled() {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }

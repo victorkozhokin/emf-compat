@@ -17,6 +17,7 @@ import strm.touchnmotion.fright.Fright;
 import strm.touchnmotion.gesture.Gesture;
 import strm.touchnmotion.interaction.Effector;
 import strm.touchnmotion.interaction.HandContacts;
+import strm.touchnmotion.interaction.InteractionProvider;
 import strm.touchnmotion.interaction.InteractionRuntime;
 import strm.touchnmotion.lead.LeadHold;
 import strm.touchnmotion.lookat.LookAt;
@@ -32,7 +33,10 @@ import strm.touchnmotion.transport.TransportGrip;
 import strm.touchnmotion.wallhand.FenceLean;
 import strm.touchnmotion.wallhand.WallSqueeze;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -61,6 +65,68 @@ public final class BodyStages {
     public interface Step {
         void apply(UUID uuid, Function<String, ModelPart> parts, Pass pass);
     }
+
+    /** Every provider of interactions. The order is only the log's; who wins is the arbiter's call. */
+    public static final List<InteractionProvider> PROVIDERS = List.of(
+            strm.touchnmotion.wallhand.WallHand.INSTANCE,
+            FenceLean.INSTANCE,
+            Fishing.INSTANCE,
+            Fright.INSTANCE,
+            strm.touchnmotion.plantreach.PlantReach.INSTANCE,
+            LookAt.INSTANCE,
+            LeadHold.INSTANCE,
+            PocketStash.INSTANCE,
+            strm.touchnmotion.gesture.AnimalCare.INSTANCE,
+            strm.touchnmotion.gesture.HandTo.INSTANCE,
+            strm.touchnmotion.gesture.ShakeOff.INSTANCE,
+            strm.touchnmotion.gesture.ArmorDon.INSTANCE,
+            strm.touchnmotion.gesture.ContainerSearch.INSTANCE,
+            TransportGrip.INSTANCE,
+            ButtonPress.INSTANCE,
+            HeavyThrottle.INSTANCE,
+            BlockUse.INSTANCE,
+            CockpitControls.INSTANCE,
+            strm.touchnmotion.doorhold.DoorHold.INSTANCE,
+            strm.touchnmotion.furniture.Furniture.INSTANCE,
+            Mining.INSTANCE,
+            BoatRide.INSTANCE,
+            BoatPassenger.INSTANCE,
+            MinecartRide.INSTANCE,
+            HorseRide.INSTANCE);
+
+    /** At the end of each client tick: what a feature keeps of the game's own state, as a boat keeps its rider's body. */
+    public static final List<Runnable> TICK = List.of(
+            strm.touchnmotion.compat.GripMarkers::tick,
+            TrainCockpit::tick);
+
+    /** A hand on a control the camera is left free at: a throttle, a typewriter, a wheel, a train's levers. */
+    public static final List<Predicate<AbstractClientPlayer>> AT_CONTROLS = List.of(
+            player -> strm.touchnmotion.buttonpress.aeronautics.ThrottleLever.heldPosition() != null,
+            player -> strm.touchnmotion.blockuse.aeronautics.Typewriter.activePosition(player) != null,
+            player -> strm.touchnmotion.blockuse.aeronautics.SteeringWheel.held(null),
+            player -> strm.touchnmotion.blockuse.create.TrainControls.held(player) != null);
+
+    /** A seat that turns the whole body itself, torso and facing: the torso's own lean stays out of it. */
+    public static final List<Predicate<UUID>> SEAT_BODY = List.of(
+            CockpitControls::active);
+
+    /**
+     * What moves the whole rider before they are drawn - carried with the saddle, tilted with a horse on uneven
+     * ground - the innermost last. Each says whether it pushed a pose on the stack; they are taken off after the
+     * draw in the opposite order.
+     */
+    public static final List<RiderDraw> RIDER = List.of(
+            strm.touchnmotion.horsesync.ClientEventHandler::carryRider,
+            strm.touchnmotion.footgrounding.FootGroundingFeature::tiltRider);
+
+    @FunctionalInterface
+    public interface RiderDraw {
+        boolean before(net.minecraft.world.entity.player.Player player, PoseStack stack, float partialTick);
+    }
+
+    /** The model let down onto the ground before its space is read: the feet's own lowering. */
+    public static final List<BiConsumer<AbstractClientPlayer, PoseStack>> MODEL = List.of(
+            FootGrounding::modelPose);
 
     /** The model turned before it is drawn - to a wheel, a cart, a fence, someone looked at. */
     public static final List<BiConsumer<AbstractClientPlayer, PoseStack>> ORIENT = List.of(
@@ -172,6 +238,34 @@ public final class BodyStages {
             (uuid, parts, pass) -> Fright.apply(uuid, parts));
 
     private BodyStages() {
+    }
+
+    /** How many poses each rider draw now under way has pushed: draws do not nest, but a portrait may come in between. */
+    private static final Deque<Integer> PUSHED = new ArrayDeque<>();
+
+    /** Before a player is drawn: the {@link #RIDER} moves, in order. */
+    public static void beforeRider(net.minecraft.world.entity.player.Player player, PoseStack stack, float partialTick) {
+        int pushed = 0;
+        for (RiderDraw draw : RIDER) if (draw.before(player, stack, partialTick)) pushed++;
+        PUSHED.push(pushed);
+    }
+
+    /** After the player is drawn: what {@link #beforeRider} pushed, taken off. */
+    public static void afterRider(PoseStack stack) {
+        int pushed = PUSHED.isEmpty() ? 0 : PUSHED.pop();
+        for (int i = 0; i < pushed; i++) stack.popPose();
+    }
+
+    /** Whether a hand is on a control the camera is left free at. */
+    public static boolean atControls(AbstractClientPlayer player) {
+        for (Predicate<AbstractClientPlayer> at : AT_CONTROLS) if (at.test(player)) return true;
+        return false;
+    }
+
+    /** Whether a seat turns the whole body itself. */
+    public static boolean seatBody(UUID uuid) {
+        for (Predicate<UUID> seat : SEAT_BODY) if (seat.test(uuid)) return true;
+        return false;
     }
 
     /** Runs one stage's steps, in order. */

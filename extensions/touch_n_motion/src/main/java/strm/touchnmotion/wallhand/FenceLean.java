@@ -109,6 +109,11 @@ public final class FenceLean implements InteractionProvider {
     }
 
     @Override
+    public String packState() {
+        return "tnm_lean";
+    }
+
+    @Override
     public boolean isEnabled() {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }

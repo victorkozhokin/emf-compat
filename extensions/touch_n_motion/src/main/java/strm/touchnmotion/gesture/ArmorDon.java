@@ -56,6 +56,11 @@ public final class ArmorDon extends Gesture {
         return "ArmorDon";
     }
 
+    @Override
+    public String packState() {
+        return "tnm_reach";
+    }
+
     public boolean isEnabled() {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }

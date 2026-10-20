@@ -47,6 +47,16 @@ public final class TransportGrip implements InteractionProvider {
         final LowReach.State reach = new LowReach.State();
     }
     public String id() { return "TransportGrip"; }
+
+    @Override
+    public String packState() {
+        return "tnm_hold";
+    }
+
+    @Override
+    public boolean holdsBody() {
+        return true;
+    }
     public boolean isEnabled() { return EMFCompatConfig.getBoolean(KEY_ENABLED, true); }
     public static void register(ConfigRegistry.Group config, ConfigRegistry.Group debug) {
         config.addBoolean(KEY_ENABLED, "Brace on moving transport", true,

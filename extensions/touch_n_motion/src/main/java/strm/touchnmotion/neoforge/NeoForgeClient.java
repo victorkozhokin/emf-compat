@@ -12,7 +12,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import strm.emfcompat.core.client.ConfigScreen;
 import strm.touchnmotion.ClientInit;
 import strm.touchnmotion.TouchNMotionMod;
-import strm.touchnmotion.footgrounding.FootGroundingFeature;
 import strm.touchnmotion.horsesync.ClientEventHandler;
 import strm.touchnmotion.horsesync.HorseSync;
 
@@ -32,17 +31,12 @@ final class NeoForgeClient {
         NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> ClientInit.tickEnd());
         NeoForge.EVENT_BUS.addListener((ClientTickEvent.Pre event) -> ClientEventHandler.onClientTick());
 
-        // The rider lifted with an animated horse.
-        NeoForge.EVENT_BUS.addListener((RenderPlayerEvent.Pre event) ->
-                ClientEventHandler.onRenderPlayerPre(event.getEntity(), event.getPoseStack()));
-        NeoForge.EVENT_BUS.addListener((RenderPlayerEvent.Post event) ->
-                ClientEventHandler.onRenderPlayerPost(event.getEntity(), event.getPoseStack()));
-        // The rider lowered and pitched with a horse on uneven ground. Innermost: after everyone
-        // else has moved the rider (a cancelled draw never reaches the lowest listener), and undone
-        // first, so the push and pop pair up with no one in between.
+        // The rider carried with an animated horse and tilted with one on uneven ground (BodyStages.RIDER).
+        // Innermost: after everyone else has moved the rider (a cancelled draw never reaches the lowest
+        // listener), and undone first, so the pushes and pops pair up with no one in between.
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, (RenderPlayerEvent.Pre event) ->
-                FootGroundingFeature.onRenderPlayerPre(event.getEntity(), event.getPoseStack(), event.getPartialTick()));
+                strm.touchnmotion.stages.BodyStages.beforeRider(event.getEntity(), event.getPoseStack(), event.getPartialTick()));
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, (RenderPlayerEvent.Post event) ->
-                FootGroundingFeature.onRenderPlayerPost(event.getPoseStack()));
+                strm.touchnmotion.stages.BodyStages.afterRider(event.getPoseStack()));
     }
 }

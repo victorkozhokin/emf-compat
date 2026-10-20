@@ -73,6 +73,11 @@ public final class PocketStash implements InteractionProvider {
         return "PocketStash";
     }
 
+    @Override
+    public String packState() {
+        return "tnm_gesture";
+    }
+
     public boolean isEnabled() {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }

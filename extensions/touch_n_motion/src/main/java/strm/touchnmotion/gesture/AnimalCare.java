@@ -38,6 +38,11 @@ public final class AnimalCare extends Gesture {
         return "AnimalCare";
     }
 
+    @Override
+    public String packState() {
+        return "tnm_gesture";
+    }
+
     public boolean isEnabled() {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }

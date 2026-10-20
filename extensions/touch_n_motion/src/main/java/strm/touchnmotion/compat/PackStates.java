@@ -6,7 +6,6 @@ import strm.touchnmotion.interaction.InteractionRuntime;
 import strm.touchnmotion.torso.TorsoLean;
 import strm.touchnmotion.wallhand.WallSqueeze;
 
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -24,17 +23,6 @@ import java.util.UUID;
  * </ul>
  */
 public final class PackStates {
-    private static final Map<String, String> GROUP = Map.ofEntries(
-            Map.entry("ButtonPress", "tnm_reach"), Map.entry("BlockUse", "tnm_reach"), Map.entry("PlantReach", "tnm_reach"),
-            Map.entry("HandTo", "tnm_reach"), Map.entry("ContainerSearch", "tnm_reach"), Map.entry("ArmorDon", "tnm_reach"),
-            Map.entry("DoorHold", "tnm_hold"), Map.entry("LeadHold", "tnm_hold"), Map.entry("TransportGrip", "tnm_hold"),
-            Map.entry("CockpitControls", "tnm_hold"), Map.entry("HeavyThrottle", "tnm_hold"),
-            Map.entry("WallHand", "tnm_lean"), Map.entry("FenceLean", "tnm_lean"),
-            Map.entry("AnimalCare", "tnm_gesture"), Map.entry("ShakeOff", "tnm_gesture"), Map.entry("PocketStash", "tnm_gesture"),
-            Map.entry("Fright", "tnm_gesture"),
-            Map.entry("Mining", "tnm_work"), Map.entry("Fishing", "tnm_work"),
-            Map.entry("BoatRide", "tnm_ride"), Map.entry("BoatPassenger", "tnm_ride"), Map.entry("MinecartRide", "tnm_ride"), Map.entry("HorseRide", "tnm_ride"),
-            Map.entry("Furniture", "tnm_ride"));
     private static final String[] GROUPS = {"tnm_reach", "tnm_hold", "tnm_lean", "tnm_gesture", "tnm_work", "tnm_ride"};
 
     private PackStates() {
@@ -47,7 +35,8 @@ public final class PackStates {
             float weight = InteractionRuntime.weight(uuid, effector);
             BodyStates.set(uuid, "tnm_" + effector.part, weight);
             String owner = InteractionRuntime.owner(uuid, effector);
-            String group = owner == null ? null : GROUP.get(owner);
+            var provider = InteractionRuntime.provider(owner);
+            String group = provider == null ? null : provider.packState();
             if (group == null) continue;
             for (int i = 0; i < GROUPS.length; i++) if (GROUPS[i].equals(group)) groups[i] = Math.max(groups[i], weight);
         }

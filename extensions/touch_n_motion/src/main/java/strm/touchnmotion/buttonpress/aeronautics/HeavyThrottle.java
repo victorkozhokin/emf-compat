@@ -42,6 +42,16 @@ public final class HeavyThrottle implements InteractionProvider {
         float primaryGap = Float.POSITIVE_INFINITY, helperGap = Float.POSITIVE_INFINITY;
     }
     public String id() { return "HeavyThrottle"; }
+
+    @Override
+    public String packState() {
+        return "tnm_hold";
+    }
+
+    @Override
+    public boolean holdsBody() {
+        return true;
+    }
     public boolean isEnabled() { return ButtonPress.INSTANCE.isEnabled() && EMFCompatConfig.getBoolean(KEY, true); }
     public static void register(ConfigRegistry.Group config) {
         config.addChild(ButtonPress.KEY_ENABLED, KEY, "Throttle effort", true,

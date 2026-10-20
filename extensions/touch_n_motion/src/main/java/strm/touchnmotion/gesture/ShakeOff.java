@@ -28,6 +28,11 @@ public final class ShakeOff extends Gesture {
         return "ShakeOff";
     }
 
+    @Override
+    public String packState() {
+        return "tnm_gesture";
+    }
+
     public boolean isEnabled() {
         return EMFCompatConfig.getBoolean(KEY_ENABLED, true);
     }

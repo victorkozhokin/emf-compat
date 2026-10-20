@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
-import strm.touchnmotion.buttonpress.aeronautics.HeavyThrottle;
 
 /**
  * Runs the interaction providers for each rendered player and puts the result on the model.
@@ -41,6 +40,12 @@ public final class InteractionRuntime {
     private static final double HANDOFF_SECONDS = 0.12;
 
     private static final List<InteractionProvider> PROVIDERS = new ArrayList<>();
+    private static final Map<String, InteractionProvider> BY_ID = new java.util.HashMap<>();
+
+    /** The provider of that {@link InteractionProvider#id}; {@code null} for none. */
+    public static InteractionProvider provider(String id) {
+        return id == null ? null : BY_ID.get(id);
+    }
     private static final EntityStates<PlayerState> STATES = new EntityStates<>(PlayerState::new);
 
     private InteractionRuntime() {
@@ -48,6 +53,7 @@ public final class InteractionRuntime {
 
     public static void register(InteractionProvider provider) {
         PROVIDERS.add(provider);
+        BY_ID.put(provider.id(), provider);
     }
 
     private static final class Slot {
@@ -115,7 +121,7 @@ public final class InteractionRuntime {
                 continue;
             }
             // Another mod has the parts this one would move: carrying, a gun in hand.
-            String yielded = strm.touchnmotion.compat.BodyClaims.yields(uuid, provider.id());
+            String yielded = strm.touchnmotion.compat.BodyClaims.yields(uuid, provider);
             if (yielded != null) {
                 context.decide("off:" + yielded);
                 continue;
@@ -227,9 +233,11 @@ public final class InteractionRuntime {
 
     /** Parts something outside the runtime owns this frame. */
     private static Set<Effector> reserved(AbstractClientPlayer player, boolean containerSearch, boolean swingClaimed) {
-        // On a horse only the arm in use leaves the reins.
-        Set<Effector> riding = strm.touchnmotion.ride.HorseRide.reserved(player);
-        if (riding != null) return riding;
+        // A provider may leave the game only the arm in use - on a horse, the other keeps the reins.
+        for (InteractionProvider provider : PROVIDERS) {
+            Set<Effector> own = provider.reserves(player);
+            if (own != null) return own;
+        }
         Set<Effector> reserved = EnumSet.noneOf(Effector.class);
         // A swing, an item in use or another addon's arm pose owns the arms.
         if (strm.touchnmotion.platform.Platform.swinging(player) && !swingClaimed || player.isUsingItem() || PoseManager.hasArmPoseExcept(player.getUUID(), containerSearch ? "watut" : "")
@@ -260,7 +268,6 @@ public final class InteractionRuntime {
     }
 
     private static final String[] SUPPORT_PARTS = {"body", "head", "right_leg", "left_leg", "right_arm", "left_arm"};
-    private static final Set<String> BODY_PROVIDERS = Set.of("BlockUse", "ButtonPress", "HeavyThrottle", "TransportGrip", "LeadHold");
 
     public static Map<String, float[]> beginSupport(UUID uuid, Function<String, ModelPart> parts) {
         PlayerState state = STATES.fresh(uuid);
@@ -292,7 +299,7 @@ public final class InteractionRuntime {
             if (!slot.releasing) held = slot;
             else if (slot.owner.equals(state.bodyOwner) && (retiring == null || slot.release.supportRemaining() > retiring.release.supportRemaining())) retiring = slot;
         }
-        if (!state.paused && held != null && BODY_PROVIDERS.contains(held.owner)) {
+        if (!state.paused && held != null && provider(held.owner) != null && provider(held.owner).holdsBody()) {
             if (capture) {
                 state.bodyOwner = held.owner;
                 for (var e : base.entrySet()) {

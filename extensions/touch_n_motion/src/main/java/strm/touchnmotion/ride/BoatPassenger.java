@@ -71,6 +71,16 @@ public final class BoatPassenger implements InteractionProvider {
     }
 
     @Override
+    public String packState() {
+        return "tnm_ride";
+    }
+
+    @Override
+    public boolean armsFree() {
+        return true;
+    }
+
+    @Override
     public boolean isEnabled() {
         return EMFCompatConfig.getBoolean(BoatRide.KEY_ENABLED, true);
     }
