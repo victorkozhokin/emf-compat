@@ -55,7 +55,8 @@ public final class FootGroundingFeature {
      */
     public static void onRenderPlayerPre(net.minecraft.world.entity.player.Player player, com.mojang.blaze3d.vertex.PoseStack stack, float partialTick) {
         riderMoved = false;
-        if (!(player.getVehicle() instanceof AbstractHorse horse)) return;
+        if (!(player.getVehicle() instanceof AbstractHorse horse)
+                || !strm.touchnmotion.interaction.WorldDraw.inWorld(player, stack)) return;
         stack.pushPose();
         riderMoved = HorseFootGrounding.moveRider(horse, player, stack, partialTick);
         if (!riderMoved) stack.popPose();

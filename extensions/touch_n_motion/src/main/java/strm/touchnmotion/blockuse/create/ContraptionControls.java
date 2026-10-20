@@ -7,9 +7,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
-import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import strm.touchnmotion.blockuse.*;
 
 /**
@@ -24,8 +22,7 @@ public final class ContraptionControls implements BlockTarget {
     /** The middle of the button's top in the model ({@code contraption_controls/button}, made facing south), pixels. */
     private static final double BUTTON_X = 8, BUTTON_Y = 14.5, BUTTON_Z = 10.3;
 
-    private static Field disabled;
-    private static boolean failed;
+    private static final strm.touchnmotion.blockuse.ModAccess DISABLED = new strm.touchnmotion.blockuse.ModAccess("disabled");
 
     private record Seen(BlockState block, boolean disabled) {
     }
@@ -56,14 +53,6 @@ public final class ContraptionControls implements BlockTarget {
     }
 
     private static boolean disabled(BlockEntity entity) {
-        if (entity == null || failed) return false;
-        try {
-            if (disabled == null) disabled = entity.getClass().getField("disabled");
-            return disabled.getBoolean(entity);
-        } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
-            failed = true;
-            LoggerFactory.getLogger("EMFCompatBlockUse").warn("[BlockUse] cannot read the contraption controls' state", e);
-            return false;
-        }
+        return DISABLED.read(entity) instanceof Boolean disabled && disabled;
     }
 }

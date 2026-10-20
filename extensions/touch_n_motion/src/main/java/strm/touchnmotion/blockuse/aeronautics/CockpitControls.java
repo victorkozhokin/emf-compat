@@ -20,6 +20,7 @@ import strm.touchnmotion.DebugLog;
 import strm.touchnmotion.blockuse.*;
 import strm.touchnmotion.seat.CockpitContact;
 import strm.touchnmotion.seat.CockpitFacing;
+import strm.touchnmotion.seat.HeadLook;
 import strm.touchnmotion.seat.SeatedBody;
 
 /**
@@ -181,9 +182,7 @@ public final class CockpitControls implements InteractionProvider {
                     state.control[request] = control;
                 }
             }
-            Vec3 origin = context.frame().jointWorld(new Vector3f());
-            Vector3f view = Body.model(context.frame(), origin.add(strm.touchnmotion.compat.ShoulderCamera.worldView(player)));
-            float[] look = CockpitFacing.look(view);
+            float[] look = HeadLook.against(context.frame(), player);
             state.headYaw += IKMath.wrap(look[0] - state.headYaw) * Smoothing.follow(context.dt(), .12);
             state.headPitch += IKMath.wrap(look[1] - state.headPitch) * Smoothing.follow(context.dt(), .12);
             state.request = request;

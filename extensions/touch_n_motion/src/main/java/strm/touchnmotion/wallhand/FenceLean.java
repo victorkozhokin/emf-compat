@@ -130,8 +130,7 @@ public final class FenceLean implements InteractionProvider {
         state.square += ((still && state.rail != null ? 1f : 0f) - state.square) * Smoothing.follow(context.dt(), 0.15);
         if (state.square > 1e-3f) {
             // The body is turned to the fence; the head still looks where the player does, as far as a neck turns.
-            Vec3 origin = context.frame().jointWorld(new Vector3f());
-            float[] look = CockpitFacing.look(Body.model(context.frame(), origin.add(player.getViewVector(1f))));
+            float[] look = strm.touchnmotion.seat.HeadLook.against(context.frame(), player);
             state.headYaw = look[0];
             state.headPitch = look[1];
         }
@@ -183,10 +182,7 @@ public final class FenceLean implements InteractionProvider {
     public static void grip(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
         if (state == null || !INSTANCE.isEnabled()) return;
-        ModelPart head = parts.apply("head"), hat = parts.apply("hat");
-        if (state.square > 1e-3f && head != null && InteractionRuntime.aim(uuid, Effector.HEAD) == null) {
-            strm.touchnmotion.seat.SeatedBody.turnHead(head, hat, state.headYaw, state.headPitch, state.square);
-        }
+        if (state.square > 1e-3f) strm.touchnmotion.seat.HeadLook.turn(uuid, parts, state.headYaw, state.headPitch, state.square);
         if (state.held) Riders.grip(uuid, parts, INSTANCE.id(), state.place, state.gap);
     }
 

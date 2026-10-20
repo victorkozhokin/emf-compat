@@ -43,6 +43,11 @@ public final class DebugLog {
     }
 
     /** Lets a trace line through only every so often, so a line a frame does not flood the log. */
+    /** {@code v} to two decimals, for a trace line. */
+    public static double r2(double v) {
+        return Math.round(v * 100) / 100.0;
+    }
+
     public static final class Pace {
         private long at;
 

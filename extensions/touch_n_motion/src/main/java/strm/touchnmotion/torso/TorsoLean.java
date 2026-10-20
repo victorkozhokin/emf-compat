@@ -200,8 +200,8 @@ public final class TorsoLean {
         boolean trace = EMFCompatConfig.getBoolean(WallSqueeze.KEY_TRACE, false);
         Vector3f attachment = trace ? new Quaternionf().rotationZYX(body.zRot, body.yRot, body.xRot)
                 .conjugate().transform(new Vector3f(waist).sub(body.x, body.y, body.z)) : null;
-        Vector3f rightSole = trace && right != null ? sole(right) : null;
-        Vector3f leftSole = trace && left != null ? sole(left) : null;
+        Vector3f rightSole = trace && right != null ? Body.sole(right) : null;
+        Vector3f leftSole = trace && left != null ? Body.sole(left) : null;
         for (String name : new String[]{"right_leg", "left_leg"}) {
             ModelPart leg = parts.apply(name);
             if (leg == null) continue;
@@ -261,8 +261,8 @@ public final class TorsoLean {
             Vector3f attached = new Quaternionf().rotationZYX(body.zRot, body.yRot, body.xRot)
                     .transform(attachment).add(body.x, body.y, body.z);
             Vector3f expected = new Vector3f(carriedWaist).add(carriedLean[3], -relief, 0).add(retreat).add(correction);
-            float soleDrift = Math.max(rightSole == null ? 0 : rightSole.distance(sole(right)),
-                    leftSole == null ? 0 : leftSole.distance(sole(left)));
+            float soleDrift = Math.max(rightSole == null ? 0 : rightSole.distance(Body.sole(right)),
+                    leftSole == null ? 0 : leftSole.distance(Body.sole(left)));
             LOGGER.info("[PelvisTrace] wallYaw={} attachmentGap={} soleDrift={} crouchRelief={} hipDrop={} retreat={}",
                     state.wallYaw, attached.distance(expected), soleDrift, relief, carriedWaist.y - waist.y, retreat.z);
         }
@@ -282,9 +282,6 @@ public final class TorsoLean {
         }
     }
 
-    private static Vector3f sole(ModelPart leg) {
-        return Body.tip(leg, 12);
-    }
 
     /** Moves a part's pivot round the waist by {@code turn}, shifts it, and adds the turn to it. */
     private static void carry(ModelPart part, Quaternionf turn, Vector3f waist, float[] lean) {

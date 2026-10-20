@@ -41,9 +41,9 @@ public final class TableSupport {
         }
         if (owned < .001f) { s.turn.identity(); s.snapshot.clear(); return; }
         // Tiny grounded transfer; the existing leg solver preserves both already grounded soles.
-        Vector3f rBefore = sole(rl), lBefore = sole(ll);
+        Vector3f rBefore = Body.sole(rl), lBefore = Body.sole(ll);
         PelvisFollow.shift(parts, 0, (.9f - .65f * press) * s.motion.load * owned);
-        float soleDrift = Math.max(rBefore.distance(sole(rl)), lBefore.distance(sole(ll)));
+        float soleDrift = Math.max(rBefore.distance(Body.sole(rl)), lBefore.distance(Body.sole(ll)));
         Vector3f waist = new Vector3f((rl.x + ll.x) * .5f, (rl.y + ll.y) * .5f, (rl.z + ll.z) * .5f);
         Vector3f rt = right ? main : support, lt = right ? support : main;
         var desired = SupportedContact.fit(s.turn, new Vector3f(r.x, r.y, r.z).sub(waist), new Vector3f(l.x, l.y, l.z).sub(waist),
@@ -95,9 +95,6 @@ public final class TableSupport {
         max.z += shift;
         s.snapshot.put("headClearanceShiftPixels", shift);
         s.snapshot.put("headOverlapPixels", HeadClearance.overlap(min, max, s.obstacleMin, s.obstacleMax));
-    }
-    private static Vector3f sole(ModelPart p) {
-        return Body.tip(p, 12);
     }
     static void capture(State s, Function<String, ModelPart> parts, boolean right, Vector3f main, Vector3f support) {
         if (s.snapshot.isEmpty()) return;

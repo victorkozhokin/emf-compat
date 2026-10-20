@@ -38,6 +38,11 @@ public final class Body {
     }
 
     /** The point {@code length} pixels down a limb as it is posed now: a palm, a sole. */
+    /** The sole of a leg, model pixels: its tip, a leg's length (12) from the hip. */
+    public static Vector3f sole(ModelPart leg) {
+        return tip(leg, 12);
+    }
+
     public static Vector3f tip(ModelPart limb, float length) {
         return new Quaternionf().rotationZYX(limb.zRot, limb.yRot, limb.xRot)
                 .transform(new Vector3f(0, length * limb.yScale, 0)).add(limb.x, limb.y, limb.z);

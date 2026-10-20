@@ -91,6 +91,11 @@ public final class HorseSyncAnimationHook extends EMFAnimationApi.EMFAnimationHo
     }
 
     private static final java.util.Map<java.util.UUID, Rest> REST = strm.touchnmotion.interaction.EntityStates.alsoClear(new java.util.HashMap<>());
+
+    /** Forgets the horses no longer around. */
+    static void retain(java.util.Set<java.util.UUID> horses) {
+        REST.keySet().retainAll(horses);
+    }
     /** Seconds the rest is evened out over: long against a stride, short against settling after a reload. */
     private static final float REST_SECONDS = 2f;
 

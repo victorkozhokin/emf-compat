@@ -26,6 +26,7 @@ public class ClientEventHandler {
     public static void onClientTick() {
         if (!HorseSync.isEnabled()) {
             EMFCompat.horseSaddles.clear();
+            HorseSyncAnimationHook.retain(java.util.Set.of());
             return;
         }
 
@@ -34,6 +35,7 @@ public class ClientEventHandler {
         var mc = Minecraft.getInstance();
         if (mc.level == null) {
             EMFCompat.horseSaddles.clear();
+            HorseSyncAnimationHook.retain(java.util.Set.of());
             return;
         }
 
@@ -42,6 +44,7 @@ public class ClientEventHandler {
                 .map(Entity::getUUID)
                 .collect(Collectors.toSet());
         EMFCompat.horseSaddles.keySet().retainAll(activeHorses);
+        HorseSyncAnimationHook.retain(activeHorses);
     }
 
     /** The saddle the rider is on this frame; {@code null} for none - not on a horse, or the pack does not move its body. */
@@ -64,7 +67,8 @@ public class ClientEventHandler {
     public static void onRenderPlayerPre(Entity player, PoseStack stack) {
         carried = false;
         EMFCompat.Saddle saddle = saddle(player);
-        if (saddle == null || !(player.getVehicle() instanceof AbstractHorse horse)) return;
+        if (saddle == null || !(player.getVehicle() instanceof AbstractHorse horse)
+                || !strm.touchnmotion.interaction.WorldDraw.inWorld(player, stack)) return;
         stack.pushPose();
         carried = true;
         float partial = strm.touchnmotion.platform.Platform.partialTick(false);

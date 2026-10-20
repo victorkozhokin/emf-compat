@@ -8,7 +8,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import strm.touchnmotion.interaction.SubLevels;
 
-import java.lang.reflect.Method;
 import strm.touchnmotion.blockuse.*;
 
 /**
@@ -30,8 +29,7 @@ public final class Globe implements BlockTarget {
     /** The rotation jumps by 450 on a spin and only falls otherwise: this much up is a spin. */
     private static final float SPUN = 90f;
 
-    private static Method rotation;
-    private static boolean failed;
+    private static final strm.touchnmotion.blockuse.ModAccess ROTATION = new strm.touchnmotion.blockuse.ModAccess("getRotation", float.class);
 
     /** How far the ball is turned, and the side of it the player is at. */
     private record Seen(BlockState block, float rotation, Vec3 side) {
@@ -81,14 +79,6 @@ public final class Globe implements BlockTarget {
     }
 
     private static float rotation(Level level, BlockPos pos) {
-        Object entity = level.getBlockEntity(pos);
-        if (entity == null || failed) return 0f;
-        try {
-            if (rotation == null) rotation = entity.getClass().getMethod("getRotation", float.class);
-            return (float) rotation.invoke(entity, 1f);
-        } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
-            failed = true;
-            return 0f;
-        }
+        return ROTATION.call(level.getBlockEntity(pos), 1f) instanceof Float rotation ? rotation : 0f;
     }
 }

@@ -23,7 +23,7 @@ public final class ShoulderCamera {
     /** Camera orientation is the rendered world view; Sable's entity view uses a tick-space pose. */
     public static net.minecraft.world.phys.Vec3 worldView(net.minecraft.client.player.AbstractClientPlayer player) {
         var mc = Minecraft.getInstance();
-        if (player != mc.player || mc.getCameraEntity() != player) return player.getViewVector(1);
+        if (player != mc.player || mc.getCameraEntity() != player) return player.getViewVector(strm.touchnmotion.platform.Platform.partialTick(false));
         var view = strm.touchnmotion.platform.Platform.cameraForward();
         return mc.options.getCameraType().isMirrored() ? view.reverse() : view;
     }

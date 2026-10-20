@@ -14,6 +14,7 @@ import strm.touchnmotion.DebugLog;
 import strm.touchnmotion.blockuse.BlockUse;
 import strm.touchnmotion.seat.CockpitContact;
 import strm.touchnmotion.seat.CockpitFacing;
+import strm.touchnmotion.seat.HeadLook;
 import strm.touchnmotion.seat.SeatedBody;
 import strm.touchnmotion.interaction.Body;
 import strm.touchnmotion.interaction.Effector;
@@ -122,8 +123,7 @@ public final class TrainCockpit {
 
         // Against the body as it is now turned: where the driver looks, and how the train pulls.
         IKFrame turned = IKFrame.capture(stack.last().pose(), Platform.cameraPosition());
-        Vec3 at = turned.jointWorld(new Vector3f());
-        float[] look = CockpitFacing.look(Body.model(turned, at.add(strm.touchnmotion.compat.ShoulderCamera.worldView(player))));
+        float[] look = HeadLook.against(turned, player);
         state.headYaw = look[0];
         state.headPitch = look[1];
         Vector3f sway = state.transport.warped || controls == null ? new Vector3f() : SeatedBody.sway(turned, state.transport.acceleration);
@@ -177,7 +177,7 @@ public final class TrainCockpit {
     /** The head looks where the driver does, from a body turned to the controls. After the pack has animated. */
     public static void head(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
-        if (state == null || state.weight < 1e-3f || InteractionRuntime.aim(uuid, Effector.HEAD) != null) return;
-        SeatedBody.turnHead(parts.apply("head"), parts.apply("hat"), state.headYaw, state.headPitch, state.weight);
+        if (state == null || state.weight < 1e-3f) return;
+        HeadLook.turn(uuid, parts, state.headYaw, state.headPitch, state.weight);
     }
 }

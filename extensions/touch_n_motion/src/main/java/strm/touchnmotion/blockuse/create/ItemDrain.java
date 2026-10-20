@@ -8,9 +8,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import strm.touchnmotion.blockuse.*;
 
 /**
@@ -28,8 +26,7 @@ public final class ItemDrain implements BlockTarget {
     /** The grate the item lies on, pixels. */
     private static final double TOP = 13;
 
-    private static Field tank;
-    private static boolean failed;
+    private static final ModAccess TANK = new ModAccess("internalTank");
 
     /** What lies on it, how much fluid is in it, and whether the player's hand is empty. */
     private record Seen(BlockState block, int items, int fluid, boolean emptyHand) {
@@ -65,17 +62,6 @@ public final class ItemDrain implements BlockTarget {
 
     /** Millibuckets in the drain's own tank ({@code internalTank}). */
     private static int fluid(BlockEntity entity) {
-        if (entity == null || failed) return 0;
-        try {
-            if (tank == null) {
-                tank = entity.getClass().getDeclaredField("internalTank");
-                tank.setAccessible(true);
-            }
-            return (int) Math.min(Integer.MAX_VALUE, strm.touchnmotion.platform.Platform.fluid(HANDLER.read(tank.get(entity))));
-        } catch (ReflectiveOperationException | RuntimeException e) {
-            failed = true;
-            LoggerFactory.getLogger("EMFCompatBlockUse").warn("[BlockUse] cannot read the item drain's tank", e);
-            return 0;
-        }
+        return (int) Math.min(Integer.MAX_VALUE, strm.touchnmotion.platform.Platform.fluid(HANDLER.read(TANK.read(entity))));
     }
 }

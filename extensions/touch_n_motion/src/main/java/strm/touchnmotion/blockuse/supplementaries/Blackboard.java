@@ -9,9 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import strm.touchnmotion.blockuse.*;
 
@@ -37,8 +35,7 @@ public final class Blackboard implements BlockTarget {
     /** More pixels than this changed at once is a picture sent whole, not drawn. */
     private static final int STROKE = 12;
 
-    private static Method pixel;
-    private static boolean failed;
+    private static final strm.touchnmotion.blockuse.ModAccess PIXEL = new strm.touchnmotion.blockuse.ModAccess("getPixel", int.class, int.class);
     /** The last picture read, and its pixels: read again only when the picture is another. */
     private static Object lastData;
     private static byte[] lastPixels = new byte[0];
@@ -118,22 +115,18 @@ public final class Blackboard implements BlockTarget {
 
     /** The board's 256 pixels, x by y; the picture is an object replaced whole when a pixel changes. */
     private static byte[] pixels(BlockEntity entity) {
-        if (entity == null || failed) return new byte[0];
+        if (entity == null) return new byte[0];
         Object data = DATA.read(entity);
         if (data != null && data == lastData) return lastPixels;
-        try {
-            if (pixel == null) pixel = entity.getClass().getMethod("getPixel", int.class, int.class);
-            byte[] pixels = new byte[SIZE * SIZE];
-            for (int x = 0; x < SIZE; x++) {
-                for (int y = 0; y < SIZE; y++) pixels[x * SIZE + y] = (byte) pixel.invoke(entity, x, y);
+        byte[] pixels = new byte[SIZE * SIZE];
+        for (int x = 0; x < SIZE; x++) {
+            for (int y = 0; y < SIZE; y++) {
+                if (!(PIXEL.call(entity, x, y) instanceof Byte value)) return new byte[0];
+                pixels[x * SIZE + y] = value;
             }
-            lastData = data;
-            lastPixels = pixels;
-            return pixels;
-        } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
-            failed = true;
-            LoggerFactory.getLogger("EMFCompatBlockUse").warn("[BlockUse] cannot read the blackboard's pixels", e);
-            return new byte[0];
         }
+        lastData = data;
+        lastPixels = pixels;
+        return pixels;
     }
 }
