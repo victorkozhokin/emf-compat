@@ -7,9 +7,6 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import strm.touchnmotion.buttonpress.ButtonPress;
-import strm.touchnmotion.blockuse.BlockUse;
-import strm.touchnmotion.create.ejector.EjectorLaunch;
 import strm.touchnmotion.footgrounding.compat.FootGrounding;
 import strm.touchnmotion.interaction.Effector;
 import strm.touchnmotion.interaction.EntityStates;
@@ -124,8 +121,8 @@ public final class TorsoLean {
                 target[0] += head[0] * FOLLOW_PITCH * head[2];
                 target[1] += Math.max(-MAX_YAW, Math.min(MAX_YAW, head[1] * FOLLOW_YAW)) * head[2];
             }
-            Hint[] hints = new Hint[]{strm.touchnmotion.compat.CombatBody.torsoHint(uuid), strm.touchnmotion.interaction.HandContacts.torsoHint(uuid), ButtonPress.torsoHint(uuid), Hint.of(strm.touchnmotion.buttonpress.aeronautics.HeavyThrottle.torsoHint(uuid)), BlockUse.torsoHint(uuid), strm.touchnmotion.blockuse.create.TrainCockpit.torsoHint(uuid), EjectorLaunch.torsoHint(uuid), WallSqueeze.torsoHint(uuid), Hint.of(strm.touchnmotion.transport.TransportGrip.torsoHint(uuid)), Hint.of(FootGrounding.terrainHint(uuid)), Hint.of(strm.touchnmotion.lead.LeadHold.torsoHint(uuid)), strm.touchnmotion.pocket.PocketStash.torsoHint(uuid), strm.touchnmotion.mining.Mining.torsoHint(uuid), strm.touchnmotion.gesture.Gesture.torsoHint(uuid), strm.touchnmotion.ride.BoatRide.torsoHint(uuid), strm.touchnmotion.ride.BoatPassenger.torsoHint(uuid), strm.touchnmotion.ride.MinecartRide.torsoHint(uuid), strm.touchnmotion.ride.HorseRide.torsoHint(uuid), strm.touchnmotion.lookat.LookAt.torsoHint(uuid), strm.touchnmotion.wallhand.FenceLean.torsoHint(uuid), strm.touchnmotion.fishing.Fishing.torsoHint(uuid), strm.touchnmotion.fright.Fright.torsoHint(uuid)};
-            for (Hint hint : hints) {
+            for (var source : strm.touchnmotion.stages.BodyStages.TORSO) {
+                Hint hint = source.apply(uuid);
                 if (hint == null) continue;
                 target[0] += hint.pitch;
                 target[1] += hint.yaw;

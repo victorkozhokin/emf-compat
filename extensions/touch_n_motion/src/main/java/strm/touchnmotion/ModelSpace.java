@@ -1,18 +1,13 @@
 package strm.touchnmotion;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import strm.emfcompat.core.ik.IKFrame;
-import strm.touchnmotion.create.ejector.EjectorLaunch;
 import strm.touchnmotion.footgrounding.compat.FootGrounding;
 import strm.touchnmotion.footgrounding.compat.HorseFootGrounding;
 import strm.touchnmotion.interaction.InteractionRuntime;
-import strm.touchnmotion.motion.MotionRuntime;
-import strm.touchnmotion.torso.TorsoLean;
-import strm.touchnmotion.wallhand.WallSqueeze;
 
 import java.util.function.Consumer;
 
@@ -103,11 +98,7 @@ public final class ModelSpace {
             return;
         }
         org.joml.Vector3f before = stack.last().pose().transformDirection(new org.joml.Vector3f(0, 0, 1));
-        strm.touchnmotion.blockuse.aeronautics.CockpitControls.orient(player, stack);
-        strm.touchnmotion.blockuse.create.TrainCockpit.orient(player, stack);
-        strm.touchnmotion.ride.MinecartRide.orient(player, stack);
-        strm.touchnmotion.wallhand.FenceLean.orient(player, stack);
-        strm.touchnmotion.lookat.LookAt.orient(player, stack);
+        for (var orient : strm.touchnmotion.stages.BodyStages.ORIENT) orient.accept(player, stack);
         // How far round all that has turned the model from the body the game turns it by: the cape's swing is reckoned from the latter.
         org.joml.Vector3f after = stack.last().pose().transformDirection(new org.joml.Vector3f(0, 0, 1));
         strm.touchnmotion.cape.CapeFollow.turned(player.getUUID(),
@@ -115,12 +106,6 @@ public final class ModelSpace {
         model.accept(player);
         FootGrounding.modelPose(player, stack);
         IKFrame frame = frame(player, stack);
-        strm.touchnmotion.blockuse.aeronautics.CockpitControls.frame(player, frame);
-        MotionRuntime.modelPose(player);
-        InteractionRuntime.modelPose(player, frame);
-        strm.touchnmotion.blockuse.BlockUse.frame(player, frame);
-        EjectorLaunch.modelPose(player);
-        WallSqueeze.modelPose(player, frame);
-        TorsoLean.modelPose(player);
+        for (var read : strm.touchnmotion.stages.BodyStages.FRAME) read.accept(player, frame);
     }
 }

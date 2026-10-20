@@ -1,6 +1,6 @@
 package strm.touchnmotion;
 
-import strm.touchnmotion.interaction.HandContacts;
+import strm.touchnmotion.stages.BodyStages;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.player.Player;
@@ -9,13 +9,8 @@ import org.slf4j.LoggerFactory;
 import strm.touchnmotion.footgrounding.compat.FootGrounding;
 import strm.touchnmotion.footgrounding.compat.HorseFootGrounding;
 import strm.touchnmotion.interaction.InteractionRuntime;
-import strm.touchnmotion.buttonpress.ButtonPress;
-import strm.touchnmotion.blockuse.BlockUse;
-import strm.touchnmotion.create.ejector.EjectorLaunch;
-import strm.touchnmotion.mining.Mining;
 import strm.touchnmotion.motion.PoseInertia;
 import strm.touchnmotion.torso.TorsoLean;
-import strm.touchnmotion.wallhand.WallSqueeze;
 import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.PoseSnapshot;
 import traben.entity_model_features.EMFAnimationApi;
@@ -294,40 +289,14 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
         // First, on the pack's own pose: its cuts settle before anything corrects it. A player's only:
         // the hook runs for every creature EMF animates.
         if (player) PoseInertia.apply(uuid, parts, EMFState.getFrameCounter());
-        FootGrounding.apply(uuid, parts);
-        strm.touchnmotion.ride.MinecartRide.legs(uuid, parts);
-        strm.touchnmotion.ride.HorseRide.legs(uuid, parts);
-        strm.touchnmotion.ride.BoatRide.seat(uuid, parts);
-        strm.touchnmotion.ride.BoatPassenger.legs(uuid, parts);
-        EjectorLaunch.apply(uuid, parts);
-        WallSqueeze.apply(uuid, parts);
+        BodyStages.Pass none = new BodyStages.Pass(null, mainModel);
+        BodyStages.run(BodyStages.LEGS, uuid, parts, none);
         var supportBase = InteractionRuntime.beginSupport(uuid, parts);
-        HandContacts.support(uuid, parts);
-        ButtonPress.apply(uuid, parts);
-        BlockUse.apply(uuid, parts);
-        strm.touchnmotion.lead.LeadHold.support(uuid, parts);
-        strm.touchnmotion.pocket.PocketStash.support(uuid, parts);
-        strm.touchnmotion.wallhand.FenceLean.support(uuid, parts);
-        strm.touchnmotion.fishing.Fishing.support(uuid, parts);
-        strm.touchnmotion.lookat.LookAt.support(uuid, parts);
-        strm.touchnmotion.fright.Fright.support(uuid, parts);
-        Mining.support(uuid, parts);
-        strm.touchnmotion.gesture.Gesture.support(uuid, parts);
-        strm.touchnmotion.compat.CombatBody.support(uuid, parts);
-        // The torso before the arm aims: a hand on a wall aims from where the shoulder has gone.
-        WallSqueeze.support(uuid, parts);
-        strm.touchnmotion.transport.TransportGrip.support(uuid, parts);
+        BodyStages.run(BodyStages.SUPPORT, uuid, parts, none);
         float[] attackArms = strm.touchnmotion.compat.CombatBody.armsBefore(uuid, parts);
         TorsoLean.apply(uuid, parts);
         strm.touchnmotion.compat.CombatBody.armsAfter(parts, attackArms);
-        strm.touchnmotion.transport.TransportGrip.reach(uuid, parts);
-        HandContacts.reach(uuid, parts);
-        BlockUse.reachContact(uuid, parts);
-        Mining.reach(uuid, parts);
-        strm.touchnmotion.gesture.Gesture.reach(uuid, parts);
-        ButtonPress.reachContact(uuid, parts);
-        strm.touchnmotion.buttonpress.aeronautics.HeavyThrottle.reachContact(uuid, parts);
-        strm.touchnmotion.fishing.Fishing.reach(uuid, parts);
+        BodyStages.run(BodyStages.REACH, uuid, parts, none);
         InteractionRuntime.finishSupport(uuid, parts, supportBase, EMFState.getFrameCounter(), mainModel);
         // Anchor this draw before final hand aiming, so IK uses the compensated shoulders.
         if (neck != null) {
@@ -340,30 +309,8 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             strm.touchnmotion.compat.FirstPersonHead.apply(neck, parts.apply("body"), anchored);
         }
         var contactBase = InteractionRuntime.beginHands(uuid, parts);
-        strm.touchnmotion.lookat.LookAt.apply(uuid, parts);
-        InteractionRuntime.apply(uuid, parts);
-        // The hands on the walls of a narrow gap, from where the turned torso has put the shoulders.
-        WallSqueeze.aimArms(uuid, parts);
-        // Last: a hand on a button or a swing on a block aims from where its shoulder has finally been drawn.
-        ButtonPress.aimArm(uuid, parts, contactBase);
-        strm.touchnmotion.blockuse.create.TrainCockpit.reach(uuid, parts);
-        BlockUse.aimArm(uuid, parts);
-        Mining.aimArm(uuid, parts, contactBase);
-        strm.touchnmotion.gesture.Gesture.aimArms(uuid, parts, contactBase);
-        strm.touchnmotion.pocket.PocketStash.aimArm(uuid, parts);
-        strm.touchnmotion.blockuse.aeronautics.CockpitControls.apply(uuid, parts);
-        strm.touchnmotion.blockuse.create.TrainCockpit.head(uuid, parts);
-        HandContacts.apply(uuid, parts, contactBase, mainModel);
-        strm.touchnmotion.buttonpress.aeronautics.HeavyThrottle.aimArms(uuid, parts);
-        strm.touchnmotion.transport.TransportGrip.aim(uuid, parts);
-        strm.touchnmotion.lead.LeadHold.capture(uuid, parts);
-        strm.touchnmotion.ride.BoatRide.grip(uuid, parts);
-        strm.touchnmotion.ride.BoatPassenger.grip(uuid, parts);
-        strm.touchnmotion.ride.MinecartRide.grip(uuid, parts);
-        strm.touchnmotion.ride.HorseRide.grip(uuid, parts);
-        strm.touchnmotion.wallhand.FenceLean.grip(uuid, parts);
-        strm.touchnmotion.fishing.Fishing.grip(uuid, parts);
-        strm.touchnmotion.fright.Fright.apply(uuid, parts);
+        BodyStages.run(BodyStages.HANDS, uuid, parts,
+                new BodyStages.Pass(contactBase, mainModel));
         InteractionRuntime.finishHands(uuid, parts, contactBase, EMFState.getFrameCounter(), mainModel);
     }
 }
