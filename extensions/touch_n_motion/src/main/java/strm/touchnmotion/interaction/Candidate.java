@@ -13,18 +13,32 @@ import java.util.Map;
  * better ({@link Arbiter#HYSTERESIS}).</p>
  */
 public record Candidate(String source, Category category, int priority, Map<Effector, float[]> aims,
-                        float confidence, Timing timing, Object target, boolean quietSwing) {
+                        float confidence, Timing timing, Object target, Swing swing) {
+
+    /** What becomes of the game's swing of an arm while the candidate has it. */
+    public enum Swing {
+        /** The pack plays it as the game gives it. */
+        PLAY,
+        /** Kept off the body: a held mechanism, where every repeat of the click starts one. */
+        QUIET,
+        /** Played on the arm the candidate has, whichever the game would swing: the press is the swing. */
+        HAND
+    }
 
     public Candidate(String source, Category category, int priority, Map<Effector, float[]> aims,
                      float confidence, Timing timing) {
-        this(source, category, priority, aims, confidence, timing, null, false);
+        this(source, category, priority, aims, confidence, timing, null, Swing.PLAY);
     }
     public Candidate withTarget(Object identity) {
-        return new Candidate(source, category, priority, aims, confidence, timing, identity, quietSwing);
+        return new Candidate(source, category, priority, aims, confidence, timing, identity, swing);
     }
 
     public Candidate withQuietSwing(boolean quiet) {
-        return new Candidate(source, category, priority, aims, confidence, timing, target, quiet);
+        return withSwing(quiet ? Swing.QUIET : Swing.PLAY);
+    }
+
+    public Candidate withSwing(Swing swing) {
+        return new Candidate(source, category, priority, aims, confidence, timing, target, swing);
     }
 
     public Candidate {

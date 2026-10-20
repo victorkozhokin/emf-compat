@@ -165,7 +165,7 @@ Use **Mods → Touch'n Motion → Config** to open its tab directly, or **Mods �
 
 | Option | What it does |
 |---|---|
-| Press buttons | Buttons and levers pressed where they are. Under it: **Throttle effort**. |
+| Press buttons | Buttons and levers pressed where they are, by the main hand or the one on their side. Under it: **Nearest hand**, **Throttle effort**. |
 | Reaching pose | The body stretches to a control out of arm's reach. |
 | Use blocks by hand | The hand goes to the block being used. |
 | Hold doors | A hand on the door or gate as it is opened. |

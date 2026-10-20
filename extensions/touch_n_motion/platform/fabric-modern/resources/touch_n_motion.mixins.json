@@ -9,6 +9,7 @@
   "client": [
     "modern.StateEntityMixin",
     "modern.SwingQuietMixin",
+    "modern.SwingHandMixin",
     "modern.ModelSpaceMixin",
     "modern.BoatChestModelMixin",
     "fabric.modern.PlayerSubmitEventsMixin",

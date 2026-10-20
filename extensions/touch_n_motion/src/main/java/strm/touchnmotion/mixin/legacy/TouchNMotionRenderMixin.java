@@ -25,6 +25,7 @@ public class TouchNMotionRenderMixin {
                                                             CallbackInfo ci) {
         strm.touchnmotion.ModelSpace.before(entity, stack, partialTick, player -> {
             emfcompat$quietSwing(player);
+            emfcompat$swingOnHand(player);
             if (EjectorLaunch.wantsCrouch(player)
                     && ((LivingEntityRenderer<?, ?>) (Object) this).getModel() instanceof net.minecraft.client.model.HumanoidModel<?> humanoid
                     && !humanoid.crouching) {
@@ -57,10 +58,36 @@ public class TouchNMotionRenderMixin {
         ((LivingEntityRenderer<?, ?>) (Object) this).getModel().attackTime = 0f;
     }
 
+    /** The player whose swing is drawn on the other arm this draw, and the hand the game had swinging. */
+    @Unique
+    private AbstractClientPlayer emfcompat$moved;
+    @Unique
+    private net.minecraft.world.InteractionHand emfcompat$swingingArm;
+
+    /**
+     * A press with the hand that the game does not swing (a lever on the left reached with the left
+     * hand): the swing is drawn on that arm, so the pack turns the torso with the hand and not
+     * against it. The model asks the entity which hand swings ({@code getAttackArm}); it is told the
+     * other one for this draw and put back after it.
+     */
+    @Unique
+    private void emfcompat$swingOnHand(AbstractClientPlayer player) {
+        if (emfcompat$quieted == player || !strm.touchnmotion.interaction.InteractionRuntime.swingsOtherArm(player)) return;
+        emfcompat$moved = player;
+        emfcompat$swingingArm = player.swingingArm;
+        player.swingingArm = player.swingingArm == net.minecraft.world.InteractionHand.MAIN_HAND
+                ? net.minecraft.world.InteractionHand.OFF_HAND : net.minecraft.world.InteractionHand.MAIN_HAND;
+    }
+
     @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             at = @At("RETURN"))
     private void emfcompat$restoreSwing(LivingEntity entity, float yaw, float partialTick, PoseStack stack,
                                         MultiBufferSource buffers, int light, CallbackInfo ci) {
+        AbstractClientPlayer moved = emfcompat$moved;
+        if (moved != null) {
+            emfcompat$moved = null;
+            moved.swingingArm = emfcompat$swingingArm;
+        }
         AbstractClientPlayer player = emfcompat$quieted;
         if (player == null) return;
         emfcompat$quieted = null;

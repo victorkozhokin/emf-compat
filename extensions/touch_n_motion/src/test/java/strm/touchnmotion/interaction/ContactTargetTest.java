@@ -10,6 +10,6 @@ class ContactTargetTest {
         assertEquals(a.priority(), b.priority());
         assertArrayEquals(a.aims().get(Effector.RIGHT_ARM), b.aims().get(Effector.RIGHT_ARM));
         assertEquals("block A", a.target());
-        assertTrue(b.quietSwing());
+        assertEquals(Candidate.Swing.QUIET, b.swing());
     }
 }

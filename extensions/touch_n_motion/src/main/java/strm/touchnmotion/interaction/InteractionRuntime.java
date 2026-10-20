@@ -63,7 +63,7 @@ public final class InteractionRuntime {
         float weight;
         double handoff;
         Object target;
-        boolean quietSwing;
+        Candidate.Swing swing = Candidate.Swing.PLAY;
         boolean releasing;
         String releaseReason;
         final ContactRelease release = new ContactRelease();
@@ -86,6 +86,10 @@ public final class InteractionRuntime {
         IKFrame frame;
         String bodyOwner;
         int claimedSwingStart = Integer.MIN_VALUE;
+        /** The swing last seen, how far into it, and the arm it is drawn on ({@link #swingHand}). */
+        boolean swingSeen;
+        int swingTimeSeen;
+        Effector swingHand;
         boolean paused;
         float bodyFrame = Float.NaN;
         final Map<String, float[]> bodyDelta = new HashMap<>();
@@ -174,7 +178,7 @@ public final class InteractionRuntime {
                 slot.releaseReason = null;
                 slot.handoffBlend = slot.poseHandoff > 0 ? Smoothing.follow(dt, HANDOFF_SECONDS) : 1;
                 slot.timing = owner.timing();
-                slot.quietSwing = owner.quietSwing();
+                slot.swing = owner.swing();
                 if (slot.aim == null || slot.weight < 1e-3f) {
                     slot.aim = target.clone();
                 } else {
@@ -385,9 +389,56 @@ public final class InteractionRuntime {
         if (state == null) return false;
         for (Effector hand : new Effector[]{Effector.RIGHT_ARM, Effector.LEFT_ARM}) {
             Slot slot = state.slots.get(hand);
-            if (slot.owner != null && slot.quietSwing && slot.weight > (slot.releasing ? 1e-3f : .5f)) return true;
+            if (slot.owner != null && slot.swing == Candidate.Swing.QUIET && slot.weight > (slot.releasing ? 1e-3f : .5f)) return true;
         }
         return false;
+    }
+
+    /**
+     * The arm the swing going on now is drawn on, when it started with an arm in the hand of a
+     * candidate whose press is the swing ({@link Candidate.Swing#HAND}); {@code null} leaves it to
+     * the game. Settled once a swing, at the first draw that sees it, so a swing stays on one arm
+     * whatever becomes of the contact meanwhile. Not in first person: the hand there is the game's.
+     */
+    public static Effector swingHand(AbstractClientPlayer player) {
+        PlayerState state = STATES.fresh(player.getUUID());
+        if (state == null) return null;
+        if (!strm.touchnmotion.platform.Platform.swinging(player)) {
+            state.swingSeen = false;
+            return null;
+        }
+        int time = strm.touchnmotion.platform.Platform.swingTime(player);
+        if (!state.swingSeen || time < state.swingTimeSeen) {
+            state.swingHand = null;
+            if (!strm.emfcompat.core.EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) {
+                for (Effector hand : new Effector[]{Effector.RIGHT_ARM, Effector.LEFT_ARM}) {
+                    Slot slot = state.slots.get(hand);
+                    if (slot.owner != null && !slot.releasing && slot.swing == Candidate.Swing.HAND && slot.weight > .5f) {
+                        state.swingHand = hand;
+                    }
+                }
+            }
+            if (state.swingHand != null && gameSwingsRight(player) != (state.swingHand == Effector.RIGHT_ARM)) {
+                log(player, "swing moved to " + state.swingHand.part);
+            }
+        }
+        state.swingSeen = true;
+        state.swingTimeSeen = time;
+        return state.swingHand;
+    }
+
+    /**
+     * Whether the game's swing has to be moved to the other arm to be drawn on {@link #swingHand}:
+     * the game swings the main arm for the main hand, the other for the off hand.
+     */
+    public static boolean swingsOtherArm(AbstractClientPlayer player) {
+        Effector hand = swingHand(player);
+        return hand != null && gameSwingsRight(player) != (hand == Effector.RIGHT_ARM);
+    }
+
+    private static boolean gameSwingsRight(AbstractClientPlayer player) {
+        boolean mainRight = player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT;
+        return (strm.touchnmotion.platform.Platform.swingingArm(player) == net.minecraft.world.InteractionHand.MAIN_HAND) == mainRight;
     }
 
     public static boolean holds(UUID uuid, String source, Effector hand, Object target) {

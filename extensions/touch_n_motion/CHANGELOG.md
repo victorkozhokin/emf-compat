@@ -16,6 +16,7 @@
 - On a horse the rider sits in the middle of the saddle, leaning over to the reins, and rides it: carried up, down and turned with the horse's body as the resource pack moves it - over a jump the rider no longer stays upright while the horse rears up under them, nor slides back off it, and with Fresh Animations no longer sits forward on the withers - folding over the neck and giving the horse its head over a jump, swaying back as it sets off, forward as it stops and out of a bend, and coming up off the saddle in the air
 - Shoulder Surfing: on a horse, in a minecart and leaning on a fence the head follows the camera as at a craft's wheel and a train's controls; leaning on a fence it no longer steps between ticks
 - Riding a horse with a resource pack that animates it, the player in the inventory's portrait is no longer moved and turned with the saddle
+- Buttons and levers: a left-handed player reaches for them with the left hand. A button or a lever out to the side of the other hand is taken with the hand on its side, so an arm no longer reaches across the chest, and the swing of the click goes to that hand, the torso turning with it. New setting "Nearest hand" (under "Press buttons")
 - Create's item drain: the fluid in it is read for subclasses of the drain too
 - Aeronautics cockpit: turning sharply to a side lever no longer starts the far hand for a frame before the near one takes it, and the near hand starts a little sooner
 - Requires EMF Compat Core 2.4.0
