@@ -12,18 +12,17 @@ import strm.touchnmotion.interaction.EntityStates;
 import strm.touchnmotion.interaction.InteractionContext;
 import strm.touchnmotion.interaction.InteractionProvider;
 import strm.touchnmotion.interaction.InteractionRuntime;
-import strm.touchnmotion.torso.BraceSteps;
 import strm.touchnmotion.torso.TorsoLean;
+import strm.touchnmotion.pose.BodyPose;
+import strm.touchnmotion.pose.PoseRunner;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.ik.IKFrame;
 
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
-import strm.touchnmotion.interaction.Body;
 
 /**
  * Some time after the last of a run of pick-ups the player puts it all away: one look down at the
@@ -52,16 +51,15 @@ public final class PocketStash implements InteractionProvider {
     private static final float PITCH = (float) Math.toRadians(8), YAW = (float) Math.toRadians(17),
             ROLL = (float) Math.toRadians(10), TWIST = (float) Math.toRadians(4);
     /** The right foot out and back to open the hip, then the left a little forward under the weight. */
-    private static final Vector3f RIGHT_FOOT = new Vector3f(-1f, 0, 1.2f), LEFT_FOOT = new Vector3f(.4f, 0, -.8f),
-            HOME = new Vector3f();
-
-    private static final float NECK = (float) Math.toRadians(70);
+    private static final Vector3f RIGHT_FOOT = new Vector3f(-1f, 0, 1.2f), LEFT_FOOT = new Vector3f(.4f, 0, -.8f);
 
     private static boolean anyone;
     private static long lastPickup;
 
     private static final class State {
-        final BraceSteps.State stance = new BraceSteps.State();
+        /** What the stash asks of the body now, and its carrying out: the feet's steps among it. */
+        final BodyPose pose = new BodyPose();
+        final PoseRunner run = new PoseRunner();
         AbstractClientPlayer player;
         IKFrame frame;
         boolean pending, playing;
@@ -140,20 +138,29 @@ public final class PocketStash implements InteractionProvider {
             context.decide("idle");
             return;
         }
+        pose(s.pose, s.phase);
         if (s.phase >= PocketMotion.LETS_GO) {
             context.decide("let go");
             return;
         }
-        Map<Effector, float[]> aims = new EnumMap<>(Effector.class);
-        float[] arm = PocketMotion.arm(s.phase);
-        aims.put(Effector.RIGHT_ARM, new float[]{arm[0], arm[1]});
-        // The head leaves from where it looks and comes back to it, whatever the camera does meanwhile.
-        float[] head = PocketMotion.head(s.phase);
-        float yaw = Body.headYaw(player);
-        aims.put(Effector.HEAD, new float[]{(float) Math.toRadians(player.getXRot()) + head[0],
-                Math.max(-NECK, Math.min(NECK, yaw + head[1]))});
+        Map<Effector, float[]> aims = PoseRunner.aims(s.pose, player);
         out.add(Candidate.of(id(), Category.PASSIVE, 20, 1f, TIMING, aims));
         context.decide(s.phase < PocketMotion.IN_POCKET ? "stash" : "return");
+    }
+
+    /** The stash as a pose at {@code phase}: the arm's one arc into the pocket, the glance down, the bend over it, the feet apart. */
+    private static void pose(BodyPose pose, float phase) {
+        pose.reset();
+        pose.right = PocketMotion.arm(phase);
+        pose.head = PocketMotion.head(phase);
+        float lean = PocketMotion.lean(phase);
+        pose.pitch = PITCH * lean;
+        pose.yaw = YAW * lean;
+        pose.roll = ROLL * lean;
+        pose.apart = PocketMotion.apart(phase);
+        pose.rightFoot = RIGHT_FOOT;
+        pose.leftFoot = LEFT_FOOT;
+        pose.letGo = PocketMotion.LETS_GO;
     }
 
     /** On firm ground with the right hand doing nothing else. */
@@ -172,24 +179,20 @@ public final class PocketStash implements InteractionProvider {
         if (quiet(System.nanoTime())) return null;
         State s = STATES.fresh(uuid);
         if (s == null) return null;
-        float lean = PocketMotion.lean(s.phase) * shown(uuid, s);
-        return lean < 1e-3f ? null : TorsoLean.Hint.turn(PITCH * lean, YAW * lean, ROLL * lean);
+        float shown = shown(uuid, s);
+        return PocketMotion.lean(s.phase) * shown < 1e-3f ? null
+                : TorsoLean.Hint.turn(s.pose.pitch * shown, s.pose.yaw * shown, s.pose.roll * shown);
     }
 
     /**
      * The runtime aims an arm level; the sweep round the outside of the body is the roll put back, and
      * the dip into the pocket is the whole arm moved.
      */
-    public static void aimArm(UUID uuid, Function<String, ModelPart> parts) {
+    public static void aimArm(UUID uuid, Function<String, ModelPart> parts, Map<Effector, float[]> base) {
         if (quiet(System.nanoTime())) return;
         State s = STATES.fresh(uuid);
-        if (s == null) return;
-        float shown = shown(uuid, s);
-        ModelPart arm = parts.apply(Effector.RIGHT_ARM.part);
-        if (shown < 1e-3f || arm == null) return;
-        float[] pose = PocketMotion.arm(s.phase);
-        arm.zRot += (pose[2] - arm.zRot) * shown;
-        arm.y += pose[3] * shown;
+        if (s == null || !s.playing) return;
+        PoseRunner.aimArms(s.pose, parts, base, shown(uuid, s), 0f);
     }
 
     /** The feet, before the torso: one short step each, held through the gesture, then back. */
@@ -199,11 +202,8 @@ public final class PocketStash implements InteractionProvider {
         if (s == null || s.player == null) return;
         // Back under the body the way they left it: a step each, not a slide - and to the end of
         // the gesture, whoever has the arm by then.
-        boolean apart = PocketMotion.apart(s.phase);
         float shown = shown(uuid, s);
-        float held = apart || !s.playing || !INSTANCE.isEnabled() ? shown : 1;
-        if (held < .05f && s.stance.resting()) return;
-        BraceSteps.apply(s.stance, s.player, s.frame, parts, apart ? RIGHT_FOOT : HOME, apart ? LEFT_FOOT : HOME,
-                held, PocketMotion.lean(s.phase) * shown * TWIST, LOGGER, "PocketStance");
+        s.run.support(s.pose, s.player, s.frame, parts, s.playing, INSTANCE.isEnabled(), true, shown,
+                PocketMotion.lean(s.phase) * shown * TWIST, LOGGER, "PocketStance");
     }
 }

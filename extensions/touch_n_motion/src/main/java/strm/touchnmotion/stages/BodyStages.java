@@ -222,7 +222,7 @@ public final class BodyStages {
             (uuid, parts, pass) -> BlockUse.aimArm(uuid, parts),
             (uuid, parts, pass) -> Mining.aimArm(uuid, parts, pass.base()),
             (uuid, parts, pass) -> Gesture.aimArms(uuid, parts, pass.base()),
-            (uuid, parts, pass) -> PocketStash.aimArm(uuid, parts),
+            (uuid, parts, pass) -> PocketStash.aimArm(uuid, parts, pass.base()),
             (uuid, parts, pass) -> CockpitControls.apply(uuid, parts),
             (uuid, parts, pass) -> TrainCockpit.head(uuid, parts),
             (uuid, parts, pass) -> HandContacts.apply(uuid, parts, pass.base(), pass.mainModel()),

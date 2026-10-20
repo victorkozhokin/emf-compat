@@ -170,13 +170,14 @@ public final class PoseRunner {
      *
      * @param stanceOn whether the feet may step for it at all
      * @param shown    how much of the body the motion has now
+     * @param twist    radians the hips turn against the shoulders over the feet as they stand
      */
     public void support(BodyPose pose, AbstractClientPlayer player, IKFrame frame, Function<String, ModelPart> parts,
-                        boolean playing, boolean enabled, boolean stanceOn, float shown, Logger log, String id) {
+                        boolean playing, boolean enabled, boolean stanceOn, float shown, float twist, Logger log, String id) {
         boolean apart = stanceOn && playing && pose.apart && pose.rightFoot != null && pose.leftFoot != null;
         float held = apart ? shown : playing && enabled && !stance.resting() ? 1 : shown;
         if (!(held < .05f && stance.resting()))
-            BraceSteps.apply(stance, player, frame, parts, apart ? pose.rightFoot : HOME, apart ? pose.leftFoot : HOME, held, 0, log, id);
+            BraceSteps.apply(stance, player, frame, parts, apart ? pose.rightFoot : HOME, apart ? pose.leftFoot : HOME, held, twist, log, id);
         if (!playing || shown < 1e-3f) return;
         if (stanceOn && Body.planted(player))
             strm.touchnmotion.torso.PelvisFollow.shift(parts, pose.weightSide * shown, pose.weightForward * shown);

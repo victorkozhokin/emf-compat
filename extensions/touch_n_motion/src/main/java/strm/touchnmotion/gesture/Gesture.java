@@ -510,7 +510,7 @@ public abstract class Gesture implements InteractionProvider {
             Play play = gesture.states.fresh(uuid);
             if (play == null || play.player == null) continue;
             play.run.support(play.pose, play.player, play.frame, parts, play.playing, gesture.isEnabled(), on(KEY_STANCE),
-                    gesture.shown(uuid, play), LOGGER, gesture.id());
+                    gesture.shown(uuid, play), 0f, LOGGER, gesture.id());
         }
     }
 
