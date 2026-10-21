@@ -1,5 +1,8 @@
 package strm.touchnmotion.fishing;
 
+import strm.touchnmotion.pose.BodyPose;
+import strm.touchnmotion.pose.PoseRunner;
+
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
@@ -14,7 +17,6 @@ import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import strm.touchnmotion.DebugLog;
-import strm.touchnmotion.interaction.ArmAim;
 import strm.touchnmotion.interaction.Body;
 import strm.touchnmotion.interaction.Candidate;
 import strm.touchnmotion.interaction.Category;
@@ -26,7 +28,6 @@ import strm.touchnmotion.interaction.InteractionRuntime;
 import strm.touchnmotion.interaction.Smoothing;
 import strm.touchnmotion.mixin.FishingHookAccessor;
 import strm.touchnmotion.motion.Spring;
-import strm.touchnmotion.ride.BoatRide;
 import strm.touchnmotion.torso.BraceSteps;
 import strm.touchnmotion.torso.LowReach;
 import strm.touchnmotion.torso.TorsoLean;
@@ -92,8 +93,9 @@ public final class Fishing implements InteractionProvider {
         final Vector3f point = new Vector3f();
         AbstractClientPlayer player;
         IKFrame frame;
-        final BraceSteps.State feet = new BraceSteps.State();
-        final LowReach.State reach = new LowReach.State();
+        /** What fishing asks of the body this frame, and its carrying out: the feet's steps and the torso's fit among it. */
+        final BodyPose pose = new BodyPose();
+        final PoseRunner run = new PoseRunner();
         /** The rod's tip, blocks from the player's own place, as last drawn. */
         Vec3 tip;
         final DebugLog.Pace trace = new DebugLog.Pace();
@@ -184,6 +186,7 @@ public final class Fishing implements InteractionProvider {
             state.aside += -state.aside * Smoothing.follow(dt, 0.2);
             state.twoHands = false;
             state.placed = false;
+            pose(state);
             context.decide(hand == null ? "off" : able ? "idle" : "off:state");
             return;
         }
@@ -226,6 +229,7 @@ public final class Fishing implements InteractionProvider {
         state.freeSwing += (aim.freeSwing() - state.freeSwing) * Smoothing.follow(dt, 0.09);
         state.twoHands = aim.twoHands();
         state.shown += (1f - state.shown) * Smoothing.follow(dt, 0.08);
+        pose(state);
 
         // The game's own swing of the rod is this pose's to replace.
         context.claimArms();
@@ -239,6 +243,45 @@ public final class Fishing implements InteractionProvider {
         Vector3f shoulder = new Vector3f(arm == Effector.RIGHT_ARM ? -5 : 5, 2, 0);
         IKResult aim = OneBoneIK.solveXY(context.frame(), shoulder, context.frame().jointWorld(new Vector3f(point)), 11, 0, 0);
         if (aim != null) out.add(Candidate.single(id(), Category.ACTIVE, 10, 1f, TIMING, arm, new float[]{aim.x(), aim.y()}).withQuietSwing(true));
+    }
+
+    /**
+     * Fishing as a pose ({@link BodyPose}): the rod hand's fist on its place, the second hand settled
+     * under it or the free arm swung, the torso's turn and lean, the feet's stance, and the body
+     * fitted after the hand - late and soft, the weight sent with the effort. What fishing has worked
+     * out this frame; {@link PoseRunner} carries it out.
+     */
+    private static void pose(State state) {
+        BodyPose pose = state.pose;
+        pose.reset();
+        boolean on = state.phase != Phase.NONE;
+        float side = state.right ? 1f : -1f;
+        // The places are kept as the pose is let go of: each hand stays on the rod as long as it is fishing's.
+        pose.hand(state.right, new Vector3f(state.point), 1f);
+        pose.hand(!state.right, second(state), 1f);
+        pose.rightHold = state.right ? BodyPose.Hold.FIST : BodyPose.Hold.SETTLE;
+        pose.leftHold = state.right ? BodyPose.Hold.SETTLE : BodyPose.Hold.FIST;
+        pose.fitAt = new Vector3f(state.point);
+        pose.fitRight = state.right;
+        pose.fitWeight = 1f;
+        if (state.shown > 1e-3f) {
+            // The free arm: out from the body is +zRot for the right arm and -zRot for the left; swung forward is -xRot.
+            float[] free = {-state.freeSwing * FREE_SWING * state.shown, 0f, -side * FREE_OUT * state.shown};
+            if (state.right) pose.leftAdd = free;
+            else pose.rightAdd = free;
+        }
+        // +yRot takes the right shoulder back - the chest to the right; +zRot leans the body to its left.
+        pose.pitch = state.forward;
+        pose.yaw = side * state.turn;
+        pose.roll = side * state.aside;
+        pose.apart = on;
+        pose.rightFoot = FishingMotion.foot(state.stance, true, state.right);
+        pose.leftFoot = FishingMotion.foot(state.stance, false, state.right);
+        // Given up, the pose is let go of slowly: the body comes back to standing in its own time.
+        pose.fitSeconds = (float) (on ? BODY_SECONDS : RELEASE_SECONDS);
+        pose.fitAngle = (float) Math.toRadians(34);
+        // Forward is -z.
+        pose.fitForward = state.standing ? -state.weight : 0f;
     }
 
     /** Where the second hand takes the rod: under the first, towards the body's middle. */
@@ -259,22 +302,16 @@ public final class Fishing implements InteractionProvider {
         State state = STATES.fresh(uuid);
         if (state == null || !INSTANCE.isEnabled()) return null;
         if (Math.abs(state.turn) + Math.abs(state.forward) + Math.abs(state.aside) < 1e-3f) return null;
-        // +yRot takes the right shoulder back - the chest to the right; +zRot leans the body to its left.
-        float side = state.right ? 1f : -1f;
-        return TorsoLean.Hint.turn(state.forward, side * state.turn, side * state.aside);
+        return TorsoLean.Hint.turn(state.pose.pitch, state.pose.yaw, state.pose.roll);
     }
 
     /** The feet, before the torso: the foot on the rod's side set back, the other forward, and shifted a step wider at the bite and again at the haul. */
     public static void support(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
         if (state == null || state.player == null || !INSTANCE.isEnabled()) return;
-        if (state.shown < 0.05f && state.feet.resting()) return;
-        boolean apart = state.phase != Phase.NONE && state.standing;
-        BraceSteps.apply(state.feet, state.player, state.frame, parts,
-                apart ? FishingMotion.foot(state.stance, true, state.right) : HOME, apart ? FishingMotion.foot(state.stance, false, state.right) : HOME,
-                // Back under the body the way they left it - a step each, not a slide: with no effort the steps' own
-                // helper lets the soles drift home, which showed as the stance collapsing at the end of the haul.
-                apart ? state.shown : state.standing ? 1f : 0f, 0f, LOGGER, "FishingStance");
+        if (state.shown < 0.05f && state.run.stance.resting()) return;
+        // Back under the body the way they left it - a step each, not a slide - while standing.
+        state.run.support(state.pose, state.player, state.frame, parts, state.standing, true, true, state.shown, 0f, LOGGER, "FishingStance");
     }
 
     /**
@@ -287,15 +324,9 @@ public final class Fishing implements InteractionProvider {
         if (state == null || !INSTANCE.isEnabled()) return;
         float owned = state.phase == Phase.NONE ? 0f
                 : InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
-        if (owned < 1e-3f && !state.reach.active()) return;
-        // Given up, the pose is let go of slowly: the body comes back to standing in its own time.
-        state.reach.followSeconds = state.phase == Phase.NONE ? RELEASE_SECONDS : BODY_SECONDS;
-        state.reach.angleLimit = (float) Math.toRadians(34);
-        // Forward is -z.
-        state.reach.weightForward = state.standing ? -state.weight : 0f;
-        state.reach.weightShift = 0f;
         boolean both = state.twoHands && InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, INSTANCE.id()) > 0.5f;
-        LowReach.apply(parts, state.right, state.point, both ? second(state) : null, owned, state.reach);
+        state.pose.fitOther = both ? second(state) : null;
+        state.run.reach(state.pose, parts, true, owned);
     }
 
     /** The last word on the arms: each aimed at its place from where the shoulder has ended up, and the free arm off the body. */
@@ -306,15 +337,7 @@ public final class Fishing implements InteractionProvider {
         if (rod == null || other == null) return;
         float owned = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
         float second = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, INSTANCE.id());
-        if (owned >= 0.02f) ArmAim.towards(rod, state.point, owned, true);
-        if (second >= 0.02f) {
-            BoatRide.settle(other, second(state), second);
-        } else if (state.shown > 1e-3f) {
-            // The free arm: out from the body is +zRot for the right arm and -zRot for the left; swung forward is -xRot.
-            float free = state.shown * (1f - second);
-            other.zRot += (state.right ? -1f : 1f) * FREE_OUT * free;
-            other.xRot += -state.freeSwing * FREE_SWING * free;
-        }
+        PoseRunner.aimArms(state.pose, parts, null, state.right ? owned : second, state.right ? second : owned);
         if (state.phase == Phase.NONE) return;
         if (state.frame != null) {
             Vector3f tip = new Quaternionf().rotationZYX(rod.zRot, rod.yRot, rod.xRot).transform(new Vector3f(TIP)).add(rod.x, rod.y, rod.z);

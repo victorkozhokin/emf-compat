@@ -10,6 +10,16 @@ import org.joml.Vector3f;
  * torso fitted so a hand lands on its point.
  */
 public class BodyPose {
+    /** How a hand is on its point. */
+    public enum Hold {
+        /** Reached to: the arm pointed at it from the drawn shoulder, the fingertips on it. */
+        POINT,
+        /** Held: the fist closed on it - a rod's handle - the arm's length to the palm. */
+        FIST,
+        /** The second hand laid on a grip the first holds, settled on it. */
+        SETTLE
+    }
+
     /** {xRot, yRot, zRot, the whole arm moved along y}; {@code null} leaves the arm alone. */
     public float[] right, left;
     /**
@@ -20,6 +30,13 @@ public class BodyPose {
     public Vector3f rightAt, leftAt;
     public float rightReach, leftReach;
     public boolean onBody;
+    /** How each hand is on its point. */
+    public Hold rightHold = Hold.POINT, leftHold = Hold.POINT;
+    /**
+     * {xRot, yRot, zRot} added to an arm the motion does not hold, over the pack's - an arm swung free -
+     * as much as the arm is not the motion's; {@code null} for none.
+     */
+    public float[] rightAdd, leftAdd;
     /**
      * What the torso is fitted to, if not the hand that is further out: this arm's hand on this
      * point, this much, followed this slowly - for a motion whose hands come and go while the
@@ -28,6 +45,11 @@ public class BodyPose {
     public Vector3f fitAt;
     public boolean fitRight;
     public float fitWeight, fitSeconds;
+    /** The second hand's point weighed into the fit as well, {@code null} for one hand; the most the torso leans to fit, radians; the weight sent forward meanwhile, model pixels. */
+    public Vector3f fitOther;
+    public float fitAngle = FIT, fitForward;
+    /** The torso's lean to fit a hand, at most, unless the motion says otherwise: a thing further off is held out to, not lunged at. */
+    public static final float FIT = (float) Math.toRadians(20);
     /** {pitch, yaw} added to where the head looks. */
     public float[] head;
     /** A point the eyes go to, and how much of the way from where they look, 0..1. */
@@ -74,6 +96,13 @@ public class BodyPose {
         float[] arm = right;
         right = mirrored(left);
         left = mirrored(arm);
+        float[] add = rightAdd;
+        rightAdd = mirrored(leftAdd);
+        leftAdd = mirrored(add);
+        Hold hold = rightHold;
+        rightHold = leftHold;
+        leftHold = hold;
+        fitOther = mirrored(fitOther);
         float[] leg = rightLeg;
         rightLeg = mirrored(leftLeg);
         leftLeg = mirrored(leg);
@@ -110,8 +139,11 @@ public class BodyPose {
 
     /** Back to asking nothing, for the next frame. */
     public void reset() {
-        right = left = head = rightLeg = leftLeg = null;
-        rightAt = leftAt = rightFoot = leftFoot = look = fitAt = null;
+        right = left = head = rightLeg = leftLeg = rightAdd = leftAdd = null;
+        rightAt = leftAt = rightFoot = leftFoot = look = fitAt = fitOther = null;
+        rightHold = leftHold = Hold.POINT;
+        fitAngle = FIT;
+        fitForward = 0;
         fitWeight = 0;
         fitSeconds = .14f;
         looking = 0;

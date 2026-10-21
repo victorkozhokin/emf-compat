@@ -36,7 +36,7 @@ import java.util.function.Function;
  */
 public final class PoseRunner {
     /** As far round as a neck turns; the lean after the hand, and no further. */
-    public static final float NECK = (float) Math.toRadians(70), FIT = (float) Math.toRadians(20);
+    public static final float NECK = (float) Math.toRadians(70), FIT = BodyPose.FIT;
     private static final Vector3f HOME = new Vector3f();
 
     /** Where the hands are drawn to this frame: the pose's points, followed with a little give. */
@@ -218,10 +218,12 @@ public final class PoseRunner {
                 if (second != null && Math.min(r, l) > .6f) other = second;
             }
         }
+        if (fits && pose.fitAt != null) other = pose.fitOther;
         if (weight < 1e-3f && !fit.active()) return;
         // A moderate lean after the hand and no more: a thing further off is held out to, not lunged at.
-        fit.angleLimit = FIT;
+        fit.angleLimit = pose.fitAngle;
         fit.followSeconds = pose.fitSeconds;
+        fit.weightForward = pose.fitForward;
         LowReach.apply(parts, fitRight, fitAt, other, weight, fit);
     }
 
@@ -230,8 +232,28 @@ public final class PoseRunner {
      * roll and the lift put back. {@code right} and {@code left}: how much of each arm the motion has.
      */
     public static void aimArms(BodyPose pose, Function<String, ModelPart> parts, Map<Effector, float[]> base, float right, float left) {
-        one(parts.apply("right_arm"), pose.right, contact(parts, pose.rightAt, pose.onBody), pose.rightReach, base.get(Effector.RIGHT_ARM), right);
-        one(parts.apply("left_arm"), pose.left, contact(parts, pose.leftAt, pose.onBody), pose.leftReach, base.get(Effector.LEFT_ARM), left);
+        arm(parts.apply("right_arm"), pose.right, contact(parts, pose.rightAt, pose.onBody), pose.rightReach, pose.rightHold, pose.rightAdd,
+                base == null ? null : base.get(Effector.RIGHT_ARM), right);
+        arm(parts.apply("left_arm"), pose.left, contact(parts, pose.leftAt, pose.onBody), pose.leftReach, pose.leftHold, pose.leftAdd,
+                base == null ? null : base.get(Effector.LEFT_ARM), left);
+    }
+
+    /** One arm: held to its point as the pose says, or, not held, swung free over the pack's as much as it is not the motion's. */
+    private static void arm(ModelPart arm, float[] angles, Vector3f at, float reach, BodyPose.Hold hold, float[] add, float[] base, float weight) {
+        if (arm == null) return;
+        if (hold != BodyPose.Hold.POINT && at != null && weight >= .02f) {
+            if (hold == BodyPose.Hold.FIST) ArmAim.towards(arm, at, weight, true);
+            else strm.touchnmotion.ride.BoatRide.settle(arm, at, weight);
+            return;
+        }
+        if (add != null && (hold == BodyPose.Hold.POINT ? weight < 1e-3f : weight < .02f || at == null)) {
+            float free = 1f - weight;
+            arm.xRot += add[0] * free;
+            arm.yRot += add[1] * free;
+            arm.zRot += add[2] * free;
+            return;
+        }
+        if (hold == BodyPose.Hold.POINT) one(arm, angles, at, reach, base, weight);
     }
 
     private static Vector3f contact(Function<String, ModelPart> parts, Vector3f at, boolean onBody) {
