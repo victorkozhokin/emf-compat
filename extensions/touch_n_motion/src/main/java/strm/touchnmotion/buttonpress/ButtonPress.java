@@ -121,6 +121,8 @@ public final class ButtonPress implements InteractionProvider {
     private static final long SCAN_EVERY_NANOS = 100_000_000L;
     /** How long a press shows: the push in, then back to waiting. */
     private static final double PRESS_SECONDS = 0.3;
+    /** The push of a press, the game's swing kept off it: the palm this far into the button and back, pixels, the torso this far over, radians. */
+    private static final float PUSH_DEPTH = 2f, PUSH_LEAN = (float) Math.toRadians(4);
 
     /** A foot: how far out from under the hip, pixels, and how high it waits over the button. */
     private static final float FOOT_REACH = 9f;
@@ -156,6 +158,8 @@ public final class ButtonPress implements InteractionProvider {
         final float[] lean = new float[3];
         /** The button's middle in model pixels, and the arm on it. */
         final Vector3f button = new Vector3f();
+        /** The palm's push into a button being pressed, model pixels; zero otherwise. */
+        final Vector3f push = new Vector3f();
         /** Whether the hand on it is the right one. */
         boolean right = true;
         /** A foot on a button: which, {pitch, roll, lift} as shown, and how much of it shows. */
@@ -273,9 +277,18 @@ public final class ButtonPress implements InteractionProvider {
             state.vanillaLever = block.getBlock() instanceof LeverBlock;
             if (state.groundReach)
                 leverWanted.set(LeverEffort.shift(hand.button, pressing)).mul(state.vanillaLever ? 1 : .35f);
+            state.push.zero();
             if (pressing) {
                 state.lean[0] = hand.pitch;
                 state.lean[1] = hand.yaw;
+                // A button: the palm goes in with it and comes back, the torso following a little.
+                if (block.getBlock() instanceof ButtonBlock) {
+                    float push = (float) Math.sin(Math.PI * Math.min(1.0, (now - state.pressedAt) / 1e9 / PRESS_SECONDS));
+                    Vec3 at = grip(player, target, block);
+                    Vec3 in = SubLevels.at(level, target).directionToWorld(outwards(block)).scale(-PUSH_DEPTH / 16.0);
+                    state.push.set(Body.model(frame, at.add(in)).sub(Body.model(frame, at))).mul(push);
+                    state.lean[0] += PUSH_LEAN * push;
+                }
             }
             // Past the arm's length the whole body reaches: the torso leans towards the target,
             // forwards and to its side, as far as the reach asks.
@@ -284,10 +297,11 @@ public final class ButtonPress implements InteractionProvider {
                 stretchTarget = ReachPose.weight(reach);
                 if (!state.groundReach) ReachPose.lean(hand.button, stretchTarget, state.lean);
             }
-            // The press swings the arm; the push is the swing - drawn on this hand, whichever the game swings.
+            // The press is the push here: the game's swing, which the pack plays as a blow - twisting the
+            // torso, flinging the other arm, taking the hand off the button - is kept off the body.
             out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, arm, aim).withTarget(
                     new strm.touchnmotion.interaction.ContactTarget(SubLevels.at(player.level(), target), target, block.getBlock()))
-                    .withSwing(Candidate.Swing.HAND));
+                    .withSwing(Candidate.Swing.QUIET));
             context.claimArms();
             context.decide((pressing ? "press-" : "hover-") + (hand.right ? "R" : "L"));
         } finally {
@@ -650,7 +664,7 @@ public final class ButtonPress implements InteractionProvider {
         float[] original = base.get(effector);
         if (original == null) return;
         float[] aim = strm.touchnmotion.interaction.ContactAim.rotation(original,
-                state.button.x - arm.x, state.button.y - arm.y, state.button.z - arm.z, w);
+                state.button.x + state.push.x - arm.x, state.button.y + state.push.y - arm.y, state.button.z + state.push.z - arm.z, w);
         arm.setRotation(aim[0], aim[1], aim[2]);
     }
 
