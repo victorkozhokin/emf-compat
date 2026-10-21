@@ -23,6 +23,11 @@ import strm.touchnmotion.blockuse.*;
  */
 public final class Campfire implements BlockTarget {
 
+    @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
+
     /** The places on the grill: this high, blocks, and this far from the middle along both axes, as {@code CampfireRenderer} draws them. */
     private static final double GRILL_Y = 0.44921875;
     private static final float CORNER = 0.3125f;

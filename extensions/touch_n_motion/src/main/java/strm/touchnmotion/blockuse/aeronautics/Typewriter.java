@@ -30,6 +30,11 @@ import strm.touchnmotion.blockuse.*;
  */
 public final class Typewriter implements BlockTarget {
 
+    @Override
+    public Hands hands() {
+        return Hands.MAIN;
+    }
+
     private static final ModBlock BLOCK = ModBlock.exact("dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterBlock", "simulated:linked_typewriter");
     private static final String HANDLER = "dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterInteractionHandler";
     private static final ModAccess PRESSED_KEYS = new ModAccess("getPressedKeys");

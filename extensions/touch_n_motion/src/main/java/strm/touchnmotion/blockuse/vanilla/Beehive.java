@@ -15,6 +15,11 @@ import strm.touchnmotion.blockuse.*;
  */
 public final class Beehive implements BlockTarget {
 
+    @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
+
     /** On the front, blocks up: the entrance the honey drips from, and the combs over it. */
     private static final double ENTRANCE_Y = 5 / 16.0;
     private static final double COMBS_Y = 9 / 16.0;

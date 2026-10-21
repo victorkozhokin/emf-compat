@@ -21,6 +21,11 @@ import strm.touchnmotion.blockuse.*;
  */
 public final class BlazeBurner implements BlockTarget {
 
+    @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
+
     private static final ModBlock BLOCK = ModBlock.exact("com.simibubi.create.content.processing.burner.BlazeBurnerBlock", "create:blaze_burner");
     private static final ModAccess BURN_TIME = new ModAccess("getRemainingBurnTime");
     /** The blaze's head, blocks up; the cage's side, blocks from the middle. */

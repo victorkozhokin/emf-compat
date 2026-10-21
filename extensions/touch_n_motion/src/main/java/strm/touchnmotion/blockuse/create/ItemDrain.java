@@ -20,6 +20,11 @@ import strm.touchnmotion.blockuse.*;
  */
 public final class ItemDrain implements BlockTarget {
 
+    @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
+
     private static final ModBlock BLOCK = ModBlock.exact("com.simibubi.create.content.fluids.drain.ItemDrainBlock", "create:item_drain");
     private static final ModAccess HELD = new ModAccess("getHeldItemStack");
     private static final ModAccess HANDLER = new ModAccess("getPrimaryHandler");

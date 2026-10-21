@@ -177,7 +177,7 @@ public final class ButtonPress implements InteractionProvider {
                 "On", "A hand reaches for a button or a lever in reach before it is used; a foot stamps on a button on the floor.",
                 "Off", "Leave the arms and legs to EMF.");
         config.addBoolean(KEY_NEAREST, "Nearest hand", true,
-                "On", "A button or a lever out to the side of the other hand is taken with the hand on its side, so an arm does not reach across the chest; the swing of the click goes to that hand.",
+                "On", "A button, a lever or a block out to the side of the other hand is taken with the hand on its side, so an arm does not reach across the chest; the swing of the click goes to that hand. What an item goes into stays the main hand's while it holds one.",
                 "Off", "Always the main hand.");
         config.addBoolean(KEY_STRETCH, "Reaching pose", true,
                 "On", "Reaching past the arm's length for a button, a lever or a block, the torso leans after the hand, the other arm and leg go back to balance it.",
@@ -523,14 +523,8 @@ public final class ButtonPress implements InteractionProvider {
                 ? state.right : null;
         Vector3f at = (right != null ? right : left).button;
         boolean pickRight = Handedness.right(at.x, at.z, mainRight, held,
-                busy(uuid, Effector.RIGHT_ARM), busy(uuid, Effector.LEFT_ARM), right != null, left != null, nearest);
+                InteractionRuntime.heldByOther(uuid, Effector.RIGHT_ARM, INSTANCE.id()), InteractionRuntime.heldByOther(uuid, Effector.LEFT_ARM, INSTANCE.id()), right != null, left != null, nearest);
         return pickRight ? right : left;
-    }
-
-    /** Someone else has the arm. */
-    private static boolean busy(UUID uuid, Effector arm) {
-        String owner = InteractionRuntime.owner(uuid, arm);
-        return owner != null && !owner.equals(INSTANCE.id()) && InteractionRuntime.weight(uuid, arm) > .5f;
     }
 
     /**

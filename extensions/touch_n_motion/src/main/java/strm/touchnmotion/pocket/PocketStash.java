@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import strm.touchnmotion.interaction.Candidate;
 import strm.touchnmotion.interaction.Category;
+import strm.touchnmotion.interaction.Body;
 import strm.touchnmotion.interaction.Effector;
 import strm.touchnmotion.interaction.EntityStates;
 import strm.touchnmotion.interaction.InteractionContext;
@@ -26,7 +27,8 @@ import java.util.function.Function;
 
 /**
  * Some time after the last of a run of pick-ups the player puts it all away: one look down at the
- * right hip, the right hand up and into the pocket, a short change of stance. The items are in the
+ * hip, the main hand up and into the pocket, a short change of stance - authored for the right hand,
+ * mirrored for a left-handed player ({@link BodyPose#mirror}). The items are in the
  * inventory already - nothing is held back and nothing is drawn in the hand.
  */
 public final class PocketStash implements InteractionProvider {
@@ -63,6 +65,8 @@ public final class PocketStash implements InteractionProvider {
         AbstractClientPlayer player;
         IKFrame frame;
         boolean pending, playing;
+        /** Whether the hand going to the pocket is the right one: the main hand, as the gesture starts. */
+        boolean right = true;
         long pickedAt;
         float phase = 1;
     }
@@ -133,12 +137,13 @@ public final class PocketStash implements InteractionProvider {
             s.pending = false;
             s.playing = true;
             s.phase = 0;
+            s.right = Body.right(player, true);
         }
         if (!s.playing) {
             context.decide("idle");
             return;
         }
-        pose(s.pose, s.phase);
+        pose(s.pose, s.phase, s.right);
         if (s.phase >= PocketMotion.LETS_GO) {
             context.decide("let go");
             return;
@@ -149,7 +154,7 @@ public final class PocketStash implements InteractionProvider {
     }
 
     /** The stash as a pose at {@code phase}: the arm's one arc into the pocket, the glance down, the bend over it, the feet apart. */
-    private static void pose(BodyPose pose, float phase) {
+    private static void pose(BodyPose pose, float phase, boolean right) {
         pose.reset();
         pose.right = PocketMotion.arm(phase);
         pose.head = PocketMotion.head(phase);
@@ -161,18 +166,19 @@ public final class PocketStash implements InteractionProvider {
         pose.rightFoot = RIGHT_FOOT;
         pose.leftFoot = LEFT_FOOT;
         pose.letGo = PocketMotion.LETS_GO;
+        if (!right) pose.mirror();
     }
 
-    /** On firm ground with the right hand doing nothing else. */
+    /** On firm ground with the main hand doing nothing else. */
     private static boolean ready(AbstractClientPlayer player) {
         return player.onGround() && !player.isPassenger() && !player.isSleeping() && !player.isSpectator()
                 && !strm.touchnmotion.platform.Platform.inWater(player) && !player.isFallFlying() && !strm.touchnmotion.platform.Platform.swinging(player) && !player.isUsingItem()
-                && InteractionRuntime.weight(player.getUUID(), Effector.RIGHT_ARM) < .05f;
+                && InteractionRuntime.weight(player.getUUID(), Body.right(player, true) ? Effector.RIGHT_ARM : Effector.LEFT_ARM) < .05f;
     }
 
     private static float shown(UUID uuid, State s) {
         if (!s.playing || !INSTANCE.isEnabled()) return 0;
-        return InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id());
+        return InteractionRuntime.weight(uuid, s.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
     }
 
     public static TorsoLean.Hint torsoHint(UUID uuid) {
@@ -192,7 +198,8 @@ public final class PocketStash implements InteractionProvider {
         if (quiet(System.nanoTime())) return;
         State s = STATES.fresh(uuid);
         if (s == null || !s.playing) return;
-        PoseRunner.aimArms(s.pose, parts, base, shown(uuid, s), 0f);
+        float shown = shown(uuid, s);
+        PoseRunner.aimArms(s.pose, parts, base, s.right ? shown : 0f, s.right ? 0f : shown);
     }
 
     /** The feet, before the torso: one short step each, held through the gesture, then back. */
@@ -204,6 +211,6 @@ public final class PocketStash implements InteractionProvider {
         // the gesture, whoever has the arm by then.
         float shown = shown(uuid, s);
         s.run.support(s.pose, s.player, s.frame, parts, s.playing, INSTANCE.isEnabled(), true, shown,
-                PocketMotion.lean(s.phase) * shown * TWIST, LOGGER, "PocketStance");
+                PocketMotion.lean(s.phase) * shown * (s.right ? TWIST : -TWIST), LOGGER, "PocketStance");
     }
 }

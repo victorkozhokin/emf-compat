@@ -40,6 +40,11 @@ import strm.touchnmotion.blockuse.*;
  */
 public final class TrainControls implements BlockTarget {
 
+    @Override
+    public Hands hands() {
+        return Hands.MAIN;
+    }
+
     public static final TrainControls TARGET = new TrainControls();
 
     /** Both hands' grips, in the world. */

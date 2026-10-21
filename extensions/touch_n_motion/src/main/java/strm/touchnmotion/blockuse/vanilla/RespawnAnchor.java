@@ -15,6 +15,11 @@ import strm.touchnmotion.blockuse.*;
 public final class RespawnAnchor implements BlockTarget {
 
     @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
+
+    @Override
     public boolean matches(BlockState block) {
         return block.getBlock() instanceof RespawnAnchorBlock;
     }

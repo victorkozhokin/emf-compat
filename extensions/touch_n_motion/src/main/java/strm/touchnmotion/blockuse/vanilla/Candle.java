@@ -14,6 +14,11 @@ import strm.touchnmotion.blockuse.*;
  * {@code template_two_candles} and so on).
  */
 public final class Candle implements BlockTarget {
+
+    @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
     public boolean matches(BlockState block) { return block.getBlock() instanceof CandleBlock; }
 
     public Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit) {

@@ -22,6 +22,11 @@ import strm.touchnmotion.blockuse.*;
  */
 public final class ChiseledShelf implements BlockTarget {
 
+    @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
+
     /** The middle of each column across the front, and of each row up it, blocks. */
     private static final double[] COLUMNS = {3 / 16.0, 8.5 / 16, 13.5 / 16};
     private static final double[] ROWS = {0.75, 0.25};

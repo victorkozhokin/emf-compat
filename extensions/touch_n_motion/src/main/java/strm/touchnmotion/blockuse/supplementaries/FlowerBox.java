@@ -25,6 +25,11 @@ import strm.touchnmotion.blockuse.*;
  */
 public final class FlowerBox implements BlockTarget {
 
+    @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
+
     private static final ModBlock BLOCK = ModBlock.exact("net.mehvahdjukaar.supplementaries.common.block.blocks.FlowerBoxBlock", "supplementaries:flower_box");
     private static final double TOP = 6 / 16.0, BACK = 5 / 16.0;
 

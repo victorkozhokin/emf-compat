@@ -64,6 +64,50 @@ public class BodyPose {
         else left = angles;
     }
 
+    /**
+     * The same pose for the other side: what the right arm and leg were asked goes to the left ones and
+     * the other way round, mirrored across the body - turns about y and z the other way, points to
+     * the other side (x the other way). A motion is authored for the right hand and played for the
+     * left by this, a left-handed player's main hand.
+     */
+    public void mirror() {
+        float[] arm = right;
+        right = mirrored(left);
+        left = mirrored(arm);
+        float[] leg = rightLeg;
+        rightLeg = mirrored(leftLeg);
+        leftLeg = mirrored(leg);
+        Vector3f at = rightAt;
+        rightAt = mirrored(leftAt);
+        leftAt = mirrored(at);
+        float reach = rightReach;
+        rightReach = leftReach;
+        leftReach = reach;
+        Vector3f foot = rightFoot;
+        rightFoot = mirrored(leftFoot);
+        leftFoot = mirrored(foot);
+        fitAt = mirrored(fitAt);
+        fitRight = !fitRight;
+        look = mirrored(look);
+        if (head != null) head = new float[]{head[0], -head[1]};
+        yaw = -yaw;
+        roll = -roll;
+        weightSide = -weightSide;
+    }
+
+    /** {xRot, yRot, zRot, ...} mirrored: the turns about y and z the other way, the rest as it was. */
+    private static float[] mirrored(float[] angles) {
+        if (angles == null) return null;
+        float[] out = angles.clone();
+        out[1] = -out[1];
+        out[2] = -out[2];
+        return out;
+    }
+
+    private static Vector3f mirrored(Vector3f point) {
+        return point == null ? null : new Vector3f(-point.x, point.y, point.z);
+    }
+
     /** Back to asking nothing, for the next frame. */
     public void reset() {
         right = left = head = rightLeg = leftLeg = null;

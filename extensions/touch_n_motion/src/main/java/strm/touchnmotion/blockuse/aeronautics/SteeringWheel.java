@@ -21,6 +21,11 @@ import strm.touchnmotion.blockuse.*;
 
 /** Aeronautics' bundled Simulated steering wheel: six rim anchors and alternating regrips follow its rendered angle. */
 public final class SteeringWheel implements BlockTarget {
+
+    @Override
+    public Hands hands() {
+        return Hands.MAIN;
+    }
     private static final WheelAngle ANGLE = new WheelAngle("getRenderAngle"); // Already radians.
     private static final EntityStates<GripState> GRIPS = new EntityStates<>(GripState::new);
     private static Object handler;

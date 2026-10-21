@@ -52,6 +52,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import strm.touchnmotion.interaction.Ease;
 import strm.touchnmotion.interaction.Body;
+import strm.touchnmotion.interaction.Handedness;
 import strm.touchnmotion.net.Inputs;
 import strm.touchnmotion.blockuse.aeronautics.*;
 import strm.touchnmotion.blockuse.create.*;
@@ -325,14 +326,13 @@ public final class BlockUse implements InteractionProvider {
                 point = point.add(space.directionToWorld(state.gesture.sweep()).scale(along));
             }
             Vector3f model = Body.model(frame, point);
-            // The hand that holds what is used.
-            boolean right = player.getMainArm() == HumanoidArm.RIGHT;
-            Vector3f shoulder = right ? RIGHT_SHOULDER : LEFT_SHOULDER;
-            IKResult ik = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
             float reachLimit = state.target instanceof HandCrank && player.onGround() && !seated
                     ? GROUNDED_CRANK_REACH : MAX_REACH;
             Object contactIdentity = state.pos == null ? null : new strm.touchnmotion.interaction.ContactTarget(
                     space, state.pos, player.level().getBlockState(state.pos).getBlock());
+            boolean right = hand(player, frame, state, space, point, model, reachLimit, contactIdentity);
+            Vector3f shoulder = right ? RIGHT_SHOULDER : LEFT_SHOULDER;
+            IKResult ik = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
             boolean retained = InteractionRuntime.holds(player.getUUID(), id(), right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, contactIdentity);
             if (ik == null || !strm.touchnmotion.interaction.ContactReach.accepts(ik.reach(), reachLimit, retained)) {
                 context.decide("out-of-reach");
@@ -410,7 +410,10 @@ public final class BlockUse implements InteractionProvider {
             for (int i = out.size() - 1; i >= 0; i--) {
                 Candidate c = out.get(i);
                 if (!c.source().equals(id())) break;
-                out.set(i, c.withTarget(contactIdentity).withQuietSwing(state.target != null && state.target.quietsSwing()));
+                // A crank held down swings at every repeat of the click: none of it shows. Otherwise the
+                // click is the hand's gesture, and its swing is drawn on that hand.
+                out.set(i, c.withTarget(contactIdentity).withSwing(state.target != null && state.target.quietsSwing()
+                        ? Candidate.Swing.QUIET : Candidate.Swing.HAND));
             }
             shown = true;
             // The click swings the arm; the gesture is the swing.
@@ -572,6 +575,37 @@ public final class BlockUse implements InteractionProvider {
                     && System.nanoTime() - theirs.actedAt < ACTED_NANOS) return true;
         }
         return false;
+    }
+
+    /**
+     * The hand for the block ({@link Handedness}): the main one, or with
+     * {@link ButtonPress#KEY_NEAREST} the one on its side - by the point a crank's grip goes round,
+     * not the grip, which would hand it over halfway round. What an item goes into stays the main
+     * hand's while it holds one; a wheel's and a train's two hands are the main one's to share out.
+     */
+    private static boolean hand(AbstractClientPlayer player, IKFrame frame, State state, SubLevels.Space space, Vec3 point,
+                                Vector3f model, float reachLimit, Object contactIdentity) {
+        boolean mainRight = player.getMainArm() == HumanoidArm.RIGHT;
+        BlockTarget.Hands hands = state.target == null ? BlockTarget.Hands.ANY : state.target.hands();
+        boolean nearest = EMFCompatConfig.getBoolean(ButtonPress.KEY_NEAREST, true) && (hands == BlockTarget.Hands.ANY
+                || hands == BlockTarget.Hands.ITEM && player.getMainHandItem().isEmpty());
+        if (!nearest) return mainRight;
+        UUID uuid = player.getUUID();
+        String id = INSTANCE.id();
+        Effector held = InteractionRuntime.holds(uuid, id, Effector.RIGHT_ARM, contactIdentity) ? Effector.RIGHT_ARM
+                : InteractionRuntime.holds(uuid, id, Effector.LEFT_ARM, contactIdentity) ? Effector.LEFT_ARM : null;
+        Vec3 centre = state.target == null || state.pos == null ? null
+                : state.target.swayCentre(player.level(), state.pos, player.level().getBlockState(state.pos));
+        Vector3f side = centre == null ? model : Body.model(frame, space.toWorld(centre));
+        return Handedness.right(side.x, side.z, mainRight, held == null ? null : held == Effector.RIGHT_ARM,
+                InteractionRuntime.heldByOther(uuid, Effector.RIGHT_ARM, id), InteractionRuntime.heldByOther(uuid, Effector.LEFT_ARM, id),
+                reaches(frame, RIGHT_SHOULDER, point, reachLimit, held == Effector.RIGHT_ARM),
+                reaches(frame, LEFT_SHOULDER, point, reachLimit, held == Effector.LEFT_ARM), true);
+    }
+
+    private static boolean reaches(IKFrame frame, Vector3f shoulder, Vec3 point, float limit, boolean retained) {
+        IKResult ik = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
+        return ik != null && strm.touchnmotion.interaction.ContactReach.accepts(ik.reach(), limit, retained);
     }
 
     /** The targets a block is one of, in {@link #TARGETS}' order; found once for each block. */

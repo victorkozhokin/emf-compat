@@ -23,6 +23,11 @@ import strm.touchnmotion.blockuse.*;
  */
 public final class Cauldron implements BlockTarget {
 
+    @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
+
     private static final int FULL = 3;
     /** The surface with nothing in it: over the floor (4 px), not down on it - the arm is not that long through the rim. */
     private static final double EMPTY_Y = 9;

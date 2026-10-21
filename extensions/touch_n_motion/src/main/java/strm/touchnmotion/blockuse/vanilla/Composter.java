@@ -16,6 +16,11 @@ import strm.touchnmotion.blockuse.*;
  */
 public final class Composter implements BlockTarget {
 
+    @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
+
     private static final int FULL = 7, READY = 8;
 
     @Override

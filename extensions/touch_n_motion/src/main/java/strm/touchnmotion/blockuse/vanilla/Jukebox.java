@@ -16,6 +16,11 @@ import strm.touchnmotion.blockuse.*;
 public final class Jukebox implements BlockTarget {
 
     @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
+
+    @Override
     public boolean matches(BlockState block) {
         return block.getBlock() instanceof JukeboxBlock;
     }

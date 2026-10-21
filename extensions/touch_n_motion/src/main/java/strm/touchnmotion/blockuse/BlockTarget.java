@@ -80,6 +80,20 @@ public interface BlockTarget {
     /** Wheels at hand height need contact correction, not the one-legged counterbalance of a long reach. */
     default boolean balancesReach() { return reachPose(); }
 
+    /** Which hand may use the block ({@code Handedness}). */
+    enum Hands {
+        /** Either: the main one, or the one on its side - a crank, a panel, a workstation's screen. */
+        ANY,
+        /** Something in the hand goes into it: the main hand while it holds anything, either while it is empty. */
+        ITEM,
+        /** The main hand, always: two hands with sides of their own - a wheel, a train's levers, a keyboard. */
+        MAIN
+    }
+
+    default Hands hands() {
+        return Hands.ANY;
+    }
+
     /**
      * Whether the swing a click starts is kept off the body while the hand is on it - a crank held
      * down starts one after another, and the pack's swing twists the torso and the other arm.

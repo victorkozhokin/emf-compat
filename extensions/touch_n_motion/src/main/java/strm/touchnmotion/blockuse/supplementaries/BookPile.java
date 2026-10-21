@@ -15,6 +15,11 @@ import strm.touchnmotion.blockuse.*;
  */
 public final class BookPile implements BlockTarget {
 
+    @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
+
     private static final ModBlock BLOCKS = ModBlock.named("net.mehvahdjukaar.supplementaries.common.block.blocks.BookPile", "supplementaries:book_pile", "supplementaries:book_pile_horizontal");
     /** A book lying flat is this thick, pixels. */
     private static final double BOOK = 4;

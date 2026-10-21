@@ -32,6 +32,11 @@ import strm.touchnmotion.interaction.Body;
  */
 public final class ItemRest implements BlockTarget {
 
+    @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
+
     private final ModBlock block;
     private final ModAccess held;
     /** The top the item lies on, pixels; negative for the side the block faces. */

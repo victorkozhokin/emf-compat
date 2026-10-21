@@ -41,8 +41,9 @@ import java.util.List;
  *   <li>A lectern, from the side it is read from: the hands on the edges of the open book.</li>
  *   <li>A chest (a trapped chest, a double chest, an ender chest): the hands on the front edge of
  *   the lid, and as the lid opens they go up with its edge - the lid's angle is the one the game
- *   draws it at, so they lift it. Open, as the copper golem goes through a chest: the left hand
- *   holds the lid up, the right one is on the front edge of the chest's body.</li>
+ *   draws it at, so they lift it. Open, as the copper golem goes through a chest: the other hand
+ *   holds the lid up, the main one is on the front edge of the chest's body (for a left-handed
+ *   player the other way round).</li>
  * </ul>
  */
 public final class Furniture implements InteractionProvider {
@@ -223,13 +224,14 @@ public final class Furniture implements InteractionProvider {
         float reach = MAX_REACH + (OPEN_REACH - MAX_REACH) * open;
         Grips lid = hands(open > 0.05f ? "chest-open" : "chest", view, edge, sideways(facing), CHEST_SPREAD, reach);
         if (open < OPEN_FROM) return lid;
-        // Open, as the copper golem goes through a chest: the left hand holds the lid up, the right
+        // Open, as the copper golem goes through a chest: the other hand holds the lid up, the main
         // one is on the front edge of the chest's body, on its own side.
         Vec3 side = sideways(facing);
         Vec3 playerRight = new Vec3(-view.z, 0, view.x);
+        boolean mainRight = strm.touchnmotion.interaction.Body.right(player, true);
         Vec3 rim = middle.add(0, RIM_Y / 16, 0).add(front.scale((7 + LID_OUT) / 16))
-                .add(side.scale(Math.signum(side.dot(playerRight)) * CHEST_SPREAD / 16));
-        return new Grips("chest-open", rim, lid.left, reach);
+                .add(side.scale(Math.signum(side.dot(playerRight)) * (mainRight ? 1 : -1) * CHEST_SPREAD / 16));
+        return mainRight ? new Grips("chest-open", rim, lid.left, reach) : new Grips("chest-open", lid.right, rim, reach);
     }
 
     /** A horizontal direction square to {@code facing}. */

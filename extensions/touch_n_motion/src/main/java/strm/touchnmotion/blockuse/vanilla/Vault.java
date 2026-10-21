@@ -21,6 +21,11 @@ import strm.touchnmotion.blockuse.*;
  */
 public final class Vault implements BlockTarget {
 
+    @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
+
     /** The keyhole on the front, blocks up from the bottom. */
     private static final double KEYHOLE_Y = 0.45;
     @Override

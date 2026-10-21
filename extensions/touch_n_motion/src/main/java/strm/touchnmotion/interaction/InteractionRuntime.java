@@ -441,6 +441,12 @@ public final class InteractionRuntime {
         return (strm.touchnmotion.platform.Platform.swingingArm(player) == net.minecraft.world.InteractionHand.MAIN_HAND) == mainRight;
     }
 
+    /** Whether a provider other than {@code source} has most of the arm: the other hand is taken if it is free ({@link Handedness}). */
+    public static boolean heldByOther(UUID uuid, Effector arm, String source) {
+        String owner = owner(uuid, arm);
+        return owner != null && !owner.equals(source) && weight(uuid, arm) > .5f;
+    }
+
     public static boolean holds(UUID uuid, String source, Effector hand, Object target) {
         PlayerState state = STATES.fresh(uuid);
         if (state == null) return false;

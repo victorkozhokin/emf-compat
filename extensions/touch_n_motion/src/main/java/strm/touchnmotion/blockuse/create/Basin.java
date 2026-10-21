@@ -15,6 +15,11 @@ import strm.touchnmotion.platform.Platform;
  */
 public final class Basin implements BlockTarget {
 
+    @Override
+    public Hands hands() {
+        return Hands.ITEM;
+    }
+
     private static final ModBlock BLOCK = ModBlock.exact("com.simibubi.create.content.processing.basin.BasinBlock", "create:basin");
     private static final ModAccess INPUT = new ModAccess("getInputInventory");
     private static final ModAccess OUTPUT = new ModAccess("getOutputInventory");
