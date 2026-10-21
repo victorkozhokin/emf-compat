@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import strm.touchnmotion.cape.CapeFollow;
+import strm.touchnmotion.cape.CapeAndElytra;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -29,7 +29,7 @@ public final class FirstPersonHead {
     public record Neck(Matrix4f torso, Vector3f pixels) {
         public static Neck of(ModelPart torso, ModelPart head) {
             if (torso == null) return null;
-            Matrix4f pose = CapeFollow.pose(torso);
+            Matrix4f pose = CapeAndElytra.pose(torso);
             Vector3f neck = pose.getTranslation(new Vector3f()).mul(16f);
             // FPM hides the head far outside the model; keep the torso's pivot in that case.
             if (head != null && Math.abs(head.x) + Math.abs(head.y) + Math.abs(head.z) < 64) neck.set(head.x, head.y, head.z);
@@ -48,7 +48,7 @@ public final class FirstPersonHead {
     /** Shift only top-level parts: children inherit the shift, including modern hats and sleeves. */
     public static void apply(Neck neck, ModelPart torso, Collection<? extends ModelPart> parts) {
         if (neck == null || torso == null) return;
-        shift(parts, correction(neck.torso(), CapeFollow.pose(torso), neck.pixels()));
+        shift(parts, correction(neck.torso(), CapeAndElytra.pose(torso), neck.pixels()));
     }
     private static void shift(Collection<? extends ModelPart> parts, Vector3f by) {
         Set<ModelPart> children = Collections.newSetFromMap(new IdentityHashMap<>());

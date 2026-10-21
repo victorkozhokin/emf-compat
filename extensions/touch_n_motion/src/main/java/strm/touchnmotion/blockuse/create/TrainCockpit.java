@@ -75,16 +75,8 @@ public final class TrainCockpit {
             if (toward.horizontalDistanceSqr() < 1e-4) continue;
             float yaw = (float) Math.toDegrees(Math.atan2(-toward.x, toward.z));
             player.yBodyRot += net.minecraft.util.Mth.wrapDegrees(yaw - player.yBodyRot);
-            // The cape trails behind where the player was; in a cab the train's speed is no wind, so it is
-            // carried with the player and hangs.
-            //? if <1.21.11 {
-            player.xCloakO = player.xo;
-            player.yCloakO = player.yo;
-            player.zCloakO = player.zo;
-            player.xCloak = player.getX();
-            player.yCloak = player.getY();
-            player.zCloak = player.getZ();
-            //?}
+            // In a cab the train's speed is no wind: the cape hangs.
+            strm.touchnmotion.cape.CapeAndElytra.noWind(player);
         }
     }
 

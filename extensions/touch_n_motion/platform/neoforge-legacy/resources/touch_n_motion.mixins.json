@@ -17,6 +17,7 @@
     "LevelRendererAccessor",
     "legacy.BoatChestMixin",
     "legacy.CapeTurnMixin",
+    "legacy.ElytraFollowMixin",
     "FishingHookAccessor",
     "FishingLineMixin",
     "compat.ShoulderTurnMixin",

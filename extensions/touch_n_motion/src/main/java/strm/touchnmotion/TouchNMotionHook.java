@@ -76,22 +76,15 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             }
             boolean main = context.animatingModelRoot().isMainModel;
             if (main) FootGrounding.recordAnimated(uuid, parts::get);
-            ModelPart torso = parts.get("body");
-            org.joml.Matrix4f packTorso = torso == null ? null : strm.touchnmotion.cape.CapeFollow.pose(torso);
+            org.joml.Matrix4f packTorso = strm.touchnmotion.cape.CapeAndElytra.packTorso(parts::get);
             // A model that is a copy of the player's has everything on it already, and doing it again would
             // do it twice. A copy is known by the copy callback marking it, or - where the game hands the
             // pose on to armour itself and no callback comes (1.21.1, a pack's armour models) - by coming
             // in the very pose the player's was just drawn with.
             if (main || !Posed.copied(uuid, parts::get)) applyAll(uuid, parts::get, player, main);
             if (main) Posed.keep(uuid, parts::get);
-            // The cape goes where the torso has been taken: of the main model first, then of whichever model has the cape.
-            if (main && torso != null) strm.touchnmotion.cape.CapeFollow.keep(uuid, new org.joml.Matrix4f(packTorso), torso);
-            org.joml.Matrix4f capeFrame = null;
-            //? if <1.21.11 {
-            if (parts.get("cloak") != null && state.emfEntity() instanceof Player wearer)
-                capeFrame = strm.touchnmotion.cape.CapeFollow.capeFrame(wearer, strm.touchnmotion.platform.Platform.partialTick(false));
-            //?}
-            strm.touchnmotion.cape.CapeFollow.carry(uuid, parts::get, packTorso, capeFrame);
+            // The cape and the wings go where the torso has been taken: of the main model first, then of whichever model has them.
+            strm.touchnmotion.cape.CapeAndElytra.follow(uuid, parts::get, main, packTorso);
             //? if >=1.21.11 {
             /*if (context.animatingModelRoot().isMainModel) Drawn.keep(uuid, parts::get);
             *///?}
@@ -253,7 +246,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
         public static void clear() {
             BY_PLAYER.clear();
             ROOTS.clear();
-            strm.touchnmotion.cape.CapeFollow.clear();
+            strm.touchnmotion.cape.CapeAndElytra.clear();
             Posed.clear();
         }
     }
