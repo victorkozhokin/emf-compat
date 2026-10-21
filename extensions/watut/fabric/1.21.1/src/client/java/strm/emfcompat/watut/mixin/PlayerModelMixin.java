@@ -41,7 +41,9 @@ public class PlayerModelMixin {
         if (!(entity instanceof Player player)) return;
         if (EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) return;
 
-        if (!EMFCompatWatutClient.isEnabled()) {
+        // Touch'n Motion at work on this player - a hand on a table, a lever, a gesture: its motion
+        // goes over WATUT's screen pose, which steps aside until it is done.
+        if (!EMFCompatWatutClient.isEnabled() || touchNMotion(player)) {
             PoseManager.clearPoses(player.getUUID(), SOURCE);
             return;
         }
@@ -72,5 +74,13 @@ public class PlayerModelMixin {
                 ? new Vector3f(model.body.x, model.body.y, model.body.z)
                 : null;
         PoseManager.savePoses(player.getUUID(), SOURCE, leftArm, rightArm, parts, bodyBase);
+    }
+
+    /** Whether Touch'n Motion holds any of the player's arms, head or torso now (its shared states, core 2.4.0). */
+    private static boolean touchNMotion(Player player) {
+        java.util.UUID uuid = player.getUUID();
+        for (String part : new String[]{"tnm_right_arm", "tnm_left_arm", "tnm_head", "tnm_body"})
+            if (strm.emfcompat.core.BodyStates.value(uuid, part) > 0.01f) return true;
+        return false;
     }
 }
