@@ -297,11 +297,11 @@ public final class ButtonPress implements InteractionProvider {
                 stretchTarget = ReachPose.weight(reach);
                 if (!state.groundReach) ReachPose.lean(hand.button, stretchTarget, state.lean);
             }
-            // The press is the push here: the game's swing, which the pack plays as a blow - twisting the
-            // torso, flinging the other arm, taking the hand off the button - is kept off the body.
+            // The press swings the arm, and that blow is the press's weight: it is drawn on this hand,
+            // whichever the game swings, the torso turning with it; a button's palm push goes over it.
             out.add(Candidate.single(id(), Category.USE, PRIORITY, 1f, TIMING, arm, aim).withTarget(
                     new strm.touchnmotion.interaction.ContactTarget(SubLevels.at(player.level(), target), target, block.getBlock()))
-                    .withSwing(Candidate.Swing.QUIET));
+                    .withSwing(Candidate.Swing.HAND));
             context.claimArms();
             context.decide((pressing ? "press-" : "hover-") + (hand.right ? "R" : "L"));
         } finally {
