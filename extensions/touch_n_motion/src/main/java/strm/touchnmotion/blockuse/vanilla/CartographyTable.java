@@ -49,6 +49,11 @@ public final class CartographyTable implements BlockTarget {
     }
 
     @Override
+    public boolean leanedOn(BlockState block) {
+        return true;
+    }
+
+    @Override
     public Spot supportHand(AbstractClientPlayer player, BlockPos pos, BlockState block) {
         return hand(player, pos, true, HOLD_SIDE, HOLD_NEAR);
     }

@@ -140,12 +140,11 @@ public final class InteractionRuntime {
 
         int swingStart = player.tickCount - strm.touchnmotion.platform.Platform.swingTime(player);
         if (strm.touchnmotion.platform.Platform.swinging(player) && context.armsClaimed()) state.claimedSwingStart = swingStart;
-        // Only the local container gesture supersedes WATUT's generic GUI hands.
-        // Weapons, other addon poses and ordinary inventory screens keep their reservation.
-        boolean containerSearch = player == net.minecraft.client.Minecraft.getInstance().player
-                && strm.touchnmotion.platform.Platform.screen() instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>
-                && candidates.stream().anyMatch(candidate -> candidate.source().equals("ContainerSearch"));
-        Set<Effector> reserved = reserved(player, containerSearch, context.armsClaimed()
+        // WATUT's screen pose gives way to whatever here wants an arm - its addon steps aside while
+        // this mod holds a part ({@code tnm_*} states). Weapons and other addons' poses keep theirs.
+        boolean overWatut = candidates.stream().anyMatch(candidate ->
+                candidate.aims().containsKey(Effector.RIGHT_ARM) || candidate.aims().containsKey(Effector.LEFT_ARM));
+        Set<Effector> reserved = reserved(player, overWatut, context.armsClaimed()
                 || strm.touchnmotion.platform.Platform.swinging(player) && state.claimedSwingStart == swingStart);
         Map<Effector, String> holders = new EnumMap<>(Effector.class);
         state.slots.forEach((effector, slot) -> {
@@ -236,7 +235,7 @@ public final class InteractionRuntime {
     }
 
     /** Parts something outside the runtime owns this frame. */
-    private static Set<Effector> reserved(AbstractClientPlayer player, boolean containerSearch, boolean swingClaimed) {
+    private static Set<Effector> reserved(AbstractClientPlayer player, boolean overWatut, boolean swingClaimed) {
         // A provider may leave the game only the arm in use - on a horse, the other keeps the reins.
         for (InteractionProvider provider : PROVIDERS) {
             Set<Effector> own = provider.reserves(player);
@@ -244,7 +243,7 @@ public final class InteractionRuntime {
         }
         Set<Effector> reserved = EnumSet.noneOf(Effector.class);
         // A swing, an item in use or another addon's arm pose owns the arms.
-        if (strm.touchnmotion.platform.Platform.swinging(player) && !swingClaimed || player.isUsingItem() || PoseManager.hasArmPoseExcept(player.getUUID(), containerSearch ? "watut" : "")
+        if (strm.touchnmotion.platform.Platform.swinging(player) && !swingClaimed || player.isUsingItem() || PoseManager.hasArmPoseExcept(player.getUUID(), overWatut ? "watut" : "")
                 || strm.touchnmotion.compat.BodyClaims.arms(player.getUUID())) {
             reserved.add(Effector.RIGHT_ARM);
             reserved.add(Effector.LEFT_ARM);

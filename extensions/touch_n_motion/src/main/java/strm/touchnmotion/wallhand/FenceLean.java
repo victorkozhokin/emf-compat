@@ -28,8 +28,6 @@ import strm.touchnmotion.interaction.InteractionRuntime;
 import strm.touchnmotion.interaction.Skeleton;
 import strm.touchnmotion.interaction.Smoothing;
 import strm.touchnmotion.ride.Riders;
-import strm.touchnmotion.torso.BraceSteps;
-import strm.touchnmotion.torso.PelvisFollow;
 import strm.touchnmotion.torso.TorsoLean;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
@@ -69,9 +67,6 @@ public final class FenceLean implements InteractionProvider {
     private static final double LOOK_ROUND = Math.cos(Math.toRadians(65));
     /** Blocks: the palm over the top it lies on, and as far out to its side as a hand is laid. */
     private static final double OVER_TOP = 0.03, WIDEST = 0.6;
-    /** Model pixels from where the pack has the soles (back is +z, the right is -x): the right foot stays all but under the body, the left is set back; and the hips' way back. */
-    private static final Vector3f RIGHT_FOOT = new Vector3f(-0.4f, 0f, -0.6f), LEFT_FOOT = new Vector3f(0.9f, 0f, 3.2f), HOME = new Vector3f();
-    private static final float HIPS_BACK = 1.4f;
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("EMFCompatLean");
     /** The fence before the player is looked for this often, not every frame. */
     private static final long LOOK_EVERY_NANOS = 150_000_000L;
@@ -89,7 +84,7 @@ public final class FenceLean implements InteractionProvider {
         final float[] gap = new float[2];
         AbstractClientPlayer player;
         IKFrame frame;
-        final BraceSteps.State stance = new BraceSteps.State();
+        final strm.touchnmotion.torso.LeanStance.State stance = new strm.touchnmotion.torso.LeanStance.State();
     }
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
@@ -167,20 +162,13 @@ public final class FenceLean implements InteractionProvider {
         return TorsoLean.Hint.turn(LEAN * state.leaning, 0f, 0f);
     }
 
-    /**
-     * The feet, before the torso: the weight goes forward onto the hands, so one foot is set back
-     * and a little out - one short step, held through the lean, and back under the body when it
-     * ends - and the hips go back from the fence as the chest goes over it.
-     */
+    /** The feet and the hips, before the torso: as a body leaning on its hands stands ({@link strm.touchnmotion.torso.LeanStance}), the right foot in front. */
     public static void support(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
         if (state == null || state.player == null || !INSTANCE.isEnabled()) return;
         if (state.leaning < 0.05f && state.stance.resting()) return;
-        boolean apart = state.held;
-        // Home again by a step each, as they went out, not by a slide: the effort is kept up and the steps go to where the pack has the feet.
-        BraceSteps.apply(state.stance, state.player, state.frame, parts, apart ? RIGHT_FOOT : HOME, apart ? LEFT_FOOT : HOME,
-                1f, 0f, LOGGER, "FenceStance");
-        PelvisFollow.shift(parts, 0f, HIPS_BACK * state.leaning);
+        strm.touchnmotion.torso.LeanStance.apply(state.stance, state.player, state.frame, parts, state.held, state.leaning,
+                true, LOGGER, "FenceStance");
     }
 
     /** The last word on the hands: each fist kept on its place on the fence's top. */

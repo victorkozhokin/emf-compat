@@ -18,6 +18,8 @@
 - Riding a horse with a resource pack that animates it, the player in the inventory's portrait is no longer moved and turned with the saddle
 - Left-handed players use the left hand: buttons, levers and blocks, a hand crank too; the pocket gesture goes to the left hip; at an open chest the right hand holds the lid. A button, a lever or a block out to the side of the other hand is taken with the hand on its side, so an arm no longer reaches across the chest, and the swing of the click goes to that hand, the torso turning with it. What an item goes into (a shelf, a jukebox, a cauldron) stays the main hand's while it holds one; a wheel's and a train's levers keep their sides. New setting "Nearest hand" (under "Press buttons")
 - 1.20.1 and 1.21.1: a resource pack's own cape (Fresh Animations) and an elytra go with the torso wherever it is leant or turned here - riding a horse at speed the cape no longer stands off the back high behind the head
+- Tables (cartography table, enchanting table, Simulated's navigation table): looked at, the hands go to the top; with the table's screen open and stood right at it, the player leans on it as on a fence - one foot set back by a step, the hips back, the torso over the table - and steps back when the screen closes
+- WATUT: its screen pose steps aside whenever this mod animates the arms (needs EMF Compat: WATUT 1.1.0)
 - Create's item drain: the fluid in it is read for subclasses of the drain too
 - Aeronautics cockpit: turning sharply to a side lever no longer starts the far hand for a frame before the near one takes it, and the near hand starts a little sooner
 - Requires EMF Compat Core 2.4.0

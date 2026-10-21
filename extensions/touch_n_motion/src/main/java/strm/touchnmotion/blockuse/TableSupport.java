@@ -5,13 +5,18 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.touchnmotion.torso.PelvisFollow;
+import strm.touchnmotion.torso.LeanStance;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.function.Function;
 import strm.touchnmotion.interaction.Body;
 import strm.touchnmotion.interaction.FrameClock;
 
-/** Shared supported upper-body pose, independent of any table mod or item gesture. */
+/**
+ * Shared supported upper-body pose, independent of any table mod or item gesture. On a table the
+ * feet and the hips go as at a fence ({@link #stance}, {@link LeanStance}): one foot set back by a
+ * step as the weight comes onto the hands, the hips back, and home by a step.
+ */
 public final class TableSupport {
     static final class State {
         final TableSupportMotion motion = new TableSupportMotion();
@@ -20,6 +25,52 @@ public final class TableSupport {
         float supportGap = Float.POSITIVE_INFINITY;
         Vector3f obstacleMin, obstacleMax;
         final Map<String, Object> snapshot = new LinkedHashMap<>();
+        /** The feet's steps of a lean on a table ({@link #stance}); without them, a small shift of the hips. */
+        final boolean steps;
+        final LeanStance.State stance = new LeanStance.State();
+        final FrameClock stanceClock = new FrameClock();
+        float leaning;
+        AbstractClientPlayer player;
+        strm.emfcompat.core.ik.IKFrame frame;
+
+        State() {
+            this(false);
+        }
+
+        State(boolean steps) {
+            this.steps = steps;
+        }
+    }
+
+    /**
+     * The feet and the hips, before the torso, while both hands are on a table's top: as at a fence,
+     * the lean coming on over the same third of a second, the main hand's foot in front.
+     * {@code owned}: how much of both arms the table has.
+     */
+    static void stance(State s, Function<String, ModelPart> parts, boolean right, float owned) {
+        if (!s.steps || s.player == null || s.frame == null) return;
+        boolean on = owned > .9f && Body.planted(s.player);
+        double dt = s.stanceClock.tick();
+        if (dt >= 0) s.leaning += ((on ? 1f : 0f) - s.leaning) * strm.touchnmotion.interaction.Smoothing.follow(dt, LEAN_SECONDS);
+        // A step away and the lean is over at once, as at a fence.
+        if (!Body.planted(s.player)) s.leaning = 0;
+        if (s.leaning < .05f && s.stance.resting()) return;
+        LeanStance.apply(s.stance, s.player, s.frame, parts, on, s.leaning * Math.min(1f, owned), right,
+                org.slf4j.LoggerFactory.getLogger("EMFCompatTable"), "TableStance");
+    }
+
+    /** Seconds the lean on a table comes on and goes off in, and how far the torso leans forward over it, radians: a fence's. */
+    private static final double LEAN_SECONDS = .3;
+    static final float LEAN = .26f;
+    /** Blocks between the feet and the table's side, at most, to lean on it: stood right at it. */
+    private static final double CLOSE = .6;
+
+    /** Whether the player stands right at the block: their feet within {@link #CLOSE} of its sides, across the ground. */
+    static boolean close(AbstractClientPlayer player, net.minecraft.core.BlockPos pos) {
+        var at = strm.touchnmotion.interaction.SubLevels.at(player.level(), pos).toLocal(player.position());
+        double dx = Math.max(Math.max(pos.getX() - at.x, at.x - (pos.getX() + 1)), 0);
+        double dz = Math.max(Math.max(pos.getZ() - at.z, at.z - (pos.getZ() + 1)), 0);
+        return Math.hypot(dx, dz) <= CLOSE;
     }
     static void apply(State s, Function<String, ModelPart> parts, AbstractClientPlayer player,
                       boolean engaged, boolean right, Vector3f main, Vector3f support, float owned) {
@@ -42,7 +93,7 @@ public final class TableSupport {
         if (owned < .001f) { s.turn.identity(); s.snapshot.clear(); return; }
         // Tiny grounded transfer; the existing leg solver preserves both already grounded soles.
         Vector3f rBefore = Body.sole(rl), lBefore = Body.sole(ll);
-        PelvisFollow.shift(parts, 0, (.9f - .65f * press) * s.motion.load * owned);
+        if (!s.steps) PelvisFollow.shift(parts, 0, (.9f - .65f * press) * s.motion.load * owned);
         float soleDrift = Math.max(rBefore.distance(Body.sole(rl)), lBefore.distance(Body.sole(ll)));
         Vector3f waist = new Vector3f((rl.x + ll.x) * .5f, (rl.y + ll.y) * .5f, (rl.z + ll.z) * .5f);
         Vector3f rt = right ? main : support, lt = right ? support : main;

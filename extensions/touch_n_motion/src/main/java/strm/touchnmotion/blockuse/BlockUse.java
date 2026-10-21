@@ -179,7 +179,7 @@ public final class BlockUse implements InteractionProvider {
         BlockPos stancePos;
         final LowReach.State lowReach = new LowReach.State();
         long tracedAt;
-        final TableSupport.State table = new TableSupport.State();
+        final TableSupport.State table = new TableSupport.State(true);
         final TableSupport.State bellows = new TableSupport.State();
         BlockTarget tableTarget;
         long tableUntil;
@@ -627,6 +627,20 @@ public final class BlockUse implements InteractionProvider {
         ReachPose.upright(parts, state.standUp * w);
         boolean free = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) < 0.01f;
         ReachPose.balance(parts, state.right, state.stretch * w, free, !state.groundReach && !state.lowReach.active());
+        // Leaning on a table, the feet as at a fence - before the torso, which the table fits to the hands after.
+        // Only with the table's screen up and stood right at it: looked at, the hands just go to it.
+        AbstractClientPlayer leaner = state.table.player;
+        boolean leaning = state.shown && state.support && state.target != null && state.pos != null && leaner != null
+                && state.target.leanedOn(leaner.level().getBlockState(state.pos))
+                && Inputs.menuAt(leaner, state.pos) && TableSupport.close(leaner, state.pos);
+        TableSupport.stance(state.table, parts, state.right, leaning
+                ? Math.min(InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id()), InteractionRuntime.weight(uuid, Effector.LEFT_ARM, INSTANCE.id())) : 0f);
+    }
+
+    /** Whether the hands are on a table, leaning on it. */
+    private static boolean table(State state) {
+        return state.target != null && state.target == state.tableTarget && (state.pos == null
+                || state.target.supportSurface(net.minecraft.client.Minecraft.getInstance().level.getBlockState(state.pos)) != null);
     }
 
     /**
@@ -642,7 +656,7 @@ public final class BlockUse implements InteractionProvider {
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         State state = STATES.fresh(uuid);
         if (state == null) return;
-        if (state.target != null && state.target == state.tableTarget && (state.pos == null || state.target.supportSurface(net.minecraft.client.Minecraft.getInstance().level.getBlockState(state.pos)) != null)) {
+        if (table(state)) {
             float tableWeight = Math.min(InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id()), InteractionRuntime.weight(uuid, Effector.LEFT_ARM, INSTANCE.id()));
             TableSupport.apply(state.table, parts, net.minecraft.client.Minecraft.getInstance().level.getPlayerByUUID(uuid) instanceof AbstractClientPlayer p ? p : null,
                     state.shown && !state.tableUnloading, state.right, state.grip, state.supportGrip, tableWeight);
@@ -690,10 +704,12 @@ public final class BlockUse implements InteractionProvider {
     /** The torso turn this asks for; {@code null} when none. */
     public static TorsoLean.Hint torsoHint(UUID uuid) {
         State state = STATES.fresh(uuid);
-        if (state == null || state.lean[0] == 0f && state.lean[1] == 0f && state.lean[2] == 0f) return null;
-        if (!INSTANCE.isEnabled()) return null;
+        if (state == null || !INSTANCE.isEnabled()) return null;
+        // Leaning on a table, forwards over it as over a fence.
+        float table = TableSupport.LEAN * state.table.leaning;
+        if (state.lean[0] == 0f && state.lean[1] == 0f && state.lean[2] == 0f && table < 1e-4f) return null;
         float w = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
-        return TorsoLean.Hint.turn(state.lean[0] * w, state.lean[1] * w, state.lean[2] * w);
+        return TorsoLean.Hint.turn(state.lean[0] * w + table, state.lean[1] * w, state.lean[2] * w);
     }
 
     /**
@@ -739,6 +755,10 @@ public final class BlockUse implements InteractionProvider {
     /** Moving bellows plate is sampled in the same frame as its native renderer. */
     public static void frame(AbstractClientPlayer player, IKFrame frame) {
         State s = STATES.fresh(player.getUUID());
+        if (s != null) {
+            s.table.player = player;
+            s.table.frame = frame;
+        }
         if (s == null || !s.shown || !(s.target instanceof Bellows) || s.pos == null) return;
         var block = player.level().getBlockState(s.pos);
         if (!s.target.matches(block)) return;

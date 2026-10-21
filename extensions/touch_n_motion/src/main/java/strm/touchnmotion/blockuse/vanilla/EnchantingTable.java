@@ -40,6 +40,11 @@ public final class EnchantingTable implements BlockTarget {
     }
 
     @Override
+    public boolean leanedOn(BlockState block) {
+        return true;
+    }
+
+    @Override
     public Spot supportHand(AbstractClientPlayer player, BlockPos pos, BlockState block) {
         return side(player, pos, true);
     }

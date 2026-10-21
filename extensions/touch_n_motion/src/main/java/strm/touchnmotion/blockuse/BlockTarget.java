@@ -42,6 +42,14 @@ public interface BlockTarget {
     /** Explicit horizontal tabletop; null for walls and unrelated interactive blocks. */
     default TableSurface supportSurface(BlockState block) { return null; }
 
+    /**
+     * Whether the body leans on the block with both hands on its top - a table: the feet then stand
+     * as at a fence ({@code TableSupport.stance}).
+     */
+    default boolean leanedOn(BlockState block) {
+        return supportSurface(block) != null;
+    }
+
     /** Optional other-hand contact; both hands are arbitrated together. */
     default Spot supportHand(AbstractClientPlayer player, BlockPos pos, BlockState block) { return null; }
 
