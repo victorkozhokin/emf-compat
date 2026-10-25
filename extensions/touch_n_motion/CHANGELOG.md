@@ -22,6 +22,8 @@
 - Tables (cartography table, enchanting table, Simulated's navigation table): looked at, the hands go to the top; with the table's screen open and stood right at it, the player leans on it as on a fence - one foot set back by a step, the hips back, the torso over the table - and steps back when the screen closes
 - WATUT: its screen pose steps aside whenever this mod animates the arms (needs EMF Compat: WATUT 1.1.0)
 - Create's item drain: the fluid in it is read for subclasses of the drain too
+- Pocket gesture: switching to first person while it plays no longer stops it for good - the next pick-up starts it again
+- Putting a helmet on: the player braces for it - a short step out as the hand gets to the helmet, held to the end
 - Aeronautics cockpit: turning sharply to a side lever no longer starts the far hand for a frame before the near one takes it, and the near hand starts a little sooner
 - Requires EMF Compat Core 2.4.0
 - Carry On and TACZ: while you carry something or hold a gun, the arms are left to them - no reaching, gestures, turning in narrow gaps or leaning on walls, and half the lean with the motion; while aiming the torso and the head are left to TACZ too. The feet keep standing on the ground. Settings: "Carry On Compat", "TACZ Compat"

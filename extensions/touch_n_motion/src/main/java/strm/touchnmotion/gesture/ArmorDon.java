@@ -205,6 +205,11 @@ public final class ArmorDon extends Gesture {
                 out.head = new float[]{.08f * in + .2f * push, -.05f * in};
                 out.pitch = .07f * push;
                 out.roll = -.035f * in - .02f * push;
+                // Braced for it (22.10): a short step out as the hand gets there,
+                // held to the end, the right foot a little out and back, the left a little back.
+                out.apart = phase > .19f;
+                out.rightFoot = new Vector3f(-1.16f, 0, .4f);
+                out.leftFoot = new Vector3f(.72f, 0, .23f);
                 return;
             }
             case CHEST -> {
