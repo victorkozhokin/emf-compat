@@ -49,6 +49,8 @@ public final class PocketStash implements InteractionProvider {
     private static final long GIVE_UP_NANOS = 8_000_000_000L;
     /** After the last pick-up by anyone: the longest a gesture and its feet can still be going. */
     private static final long BUSY_NANOS = WAIT_NANOS + GIVE_UP_NANOS + 4_000_000_000L;
+    /** A gesture not carried on for this long - the body not drawn, in first person - is over: the next pick-up starts a new one. */
+    private static final long STALE_NANOS = 1_000_000_000L;
 
     private static final float PITCH = (float) Math.toRadians(8), YAW = (float) Math.toRadians(17),
             ROLL = (float) Math.toRadians(10), TWIST = (float) Math.toRadians(4);
@@ -67,7 +69,7 @@ public final class PocketStash implements InteractionProvider {
         boolean pending, playing;
         /** Whether the hand going to the pocket is the right one: the main hand, as the gesture starts. */
         boolean right = true;
-        long pickedAt;
+        long pickedAt, playedAt;
         float phase = 1;
     }
 
@@ -95,7 +97,9 @@ public final class PocketStash implements InteractionProvider {
         long now = System.nanoTime();
         State s = STATES.seen(player.getUUID(), now).value;
         // What comes in while the hand is at the pocket goes in with the rest.
-        if (s.playing) return;
+        // - unless the gesture has not gone on for a while: the body was not drawn, and it is over.
+        if (s.playing && now - s.playedAt < STALE_NANOS) return;
+        s.playing = false;
         s.pending = true;
         s.pickedAt = now;
         anyone = true;
@@ -114,6 +118,7 @@ public final class PocketStash implements InteractionProvider {
         s.player = player;
         s.frame = context.frame();
         if (s.playing) {
+            s.playedAt = now;
             s.phase += (float) (Math.min(.1, context.dt()) / PocketMotion.SECONDS);
             if (s.phase >= 1) {
                 s.phase = 1;
@@ -136,6 +141,7 @@ public final class PocketStash implements InteractionProvider {
             }
             s.pending = false;
             s.playing = true;
+            s.playedAt = now;
             s.phase = 0;
             s.right = Body.right(player, true);
         }
