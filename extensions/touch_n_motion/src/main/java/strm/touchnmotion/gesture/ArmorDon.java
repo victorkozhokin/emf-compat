@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import strm.touchnmotion.interaction.Ease;
 import strm.touchnmotion.interaction.Body;
+import strm.touchnmotion.pose.BodyPose;
 
 /**
  * Putting on armour and Curios accessories: when a piece appears in a slot - however it got
@@ -187,7 +188,7 @@ public final class ArmorDon extends Gesture {
         return play.kind == FEET || play.kind == LEGS ? InspectionMotion.SECONDS : play.kind == HEAD ? 1.9 : play.kind == BACK || play.kind == CHEST ? 1.7 : 1.4;
     }
 
-    protected void pose(Play play, float phase, Pose out) {
+    protected void pose(Play play, float phase, BodyPose out) {
         // Out at once: the piece is on already, the hands must not come after it.
         float in = swell(phase, play.kind == HEAD || play.kind == BACK ? .3f : .2f, .7f, .95f);
         // Settled into place once the hands are there, and how far through that it is.

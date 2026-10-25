@@ -7,7 +7,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.FenceBlock;
@@ -20,11 +19,9 @@ import org.joml.Vector3f;
 import strm.touchnmotion.interaction.Body;
 import strm.touchnmotion.interaction.Candidate;
 import strm.touchnmotion.seat.CockpitFacing;
-import strm.touchnmotion.interaction.Effector;
 import strm.touchnmotion.interaction.EntityStates;
 import strm.touchnmotion.interaction.InteractionContext;
 import strm.touchnmotion.interaction.InteractionProvider;
-import strm.touchnmotion.interaction.InteractionRuntime;
 import strm.touchnmotion.interaction.Skeleton;
 import strm.touchnmotion.interaction.Smoothing;
 import strm.touchnmotion.ride.Riders;
@@ -36,6 +33,7 @@ import strm.emfcompat.core.ik.IKFrame;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
+import strm.touchnmotion.torso.LeanStance;
 
 /**
  * Leaning on a fence: stood up against a fence or a wall and left standing a moment, the player
@@ -56,9 +54,9 @@ public final class FenceLean implements InteractionProvider {
     private static final int PRIORITY = 30;
     private static final Candidate.Timing TIMING = new Candidate.Timing(0.3, 0.05, 0.06);
     /** Seconds stood still before the lean; the lean coming on and off. */
-    private static final double REST_SECONDS = 0.6, EASE_SECONDS = 0.3;
+    private static final double REST_SECONDS = 0.6, EASE_SECONDS = LeanStance.EASE_SECONDS;
     /** Radians: how far forward the body leans on its hands. */
-    private static final float LEAN = 0.26f;
+    private static final float LEAN = LeanStance.LEAN;
     /** Blocks: how near the fence's middle line the player stands to lean on it - up against it, no further. */
     private static final double NEAREST = 0.3, FURTHEST = 0.62;
     /** The fence is before the player within this of square on; cosine. */
@@ -84,7 +82,7 @@ public final class FenceLean implements InteractionProvider {
         final float[] gap = new float[2];
         AbstractClientPlayer player;
         IKFrame frame;
-        final strm.touchnmotion.torso.LeanStance.State stance = new strm.touchnmotion.torso.LeanStance.State();
+        final LeanStance.State stance = new LeanStance.State();
     }
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
@@ -162,12 +160,12 @@ public final class FenceLean implements InteractionProvider {
         return TorsoLean.Hint.turn(LEAN * state.leaning, 0f, 0f);
     }
 
-    /** The feet and the hips, before the torso: as a body leaning on its hands stands ({@link strm.touchnmotion.torso.LeanStance}), the right foot in front. */
+    /** The feet and the hips, before the torso: as a body leaning on its hands stands ({@link LeanStance}), the right foot in front. */
     public static void support(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
         if (state == null || state.player == null || !INSTANCE.isEnabled()) return;
         if (state.leaning < 0.05f && state.stance.resting()) return;
-        strm.touchnmotion.torso.LeanStance.apply(state.stance, state.player, state.frame, parts, state.held, state.leaning,
+        LeanStance.apply(state.stance, state.player, state.frame, parts, state.held, state.leaning,
                 true, LOGGER, "FenceStance");
     }
 

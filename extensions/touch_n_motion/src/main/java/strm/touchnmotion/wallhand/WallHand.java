@@ -5,7 +5,6 @@ import static strm.touchnmotion.interaction.Skeleton.RIGHT_SHOULDER;
 import strm.touchnmotion.interaction.Skeleton;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -25,6 +24,7 @@ import strm.emfcompat.core.ik.OneBoneIK;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import strm.touchnmotion.interaction.Body;
 
 /**
  * Hand on the wall: standing (or walking slowly) facing a wall, both palms rest on it; with a wall
@@ -131,7 +131,7 @@ public final class WallHand implements InteractionProvider {
     }
 
     private static boolean free(AbstractClientPlayer player, boolean right) {
-        boolean main = right == (player.getMainArm() == HumanoidArm.RIGHT);
+        boolean main = right == Body.right(player, true);
         return player.getItemInHand(main ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND).isEmpty();
     }
 

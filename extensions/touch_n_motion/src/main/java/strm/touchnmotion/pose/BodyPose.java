@@ -44,12 +44,14 @@ public class BodyPose {
      */
     public Vector3f fitAt;
     public boolean fitRight;
-    public float fitWeight, fitSeconds;
+    public float fitWeight, fitSeconds = FIT_SECONDS;
     /** The second hand's point weighed into the fit as well, {@code null} for one hand; the most the torso leans to fit, radians; the weight sent forward meanwhile, model pixels. */
     public Vector3f fitOther;
     public float fitAngle = FIT, fitForward;
     /** The torso's lean to fit a hand, at most, unless the motion says otherwise: a thing further off is held out to, not lunged at. */
     public static final float FIT = (float) Math.toRadians(20);
+    /** Seconds the torso's fit follows its point in, unless the motion says otherwise. */
+    public static final float FIT_SECONDS = .14f;
     /** {pitch, yaw} added to where the head looks. */
     public float[] head;
     /** A point the eyes go to, and how much of the way from where they look, 0..1. */
@@ -133,7 +135,8 @@ public class BodyPose {
         return out;
     }
 
-    private static Vector3f mirrored(Vector3f point) {
+    /** A point on the other side of the body: x the other way. */
+    public static Vector3f mirrored(Vector3f point) {
         return point == null ? null : new Vector3f(-point.x, point.y, point.z);
     }
 
@@ -145,7 +148,8 @@ public class BodyPose {
         fitAngle = FIT;
         fitForward = 0;
         fitWeight = 0;
-        fitSeconds = .14f;
+        fitSeconds = FIT_SECONDS;
+        fitRight = false;
         looking = 0;
         pitch = yaw = roll = weightSide = weightForward = 0;
         apart = onBody = false;

@@ -20,6 +20,12 @@ public final class LeanStance {
     private static final Vector3f HOME = new Vector3f();
     /** Model pixels the hips go back, all of the lean on. */
     public static final float HIPS_BACK = 1.4f;
+    /** How far the torso leans forward over what it leans on, radians, and the seconds the lean comes on and goes off in. */
+    public static final float LEAN = .26f;
+    public static final double EASE_SECONDS = .3;
+    /** The feet for the left side leading: the right ones mirrored. */
+    private static final Vector3f FRONT_FOOT_LEFT = strm.touchnmotion.pose.BodyPose.mirrored(FRONT_FOOT),
+            BACK_FOOT_LEFT = strm.touchnmotion.pose.BodyPose.mirrored(BACK_FOOT);
 
     private LeanStance() {
     }
@@ -43,15 +49,11 @@ public final class LeanStance {
                              boolean leaning, float hips, boolean rightFront, Logger trace, String label) {
         Vector3f right = HOME, left = HOME;
         if (leaning) {
-            right = rightFront ? FRONT_FOOT : mirrored(BACK_FOOT);
-            left = rightFront ? BACK_FOOT : mirrored(FRONT_FOOT);
+            right = rightFront ? FRONT_FOOT : BACK_FOOT_LEFT;
+            left = rightFront ? BACK_FOOT : FRONT_FOOT_LEFT;
         }
         // Home again by a step each, as they went out, not by a slide: the effort is kept up and the steps go to where the pack has the feet.
         BraceSteps.apply(s.steps, player, frame, parts, right, left, 1f, 0f, trace, label);
         PelvisFollow.shift(parts, 0f, HIPS_BACK * hips);
-    }
-
-    private static Vector3f mirrored(Vector3f foot) {
-        return new Vector3f(-foot.x, foot.y, foot.z);
     }
 }

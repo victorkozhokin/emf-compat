@@ -72,7 +72,7 @@ public final class HeavyThrottle implements InteractionProvider {
         Integer signal = eligible ? ThrottleLever.signal(player.level(), pos) : null;
         Vec3[] grips = signal == null ? null : ThrottleLever.grips(player.level(), pos);
         boolean fresh = pos != null && !pos.equals(s.pos);
-        float helperWeight = InteractionRuntime.weight(player.getUUID(), s.primary == Effector.RIGHT_ARM ? Effector.LEFT_ARM : Effector.RIGHT_ARM, id());
+        float helperWeight = InteractionRuntime.weight(player.getUUID(), s.primary.other(), id());
         boolean helperReady = helperWeight > .95f && s.helperGap < .07f
             && InteractionRuntime.weight(player.getUUID(), s.primary, id()) > .95f;
         s.motion.advance(signal, grips != null, helperReady, context.dt(), fresh);
@@ -112,11 +112,11 @@ public final class HeavyThrottle implements InteractionProvider {
         s.previousKnob = knob;
         s.signal = signal;
         s.pos = pos.immutable();
-        Effector other = s.primary == Effector.RIGHT_ARM ? Effector.LEFT_ARM : Effector.RIGHT_ARM;
+        Effector other = s.primary.other();
         Vector3f helperPoint = other == Effector.RIGHT_ARM ? s.right : s.left;
         Vector3f helperShoulder = new Vector3f(other == Effector.RIGHT_ARM ? -5 : 5, 2, 0);
         s.helper = s.motion.assist > .06f && helperPoint.distance(helperShoulder) < 14
-            && player.getItemInHand(other == Effector.RIGHT_ARM == (player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT)
+            && player.getItemInHand(other == Effector.RIGHT_ARM == Body.right(player, true)
                 ? net.minecraft.world.InteractionHand.MAIN_HAND : net.minecraft.world.InteractionHand.OFF_HAND).isEmpty();
         if (!s.helper || !helperReady) s.motion.regrip = 0;
         Vector3f main = s.primary == Effector.RIGHT_ARM ? s.right : s.left;
@@ -180,7 +180,7 @@ public final class HeavyThrottle implements InteractionProvider {
             }
         }
 
-        Effector helper = right ? Effector.LEFT_ARM : Effector.RIGHT_ARM;
+        Effector helper = Effector.arm(!right);
         Vector3f other = s.helper && InteractionRuntime.weight(uuid, helper, INSTANCE.id()) > .5f ? right ? s.left : s.right : null;
         s.reach.followSeconds = .24;
         LowReach.apply(parts, right, primary, other, owned, s.reach);
@@ -209,7 +209,7 @@ public final class HeavyThrottle implements InteractionProvider {
                 "[ThrottleEffort] signal={} load={} assist={} recoil={} regrip={} primaryRight={} primaryWeight={} helperWeight={} primaryGap={} helperGap={} step={} progress={} right={} left={}",
                 s.signal, s.motion.load, s.motion.assist, s.motion.recoil, s.motion.regrip, s.primary == Effector.RIGHT_ARM,
                 InteractionRuntime.weight(uuid, s.primary, INSTANCE.id()),
-                InteractionRuntime.weight(uuid, s.primary == Effector.RIGHT_ARM ? Effector.LEFT_ARM : Effector.RIGHT_ARM, INSTANCE.id()),
+                InteractionRuntime.weight(uuid, s.primary.other(), INSTANCE.id()),
                 s.primaryGap, s.helperGap, s.step.consumed, s.step.progress, s.right, s.left);
         }
     }

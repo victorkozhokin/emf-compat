@@ -19,6 +19,7 @@ import strm.touchnmotion.interaction.InteractionContext;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.touchnmotion.interaction.Body;
+import strm.touchnmotion.pose.BodyPose;
 
 /**
  * One hand to a point and back, the body bending to it, held out towards the point already while
@@ -145,7 +146,7 @@ public final class HandTo extends Gesture {
         return true;
     }
 
-    protected void pose(Play play, float work, Pose out) {
+    protected void pose(Play play, float work, BodyPose out) {
         if (play.point == null) return;
         float level = play.level, hand = play.right ? 1 : -1;
         float press = play.acted ? (float) Math.sin(Math.PI * Math.min(1, work)) : 0;

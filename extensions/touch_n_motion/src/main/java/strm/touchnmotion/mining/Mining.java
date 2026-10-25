@@ -7,7 +7,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.BlockDestructionProgress;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -226,13 +225,13 @@ public final class Mining implements InteractionProvider {
         state.active = true;
         state.pos = pos;
         state.phase = phase;
-        state.right = player.getMainArm() == HumanoidArm.RIGHT;
+        state.right = Body.right(player, true);
         state.tool = tool;
 
         Vector3f to = new Vector3f(state.hit).sub(state.right ? RIGHT_SHOULDER : LEFT_SHOULDER);
         float[] aim = ToolSwing.solve(to, state.tool);
         out.add(Candidate.single(id(), Category.ACTIVE, PRIORITY, 1f, TIMING,
-                state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, new float[]{aim[0], aim[1]}).withTarget(
+                Effector.arm(state.right), new float[]{aim[0], aim[1]}).withTarget(
                 new strm.touchnmotion.interaction.ContactTarget(SubLevels.at(player.level(), pos), pos, player.level().getBlockState(pos).getBlock())));
         // The swing is the strike.
         context.claimArms();
@@ -310,7 +309,7 @@ public final class Mining implements InteractionProvider {
         State state = STATES.fresh(uuid);
         // Let go of, it keeps the last pose while the runtime fades it out.
         if (state == null) return;
-        Effector effector = state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
+        Effector effector = Effector.arm(state.right);
         float w = InteractionRuntime.weight(uuid, effector, INSTANCE.id());
         if (w < 1e-3f) return;
         ModelPart arm = parts.apply(effector.part);
@@ -336,7 +335,7 @@ public final class Mining implements InteractionProvider {
     /** How much of the body's part shows: only as far as the arm is this provider's. */
     private static float shown(UUID uuid, State state) {
         if (state.effort < 1e-3f || !INSTANCE.isEnabled()) return 0;
-        return state.effort * InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
+        return state.effort * InteractionRuntime.weight(uuid, Effector.arm(state.right), INSTANCE.id());
     }
 
     public static TorsoLean.Hint torsoHint(UUID uuid) {

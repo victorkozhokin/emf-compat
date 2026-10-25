@@ -90,7 +90,12 @@ public final class Stride {
 
     /** The point midway between the hips as the legs are posed now. */
     public static Vector3f hips(ModelPart[] legs) {
-        return new Vector3f((legs[0].x + legs[1].x) * .5f, (legs[0].y + legs[1].y) * .5f, (legs[0].z + legs[1].z) * .5f);
+        return hips(legs[0], legs[1]);
+    }
+
+    /** The point midway between these two legs' hips. */
+    public static Vector3f hips(ModelPart right, ModelPart left) {
+        return new Vector3f((right.x + left.x) * .5f, (right.y + left.y) * .5f, (right.z + left.z) * .5f);
     }
 
     /** Moves everything above the legs by {@code by}. */

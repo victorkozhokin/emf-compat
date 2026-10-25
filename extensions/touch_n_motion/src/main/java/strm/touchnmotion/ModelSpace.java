@@ -90,8 +90,7 @@ public final class ModelSpace {
             return;
         }
         if (!(entity instanceof AbstractClientPlayer player)) return;
-        if (strm.touchnmotion.compat.ParCoolActivity.active(player)
-                || strm.touchnmotion.compat.WholeBody.held(player)) {
+        if (strm.touchnmotion.compat.WholeBody.taken(player)) {
             InteractionRuntime.suspend(player.getUUID());
             strm.touchnmotion.cape.CapeAndElytra.turned(player.getUUID(), 0);
             return;

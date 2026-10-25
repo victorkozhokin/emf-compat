@@ -7,6 +7,7 @@ import strm.emfcompat.core.EMFCompatConfig;
 
 import net.minecraft.world.level.block.Blocks;
 import strm.touchnmotion.interaction.InteractionContext;
+import strm.touchnmotion.pose.BodyPose;
 
 /**
  * Out of water, powder snow or mud after a while in it, and on firm ground again: one shake of the
@@ -85,7 +86,7 @@ public final class ShakeOff extends Gesture {
         return SECONDS;
     }
 
-    protected void pose(Play play, float phase, Pose out) {
+    protected void pose(Play play, float phase, BodyPose out) {
         // A shake starts hard and runs down: quick at first and slowing, each one less than the last;
         // it goes through the body as a wave - the arms, their spread a beat behind, the torso, the head last.
         float t = phase * SECONDS, s = t / SHAKE;

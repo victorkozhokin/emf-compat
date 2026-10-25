@@ -5,7 +5,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
@@ -72,7 +71,7 @@ public final class LeadHold implements InteractionProvider {
         State s = STATES.seen(player.getUUID(), System.nanoTime()).value;
         s.attachingAnimal = target.getUUID();
         boolean right = Body.right(player, hand);
-        s.attachingHand = right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
+        s.attachingHand = Effector.arm(right);
     }
 
     /** Same animal attachment transform as the vanilla lead renderer. */
@@ -107,10 +106,10 @@ public final class LeadHold implements InteractionProvider {
         if (chosen == null) { s.animal = null; s.hasPalm = false; context.decide("none"); return; }
         boolean fresh = s.animal == null || !chosen.getUUID().equals(s.animal);
         if (s.animal == null) {
-            boolean mainRight = player.getMainArm() == HumanoidArm.RIGHT;
+            boolean mainRight = Body.right(player, true);
             boolean off = player.getOffhandItem().is(Items.LEAD) && !player.getMainHandItem().is(Items.LEAD);
             s.hand = chosen.getUUID().equals(s.attachingAnimal) && s.attachingHand != null ? s.attachingHand
- : mainRight != off ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
+ : Effector.arm(mainRight != off);
         }
         s.animal = chosen.getUUID();
         s.frame = context.frame();

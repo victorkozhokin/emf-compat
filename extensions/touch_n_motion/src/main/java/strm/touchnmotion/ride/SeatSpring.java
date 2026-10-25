@@ -66,6 +66,28 @@ public final class SeatSpring {
         }
     }
 
+    /**
+     * How a seat's spring shows on the body: radians of lean a block left behind ({@code give}) and driven
+     * down ({@code bow}); the most back, forward, bowed and to a side; pixels risen a block up, and the most.
+     */
+    public record Shape(float give, float bow, float back, float forward, float bowLimit, float side, float rise, float riseLimit) {
+    }
+
+    /** The body on its seat now: leant forward and to its left, radians, how fast each, and risen off it, pixels. */
+    public record Lean(float pitch, float pitchRate, float roll, float rollRate, float rise) {
+    }
+
+    /** The spring as the body shows it: left behind is a lean back (-xRot), pushed right a lean left (-zRot), driven down a bow forward. */
+    public Lean lean(Shape shape) {
+        float give = (float) off[0] * shape.give(), down = (float) Math.max(0.0, -off[2]);
+        float pitch = soft(give, give < 0 ? shape.back() : shape.forward()) + soft(down * shape.bow(), shape.bowLimit());
+        float pitchRate = (float) rate[0] * shape.give() - (off[2] < 0 ? (float) rate[2] * shape.bow() : 0f);
+        float roll = soft((float) off[1] * shape.give(), shape.side());
+        float rollRate = (float) rate[1] * shape.give();
+        float rise = soft((float) Math.max(0.0, off[2]) * 16f / strm.touchnmotion.interaction.Skeleton.SCALE * shape.rise(), shape.riseLimit());
+        return new Lean(pitch, pitchRate, roll, rollRate, rise);
+    }
+
     /** Off the vehicle: still, and starting over. */
     public void reset() {
         tick = -1;

@@ -184,7 +184,7 @@ public final class PocketStash implements InteractionProvider {
 
     private static float shown(UUID uuid, State s) {
         if (!s.playing || !INSTANCE.isEnabled()) return 0;
-        return InteractionRuntime.weight(uuid, s.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
+        return InteractionRuntime.weight(uuid, Effector.arm(s.right), INSTANCE.id());
     }
 
     public static TorsoLean.Hint torsoHint(UUID uuid) {

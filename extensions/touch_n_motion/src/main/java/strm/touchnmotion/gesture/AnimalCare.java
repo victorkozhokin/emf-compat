@@ -20,6 +20,7 @@ import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.touchnmotion.interaction.Ease;
 import strm.touchnmotion.interaction.Body;
+import strm.touchnmotion.pose.BodyPose;
 
 /**
  * Feeding an animal, milking it, shearing it. With the food, the bucket or the shears in hand and
@@ -180,7 +181,7 @@ public final class AnimalCare extends Gesture {
         return play.kind == FEED ? on(KEY_STROKE) ? 2.8 : 1.1 : play.kind == MILK ? 2.6 : 2.2;
     }
 
-    protected void pose(Play play, float work, Pose out) {
+    protected void pose(Play play, float work, BodyPose out) {
         float partial = strm.touchnmotion.platform.Platform.partialTick(false);
         Entity animal = play.player.level().getEntity(play.entity);
         Vec3 at = animal == null ? play.point : animal.getPosition(partial);
@@ -299,7 +300,7 @@ public final class AnimalCare extends Gesture {
     }
 
     /** The foot under the free hand forward, the other back, the pair this far apart. */
-    static void foot(Pose out, boolean right, float forward, float back, float apart) {
+    static void foot(BodyPose out, boolean right, float forward, float back, float apart) {
         Vector3f lead = new Vector3f(apart * .5f, 0, -forward), rear = new Vector3f(-apart, 0, back);
         out.rightFoot = right ? rear : new Vector3f(-lead.x, 0, lead.z);
         out.leftFoot = right ? lead : new Vector3f(-rear.x, 0, rear.z);

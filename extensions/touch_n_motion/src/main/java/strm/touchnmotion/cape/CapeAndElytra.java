@@ -40,7 +40,11 @@ public final class CapeAndElytra {
     private CapeAndElytra() {
     }
 
-    private static final Map<UUID, Matrix4f> CARRIED = new HashMap<>();
+    /** What was done to a player's torso, and the frame it was done in: a frame without a draw of the torso carries nothing. */
+    private record Carried(Matrix4f by, double frame) {
+    }
+
+    private static final Map<UUID, Carried> CARRIED = new HashMap<>();
     /** How far round the model is drawn from the body the game turns it by, degrees: set by a seat that turns it to its controls. */
     private static final Map<UUID, Float> TURNED = new HashMap<>();
     /** How far behind the player's model the game draws the wings ({@code WingsLayer}): the model's units. */
@@ -78,7 +82,7 @@ public final class CapeAndElytra {
      * {@link #endLayer} has to take it off after.
      */
     public static boolean beginLayer(com.mojang.blaze3d.vertex.PoseStack stack, UUID uuid) {
-        Matrix4f by = CARRIED.get(uuid);
+        Matrix4f by = carried(uuid);
         if (by == null) return false;
         stack.pushPose();
         strm.touchnmotion.platform.Platform.apply(stack, by);
@@ -94,7 +98,21 @@ public final class CapeAndElytra {
         Matrix4f by = pose(drawn).mul(pack.invert());
         // Nothing done to the torso is the usual case, and then nothing is done to the cape either.
         if ((by.properties() & Matrix4f.PROPERTY_IDENTITY) != 0 || by.equals(new Matrix4f(), 1e-5f)) CARRIED.remove(uuid);
-        else CARRIED.put(uuid, by);
+        else CARRIED.put(uuid, new Carried(by, traben.entity_model_features.models.animation.state.EMFState.getFrameCounter()));
+    }
+
+    /**
+     * What the torso was carried by this frame; {@code null} for nothing - or when the torso was not drawn
+     * by the hook this frame (the pack taken off, the hook skipped): what was done to it once is not kept on the cape.
+     */
+    private static Matrix4f carried(UUID uuid) {
+        Carried carried = CARRIED.get(uuid);
+        if (carried == null) return null;
+        if (carried.frame() != traben.entity_model_features.models.animation.state.EMFState.getFrameCounter()) {
+            CARRIED.remove(uuid);
+            return null;
+        }
+        return carried.by();
     }
 
     /**
@@ -103,7 +121,7 @@ public final class CapeAndElytra {
      * their own drawn a little behind the player's.
      */
     static void carry(UUID uuid, Function<String, ModelPart> parts, Matrix4f packTorso) {
-        Matrix4f by = CARRIED.get(uuid);
+        Matrix4f by = carried(uuid);
         if (by == null) return;
         ModelPart torso = parts.apply("body");
         if (torso != null && packTorso != null && (torso.hasChild("cape") || torso.hasChild("cloak"))) {

@@ -76,7 +76,12 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
             }
             boolean main = context.animatingModelRoot().isMainModel;
             if (main) FootGrounding.recordAnimated(uuid, parts::get);
-            org.joml.Matrix4f packTorso = strm.touchnmotion.cape.CapeAndElytra.packTorso(parts::get);
+            // The torso as the pack left it: what the cape is carried from - up to 1.21.10 the main model's only.
+            //? if <1.21.11 {
+            org.joml.Matrix4f packTorso = main ? strm.touchnmotion.cape.CapeAndElytra.packTorso(parts::get) : null;
+            //?} else {
+            /*org.joml.Matrix4f packTorso = strm.touchnmotion.cape.CapeAndElytra.packTorso(parts::get);
+            *///?}
             // A model that is a copy of the player's has everything on it already, and doing it again would
             // do it twice. A copy is known by the copy callback marking it, or - where the game hands the
             // pose on to armour itself and no callback comes (1.21.1, a pack's armour models) - by coming
@@ -262,8 +267,7 @@ public final class TouchNMotionHook extends EMFAnimationApi.EMFAnimationHook {
         var entity = EMFState.state();
         net.minecraft.client.player.AbstractClientPlayer client = player && entity != null
                 && entity.emfEntity() instanceof net.minecraft.client.player.AbstractClientPlayer p ? p : null;
-        if (client != null && (strm.touchnmotion.compat.ParCoolActivity.active(client)
-                || strm.touchnmotion.compat.WholeBody.held(client))) return;
+        if (client != null && strm.touchnmotion.compat.WholeBody.taken(client)) return;
         if (client != null && strm.touchnmotion.compat.WholeBody.seated(client)) {
             strm.touchnmotion.lookat.LookAt.apply(uuid, parts);
             return;

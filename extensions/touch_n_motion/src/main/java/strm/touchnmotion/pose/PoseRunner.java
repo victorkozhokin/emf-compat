@@ -2,7 +2,6 @@ package strm.touchnmotion.pose;
 
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.util.Mth;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
 import strm.emfcompat.core.ik.IKFrame;
@@ -35,8 +34,8 @@ import java.util.function.Function;
  * by how much of the body it has.
  */
 public final class PoseRunner {
-    /** As far round as a neck turns; the lean after the hand, and no further. */
-    public static final float NECK = (float) Math.toRadians(70), FIT = BodyPose.FIT;
+    /** As far round as a neck turns. */
+    private static final float NECK = (float) Math.toRadians(70);
     private static final Vector3f HOME = new Vector3f();
 
     /** Where the hands are drawn to this frame: the pose's points, followed with a little give. */
@@ -51,6 +50,11 @@ public final class PoseRunner {
     private boolean fitRight = true;
     /** The feet's steps to the stance and home. */
     public final BraceSteps.State stance = new BraceSteps.State();
+
+    /** Nothing under way: no step of the feet, no fit of the torso still letting go. */
+    public boolean resting() {
+        return stance.resting() && !fit.active();
+    }
 
     /** Remembers where the hands and the eyes are asked to be at work, to come back from there. */
     public void keep(BodyPose pose) {
@@ -101,8 +105,11 @@ public final class PoseRunner {
             int steps = Math.max(1, (int) Math.ceil(dt / .008f));
             float h = dt / steps, stiff = 24f, damp = .8f;
             for (int i = 0; i < steps; i++) {
-                speed.add(new Vector3f(at).sub(now).mul(stiff * stiff).sub(new Vector3f(speed).mul(2 * damp * stiff)).mul(h));
-                now.add(new Vector3f(speed).mul(h));
+                // speed += (stiff² (at - now) - 2 damp stiff speed) h; now += speed h
+                speed.x += (stiff * stiff * (at.x - now.x) - 2 * damp * stiff * speed.x) * h;
+                speed.y += (stiff * stiff * (at.y - now.y) - 2 * damp * stiff * speed.y) * h;
+                speed.z += (stiff * stiff * (at.z - now.z) - 2 * damp * stiff * speed.z) * h;
+                now.fma(h, speed);
             }
         }
         float way = Ease.unit(reach);
@@ -118,7 +125,7 @@ public final class PoseRunner {
         float yaw = (float) Math.atan2(-pose.look.x, -pose.look.z);
         float nowPitch = (float) Math.toRadians(player.getXRot()), nowYaw = Body.headYaw(player);
         float[] add = pose.head == null ? new float[2] : pose.head;
-        pose.head = new float[]{add[0] + (pitch - nowPitch) * amount, add[1] + Mth.wrapDegrees((float) Math.toDegrees(yaw - nowYaw)) * (float) (Math.PI / 180) * amount};
+        pose.head = new float[]{add[0] + (pitch - nowPitch) * amount, add[1] + strm.emfcompat.core.ik.IKMath.wrap(yaw - nowYaw) * amount};
     }
 
     /** The arms' and the head's aims for the arbiter; empty when the pose asks only the body. */
@@ -142,7 +149,7 @@ public final class PoseRunner {
      * The way is taken in the arm's angles, not along a line for the hand: a hand brought down
      * from the head along a line passes the shoulder itself and the arm whips round it.
      */
-    public static float[] arm(float[] angles, Vector3f at, float reach, Vector3f pivot) {
+    private static float[] arm(float[] angles, Vector3f at, float reach, Vector3f pivot) {
         if (angles != null) return new float[]{angles[0], angles[1]};
         if (at == null) return null;
         float[] aim = towards(at.x - pivot.x, at.y - pivot.y, at.z - pivot.z);
@@ -157,7 +164,7 @@ public final class PoseRunner {
      * - nearly straight down, a point a pixel behind the shoulder would spin it half round - so the
      * turn is taken only as far as the point is out to a side.
      */
-    public static float[] towards(float x, float y, float z) {
+    private static float[] towards(float x, float y, float z) {
         float[] aim = ArmAim.angles(x, y, z);
         if (aim == null) return null;
         aim[1] *= Ease.smooth((float) Math.hypot(x, z) / 5f);
@@ -232,14 +239,14 @@ public final class PoseRunner {
      * roll and the lift put back. {@code right} and {@code left}: how much of each arm the motion has.
      */
     public static void aimArms(BodyPose pose, Function<String, ModelPart> parts, Map<Effector, float[]> base, float right, float left) {
-        arm(parts.apply("right_arm"), pose.right, contact(parts, pose.rightAt, pose.onBody), pose.rightReach, pose.rightHold, pose.rightAdd,
+        applyArm(parts.apply("right_arm"), pose.right, contact(parts, pose.rightAt, pose.onBody), pose.rightReach, pose.rightHold, pose.rightAdd,
                 base == null ? null : base.get(Effector.RIGHT_ARM), right);
-        arm(parts.apply("left_arm"), pose.left, contact(parts, pose.leftAt, pose.onBody), pose.leftReach, pose.leftHold, pose.leftAdd,
+        applyArm(parts.apply("left_arm"), pose.left, contact(parts, pose.leftAt, pose.onBody), pose.leftReach, pose.leftHold, pose.leftAdd,
                 base == null ? null : base.get(Effector.LEFT_ARM), left);
     }
 
     /** One arm: held to its point as the pose says, or, not held, swung free over the pack's as much as it is not the motion's. */
-    private static void arm(ModelPart arm, float[] angles, Vector3f at, float reach, BodyPose.Hold hold, float[] add, float[] base, float weight) {
+    private static void applyArm(ModelPart arm, float[] angles, Vector3f at, float reach, BodyPose.Hold hold, float[] add, float[] base, float weight) {
         if (arm == null) return;
         if (hold != BodyPose.Hold.POINT && at != null && weight >= .02f) {
             if (hold == BodyPose.Hold.FIST) ArmAim.towards(arm, at, weight, true);
@@ -260,12 +267,11 @@ public final class PoseRunner {
         if (at == null || !onBody) return at;
         ModelPart body = parts.apply("body"), r = parts.apply("right_leg"), l = parts.apply("left_leg");
         if (body == null || r == null || l == null) return at;
-        return strm.touchnmotion.gesture.GestureMath.bodyPoint(at, new Vector3f((r.x + l.x) * .5f, (r.y + l.y) * .5f, (r.z + l.z) * .5f),
-                body.xRot, body.yRot, body.zRot);
+        return strm.touchnmotion.gesture.GestureMath.bodyPoint(at, strm.touchnmotion.torso.Stride.hips(r, l), body.xRot, body.yRot, body.zRot);
     }
 
     private static void one(ModelPart arm, float[] angles, Vector3f at, float reach, float[] base, float weight) {
-        if (arm == null || weight < 1e-3f) return;
+        if (weight < 1e-3f) return;
         if (angles != null) {
             arm.zRot += (angles[2] - arm.zRot) * weight;
             arm.y += angles[3] * weight;
@@ -273,9 +279,8 @@ public final class PoseRunner {
             float[] aim = arm(null, at, reach, new Vector3f(arm.x, arm.y, arm.z));
             if (aim == null) return;
             // Replace the preliminary canonical-shoulder aim. Blend once from the post-torso base.
-            arm.xRot = base[0] + strm.emfcompat.core.ik.IKMath.wrap(aim[0] - base[0]) * weight;
-            arm.yRot = base[1] + strm.emfcompat.core.ik.IKMath.wrap(aim[1] - base[1]) * weight;
-            arm.zRot = base[2] * (1 - weight);
+            float[] blended = strm.touchnmotion.interaction.ContactAim.blend(base, aim, weight);
+            arm.setRotation(blended[0], blended[1], blended[2]);
         }
     }
 }

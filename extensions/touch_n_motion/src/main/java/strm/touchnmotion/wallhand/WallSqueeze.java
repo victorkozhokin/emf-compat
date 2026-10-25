@@ -10,7 +10,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -31,6 +30,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 import strm.touchnmotion.interaction.Ease;
+import strm.touchnmotion.interaction.Body;
 
 /**
  * Past a wall the arms stay out of it. The model is wider than the player's box - the arms' outer
@@ -280,7 +280,7 @@ public final class WallSqueeze {
         var posed = PoseManager.getSavedPoses(s.player.getUUID());
         if (posed != null && ((right ? posed.rightArm() : posed.leftArm()) != null
                 || posed.parts() != null && posed.parts().containsKey(right ? "right_arm" : "left_arm"))) return true;
-        boolean main = right == (s.player.getMainArm() == HumanoidArm.RIGHT);
+        boolean main = right == Body.right(s.player, true);
         InteractionHand hand = main ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
         return !s.player.getItemInHand(hand).isEmpty()
                 || strm.touchnmotion.platform.Platform.swinging(s.player) && strm.touchnmotion.platform.Platform.swingingArm(s.player) == hand
@@ -288,7 +288,7 @@ public final class WallSqueeze {
     }
 
     private static float ownership(UUID uuid, boolean right) {
-        Effector effector = right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
+        Effector effector = Effector.arm(right);
         // The passive WallHand provider hands over to the squeeze contacts, not an item/swing.
         return Math.max(0, InteractionRuntime.weight(uuid, effector)
                 - InteractionRuntime.weight(uuid, effector, "WallHand"));

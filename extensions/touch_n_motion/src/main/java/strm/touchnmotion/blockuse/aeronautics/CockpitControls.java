@@ -193,7 +193,7 @@ public final class CockpitControls implements InteractionProvider {
             state.request = request;
             // Refresh the wheel every solve, including while the other hand operates a side control.
             // A stored block-space point follows the craft, but not rotation of the wheel itself.
-            boolean rightMain = player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT;
+            boolean rightMain = Body.right(player, true);
             state.rim[rightMain ? 0 : 1] = WHEEL.hover(player, state.wheel, mount, hit);
             state.rim[rightMain ? 1 : 0] = WHEEL.supportHand(player, state.wheel, mount);
             if (state.rim[0] == null || state.rim[1] == null) { context.decide("none:rim"); return; }

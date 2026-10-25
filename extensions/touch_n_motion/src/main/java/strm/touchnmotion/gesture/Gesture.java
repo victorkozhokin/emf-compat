@@ -97,10 +97,6 @@ public abstract class Gesture implements InteractionProvider {
         }
     }
 
-    /** What a gesture asks for at one moment: a {@link BodyPose}, by its old name in the gestures. */
-    public static final class Pose extends BodyPose {
-    }
-
     /** One player's run of a gesture. */
     public static final class Play {
         public AbstractClientPlayer player;
@@ -116,7 +112,7 @@ public abstract class Gesture implements InteractionProvider {
         public boolean right = true;
         /** A gesture's own notes for this player. */
         public Object notes;
-        final Pose pose = new Pose();
+        final BodyPose pose = new BodyPose();
         /** The pose carried out: the hands followed, the feet stepped, the torso fitted. */
         final PoseRunner run = new PoseRunner();
         Effector primary = Effector.RIGHT_ARM;
@@ -208,7 +204,7 @@ public abstract class Gesture implements InteractionProvider {
     }
 
     /** What it asks for at {@code phase}; {@code out} comes empty. */
-    protected abstract void pose(Play play, float phase, Pose out);
+    protected abstract void pose(Play play, float phase, BodyPose out);
 
     /** From being set off to starting, and how long after that it is still worth showing. */
     protected long waitNanos() {
@@ -400,7 +396,7 @@ public abstract class Gesture implements InteractionProvider {
             context.decide("idle");
             return;
         }
-        Pose pose = play.pose;
+        BodyPose pose = play.pose;
         pose.reset();
         pose.freeArms = on(KEY_FREE_ARM);
         pose(play, poises() ? play.work : play.phase, pose);

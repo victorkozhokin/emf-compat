@@ -362,7 +362,7 @@ public final class Fright implements InteractionProvider {
             arm.z = -x * sin + z * cos;
             arm.yRot += pose.yaw();
             // A hand at work is left on it.
-            if (InteractionRuntime.aim(uuid, right ? Effector.RIGHT_ARM : Effector.LEFT_ARM) != null) continue;
+            if (InteractionRuntime.aim(uuid, Effector.arm(right)) != null) continue;
             // Behind the hips, the arms hang back from where the body has gone: forward of it (-xRot) when it went back, to the right (+zRot) when it went left.
             arm.xRot += -pose.armsUp() + (right ? pose.against() : -pose.against()) - state.armsBehindZ * ARMS_BEND;
             arm.zRot += state.armsBehindX * ARMS_BEND;

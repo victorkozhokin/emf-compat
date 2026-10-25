@@ -23,15 +23,10 @@ public final class HeadLook {
     private HeadLook() {
     }
 
-    /** Where the player looks this frame, in the world. */
-    public static Vec3 view(AbstractClientPlayer player) {
-        return strm.touchnmotion.compat.ShoulderCamera.worldView(player);
-    }
-
     /** {yaw, pitch} of where the player looks, against the body as {@code frame} has it drawn. */
     public static float[] against(IKFrame frame, AbstractClientPlayer player) {
         Vec3 origin = frame.jointWorld(new Vector3f());
-        return CockpitFacing.look(Body.model(frame, origin.add(view(player))));
+        return CockpitFacing.look(Body.model(frame, origin.add(strm.touchnmotion.compat.ShoulderCamera.worldView(player))));
     }
 
     /**

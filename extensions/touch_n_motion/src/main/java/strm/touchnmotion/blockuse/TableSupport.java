@@ -56,12 +56,13 @@ public final class TableSupport {
         if (!Body.planted(s.player)) s.leaning = 0;
         if (s.leaning < .05f && s.stance.resting()) return;
         LeanStance.apply(s.stance, s.player, s.frame, parts, on, s.leaning * Math.min(1f, owned), right,
-                org.slf4j.LoggerFactory.getLogger("EMFCompatTable"), "TableStance");
+                STANCE_LOG, "TableStance");
     }
 
     /** Seconds the lean on a table comes on and goes off in, and how far the torso leans forward over it, radians: a fence's. */
-    private static final double LEAN_SECONDS = .3;
-    static final float LEAN = .26f;
+    private static final double LEAN_SECONDS = LeanStance.EASE_SECONDS;
+    static final float LEAN = LeanStance.LEAN;
+    private static final org.slf4j.Logger STANCE_LOG = org.slf4j.LoggerFactory.getLogger("EMFCompatTable");
     /** Blocks between the feet and the table's side, at most, to lean on it: stood right at it. */
     private static final double CLOSE = .6;
 
@@ -95,7 +96,7 @@ public final class TableSupport {
         Vector3f rBefore = Body.sole(rl), lBefore = Body.sole(ll);
         if (!s.steps) PelvisFollow.shift(parts, 0, (.9f - .65f * press) * s.motion.load * owned);
         float soleDrift = Math.max(rBefore.distance(Body.sole(rl)), lBefore.distance(Body.sole(ll)));
-        Vector3f waist = new Vector3f((rl.x + ll.x) * .5f, (rl.y + ll.y) * .5f, (rl.z + ll.z) * .5f);
+        Vector3f waist = strm.touchnmotion.torso.Stride.hips(rl, ll);
         Vector3f rt = right ? main : support, lt = right ? support : main;
         var desired = SupportedContact.fit(s.turn, new Vector3f(r.x, r.y, r.z).sub(waist), new Vector3f(l.x, l.y, l.z).sub(waist),
                 new Vector3f(rt).sub(waist), new Vector3f(lt).sub(waist));

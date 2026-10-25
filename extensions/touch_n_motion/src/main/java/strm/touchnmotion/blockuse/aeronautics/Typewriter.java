@@ -6,7 +6,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -15,6 +14,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import java.lang.reflect.Field;
 import java.util.List;
 import strm.touchnmotion.blockuse.*;
+import strm.touchnmotion.interaction.Body;
 
 /**
  * Simulated's linked typewriter: looked at, both hands are over its keyboard, one on each half,
@@ -57,12 +57,12 @@ public final class Typewriter implements BlockTarget {
 
     @Override
     public Spot hover(AbstractClientPlayer player, BlockPos pos, BlockState block, BlockHitResult hit) {
-        return hand(player, pos, block, player.getMainArm() == HumanoidArm.RIGHT);
+        return hand(player, pos, block, Body.right(player, true));
     }
 
     @Override
     public Spot supportHand(AbstractClientPlayer player, BlockPos pos, BlockState block) {
-        return hand(player, pos, block, player.getMainArm() != HumanoidArm.RIGHT);
+        return hand(player, pos, block, Body.right(player, false));
     }
 
     /** Typing, the player looks round freely - the keys take the keyboard, not the look: the hands stay on them. */

@@ -266,7 +266,7 @@ public final class ButtonPress implements InteractionProvider {
             // The aim is settled again after the pack has animated (aimArm), from where the
             // shoulder really is; this one is what the arbiter and the fade work with.
             float[] aim = {hand.aim.x(), hand.aim.y()};
-            Effector arm = hand.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
+            Effector arm = Effector.arm(hand.right);
             Vector3f shoulder = hand.right ? RIGHT_SHOULDER : LEFT_SHOULDER;
             state.right = hand.right;
             // A lever's handle flips over when it is thrown: the hand goes over with it.
@@ -533,7 +533,7 @@ public final class ButtonPress implements InteractionProvider {
         if (state == null) return right != null ? right : left;
         UUID uuid = player.getUUID();
         Boolean held = pos.equals(state.target)
-                && InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id()) > 1e-3f
+                && InteractionRuntime.weight(uuid, Effector.arm(state.right), INSTANCE.id()) > 1e-3f
                 ? state.right : null;
         Vector3f at = (right != null ? right : left).button;
         boolean pickRight = Handedness.right(at.x, at.z, mainRight, held,
@@ -644,7 +644,7 @@ public final class ButtonPress implements InteractionProvider {
         if (state == null || state.lean[0] == 0f && state.lean[1] == 0f && state.lean[2] == 0f) return null;
         if (!INSTANCE.isEnabled()) return null;
         float w = state.legWeight > 1e-3f ? state.legWeight
-                : InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
+                : InteractionRuntime.weight(uuid, Effector.arm(state.right), INSTANCE.id());
         return TorsoLean.Hint.turn(state.lean[0] * w, state.lean[1] * w, state.lean[2] * w);
     }
 
@@ -656,7 +656,7 @@ public final class ButtonPress implements InteractionProvider {
     public static void aimArm(UUID uuid, Function<String, ModelPart> parts, java.util.Map<Effector, float[]> base) {
         State state = STATES.fresh(uuid);
         if (state == null) return;
-        Effector effector = state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
+        Effector effector = Effector.arm(state.right);
         float w = InteractionRuntime.weight(uuid, effector, INSTANCE.id());
         if (w < 1e-3f) return;
         ModelPart arm = parts.apply(effector.part);
@@ -673,8 +673,8 @@ public final class ButtonPress implements InteractionProvider {
         State state = STATES.fresh(uuid);
         if (state == null || !EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         float weight = state.groundReach && INSTANCE.isEnabled() && EMFCompatConfig.getBoolean(KEY_STRETCH, true)
-                && InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) <= 0.01f
-                ? InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id()) : 0;
+                && InteractionRuntime.weight(uuid, Effector.arm(!state.right)) <= 0.01f
+                ? InteractionRuntime.weight(uuid, Effector.arm(state.right), INSTANCE.id()) : 0;
         state.lowReach.weightShift = state.leverLoad.x;
         state.lowReach.weightForward = state.leverLoad.z;
         state.leverStep.apply(parts, weight);
@@ -697,9 +697,9 @@ public final class ButtonPress implements InteractionProvider {
         State state = STATES.fresh(uuid);
         if (state == null) return;
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
-        float owned = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
+        float owned = InteractionRuntime.weight(uuid, Effector.arm(state.right), INSTANCE.id());
         ReachPose.balance(parts, state.right, state.stretch * owned,
-                InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) < 0.01f, !state.groundReach && !state.lowReach.active());
+                InteractionRuntime.weight(uuid, Effector.arm(!state.right)) < 0.01f, !state.groundReach && !state.lowReach.active());
         if (state.legWeight < 1e-3f) return;
         ModelPart leg = parts.apply(state.footRight ? "right_leg" : "left_leg");
         if (leg == null) return;

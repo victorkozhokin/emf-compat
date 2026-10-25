@@ -71,7 +71,6 @@ public final class Fishing implements InteractionProvider {
     private static final double FRESH_BITE = 1.5, BODY_SECONDS = 0.17, WEIGHT_SECONDS = 0.13;
     /** Model pixels the rod hand is carried to the side after the float, for a float square off to that side. */
     private static final float BEARING = 5f;
-    private static final Vector3f HOME = new Vector3f();
     /** Model pixels: the second hand takes the rod this far under the first. */
     private static final float UNDER = 2.2f;
     /** Radians: the free arm held out from the body, and how far it swings. */
@@ -186,7 +185,11 @@ public final class Fishing implements InteractionProvider {
             state.aside += -state.aside * Smoothing.follow(dt, 0.2);
             state.twoHands = false;
             state.placed = false;
-            pose(state);
+            // Let go of all the way - every player without a rod, most frames - the pose asks nothing and is not worked out.
+            boolean gone = state.shown < 1e-3f && state.weight < 1e-3f && Math.abs(state.turn) < 1e-3f
+                    && Math.abs(state.forward) < 1e-3f && Math.abs(state.aside) < 1e-3f && state.run.resting();
+            if (gone) state.pose.reset();
+            else pose(state);
             context.decide(hand == null ? "off" : able ? "idle" : "off:state");
             return;
         }
@@ -233,8 +236,8 @@ public final class Fishing implements InteractionProvider {
 
         // The game's own swing of the rod is this pose's to replace.
         context.claimArms();
-        offer(context, out, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, state.point);
-        if (state.twoHands) offer(context, out, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, second(state));
+        offer(context, out, Effector.arm(state.right), state.point);
+        if (state.twoHands) offer(context, out, Effector.arm(!state.right), second(state));
         context.decide(state.phase == Phase.HAUL ? state.hooked ? "haul" : "lift" : state.phase.name().toLowerCase());
     }
 
@@ -323,8 +326,8 @@ public final class Fishing implements InteractionProvider {
         State state = STATES.fresh(uuid);
         if (state == null || !INSTANCE.isEnabled()) return;
         float owned = state.phase == Phase.NONE ? 0f
-                : InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
-        boolean both = state.twoHands && InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, INSTANCE.id()) > 0.5f;
+                : InteractionRuntime.weight(uuid, Effector.arm(state.right), INSTANCE.id());
+        boolean both = state.twoHands && InteractionRuntime.weight(uuid, Effector.arm(!state.right), INSTANCE.id()) > 0.5f;
         state.pose.fitOther = both ? second(state) : null;
         state.run.reach(state.pose, parts, true, owned);
     }
@@ -335,8 +338,8 @@ public final class Fishing implements InteractionProvider {
         if (state == null || !INSTANCE.isEnabled()) return;
         ModelPart rod = parts.apply(state.right ? "right_arm" : "left_arm"), other = parts.apply(state.right ? "left_arm" : "right_arm");
         if (rod == null || other == null) return;
-        float owned = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
-        float second = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, INSTANCE.id());
+        float owned = InteractionRuntime.weight(uuid, Effector.arm(state.right), INSTANCE.id());
+        float second = InteractionRuntime.weight(uuid, Effector.arm(!state.right), INSTANCE.id());
         PoseRunner.aimArms(state.pose, parts, null, state.right ? owned : second, state.right ? second : owned);
         if (state.phase == Phase.NONE) return;
         if (state.frame != null) {

@@ -22,7 +22,6 @@ import strm.touchnmotion.interaction.Effector;
 import strm.touchnmotion.interaction.EntityStates;
 import strm.touchnmotion.interaction.InteractionContext;
 import strm.touchnmotion.interaction.InteractionProvider;
-import strm.touchnmotion.interaction.InteractionRuntime;
 import strm.touchnmotion.interaction.Skeleton;
 import strm.touchnmotion.interaction.Smoothing;
 import strm.touchnmotion.torso.TorsoLean;
@@ -76,6 +75,7 @@ public final class HorseRide implements InteractionProvider {
     private static final float GIVE = 2.0f, BOW = 2.5f;
     /** Radians: as far as it leans forward, back, to a side and bows; model pixels it comes up off the saddle, per block thrown and at most. */
     private static final float FORWARD_LIMIT = 0.3f, BACK_LIMIT = 0.18f, SIDE_LIMIT = 0.15f, BOW_LIMIT = 0.3f, RISE = 1.5f, RISE_LIMIT = 1.5f;
+    private static final SeatSpring.Shape SEAT = new SeatSpring.Shape(GIVE, BOW, BACK_LIMIT, FORWARD_LIMIT, BOW_LIMIT, SIDE_LIMIT, RISE, RISE_LIMIT);
     /** Seconds: the torso follows what it is asked a moment late, so it is asked that much ahead. */
     private static final float LEAD = 0.1f;
     /** Radians: as far over the neck as the torso goes, all of it together - further, the shoulders drop below the reins. */
@@ -158,7 +158,6 @@ public final class HorseRide implements InteractionProvider {
         double c = Math.cos(state.noseUp), sn = Math.sin(state.noseUp);
         Vec3 along = level.scale(c).add(0, sn, 0), up = new Vec3(0, c, 0).subtract(level.scale(sn));
         Vec3 waist = frame.jointWorld(new Vector3f(Skeleton.WAIST));
-        Vec3 origin = frame.jointWorld(new Vector3f());
         // Where the rider looks, against the body as it is drawn.
         float[] look = strm.touchnmotion.seat.HeadLook.against(frame, player);
         state.headYaw = look[0];
@@ -197,13 +196,12 @@ public final class HorseRide implements InteractionProvider {
         state.spring.sample(horse.position(), horse.tickCount);
         Vec3 push = state.spring.shove;
         state.spring.settle(new double[]{push.dot(along), push.dot(right), push.y}, dt);
-        // Left behind is a lean back (-xRot), pushed right a lean left (-zRot); driven down it bows forward.
-        float give = (float) state.spring.off[0] * GIVE, down = (float) Math.max(0.0, -state.spring.off[2]);
-        state.pitch = SeatSpring.soft(give, give < 0 ? BACK_LIMIT : FORWARD_LIMIT) + SeatSpring.soft(down * BOW, BOW_LIMIT);
-        state.pitchRate = (float) state.spring.rate[0] * GIVE - (state.spring.off[2] < 0 ? (float) state.spring.rate[2] * BOW : 0f);
-        state.roll = SeatSpring.soft((float) state.spring.off[1] * GIVE, SIDE_LIMIT);
-        state.rollRate = (float) state.spring.rate[1] * GIVE;
-        state.rise = SeatSpring.soft((float) Math.max(0.0, state.spring.off[2]) * 16f / Skeleton.SCALE * RISE, RISE_LIMIT);
+        SeatSpring.Lean lean = state.spring.lean(SEAT);
+        state.pitch = lean.pitch();
+        state.pitchRate = lean.pitchRate();
+        state.roll = lean.roll();
+        state.rollRate = lean.rollRate();
+        state.rise = lean.rise();
     }
 
 

@@ -40,15 +40,15 @@ public final class InteractionRuntime {
     private static final double HANDOFF_SECONDS = 0.12;
 
     private static final List<InteractionProvider> PROVIDERS = new ArrayList<>();
-    private static final Map<String, InteractionProvider> BY_ID = new java.util.HashMap<>();
+    private static final Map<String, InteractionProvider> BY_ID = new HashMap<>();
+    private static final EntityStates<PlayerState> STATES = new EntityStates<>(PlayerState::new);
+
+    private InteractionRuntime() {
+    }
 
     /** The provider of that {@link InteractionProvider#id}; {@code null} for none. */
     public static InteractionProvider provider(String id) {
         return id == null ? null : BY_ID.get(id);
-    }
-    private static final EntityStates<PlayerState> STATES = new EntityStates<>(PlayerState::new);
-
-    private InteractionRuntime() {
     }
 
     public static void register(InteractionProvider provider) {
@@ -142,8 +142,7 @@ public final class InteractionRuntime {
         if (strm.touchnmotion.platform.Platform.swinging(player) && context.armsClaimed()) state.claimedSwingStart = swingStart;
         // WATUT's screen pose gives way to whatever here wants an arm - its addon steps aside while
         // this mod holds a part ({@code tnm_*} states). Weapons and other addons' poses keep theirs.
-        boolean overWatut = candidates.stream().anyMatch(candidate ->
-                candidate.aims().containsKey(Effector.RIGHT_ARM) || candidate.aims().containsKey(Effector.LEFT_ARM));
+        boolean overWatut = wantsArm(candidates);
         Set<Effector> reserved = reserved(player, overWatut, context.armsClaimed()
                 || strm.touchnmotion.platform.Platform.swinging(player) && state.claimedSwingStart == swingStart);
         Map<Effector, String> holders = new EnumMap<>(Effector.class);
@@ -234,6 +233,13 @@ public final class InteractionRuntime {
         }
     }
 
+    /** Whether any candidate asks for an arm. */
+    private static boolean wantsArm(List<Candidate> candidates) {
+        for (Candidate candidate : candidates)
+            if (candidate.aims().containsKey(Effector.RIGHT_ARM) || candidate.aims().containsKey(Effector.LEFT_ARM)) return true;
+        return false;
+    }
+
     /** Parts something outside the runtime owns this frame. */
     private static Set<Effector> reserved(AbstractClientPlayer player, boolean overWatut, boolean swingClaimed) {
         // A provider may leave the game only the arm in use - on a horse, the other keeps the reins.
@@ -302,7 +308,8 @@ public final class InteractionRuntime {
             if (!slot.releasing) held = slot;
             else if (slot.owner.equals(state.bodyOwner) && (retiring == null || slot.release.supportRemaining() > retiring.release.supportRemaining())) retiring = slot;
         }
-        if (!state.paused && held != null && provider(held.owner) != null && provider(held.owner).holdsBody()) {
+        InteractionProvider heldBy = held == null ? null : provider(held.owner);
+        if (!state.paused && heldBy != null && heldBy.holdsBody()) {
             if (capture) {
                 state.bodyOwner = held.owner;
                 for (var e : base.entrySet()) {
@@ -436,8 +443,7 @@ public final class InteractionRuntime {
     }
 
     private static boolean gameSwingsRight(AbstractClientPlayer player) {
-        boolean mainRight = player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT;
-        return (strm.touchnmotion.platform.Platform.swingingArm(player) == net.minecraft.world.InteractionHand.MAIN_HAND) == mainRight;
+        return Body.right(player, strm.touchnmotion.platform.Platform.swingingArm(player));
     }
 
     /** Whether a provider other than {@code source} has most of the arm: the other hand is taken if it is free ({@link Handedness}). */

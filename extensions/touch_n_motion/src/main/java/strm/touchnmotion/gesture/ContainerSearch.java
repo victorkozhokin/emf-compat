@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
@@ -20,6 +19,8 @@ import strm.touchnmotion.interaction.InteractionContext;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.touchnmotion.interaction.Ease;
+import strm.touchnmotion.interaction.Body;
+import strm.touchnmotion.pose.BodyPose;
 
 /**
  * Looking through a container: while a chest, a barrel or a shulker box the player faces stands
@@ -125,7 +126,7 @@ public final class ContainerSearch extends Gesture {
         }
         if (!play.playing && !play.pending && isEnabled()) {
             Play started = trigger(player, 0, Vec3.atCenterOf(pos));
-            started.right = player.getMainArm() == HumanoidArm.RIGHT;
+            started.right = Body.right(player, true);
         }
     }
 
@@ -241,7 +242,7 @@ public final class ContainerSearch extends Gesture {
         return 1.0;
     }
 
-    protected void pose(Play play, float phase, Pose out) {
+    protected void pose(Play play, float phase, BodyPose out) {
         if (!(play.notes instanceof Open open) || open.pos == null) return;
         float in = phase <= HOLD ? swell(phase, HOLD - .04f, 2f, 3f) : 1 - Ease.smooth((phase - HOLD) / .4f);
         float partial = strm.touchnmotion.platform.Platform.partialTick(false);

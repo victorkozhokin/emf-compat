@@ -3,7 +3,6 @@ package strm.touchnmotion.ride;
 import static strm.touchnmotion.DebugLog.r2;
 import static strm.touchnmotion.interaction.Skeleton.RIGHT_SHOULDER;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
@@ -11,7 +10,6 @@ import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import strm.touchnmotion.interaction.Candidate;
-import strm.touchnmotion.interaction.Effector;
 import strm.touchnmotion.interaction.EntityStates;
 import strm.touchnmotion.interaction.InteractionContext;
 import strm.touchnmotion.interaction.InteractionProvider;
@@ -72,6 +70,8 @@ public final class MinecartRide implements InteractionProvider {
     private static final float BACK_LIMIT = 0.13f, SIDE_LIMIT = 0.2f;
     /** Model pixels: as far as the body comes up off the seat, and how many for each it is thrown up. */
     private static final float RISE_LIMIT = 3f, RISE = 2f;
+    /** Back less far than forward: behind the rider is the cart's wall. */
+    private static final SeatSpring.Shape SEAT = new SeatSpring.Shape(GIVE, BOW, BACK_LIMIT, GIVE_LIMIT, BOW_LIMIT, SIDE_LIMIT, RISE, RISE_LIMIT);
     /** Rolling at full speed, blocks a second: the rattle of the joints - pixels up and down, radians side to side. */
     private static final float FULL_SPEED = 8f, RATTLE = 0.45f, RATTLE_ROLL = 0.02f;
     /** Seconds: the torso follows what it is asked a moment late, so it is asked that much ahead; and the body coming round when the cart turns back the way it came. */
@@ -166,16 +166,13 @@ public final class MinecartRide implements InteractionProvider {
         double rolling = state.spring.speed.multiply(1, 0, 1).length();
         state.rolled += rolling * dt;
         float rattle = (float) Math.min(1.0, rolling / FULL_SPEED);
-        // Left behind is back (-xRot) and, pushed to the right, a lean to the left (-zRot); driven down into the seat it bows forward.
-        float down = (float) Math.max(0.0, -state.spring.off[2]);
-        // Back less far than forward: behind the rider is the cart's wall.
-        float give = (float) state.spring.off[0] * GIVE;
-        state.pitch = SeatSpring.soft(give, give < 0 ? BACK_LIMIT : GIVE_LIMIT) + SeatSpring.soft(down * BOW, BOW_LIMIT);
-        state.pitchRate = (float) state.spring.rate[0] * GIVE - (state.spring.off[2] < 0 ? (float) state.spring.rate[2] * BOW : 0f);
-        state.roll = SeatSpring.soft((float) state.spring.off[1] * GIVE, SIDE_LIMIT) + rattle * RATTLE_ROLL * (float) Math.sin(state.rolled * Math.PI / 2 + 1);
-        state.rollRate = (float) state.spring.rate[1] * GIVE;
-        state.rise = SeatSpring.soft((float) Math.max(0.0, state.spring.off[2]) * 16f / Skeleton.SCALE * RISE, RISE_LIMIT)
-                + rattle * RATTLE * (float) Math.sin(state.rolled * Math.PI);
+        // The seat's spring, and the rattle of the wheels on the rails over it.
+        SeatSpring.Lean lean = state.spring.lean(SEAT);
+        state.pitch = lean.pitch();
+        state.pitchRate = lean.pitchRate();
+        state.roll = lean.roll() + rattle * RATTLE_ROLL * (float) Math.sin(state.rolled * Math.PI / 2 + 1);
+        state.rollRate = lean.rollRate();
+        state.rise = lean.rise() + rattle * RATTLE * (float) Math.sin(state.rolled * Math.PI);
 
         Drawn drawn = Drawn.of(cart, partial);
         Vec3 middle = drawn.middle, along = drawn.along, across = drawn.across, up = drawn.up;

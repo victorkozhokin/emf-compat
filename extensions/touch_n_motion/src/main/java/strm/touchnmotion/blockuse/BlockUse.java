@@ -19,7 +19,6 @@ import strm.touchnmotion.interaction.Visibility;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -333,7 +332,7 @@ public final class BlockUse implements InteractionProvider {
             boolean right = hand(player, frame, state, space, point, model, reachLimit, contactIdentity);
             Vector3f shoulder = right ? RIGHT_SHOULDER : LEFT_SHOULDER;
             IKResult ik = OneBoneIK.solveXY(frame, shoulder, point, ARM, 0f, 0f);
-            boolean retained = InteractionRuntime.holds(player.getUUID(), id(), right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, contactIdentity);
+            boolean retained = InteractionRuntime.holds(player.getUUID(), id(), Effector.arm(right), contactIdentity);
             if (ik == null || !strm.touchnmotion.interaction.ContactReach.accepts(ik.reach(), reachLimit, retained)) {
                 context.decide("out-of-reach");
                 return;
@@ -355,7 +354,7 @@ public final class BlockUse implements InteractionProvider {
                 standUp = ReachEnvelope.upright(postureTarget.x - shoulder.x,
                         postureTarget.y - shoulder.y, postureTarget.z - shoulder.z, ARM);
             }
-            Effector effector = right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
+            Effector effector = Effector.arm(right);
             boolean fresh = !state.shown || right != state.right || InteractionRuntime.weight(player.getUUID(), effector, id()) < 1e-3f;
             if (centre != null || fresh) {
                 state.grip.set(model);
@@ -402,7 +401,7 @@ public final class BlockUse implements InteractionProvider {
                 }
                 Map<Effector, float[]> hands = new EnumMap<>(Effector.class);
                 hands.put(effector, aim);
-                hands.put(right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, new float[]{other.x(), other.y()});
+                hands.put(Effector.arm(!right), new float[]{other.x(), other.y()});
                 out.add(Candidate.of(id(), Category.USE, priority(state), 1f, TIMING, hands));
             } else {
                 out.add(Candidate.single(id(), Category.USE, priority(state), 1f, TIMING, effector, aim));
@@ -585,7 +584,7 @@ public final class BlockUse implements InteractionProvider {
      */
     private static boolean hand(AbstractClientPlayer player, IKFrame frame, State state, SubLevels.Space space, Vec3 point,
                                 Vector3f model, float reachLimit, Object contactIdentity) {
-        boolean mainRight = player.getMainArm() == HumanoidArm.RIGHT;
+        boolean mainRight = Body.right(player, true);
         BlockTarget.Hands hands = state.target == null ? BlockTarget.Hands.ANY : state.target.hands();
         boolean nearest = EMFCompatConfig.getBoolean(ButtonPress.KEY_NEAREST, true) && (hands == BlockTarget.Hands.ANY
                 || hands == BlockTarget.Hands.ITEM && player.getMainHandItem().isEmpty());
@@ -623,9 +622,9 @@ public final class BlockUse implements InteractionProvider {
         state.bellows.snapshot.clear();
         if (!INSTANCE.isEnabled()) return;
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
-        float w = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
+        float w = InteractionRuntime.weight(uuid, Effector.arm(state.right), INSTANCE.id());
         ReachPose.upright(parts, state.standUp * w);
-        boolean free = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) < 0.01f;
+        boolean free = InteractionRuntime.weight(uuid, Effector.arm(!state.right)) < 0.01f;
         ReachPose.balance(parts, state.right, state.stretch * w, free, !state.groundReach && !state.lowReach.active());
         // Leaning on a table, the feet as at a fence - before the torso, which the table fits to the hands after.
         // Only with the table's screen up and stood right at it: looked at, the hands just go to it.
@@ -634,7 +633,12 @@ public final class BlockUse implements InteractionProvider {
                 && state.target.leanedOn(leaner.level().getBlockState(state.pos))
                 && Inputs.menuAt(leaner, state.pos) && TableSupport.close(leaner, state.pos);
         TableSupport.stance(state.table, parts, state.right, leaning
-                ? Math.min(InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id()), InteractionRuntime.weight(uuid, Effector.LEFT_ARM, INSTANCE.id())) : 0f);
+                ? bothHands(uuid) : 0f);
+    }
+
+    /** How much of both hands this has: the lesser of the two. */
+    private static float bothHands(UUID uuid) {
+        return Math.min(InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id()), InteractionRuntime.weight(uuid, Effector.LEFT_ARM, INSTANCE.id()));
     }
 
     /** Whether the hands are on a table, leaning on it. */
@@ -657,23 +661,23 @@ public final class BlockUse implements InteractionProvider {
         State state = STATES.fresh(uuid);
         if (state == null) return;
         if (table(state)) {
-            float tableWeight = Math.min(InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id()), InteractionRuntime.weight(uuid, Effector.LEFT_ARM, INSTANCE.id()));
+            float tableWeight = bothHands(uuid);
             TableSupport.apply(state.table, parts, net.minecraft.client.Minecraft.getInstance().level.getPlayerByUUID(uuid) instanceof AbstractClientPlayer p ? p : null,
                     state.shown && !state.tableUnloading, state.right, state.grip, state.supportGrip, tableWeight);
         }
         if (state.target instanceof Bellows) {
             var player = net.minecraft.client.Minecraft.getInstance().level.getPlayerByUUID(uuid);
             if (player instanceof AbstractClientPlayer p) {
-                float weight = Math.min(InteractionRuntime.weight(uuid, Effector.RIGHT_ARM, INSTANCE.id()), InteractionRuntime.weight(uuid, Effector.LEFT_ARM, INSTANCE.id()));
+                float weight = bothHands(uuid);
                 float press = state.pos == null ? 0 : BellowsGeometry.compression(Bellows.height(p.level(), state.pos));
                 TableSupport.apply(state.bellows, parts, p, state.shown && state.pos != null && Bellows.pressing(p, state.pos),
                         state.right, state.grip, state.supportGrip, weight, press);
                 if (!state.bellows.snapshot.isEmpty()) state.bellows.snapshot.put("compression", press);
             }
         }
-        boolean lowFree = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) <= 0.01f;
-        float mainOwned = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
-        float otherOwned = InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, INSTANCE.id());
+        boolean lowFree = InteractionRuntime.weight(uuid, Effector.arm(!state.right)) <= 0.01f;
+        float mainOwned = InteractionRuntime.weight(uuid, Effector.arm(state.right), INSTANCE.id());
+        float otherOwned = InteractionRuntime.weight(uuid, Effector.arm(!state.right), INSTANCE.id());
         boolean both = wheel(state) && state.support;
         // A wheel owns both effectors together. Do not treat its supporting hand as a competing interaction.
         float lowWeight = INSTANCE.isEnabled() && state.groundReach && (lowFree || both)
@@ -687,9 +691,9 @@ public final class BlockUse implements InteractionProvider {
         state.contactAt = now;
         boolean enabled = INSTANCE.isEnabled() && state.target != null
                 && state.target.quietsSwing() && state.overhead && !state.groundReach
-                && InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM) <= 0.01f;
+                && InteractionRuntime.weight(uuid, Effector.arm(!state.right)) <= 0.01f;
         float w = enabled ? InteractionRuntime.weight(uuid,
-                state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id()) : 0f;
+                Effector.arm(state.right), INSTANCE.id()) : 0f;
         ReachPose.contact(parts, state.right, state.grip, w, state.contactTurn, dt);
     }
 
@@ -708,7 +712,7 @@ public final class BlockUse implements InteractionProvider {
         // Leaning on a table, forwards over it as over a fence.
         float table = TableSupport.LEAN * state.table.leaning;
         if (state.lean[0] == 0f && state.lean[1] == 0f && state.lean[2] == 0f && table < 1e-4f) return null;
-        float w = InteractionRuntime.weight(uuid, state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM, INSTANCE.id());
+        float w = InteractionRuntime.weight(uuid, Effector.arm(state.right), INSTANCE.id());
         return TorsoLean.Hint.turn(state.lean[0] * w + table, state.lean[1] * w, state.lean[2] * w);
     }
 
@@ -719,7 +723,7 @@ public final class BlockUse implements InteractionProvider {
     public static void aimArm(UUID uuid, Function<String, ModelPart> parts) {
         State state = STATES.fresh(uuid);
         if (state == null || !EMFCompatCore.isCompatEnabled()) return;
-        Effector effector = state.right ? Effector.RIGHT_ARM : Effector.LEFT_ARM;
+        Effector effector = Effector.arm(state.right);
         float w = InteractionRuntime.weight(uuid, effector, INSTANCE.id());
         if (w < 1e-3f) return;
         ModelPart arm = parts.apply(effector.part);
@@ -727,7 +731,7 @@ public final class BlockUse implements InteractionProvider {
         if (new Vector3f(state.grip).sub(arm.x, arm.y, arm.z).lengthSquared() < 1e-6f) return;
         ArmAim.towards(arm, state.grip, w, true);
         if (state.support) {
-            Effector other = state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM;
+            Effector other = Effector.arm(!state.right);
             float otherWeight = InteractionRuntime.weight(uuid, other, INSTANCE.id());
             ModelPart otherArm = parts.apply(other.part);
             if (otherArm != null && otherWeight > 1e-3f) ArmAim.towards(otherArm, state.supportGrip, otherWeight, true);
@@ -747,7 +751,7 @@ public final class BlockUse implements InteractionProvider {
             if (wheel(state)) org.slf4j.LoggerFactory.getLogger("EMFCompatBlockUse").info(
                     "[WheelTrace] target={} grounded={} mainWeight={} supportWeight={} roll={} load={}",
                     state.target.getClass().getSimpleName(), state.groundReach, w,
-                    InteractionRuntime.weight(uuid, state.right ? Effector.LEFT_ARM : Effector.RIGHT_ARM, INSTANCE.id()),
+                    InteractionRuntime.weight(uuid, Effector.arm(!state.right), INSTANCE.id()),
                     state.lean[2], state.stance.load);
         }
     }

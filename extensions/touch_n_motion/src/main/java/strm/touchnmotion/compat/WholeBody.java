@@ -16,6 +16,11 @@ public final class WholeBody {
     private WholeBody() {
     }
 
+    /** Whether the whole body is another mod's now: ParCool moving it, or another addon holding it off the ground. Nothing here is added then. */
+    public static boolean taken(AbstractClientPlayer player) {
+        return ParCoolActivity.active(player) || held(player);
+    }
+
     public static boolean held(AbstractClientPlayer player) {
         if (player.onGround() || player.isPassenger()) return false;
         Map<String, SavedPoses> sources = PoseManager.entitySavedPosesBySource.get(player.getUUID());

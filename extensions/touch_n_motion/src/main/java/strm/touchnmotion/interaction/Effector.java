@@ -21,4 +21,14 @@ public enum Effector {
     public boolean isArm() {
         return this == RIGHT_ARM || this == LEFT_ARM;
     }
+
+    /** The right arm or the left one. */
+    public static Effector arm(boolean right) {
+        return right ? RIGHT_ARM : LEFT_ARM;
+    }
+
+    /** The other arm; the head stays the head. */
+    public Effector other() {
+        return this == RIGHT_ARM ? LEFT_ARM : this == LEFT_ARM ? RIGHT_ARM : HEAD;
+    }
 }

@@ -145,7 +145,7 @@ public final class TransportGrip implements InteractionProvider {
         // The helper is requested only after the primary palm actually touches.
         // Keep it through small load changes instead of alternating both hands.
         boolean helperWanted = s.gap < .08f && (s.load > (s.other == null ? .65f : .4f));
-        Effector other = s.hand == Effector.RIGHT_ARM ? Effector.LEFT_ARM : Effector.RIGHT_ARM;
+        Effector other = s.hand.other();
         if (s.other != null && (!helperWanted || !free(p, other) || !SupportSearch.valid(p, s.frame, s.other, other == Effector.RIGHT_ARM))) s.other = null;
         if (helperWanted && s.other == null && free(p, other) && context.now() >= s.helperAt) {
             s.helperAt = context.now() + 200_000_000L;
@@ -157,7 +157,7 @@ public final class TransportGrip implements InteractionProvider {
         context.decide(s.helper ? "two-hands" : s.gap < .08 ? "held" : "reaching");
     }
     private static boolean free(AbstractClientPlayer p, Effector hand) {
-        boolean main = (p.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT) == (hand == Effector.RIGHT_ARM);
+        boolean main = Body.right(p, true) == (hand == Effector.RIGHT_ARM);
         return p.getItemInHand(main ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND).isEmpty()
                 && InteractionRuntime.weight(p.getUUID(), hand, "LeadHold") < .05f;
     }
@@ -219,7 +219,7 @@ public final class TransportGrip implements InteractionProvider {
         State s = STATES.fresh(uuid);
         if (s == null || s.frame == null || !s.active) return;
         s.gap = aimOne(uuid, s, s.hand, s.primary, parts);
-        if (s.helper) s.helperGap = aimOne(uuid, s, s.hand == Effector.RIGHT_ARM ? Effector.LEFT_ARM : Effector.RIGHT_ARM, s.other, parts);
+        if (s.helper) s.helperGap = aimOne(uuid, s, s.hand.other(), s.other, parts);
         if (EMFCompatConfig.getBoolean(KEY_TRACE, false) && s.tracePace.due(100_000_000L)) {
             org.slf4j.LoggerFactory.getLogger("EMFCompatTransport").info(
                 "[TransportTrace] speed={} relative={} load={} owned={} gap={} helper={} helperGap={} step={} right={} left={} local={} world={} rope={} lift={}",

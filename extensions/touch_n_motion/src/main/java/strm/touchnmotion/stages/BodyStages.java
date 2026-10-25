@@ -268,8 +268,26 @@ public final class BodyStages {
         return false;
     }
 
-    /** Runs one stage's steps, in order. */
+    /** The steps that have thrown, each said once. */
+    private static final java.util.Set<Step> FAILED = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+
+    /**
+     * Runs one stage's steps, in order. A step that throws is skipped for this draw and the rest go on:
+     * one feature's fault does not take every other one's pose with it.
+     */
     public static void run(List<Step> stage, UUID uuid, Function<String, ModelPart> parts, Pass pass) {
-        for (Step step : stage) step.apply(uuid, parts, pass);
+        for (int i = 0; i < stage.size(); i++) {
+            Step step = stage.get(i);
+            try {
+                step.apply(uuid, parts, pass);
+            } catch (Throwable t) {
+                if (FAILED.add(step))
+                    org.slf4j.LoggerFactory.getLogger("TouchNMotion").warn("[TouchNMotion] body step {} of {} failed; skipped", i, name(stage), t);
+            }
+        }
+    }
+
+    private static String name(List<Step> stage) {
+        return stage == LEGS ? "LEGS" : stage == SUPPORT ? "SUPPORT" : stage == REACH ? "REACH" : stage == HANDS ? "HANDS" : "a stage";
     }
 }

@@ -135,7 +135,7 @@ public final class HandContacts {
         if (chosen != null) {
             state.lastReach.set(Body.model(frame, state.targets.get(chosen).world()));
             state.rightReach = chosen.hand == Effector.RIGHT_ARM;
-            Key opposite = new Key(chosen.source, state.rightReach ? Effector.LEFT_ARM : Effector.RIGHT_ARM);
+            Key opposite = new Key(chosen.source, Effector.arm(!state.rightReach));
             Anchor anchor = state.targets.get(opposite);
             if (anchor != null && anchor.world() != null && InteractionRuntime.weight(uuid, opposite.hand, opposite.source) > .1f)
                 other = Body.model(frame, anchor.world());
