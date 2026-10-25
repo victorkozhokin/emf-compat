@@ -24,6 +24,7 @@
 - Create's item drain: the fluid in it is read for subclasses of the drain too
 - Pocket gesture: switching to first person while it plays no longer stops it for good - the next pick-up starts it again
 - Putting a helmet on: the player braces for it - a short step out as the hand gets to the helmet, held to the end
+- First Person Model with shaders: the helmet no longer plays its putting-on again every two seconds - what is worn is not read while First Person Model hides it from the game
 - A feature that fails no longer takes the others' poses with it for that frame; a cape no longer keeps a lean the torso has left
 - Aeronautics cockpit: turning sharply to a side lever no longer starts the far hand for a frame before the near one takes it, and the near hand starts a little sooner
 - Requires EMF Compat Core 2.4.0

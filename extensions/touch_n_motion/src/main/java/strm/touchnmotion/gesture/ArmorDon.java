@@ -94,7 +94,9 @@ public final class ArmorDon extends Gesture {
             worn.since = now;
         }
         boolean settled = now - worn.since > SETTLE_NANOS && isEnabled();
-        for (int i = 0; i < 4; i++) {
+        // First Person Model hides the helmet from the game while it draws the body: nothing is read then.
+        boolean hidden = strm.touchnmotion.compat.FirstPersonHead.rendering(player.getUUID());
+        for (int i = 0; i < 4 && !hidden; i++) {
             Item item = player.getItemBySlot(SLOTS[i]).getItem();
             if (item != worn.armour[i] && item != Items.AIR && settled && on(KEYS[i])) worn.queued |= 1 << i;
             worn.armour[i] = item;

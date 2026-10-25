@@ -19,9 +19,17 @@ public final class FirstPersonHead {
         }
     }
     public static boolean active(UUID uuid) {
+        return !strm.touchnmotion.compat.ShadowPass.drawing() && rendering(uuid);
+    }
+
+    /**
+     * Whether First Person Model is drawing this player's body now. While it is, the game is told the
+     * player wears nothing on the head and holds nothing ({@code getItemBySlot}) - so what is worn must
+     * not be read then: a helmet would seem taken off and put on again every frame.
+     */
+    public static boolean rendering(UUID uuid) {
         var player = Minecraft.getInstance().player;
-        if (player == null || !player.getUUID().equals(uuid) || Api.RENDERING == null
-                || strm.touchnmotion.compat.ShadowPass.drawing()) return false;
+        if (player == null || !player.getUUID().equals(uuid) || Api.RENDERING == null) return false;
         try { return Boolean.TRUE.equals(Api.RENDERING.invoke(null)); }
         catch (ReflectiveOperationException failure) { return false; }
     }
