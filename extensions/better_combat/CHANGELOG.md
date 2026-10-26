@@ -1,5 +1,9 @@
 # EMF Compat: Better Combat — Changelog
 
+## Unreleased
+
+- Fabric 1.21.1: the mace's attack is shown again - the build sent it to the softened slam animation without carrying that animation, so nothing played (GitHub #49)
+
 ## 2.1.1
 
 - Forge 1.20.1: Spell Engine and the RPG Series are covered there too - casting poses stay visible, with the **RPG Series & other animations** option in the settings
