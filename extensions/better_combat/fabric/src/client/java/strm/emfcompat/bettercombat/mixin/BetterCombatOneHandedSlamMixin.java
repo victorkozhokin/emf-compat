@@ -11,7 +11,8 @@ import strm.emfcompat.bettercombat.EMFCompatBetterCombatClient;
 import java.util.Map;
 
 /**
- * Replaces Better Combat's slam animations with toned-down versions.
+ * Replaces Better Combat's slam animations with toned-down versions, with the "Softer slam"
+ * option on (off by default).
  *
  * <p>The original animations tilt and displace the torso very aggressively. That looks fine in
  * vanilla, but fights against EMF player animations. This mixin redirects {@code one_handed_slam}
@@ -35,7 +36,7 @@ public class BetterCombatOneHandedSlamMixin {
             ordinal = 0
     )
     private static Identifier emfcompat$redirectOneHandedSlam(Identifier id) {
-        if (!EMFCompatBetterCombatClient.isEnabled()) {
+        if (!EMFCompatBetterCombatClient.isSoftSlam()) {
             return id;
         }
         Identifier redirect = REDIRECTS.get(id);

@@ -39,6 +39,8 @@ public class EMFCompatBetterCombatClient implements ClientModInitializer {
     public static final String KEY_BODY_FOLLOW_ARMS = "bettercombat.bodyFollowArms";
     /** Also restore the legs during an attack (experimental — keeps a step/lunge over EMF). */
     public static final String KEY_ATTACK_LEGS = "bettercombat.attackLegs";
+    /** Swap Better Combat's one-handed slams (the mace) for softened copies that move the torso less. Off by default. */
+    public static final String KEY_SOFT_SLAM = "bettercombat.softSlam";
 
     // NB: the NeoForge/Forge builds also carry a generic Player Animator capture for Spell Engine /
     // RPG Series casts. It is deliberately absent here — Spell Engine has no 1.21.11 release, so
@@ -68,7 +70,10 @@ public class EMFCompatBetterCombatClient implements ClientModInitializer {
                         "Attack arm poses keep only their rotation.")
                 .addBoolean(KEY_ATTACK_LEGS, "Attack legs", true,
                         "On", "Restore the legs during attacks while standing still (rotation only, stays attached); moving keeps EMF's walk cycle.",
-                        "Off", "Leave the legs to EMF (arms only).");
+                        "Off", "Leave the legs to EMF (arms only).")
+                .addBoolean(KEY_SOFT_SLAM, "Softer slam", false,
+                        "On", "The mace's slam and other one-handed slams use a softened copy that tilts and shifts the torso less.",
+                        "Off", "Better Combat's own slam animations.");
 
         // Force EMF to use the vanilla player model for the local player in first person while a
         // Better Combat attack is active. This prevents EMF player animation resource packs from
@@ -79,6 +84,10 @@ public class EMFCompatBetterCombatClient implements ClientModInitializer {
         } catch (Exception e) {
             LOGGER.error("Failed to register EMF vanilla-model condition", e);
         }
+    }
+
+    public static boolean isSoftSlam() {
+        return isEnabled() && EMFCompatConfig.getBoolean(KEY_SOFT_SLAM, false);
     }
 
     public static boolean isEnabled() {

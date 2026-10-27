@@ -52,6 +52,8 @@ public class EMFCompatBetterCombatMod {
     private static boolean spellEnginePresent = false;
 
     public static final String KEY_WEAPON_STANCES = "bettercombat.weaponStances";
+    /** Swap Better Combat's one-handed slams (the mace) for softened copies that move the torso less. Off by default. */
+    public static final String KEY_SOFT_SLAM = "bettercombat.softSlam";
 
     /**
      * Pose source for the weapon stances, kept apart from the attack source: a stance lasts for as
@@ -83,12 +85,19 @@ public class EMFCompatBetterCombatMod {
                 .addBoolean(KEY_WEAPON_STANCES, "Weapon stances", true,
                         "On", "Keep Better Combat's two-handed weapon stances (spear, trident, claymore...) over EMF. Overrides both arms for as long as the weapon is held.",
                         "Off", "Leave the stance to EMF — the resource pack's idle arm animation plays instead.")
+                .addBoolean(KEY_SOFT_SLAM, "Softer slam", false,
+                        "On", "The mace's slam and other one-handed slams use a softened copy that tilts and shifts the torso less.",
+                        "Off", "Better Combat's own slam animations.")
                 .addBoolean(KEY_RPG_SERIES, "RPG Series & other animations", true,
                         "On", "Keep arm poses from Spell Engine / RPG Series casts (and other Player Animator animations) over EMF. Only active when Spell Engine is installed.",
                         "Off", "Leave those animations to EMF.");
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::clientSetup);
+    }
+
+    public static boolean isSoftSlam() {
+        return isEnabled() && EMFCompatConfig.getBoolean(KEY_SOFT_SLAM, false);
     }
 
     public static boolean isEnabled() {

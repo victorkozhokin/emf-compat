@@ -41,6 +41,8 @@ public class EMFCompatBetterCombatClient implements ClientModInitializer {
      * stance through kosmx Player Animator, which EMF does not pause for, so EMF just animates over it.
      */
     public static final String KEY_WEAPON_STANCES = "bettercombat.weaponStances";
+    /** Swap Better Combat's one-handed slams (the mace) for softened copies that move the torso less. Off by default. */
+    public static final String KEY_SOFT_SLAM = "bettercombat.softSlam";
 
     /** Low-priority pose source for the generic capture (a dedicated addon would override it). */
     public static final String GENERIC_SOURCE = "playeranim_base";
@@ -80,6 +82,9 @@ public class EMFCompatBetterCombatClient implements ClientModInitializer {
                 .addBoolean(KEY_WEAPON_STANCES, "Weapon stances", true,
                         "On", "Keep Better Combat's two-handed weapon stances (spear, trident, claymore...) over EMF. Overrides both arms for as long as the weapon is held.",
                         "Off", "Leave the stance to EMF — the resource pack's idle arm animation plays instead.")
+                .addBoolean(KEY_SOFT_SLAM, "Softer slam", false,
+                        "On", "The mace's slam and other one-handed slams use a softened copy that tilts and shifts the torso less.",
+                        "Off", "Better Combat's own slam animations.")
                 .addBoolean(KEY_RPG_SERIES, "RPG Series & other animations", true,
                         "On", "Keep arm poses from Spell Engine / RPG Series casts (and other Player Animator animations) over EMF. Only active when Spell Engine is installed.",
                         "Off", "Leave those animations to EMF.");
@@ -91,6 +96,10 @@ public class EMFCompatBetterCombatClient implements ClientModInitializer {
         } catch (Exception e) {
             LOGGER.error("Failed to register EMF vanilla-model condition", e);
         }
+    }
+
+    public static boolean isSoftSlam() {
+        return isEnabled() && EMFCompatConfig.getBoolean(KEY_SOFT_SLAM, false);
     }
 
     public static boolean isEnabled() {

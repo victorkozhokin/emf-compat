@@ -8,7 +8,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import strm.emfcompat.bettercombat.EMFCompatBetterCombatMod;
 
 /**
- * Redirects Better Combat's one-handed slam animations to scaled-down versions.
+ * Redirects Better Combat's one-handed slam animations to scaled-down versions, with the
+ * "Softer slam" option on (off by default).
  *
  * <p>The original {@code bettercombat:one_handed_slam} and
  * {@code bettercombat:one_handed_slam_instant} animations tilt and displace the torso
@@ -29,7 +30,7 @@ public class BetterCombatOneHandedSlamMixin {
             argsOnly = true
     )
     private static ResourceLocation emfcompat$redirectOneHandedSlam(ResourceLocation id) {
-        if (!EMFCompatBetterCombatMod.isEnabled()) {
+        if (!EMFCompatBetterCombatMod.isSoftSlam()) {
             return id;
         }
         if (ORIGINAL_SLAM.equals(id)) {
