@@ -88,9 +88,16 @@ public final class CombatBody {
         if (stance) PelvisFollow.shift(parts, clamp(-state.turn[1] * 1.1f, 1.2f), clamp(-(state.turn[0] + LEAN_IN) * 1.6f, 1.4f));
     }
 
-    /** The arms' rotation before the torso turns, to be put back after it; {@code null} when no attack plays. */
+    /** A combat addon's attack holds the arms now (its {@code attacking} state, e.g. Better Combat's). */
+    public static final String ATTACKING = "attacking";
+
+    /**
+     * The arms' rotation before the torso turns, to be put back after it; {@code null} when no attack
+     * plays - one offered here, or one an addon only says holds the arms ({@link #ATTACKING}): the
+     * lean here then carries the shoulders, and the swing keeps pointing where the attack has it.
+     */
     public static float[] armsBefore(UUID uuid, Function<String, ModelPart> parts) {
-        if (active(uuid) == null) return null;
+        if (active(uuid) == null && strm.emfcompat.core.BodyStates.value(uuid, ATTACKING) <= 0f) return null;
         ModelPart right = parts.apply("right_arm"), left = parts.apply("left_arm");
         if (right == null || left == null) return null;
         return new float[]{right.xRot, right.yRot, right.zRot, left.xRot, left.yRot, left.zRot};

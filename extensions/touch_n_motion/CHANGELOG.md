@@ -26,6 +26,7 @@
 - Putting a helmet on: the player braces for it - a short step out as the hand gets to the helmet, held to the end
 - First Person Model with shaders: the helmet no longer plays its putting-on again every two seconds - what is worn is not read while First Person Model hides it from the game
 - A feature that fails no longer takes the others' poses with it for that frame; a cape no longer keeps a lean the torso has left
+- Better Combat: pose inertia leaves the parts another mod's pose holds alone - a swing's arm is no longer late to its weapon; through the lean an attack's arms keep pointing where the swing has them; a two-handed weapon's stance lends an arm to a button, a lever, a block or a gesture, and gets it back after
 - Aeronautics cockpit: turning sharply to a side lever no longer starts the far hand for a frame before the near one takes it, and the near hand starts a little sooner
 - Requires EMF Compat Core 2.4.0
 - Carry On and TACZ: while you carry something or hold a gun, the arms are left to them - no reaching, gestures, turning in narrow gaps or leaning on walls, and half the lean with the motion; while aiming the torso and the head are left to TACZ too. The feet keep standing on the ground. Settings: "Carry On Compat", "TACZ Compat"

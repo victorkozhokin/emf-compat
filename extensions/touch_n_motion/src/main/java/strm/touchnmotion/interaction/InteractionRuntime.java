@@ -143,6 +143,11 @@ public final class InteractionRuntime {
         // WATUT's screen pose gives way to whatever here wants an arm - its addon steps aside while
         // this mod holds a part ({@code tnm_*} states). Weapons and other addons' poses keep theirs.
         boolean overWatut = wantsArm(candidates);
+        // A background pose of another addon - a weapon stance, priority below 0 - lends an arm to what
+        // is done on purpose (a button, a lever, a block, a gesture), never to a hand that just rests somewhere.
+        if (backgroundPoseOnly(player.getUUID(), overWatut ? "watut" : ""))
+            candidates.removeIf(candidate -> candidate.category().base < Category.USE.base
+                    && (candidate.aims().containsKey(Effector.RIGHT_ARM) || candidate.aims().containsKey(Effector.LEFT_ARM)));
         Set<Effector> reserved = reserved(player, overWatut, context.armsClaimed()
                 || strm.touchnmotion.platform.Platform.swinging(player) && state.claimedSwingStart == swingStart);
         Map<Effector, String> holders = new EnumMap<>(Effector.class);
@@ -233,6 +238,11 @@ public final class InteractionRuntime {
         }
     }
 
+    /** Whether another addon poses an arm only through a background pose (a source below priority 0). */
+    private static boolean backgroundPoseOnly(UUID uuid, String except) {
+        return !PoseManager.hasArmPoseExcept(uuid, except, 0) && PoseManager.hasArmPoseExcept(uuid, except);
+    }
+
     /** Whether any candidate asks for an arm. */
     private static boolean wantsArm(List<Candidate> candidates) {
         for (Candidate candidate : candidates)
@@ -249,7 +259,7 @@ public final class InteractionRuntime {
         }
         Set<Effector> reserved = EnumSet.noneOf(Effector.class);
         // A swing, an item in use or another addon's arm pose owns the arms.
-        if (strm.touchnmotion.platform.Platform.swinging(player) && !swingClaimed || player.isUsingItem() || PoseManager.hasArmPoseExcept(player.getUUID(), overWatut ? "watut" : "")
+        if (strm.touchnmotion.platform.Platform.swinging(player) && !swingClaimed || player.isUsingItem() || PoseManager.hasArmPoseExcept(player.getUUID(), overWatut ? "watut" : "", 0)
                 || strm.touchnmotion.compat.BodyClaims.arms(player.getUUID())) {
             reserved.add(Effector.RIGHT_ARM);
             reserved.add(Effector.LEFT_ARM);

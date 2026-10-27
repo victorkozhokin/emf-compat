@@ -35,7 +35,7 @@ public final class PoseInertia {
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatMotion");
 
     private static final String[] PARTS = {"head", "body", "right_arm", "left_arm", "right_leg", "left_leg"};
-    private static final int HEAD = 0, TORSO = 1;
+    private static final int HEAD = 0, TORSO = 1, RIGHT_ARM = 2, LEFT_ARM = 3;
     /** Half-life of the settling, seconds, per part: the limbs quicker than the torso and head. */
     private static final double[] HALFLIFE = {0.10, 0.12, 0.09, 0.09, 0.07, 0.07};
     /**
@@ -70,6 +70,8 @@ public final class PoseInertia {
         final float[][] speed = new float[PARTS.length][CHANNELS];
         final Spring[][] offset = new Spring[PARTS.length][CHANNELS];
         final boolean[] partSeen = new boolean[PARTS.length];
+        /** Parts another addon's pose holds this frame: theirs, not the pack's, so nothing here carries them. */
+        final boolean[] held = new boolean[PARTS.length];
 
         State() {
             for (Spring[] row : offset) for (int c = 0; c < CHANNELS; c++) row[c] = new Spring();
@@ -99,6 +101,7 @@ public final class PoseInertia {
             boolean crouching = player != null && player.isCrouching();
             if (crouching != s.crouching) s.crouchedAt = now;
             s.crouching = crouching;
+            heldByOthers(uuid, s.held);
         }
         // Crouching and standing up the pack moves the head, the torso and the arms at once and on
         // purpose, some by their pivots, some by their turns: settling each on its own tears the
@@ -108,6 +111,13 @@ public final class PoseInertia {
             ModelPart part = parts.apply(PARTS[i]);
             if (part == null) continue;
             float[] value = {part.xRot, part.yRot, part.zRot, part.x, part.y, part.z};
+            if (s.held[i]) {
+                // Another mod's pose (an attack, a carry) moves this part on its own time: a swing's
+                // fast turns are not the pack cutting, and carrying them on would make the arm late
+                // to its weapon. Followed from where it is, so letting go of it starts clean.
+                if (advance) hold(s, i, value);
+                continue;
+            }
             if (advance) advance(s, i, value, dt, uuid, noCuts);
             Spring[] off = s.offset[i];
             part.xRot += off[0].value;
@@ -126,6 +136,29 @@ public final class PoseInertia {
             head.y += torso[4].value;
             head.z += torso[5].value;
         }
+    }
+
+    /** Which of {@link #PARTS} another addon's pose holds for this player now (the core's merged poses). */
+    private static void heldByOthers(UUID uuid, boolean[] held) {
+        java.util.Arrays.fill(held, false);
+        strm.emfcompat.core.SavedPoses poses = strm.emfcompat.core.PoseManager.getSavedPoses(uuid);
+        if (poses == null) return;
+        java.util.Map<String, strm.emfcompat.core.PoseSnapshot> parts = poses.parts();
+        for (int i = 0; i < PARTS.length; i++) {
+            held[i] = parts != null && parts.containsKey(PARTS[i])
+                    || i == RIGHT_ARM && poses.rightArm() != null || i == LEFT_ARM && poses.leftArm() != null;
+        }
+    }
+
+    /** A held part: no offset of its own, its value and speed followed so nothing is carried when it is let go. */
+    private static void hold(State s, int i, float[] value) {
+        for (int c = 0; c < CHANNELS; c++) {
+            s.offset[i][c].value = 0f;
+            s.offset[i][c].velocity = 0f;
+            s.speed[i][c] = 0f;
+        }
+        System.arraycopy(value, 0, s.last[i], 0, CHANNELS);
+        s.partSeen[i] = true;
     }
 
     private static void advance(State s, int i, float[] value, double dt, UUID uuid, boolean noCuts) {
