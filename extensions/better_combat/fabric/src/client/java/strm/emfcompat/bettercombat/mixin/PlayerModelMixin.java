@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import strm.emfcompat.bettercombat.EMFCompatBetterCombatClient;
 import strm.emfcompat.bettercombat.compat.AttackPauseOverride;
+import strm.emfcompat.bettercombat.compat.AttackStates;
 import strm.emfcompat.bettercombat.compat.BetterCombatCompat;
 import strm.emfcompat.core.PoseManager;
 import strm.emfcompat.core.PoseSnapshot;
@@ -59,7 +60,9 @@ public class PlayerModelMixin {
 
         if (!EMFCompatBetterCombatClient.isEnabled()) {
             PoseManager.clearPoses(uuid, SOURCE);
+            AttackStates.attacking(uuid, false);
             PoseManager.clearPoses(uuid, POSE_SOURCE);
+            AttackStates.stance(uuid, false);
             return;
         }
 
@@ -79,6 +82,7 @@ public class PlayerModelMixin {
             // override across that fade the model drops to vanilla for those frames. The linger
             // cooldown then covers the hand-off itself.
             PoseManager.clearPoses(uuid, SOURCE);
+            AttackStates.attacking(uuid, false);
             if (BetterCombatCompat.isAttackStackAnimating(player)) {
                 AttackPauseOverride.markAttackActive(uuid);
             } else {
@@ -103,14 +107,15 @@ public class PlayerModelMixin {
         Map<String, PoseSnapshot> parts = null;
         if (EMFCompatBetterCombatClient.isAttackLegs() && state.walkAnimationSpeed < LEG_MOVE_THRESHOLD) {
             parts = new HashMap<>();
-            parts.put("left_leg", new PoseSnapshot(model.leftLeg, true));
-            parts.put("right_leg", new PoseSnapshot(model.rightLeg, true));
+            parts.put("left_leg", AttackStates.attack(new PoseSnapshot(model.leftLeg, true)));
+            parts.put("right_leg", AttackStates.attack(new PoseSnapshot(model.rightLeg, true)));
         }
 
+        AttackStates.attacking(uuid, true);
         PoseManager.savePoses(
                 uuid, SOURCE,
-                new PoseSnapshot(model.leftArm),
-                new PoseSnapshot(model.rightArm),
+                AttackStates.attack(new PoseSnapshot(model.leftArm)),
+                AttackStates.attack(new PoseSnapshot(model.rightArm)),
                 parts,
                 bodyBase
         );
@@ -120,6 +125,7 @@ public class PlayerModelMixin {
     private static void emfcompat$captureWeaponPose(PlayerModel model, AbstractClientPlayer player, UUID uuid) {
         if (!BetterCombatCompat.isPoseStackActive(player)) {
             PoseManager.clearPoses(uuid, POSE_SOURCE);
+            AttackStates.stance(uuid, false);
             return;
         }
 
@@ -127,6 +133,7 @@ public class PlayerModelMixin {
                 ? new Vector3f(model.body.x, model.body.y, model.body.z)
                 : null;
 
+        AttackStates.stance(uuid, true);
         PoseManager.savePoses(
                 uuid, POSE_SOURCE,
                 new PoseSnapshot(model.leftArm),

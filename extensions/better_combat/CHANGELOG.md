@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- The hand keeps time with the weapon: an attack's arms go straight to Better Combat's pose instead of easing in a frame or two late (the end still eases out); **Smooth attack start** brings the old ease-in back, off by default
+- Tells Touch'n Motion when an attack or a weapon stance holds the arms (needs EMF Compat Core 2.4.0; nothing changes with an older core)
 - The softened slam (the mace) is now an option, **Softer slam**, off by default: Better Combat's own slam plays unless it is turned on (all versions; on Forge 1.20.1 it no longer replaces Better Combat's file)
 - Fabric 1.21.1: the mace's attack is shown again - the build sent it to the softened slam animation without carrying that animation, so nothing played (GitHub #49)
 

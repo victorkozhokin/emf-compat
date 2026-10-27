@@ -47,6 +47,8 @@ public class EMFCompatBetterCombatMod {
     public static final String KEY_WEAPON_STANCES = "bettercombat.weaponStances";
     /** Swap Better Combat's one-handed slams (the mace) for softened copies that move the torso less. Off by default. */
     public static final String KEY_SOFT_SLAM = "bettercombat.softSlam";
+    /** Ease an attack's arm pose in (the core's fade) instead of putting it on at once. Off by default: the arm keeps time with the weapon. */
+    public static final String KEY_SMOOTH_ATTACK_START = "bettercombat.smoothAttackStart";
 
     /** Low-priority pose source for the generic capture (a dedicated addon would override it). */
     public static final String GENERIC_SOURCE = "playeranim_base";
@@ -88,6 +90,9 @@ public class EMFCompatBetterCombatMod {
                 .addBoolean(KEY_SOFT_SLAM, "Softer slam", false,
                         "On", "The mace's slam and other one-handed slams use a softened copy that tilts and shifts the torso less.",
                         "Off", "Better Combat's own slam animations.")
+                .addBoolean(KEY_SMOOTH_ATTACK_START, "Smooth attack start", false,
+                        "On", "An attack's arm pose eases in over the resource pack's animation.",
+                        "Off", "An attack's arms go straight to Better Combat's pose, so the hand keeps time with the weapon; the end of an attack still eases out.")
                 .addBoolean(KEY_RPG_SERIES, "RPG Series & other animations", true,
                         "On", "Keep arm poses from Spell Engine / RPG Series casts (and other Player Animator animations) over EMF. Only active when Spell Engine is installed.",
                         "Off", "Leave those animations to EMF.");
@@ -96,6 +101,10 @@ public class EMFCompatBetterCombatMod {
 
     public static boolean isSoftSlam() {
         return isEnabled() && EMFCompatConfig.getBoolean(KEY_SOFT_SLAM, false);
+    }
+
+    public static boolean isSmoothAttackStart() {
+        return EMFCompatConfig.getBoolean(KEY_SMOOTH_ATTACK_START, false);
     }
 
     public static boolean isEnabled() {
