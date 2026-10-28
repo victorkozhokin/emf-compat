@@ -27,9 +27,11 @@ import java.util.UUID;
  * <p>A pose that is fading out (see {@link PoseInterpolator}) counts as a pose here: the fade runs
  * from the same hook, and a pause landing halfway through it would snap the limb after all.</p>
  *
- * <p>The linger exists because PAL keeps fading an animation out for a frame or two after the
- * addon has already dropped its pose. Without it the model would snap back to vanilla for exactly
- * those frames, between the addon letting go and EMF resuming.</p>
+ * <p>The linger exists because PAL keeps fading an animation out after the addon has already
+ * dropped its pose - Better Combat's attack fades for about four ticks. Without it EMF would pause
+ * for exactly that fade and the model would flicker between the addon letting go and EMF resuming.
+ * It is measured in time, not in calls: on 1.21.11 and later EMF asks about the pause many times a
+ * frame, and a linger counted in calls ran out within a single frame.</p>
  */
 public final class PauseOverride {
 
@@ -37,39 +39,38 @@ public final class PauseOverride {
     }
 
     /**
-     * How many further frames the pause stays lifted after the last pose disappears. Three is
-     * what the Better Combat addon arrived at for its own attack hand-off, which is the longest
-     * fade any addon here produces.
+     * How long the pause stays lifted after the last pose disappears. Better Combat's attack fade,
+     * the longest any addon here leaves behind, takes about 200 ms.
      */
-    private static final int LINGER_FRAMES = 3;
+    private static final long LINGER_NANOS = 500_000_000L;
 
-    private static final Map<UUID, Integer> LINGER = new HashMap<>();
+    /** When the linger of each player runs out, in {@link System#nanoTime()}. */
+    private static final Map<UUID, Long> LINGER = new HashMap<>();
 
     /**
      * Returns {@code true} if EMF should keep animating this player despite wanting to pause.
      *
-     * <p>Also advances the linger countdown, so this must be called once per frame per entity —
-     * which is exactly how EMF uses the pause check. It cannot be ticked from the animation hook
-     * instead: that hook is one of the things a pause skips.</p>
+     * <p>Called from EMF's pause check, which a pause does not skip - unlike the animation hook,
+     * which is why the linger cannot be kept there.</p>
      */
     public static boolean shouldLiftPause(UUID uuid) {
         if (uuid == null) {
             return false;
         }
+        long now = System.nanoTime();
         // A pose that is fading back out still needs the hook to run: a paused entity is skipped
         // before it, which would strand the fade halfway and snap the limb after all.
         if (PoseManager.hasAnyPose(uuid) || PoseInterpolator.isActive(uuid)) {
-            LINGER.put(uuid, LINGER_FRAMES);
+            LINGER.put(uuid, now + LINGER_NANOS);
             return true;
         }
-        Integer remaining = LINGER.get(uuid);
-        if (remaining == null) {
+        Long until = LINGER.get(uuid);
+        if (until == null) {
             return false;
         }
-        if (remaining <= 1) {
+        if (now - until >= 0) {
             LINGER.remove(uuid);
-        } else {
-            LINGER.put(uuid, remaining - 1);
+            return false;
         }
         return true;
     }

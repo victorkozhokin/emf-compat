@@ -1,5 +1,9 @@
 # EMF Compat Core — Changelog
 
+## Unreleased
+
+- The model no longer flickers for a moment when a Better Combat attack (or another mod's animation) ends - EMF now keeps animating through the whole fade-out, not just the first frame of it
+
 ## 2.4.0
 
 - Shared player states for addons and resource packs: what a player is doing (carrying, holding or aiming a gun, and Touch'n Motion's own states) and which parts of the body that takes. Packs read them as EMF variables named emfc_<state>, which read 0 when no mod sets them
