@@ -201,6 +201,11 @@ public final class HorseFootGrounding {
         // the hitbox is enough.
         if (horse.level().noCollision(horse, horse.getBoundingBox().move(0, -0.08, 0))) return "airborne";
         if (strm.touchnmotion.platform.Platform.inWater(horse) || horse.isStanding() || horse.isPassenger()) return "state";
+        // Only a player rider is carried down and pitched with the horse (BodyStages.RIDER); any
+        // other, a skeleton trap's horseman, would be left floating over a sunken horse.
+        for (Entity passenger : horse.getPassengers()) {
+            if (!(passenger instanceof net.minecraft.world.entity.player.Player)) return "rider";
+        }
         return null;
     }
 
