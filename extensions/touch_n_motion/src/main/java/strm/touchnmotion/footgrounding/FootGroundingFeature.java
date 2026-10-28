@@ -36,7 +36,7 @@ public final class FootGroundingFeature {
                         "On", "Bring the feet onto narrow collision surfaces and balance with the torso and free arms.",
                         "Off", "Only correct the height of the feet.")
                 .addChild(KEY_ENABLED, KEY_HORSES, "Foot IK for horses", true,
-                        "On", "Horses, donkeys and mules also stand on uneven ground: the body is lowered and pitched, and the rider goes down with it.",
+                        "On", "A horse, donkey or mule you ride also stands on uneven ground: the body is lowered and pitched, and you go down with it.",
                         "Off", "Only players.");
     }
 

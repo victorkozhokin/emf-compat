@@ -30,6 +30,7 @@ import java.util.function.Function;
 
 /**
  * Foot IK for horses, donkeys and mules: the same idea as {@link FootGrounding}, on four legs.
+ * Only while a player rides the horse; one standing alone or carrying a mob is left as it is.
  *
  * <p>Each hoof looks for its floor ({@link #drop}). The body is lowered onto the lowest one and,
  * when the front hooves stand higher or lower than the hind ones - stairs, a slab edge taken head
@@ -201,8 +202,9 @@ public final class HorseFootGrounding {
         // the hitbox is enough.
         if (horse.level().noCollision(horse, horse.getBoundingBox().move(0, -0.08, 0))) return "airborne";
         if (strm.touchnmotion.platform.Platform.inWater(horse) || horse.isStanding() || horse.isPassenger()) return "state";
-        // Only a player rider is carried down and pitched with the horse (BodyStages.RIDER); any
-        // other, a skeleton trap's horseman, would be left floating over a sunken horse.
+        // Only a horse a player rides: that rider is carried down and pitched with it
+        // (BodyStages.RIDER), any other - a skeleton trap's horseman - would float over it.
+        if (horse.getPassengers().isEmpty()) return "riderless";
         for (Entity passenger : horse.getPassengers()) {
             if (!(passenger instanceof net.minecraft.world.entity.player.Player)) return "rider";
         }
