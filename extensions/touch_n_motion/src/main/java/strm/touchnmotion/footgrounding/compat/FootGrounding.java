@@ -633,7 +633,16 @@ public final class FootGrounding {
         if (player.isPassenger() || strm.touchnmotion.platform.Platform.inWater(player) || player.isFallFlying()
                 || player.isSleeping()) return "state";
         if (player.getPose() != Pose.STANDING && player.getPose() != Pose.CROUCHING) return "pose";
+        // Another mod's pose holds a leg - a Better Combat attack's step: that leg is posed on
+        // purpose, and planting its sole would drag the hip up after a foot the attack lifts.
+        if (legsHeld(player.getUUID())) return "legs-held";
         return null;
+    }
+
+    private static boolean legsHeld(java.util.UUID uuid) {
+        strm.emfcompat.core.SavedPoses poses = strm.emfcompat.core.PoseManager.getSavedPoses(uuid);
+        java.util.Map<String, strm.emfcompat.core.PoseSnapshot> parts = poses == null ? null : poses.parts();
+        return parts != null && (parts.containsKey("right_leg") || parts.containsKey("left_leg"));
     }
 
     /**
