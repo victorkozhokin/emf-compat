@@ -6,8 +6,7 @@
   "client": [
     "PlayerModelMixin",
     "GenericPlayerAnimMixin",
-    "AttackAnimationSubStackMixin",
-    "BetterCombatOneHandedSlamMixin"
+    "AttackAnimationSubStackMixin"
   ],
   "injectors": {
     "defaultRequire": 1

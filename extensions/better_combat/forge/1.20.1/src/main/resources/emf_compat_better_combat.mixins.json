@@ -7,8 +7,7 @@
   "client": [
     "PlayerModelMixin",
     "GenericPlayerAnimMixin",
-    "AttackAnimationSubStackMixin",
-    "AnimationRegistryMixin"
+    "AttackAnimationSubStackMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -39,8 +39,6 @@ public class EMFCompatBetterCombatClient implements ClientModInitializer {
     public static final String KEY_BODY_FOLLOW_ARMS = "bettercombat.bodyFollowArms";
     /** Also restore the legs during an attack (experimental — keeps a step/lunge over EMF). */
     public static final String KEY_ATTACK_LEGS = "bettercombat.attackLegs";
-    /** Swap Better Combat's one-handed slams (the mace) for softened copies that move the torso less. Off by default. */
-    public static final String KEY_SOFT_SLAM = "bettercombat.softSlam";
     /** Ease an attack's arm pose in (the core's fade) instead of putting it on at once. Off by default: the arm keeps time with the weapon. */
     public static final String KEY_SMOOTH_ATTACK_START = "bettercombat.smoothAttackStart";
 
@@ -73,9 +71,6 @@ public class EMFCompatBetterCombatClient implements ClientModInitializer {
                 .addBoolean(KEY_ATTACK_LEGS, "Attack legs", true,
                         "On", "Restore the legs during attacks while standing still (rotation only, stays attached); moving keeps EMF's walk cycle.",
                         "Off", "Leave the legs to EMF (arms only).")
-                .addBoolean(KEY_SOFT_SLAM, "Softer slam", false,
-                        "On", "The mace's slam and other one-handed slams use a softened copy that tilts and shifts the torso less.",
-                        "Off", "Better Combat's own slam animations.")
                 .addBoolean(KEY_SMOOTH_ATTACK_START, "Smooth attack start", false,
                         "On", "An attack's arm pose eases in over the resource pack's animation.",
                         "Off", "An attack's arms go straight to Better Combat's pose, so the hand keeps time with the weapon; the end of an attack still eases out.");
@@ -89,10 +84,6 @@ public class EMFCompatBetterCombatClient implements ClientModInitializer {
         } catch (Exception e) {
             LOGGER.error("Failed to register EMF vanilla-model condition", e);
         }
-    }
-
-    public static boolean isSoftSlam() {
-        return isEnabled() && EMFCompatConfig.getBoolean(KEY_SOFT_SLAM, false);
     }
 
     public static boolean isSmoothAttackStart() {
