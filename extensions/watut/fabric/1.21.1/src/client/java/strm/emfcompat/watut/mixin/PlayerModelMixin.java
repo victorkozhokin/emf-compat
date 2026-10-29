@@ -77,6 +77,7 @@ public class PlayerModelMixin {
     }
 
     /** Whether Touch'n Motion holds any of the player's arms, head or torso now (its shared states, core 2.4.0). */
+    @Unique
     private static boolean touchNMotion(Player player) {
         java.util.UUID uuid = player.getUUID();
         for (String part : new String[]{"tnm_right_arm", "tnm_left_arm", "tnm_head", "tnm_body"})

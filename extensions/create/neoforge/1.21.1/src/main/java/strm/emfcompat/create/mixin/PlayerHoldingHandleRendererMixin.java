@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.joml.Vector3f;
@@ -20,6 +21,7 @@ import java.util.UUID;
 @Mixin(value = PlayerHoldingHandleRenderer.class, remap = false)
 public class PlayerHoldingHandleRendererMixin {
 
+    @Unique
     private static final String SOURCE = "create_handle";
 
     @Inject(method = "afterSetupAnim", at = @At("RETURN"))

@@ -4,6 +4,7 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.joml.Vector3f;
@@ -25,6 +26,7 @@ import strm.emfcompat.supplementaries.compat.SupplementariesCompat;
 @Mixin(value = HumanoidModel.class, priority = 900)
 public class HumanoidModelMixin {
 
+    @Unique
     private static final String SOURCE = "supplementaries";
 
     @Inject(method = "setupAnim", at = @At("RETURN"))

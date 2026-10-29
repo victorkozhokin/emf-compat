@@ -52,6 +52,7 @@ public class PlayerRendererMixin {
         emfcompat$restoreCarryOnArmPose(armPart);
     }
 
+    @Unique
     private void emfcompat$restoreCarryOnArmPose(ModelPart armPart) {
         if (!EMFCarryOnClient.isEnabled()) return;
 

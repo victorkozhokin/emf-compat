@@ -5,6 +5,7 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -36,6 +37,7 @@ import java.util.Map;
 @Mixin(value = PlayerModel.class, priority = 2500)
 public class PlayerModelGrappleMixin {
 
+    @Unique
     private static final String SOURCE = "create_grapple";
 
     @Inject(method = "setupAnim", at = @At("RETURN"))

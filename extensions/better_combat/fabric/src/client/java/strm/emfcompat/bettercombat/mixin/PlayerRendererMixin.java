@@ -47,6 +47,7 @@ public class PlayerRendererMixin {
         emfcompat$restoreArmPose(armPart);
     }
 
+    @Unique
     private void emfcompat$restoreArmPose(ModelPart armPart) {
         if (!EMFCompatBetterCombatClient.isEnabled()) return;
 

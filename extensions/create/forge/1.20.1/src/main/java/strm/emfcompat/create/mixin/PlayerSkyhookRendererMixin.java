@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -32,6 +33,7 @@ import java.util.UUID;
 @Mixin(value = PlayerSkyhookRenderer.class, remap = false)
 public class PlayerSkyhookRendererMixin {
 
+    @Unique
     private static final String SOURCE = "create_skyhook";
 
     @Inject(method = "afterSetupAnim", at = @At("RETURN"), remap = false)
