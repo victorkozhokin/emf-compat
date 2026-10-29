@@ -147,8 +147,13 @@ public final class FootGrounding {
         long reachAt, reachChosenAt;
         /** The foot last put up on a step, standing: true right, null none. */
         Boolean reachFoot;
-        double reachX, reachY, reachZ;
+        /** Where the model stood and faced at the last step search - on its craft's deck when on one. */
+        Vec3 reachAtPosition, reachFacing;
         float reachYaw;
+        /** On a craft: the player's place on its deck last tick, and how far it walked since, in the world. */
+        strm.touchnmotion.interaction.SubLevels.Space deck;
+        Vec3 deckLocal, deckMotion = Vec3.ZERO;
+        int deckTick = Integer.MIN_VALUE;
         String logged = "";
     }
 
@@ -273,16 +278,20 @@ public final class FootGrounding {
             boolean level = Math.abs(t.hipRight - t.hipLeft) < MIN_STEP && t.hipRight <= MAX_STEP;
             if (level) {
                 long now = System.nanoTime();
-                boolean same = now - state.reachAt < REACH_EVERY_NANOS && player.getX() == state.reachX
-                        && player.getY() == state.reachY && player.getZ() == state.reachZ
-                        && player.yBodyRot == state.reachYaw;
+                // On a moving craft the world position is new every frame: the spot is the one on its deck.
+                var deck = state.terrain.deck();
+                Vec3 at = deck == null ? player.position() : deck.tickToLocal(player.position());
+                Vec3 facing = deck == null ? null : TerrainBalance.facing(player, deck);
+                boolean same = now - state.reachAt < REACH_EVERY_NANOS && state.reachAtPosition != null
+                        && at.distanceToSqr(state.reachAtPosition) < 1e-8
+                        && (deck == null ? player.yBodyRot == state.reachYaw
+                            : state.reachFacing != null && facing.dot(state.reachFacing) > 0.99999);
                 if (!same) {
                     state.reachFound = keep(state, reach(player, frame, rawRight, rawLeft, true),
                             reach(player, frame, rawRight, rawLeft, false), now);
                     state.reachAt = now;
-                    state.reachX = player.getX();
-                    state.reachY = player.getY();
-                    state.reachZ = player.getZ();
+                    state.reachAtPosition = at;
+                    state.reachFacing = facing;
                     state.reachYaw = player.yBodyRot;
                 }
                 Reach reach = state.reachFound;
@@ -483,10 +492,35 @@ public final class FootGrounding {
      * grows); the other swings through the air. Read off the pack's own animation, so the weight
      * shifts in time with whatever stride the pack draws.</p>
      */
+    /**
+     * How far the player went since the last tick, horizontally. On a craft that is across its
+     * deck: standing on a moving one is standing, not walking at the craft's speed.
+     */
+    private static Vec3 motion(AbstractClientPlayer player, State state) {
+        var deck = state.terrain.deck();
+        if (deck == null) {
+            state.deck = null;
+            state.deckLocal = null;
+            return new Vec3(player.getX() - player.xo, 0, player.getZ() - player.zo);
+        }
+        if (state.deck == null || !state.deck.same(deck)) {
+            state.deck = deck;
+            state.deckLocal = null;
+        }
+        if (state.deckTick != player.tickCount) {
+            Vec3 local = deck.tickToLocal(player.position());
+            Vec3 moved = state.deckLocal == null ? Vec3.ZERO : deck.directionToWorld(local.subtract(state.deckLocal));
+            state.deckMotion = new Vec3(moved.x, 0, moved.z);
+            state.deckLocal = local;
+            state.deckTick = player.tickCount;
+        }
+        return state.deckMotion;
+    }
+
     private static Stride stride(AbstractClientPlayer player, IKFrame frame, State state,
                                  float rawRight, float rawLeft, double dt) {
         float[] r = state.terrain.pose(state.rightPose, true), l = state.terrain.pose(state.leftPose, false);
-        Vec3 motion = new Vec3(player.getX() - player.xo, 0, player.getZ() - player.zo);
+        Vec3 motion = motion(player, state);
         if (r == null || l == null || motion.length() < WALKING) {
             state.lastRightX = Float.NaN;
             state.lastLeftX = Float.NaN;

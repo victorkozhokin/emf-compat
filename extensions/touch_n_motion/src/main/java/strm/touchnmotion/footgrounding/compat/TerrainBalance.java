@@ -34,6 +34,12 @@ final class TerrainBalance {
     private long sampledAt;
     private Vec3 sampledPosition;
     private float sampledYaw;
+    /**
+     * The craft the last scan stood on, and where the model was on its deck then: on a moving
+     * craft the world position changes every frame, so a scan measured by it ran every frame.
+     */
+    private SubLevels.Space sampledDeck;
+    private Vec3 sampledFacing, sampledUp;
     private float pitchTarget, rollTarget;
     private float narrow, pitch, roll;
     private float counterbalance;
@@ -52,13 +58,12 @@ final class TerrainBalance {
         // runs every solve. Motion and turns bring a new scan at once, so stepping off an edge never
         // waits; standing still only the world can change under the feet, and that is looked for
         // four times a second.
-        if (sampledPosition == null || sampledPosition.distanceToSqr(centre) > 0.0025
-                || Math.abs(player.yBodyRot - sampledYaw) > 4 || now - sampledAt > STILL_EVERY_NANOS) {
+        if (moved(player, centre) || now - sampledAt > STILL_EVERY_NANOS) {
             sampledAt = now;
-            sampledPosition = centre;
             sampledYaw = player.yBodyRot;
             List<SubLevels.Space> spaces = SubLevels.around(player.level(),
                     new AABB(centre, centre).inflate(1));
+            sample(player, centre, spaces);
             List<SupportSurface.Point> points = new ArrayList<>();
             List<BalanceMath.Sample> heights = new ArrayList<>();
             Vec3 normal = Vec3.ZERO;
@@ -116,9 +121,59 @@ final class TerrainBalance {
                 && !PoseManager.hasArmPoseExcept(player.getUUID(), "");
     }
 
+    /** Whether the model has moved or turned since the last scan - on its craft's deck when it stands on one. */
+    private boolean moved(AbstractClientPlayer player, Vec3 centre) {
+        if (sampledPosition == null) return true;
+        if (sampledDeck == null) {
+            return sampledPosition.distanceToSqr(centre) > 0.0025 || Math.abs(player.yBodyRot - sampledYaw) > 4;
+        }
+        if (!sampledDeck.valid()) return true;
+        SubLevels.Space deck = sampledDeck.refresh();
+        // The deck tilting changes the slope under the feet: a scan for that too.
+        return sampledPosition.distanceToSqr(deck.toLocal(centre)) > 0.0025
+                || facing(player, deck).dot(sampledFacing) < FACING_COS
+                || deck.directionToLocal(UP).dot(sampledUp) < TILT_COS;
+    }
+
+    /** Where this scan is taken from: the deck under the model, or the world. */
+    private void sample(AbstractClientPlayer player, Vec3 centre, List<SubLevels.Space> spaces) {
+        sampledDeck = null;
+        for (SubLevels.Space space : spaces) {
+            if (space.isWorld()) continue;
+            if (sampledDeck == null) sampledDeck = space;
+            Vec3 below = space.toLocal(centre.subtract(0, 0.1, 0));
+            if (!player.level().getBlockState(net.minecraft.core.BlockPos.containing(below)).isAir()) {
+                sampledDeck = space;
+                break;
+            }
+        }
+        if (sampledDeck == null) {
+            sampledPosition = centre;
+            return;
+        }
+        sampledPosition = sampledDeck.toLocal(centre);
+        sampledFacing = facing(player, sampledDeck);
+        sampledUp = sampledDeck.directionToLocal(UP);
+    }
+
+    private static final Vec3 UP = new Vec3(0, 1, 0);
+    /** A turn of 4 degrees on the deck, and a tilt of the deck of 1.5, bring a new scan. */
+    private static final double FACING_COS = Math.cos(Math.toRadians(4)), TILT_COS = Math.cos(Math.toRadians(1.5));
+
+    /** The craft the model stands on, as of the last scan; null on the world's own ground. */
+    SubLevels.Space deck() {
+        return sampledDeck == null || !sampledDeck.valid() ? null : sampledDeck.refresh();
+    }
+
+    static Vec3 facing(AbstractClientPlayer player, SubLevels.Space deck) {
+        double yaw = Math.toRadians(player.yBodyRot);
+        return deck.directionToLocal(new Vec3(-Math.sin(yaw), 0, Math.cos(yaw))).normalize();
+    }
+
     void reset() {
         surface = EMPTY;
         sampledPosition = null;
+        sampledDeck = null;
         sampledAt = 0;
         pitchTarget = rollTarget = pitch = roll = narrow = 0;
         counterbalance = 0;

@@ -21,6 +21,8 @@
 - Carry On and TACZ: while you carry something or hold a gun, the arms are left to them - no reaching, gestures, turning in narrow gaps or leaning on walls, and half the lean with the motion; while aiming the torso and the head are left to TACZ too. The feet keep standing on the ground. Settings: "Carry On Compat", "TACZ Compat"
 - Create's item drain: the fluid in it is read for subclasses of the drain too
 - Aeronautics cockpit: turning sharply to a side lever no longer starts the far hand for a frame before the near one takes it, and the near hand starts a little sooner
+- Sable crafts: standing on a moving craft no longer costs frames - the ground under the feet was scanned again every frame because the world position kept changing, now it is rescanned when the player moves or turns on the deck, or the deck tilts
+- Sable crafts: the legs no longer jerk and sink into the body on a moving, bobbing deck - standing on a moving craft was taken for walking at its speed
 - Better Combat: foot IK leaves the legs to an attack that poses them ("Attack legs") - the mace's step no longer has its foot planted and the hip dragged up after it
 - Horse foot IK works only while a player rides the horse: a riderless horse, or one a mob rides, is left as it is - a skeleton trap's horseman no longer floats over a horse sunk into a slope
 - Riding a horse with a resource pack that animates it, the player in the inventory's portrait is no longer moved and turned with the saddle
