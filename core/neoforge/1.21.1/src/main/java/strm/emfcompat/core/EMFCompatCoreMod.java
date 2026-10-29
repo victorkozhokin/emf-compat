@@ -31,6 +31,15 @@ public class EMFCompatCoreMod {
                                 + "Without it the model can sink into the ground or drop lower than "
                                 + "the crouch, and jump up and down with every attack.",
                         "Off", "Leave the crouch to the mods' animations and your resource pack.");
+        if (net.neoforged.fml.ModList.get().isLoaded("sable")) {
+            // Sable only: what its moving sub-levels do to the height a resource pack reads.
+            ConfigRegistry.section(ConfigRegistry.CORE_ID, "Core")
+                    .addBoolean(SubLevelHeight.KEY_ENABLED, "Sable: steady height on sub-levels", true,
+                            "On", "On a moving Sable sub-level your resource pack sees only how you move on it, "
+                                    + "not the sub-level rising and sinking: no landing animation each time it goes "
+                                    + "down, no sway as it rises.",
+                            "Off", "Your resource pack sees the height in the world, the sub-level's movement included.");
+        }
         if (FMLEnvironment.dist == Dist.CLIENT) {
             // EMF calls this back once per entity render, right after the pack animation.
             EMFCompatAnimationHook.register();

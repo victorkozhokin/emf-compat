@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "EMFAnimationPauseHandlerMixin",
-    "SetupRotationsMixin"
+    "SetupRotationsMixin",
+    "EMFMathMixin"
   ],
   "injectors": {
     "defaultRequire": 1

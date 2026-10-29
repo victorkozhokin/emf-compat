@@ -6,7 +6,8 @@
   "mixins": [],
   "client": [
     "EMFAnimationPauseHandlerMixin",
-    "SetupRotationsMixin"
+    "SetupRotationsMixin",
+    "EMFMathMixin"
   ],
   "injectors": {
     "defaultRequire": 1
