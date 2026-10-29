@@ -129,14 +129,14 @@ public final class Fright implements InteractionProvider {
 
     public static void register(ConfigRegistry.Group config) {
         config.addBoolean(KEY_ENABLED, "Fright at sounds", true,
-                "On", "A frightening sound near by makes the character shudder and draw the shoulders up; a worse one makes them jump, duck and look round at it.",
+                "On", "A frightening sound nearby makes the character shudder and draw the shoulders up; a worse one makes them jump, duck and look round at it.",
                 "Off", "Sounds are not reacted to.");
         config.addChild(KEY_ENABLED, KEY_SCULK, "Sculk", true, "On", "A sculk sensor going off startles; a shrieker frightens.", "Off", "Sculk sounds are not reacted to.");
         config.addChild(KEY_ENABLED, KEY_WARDEN, "Warden", true, "On", "The warden coming up, its roar and its sonic boom frighten.", "Off", "The warden's sounds are not reacted to.");
-        config.addChild(KEY_ENABLED, KEY_CREAKING, "Creaking", true, "On", "A creaking coming alive near by frightens (on versions that have it).", "Off", "The creaking's sounds are not reacted to.");
-        config.addChild(KEY_ENABLED, KEY_CREEPER, "Creeper's fuse", true, "On", "A creeper starting to hiss near by frightens.", "Off", "A creeper's hiss is not reacted to.");
-        config.addChild(KEY_ENABLED, KEY_EXPLOSION, "Explosions", true, "On", "An explosion near by frightens.", "Off", "Explosions are not reacted to.");
-        config.addChild(KEY_ENABLED, KEY_THUNDER, "Thunder", true, "On", "Lightning striking near by frightens.", "Off", "Thunder is not reacted to.");
+        config.addChild(KEY_ENABLED, KEY_CREAKING, "Creaking", true, "On", "A creaking coming alive nearby frightens (on versions that have it).", "Off", "The creaking's sounds are not reacted to.");
+        config.addChild(KEY_ENABLED, KEY_CREEPER, "Creeper's fuse", true, "On", "A creeper starting to hiss nearby frightens.", "Off", "A creeper's hiss is not reacted to.");
+        config.addChild(KEY_ENABLED, KEY_EXPLOSION, "Explosions", true, "On", "An explosion nearby frightens.", "Off", "Explosions are not reacted to.");
+        config.addChild(KEY_ENABLED, KEY_THUNDER, "Thunder", true, "On", "Lightning striking nearby frightens.", "Off", "Thunder is not reacted to.");
         config.addChild(KEY_ENABLED, KEY_USED, "Get used to it", true, "On", "Frightened again and again, each fright is taken more lightly for a while.", "Off", "Every sound frightens as much as the first.");
     }
 

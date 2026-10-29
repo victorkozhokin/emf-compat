@@ -59,10 +59,10 @@ public final class TransportGrip implements InteractionProvider {
     }
     public boolean isEnabled() { return EMFCompatConfig.getBoolean(KEY_ENABLED, true); }
     public static void register(ConfigRegistry.Group config, ConfigRegistry.Group debug) {
-        config.addBoolean(KEY_ENABLED, "Brace on moving transport", true,
-                "On", "Hold a nearby support with a free hand, plant the feet and counterbalance craft motion.",
-                "Off", "Leave hands and stance unchanged on moving decks.");
-        debug.addBoolean(KEY_TRACE, "Trace transport contacts", false, "On", "Log transport contact and stance checks.", "Off", "No transport trace.");
+        config.addBoolean(KEY_ENABLED, "Brace on moving sub-levels", true,
+                "On", "On a moving Sable sub-level a free hand holds a support nearby, the feet are planted and the body leans against its motion.",
+                "Off", "Hands and stance stay as they are on a moving sub-level.");
+        debug.addBoolean(KEY_TRACE, "Trace sub-level bracing", false, "On", "Log the support and stance checks on moving sub-levels.", "Off", "No sub-level bracing trace.");
     }
     public void collect(InteractionContext context, List<Candidate> out) {
         var p = context.player();

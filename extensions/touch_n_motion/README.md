@@ -198,8 +198,8 @@ Use **Mods → Touch'n Motion → Config** to open its tab directly, or **Mods �
 
 | Option | What it does |
 |---|---|
-| Horse sync | Keeps you on the saddle of an animated horse. Under it: **Riding animation**. |
-| Brace on moving transport | Hands hold on to what is near while the vehicle moves. |
+| Ride with the horse | Keeps you on the saddle of a horse your resource pack animates. Under it: **Riding animation**. |
+| Brace on moving sub-levels | On a moving Sable sub-level a free hand holds on to a support nearby and the feet are planted. |
 | Row a boat | The hands on the oars, the body in the stroke. Under it: **Passenger in the bow** - a second rider sits in the bow facing the rower; **Chest in the bow** - a chest boat's chest is drawn in the bow, the rower aft. |
 | Ride in a minecart | The hands on the sides, the body thrown about by the ride. Under it: **Legs inside the cart**. |
 | NEA Compat | Shown when Not Enough Animations is installed. Gives Touch'n Motion control of rowing and horse riding while its matching poses are enabled. |

@@ -14,12 +14,12 @@ public final class HorseSync {
     }
 
     public static void register(ConfigRegistry.Group config) {
-        config.addBoolean(KEY_ENABLED, "Horse sync", true,
-                        "On", "Sync the ridden-horse animation onto the EMF player model.",
-                        "Off", "Disable horse-sync EMF compatibility.")
+        config.addBoolean(KEY_ENABLED, "Ride with the horse", true,
+                        "On", "The rider is carried with the horse's body as your resource pack moves it: up, down and tilted with its gait.",
+                        "Off", "The rider stays where the game seats them, whatever the pack does with the horse.")
                 .addChild(KEY_ENABLED, KEY_RIDING_ANIMATION, "Riding animation", true,
                         "On", "On a horse the hands hold the reins over its withers and go with its head, the legs grip its sides; a hand you use lets go and the other keeps hold.",
-                        "Off", "Leave the mounted pose to the vanilla / resource-pack animation.")
+                        "Off", "Leave the riding pose to your resource pack.")
                 .addChild(KEY_RIDING_ANIMATION, KEY_JOCKEY, "Jockey lean", true,
                         "On", "The rider leans over the horse's neck, sitting up while a hand is off the reins.",
                         "Off", "The rider sits upright.");

@@ -55,7 +55,7 @@ public final class HeavyThrottle implements InteractionProvider {
     public boolean isEnabled() { return ButtonPress.INSTANCE.isEnabled() && EMFCompatConfig.getBoolean(KEY, true); }
     public static void register(ConfigRegistry.Group config) {
         config.addChild(ButtonPress.KEY_ENABLED, KEY, "Throttle effort", true,
-            "On", "Brace and transfer weight while dragging a Throttle; a free hand helps after a long stroke.",
+            "On", "Dragging an Aeronautics throttle lever, the player braces and shifts the weight; a free hand helps after a long stroke.",
             "Off", "Use the ordinary single-hand Throttle pose.");
     }
     public void collect(InteractionContext context, List<Candidate> out) {
