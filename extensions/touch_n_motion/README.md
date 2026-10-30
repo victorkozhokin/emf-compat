@@ -140,7 +140,7 @@ Use **Mods → Touch'n Motion → Config** to open its tab directly, or **Mods �
 
 | Option | What it does |
 |---|---|
-| Foot IK (experimental) | Feet stand on the ground under them. Under it: **Balance on narrow supports and slopes**, **Foot IK for horses**. |
+| Foot IK (experimental) | Feet stand on the ground under them. Under it: **Balance on narrow supports and slopes**, **Foot IK for horses** (the horse you ride, on its own hooves - Icy's Better Horses breeds too). |
 | Torso lean | The torso bends and turns with what the hands do. Under it: **Lean with the motion**. |
 | Pose inertia | Poses settle with a little weight instead of stopping dead. |
 | Give way to ParCool moves | In the ParCool moves that animate the whole body their own way — hanging, climbing, vaulting, rolling, diving and the like — this addon adds nothing. A fast run keeps the foot IK and the lean. |
@@ -199,6 +199,7 @@ Use **Mods → Touch'n Motion → Config** to open its tab directly, or **Mods �
 | Option | What it does |
 |---|---|
 | Ride with the horse | Keeps you on the saddle of a horse your resource pack animates. Under it: **Riding animation**. |
+| Legs along other mounts | Off by default. On a mount that is not a horse - a Pokémon, a hippogryph, a mod's animal - the legs lie along its sides by how wide it is. |
 | Brace on moving sub-levels | On a moving Sable sub-level a free hand holds on to a support nearby and the feet are planted. |
 | Row a boat | The hands on the oars, the body in the stroke. Under it: **Passenger in the bow** - a second rider sits in the bow facing the rower; **Chest in the bow** - a chest boat's chest is drawn in the bow, the rower aft. |
 | Ride in a minecart | The hands on the sides, the body thrown about by the ride. Under it: **Legs inside the cart**. |

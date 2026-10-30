@@ -22,7 +22,9 @@
     "FishingHookAccessor",
     "FishingLineMixin",
     "compat.ShoulderTurnMixin",
-    "compat.ShoulderControlCameraMixin"
+    "compat.ShoulderControlCameraMixin",
+    "ModelPartAccessor",
+    "legacy.LivingEntityRendererScaleInvoker"
   ],
   "injectors": {
     "defaultRequire": 1

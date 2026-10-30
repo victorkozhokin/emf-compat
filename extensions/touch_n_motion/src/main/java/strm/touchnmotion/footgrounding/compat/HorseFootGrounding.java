@@ -20,6 +20,8 @@ import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import strm.touchnmotion.footgrounding.FootGroundingFeature;
+import strm.touchnmotion.ride.MountShape;
+import strm.touchnmotion.ride.MountShapes;
 import strm.touchnmotion.interaction.EntityStates;
 import strm.touchnmotion.interaction.Smoothing;
 import strm.emfcompat.core.EMFCompatCore;
@@ -38,22 +40,19 @@ import java.util.function.Function;
  * that leaves, a hoof higher than the other one of its pair, its leg takes by sliding up into the
  * body (the legs are one bone).</p>
  *
- * <p>Vanilla horse geometry, model pixels: hips at y 14, x ±4, z 7 (hind) and -10 (front); the
- * hooves are 4x4 and reach y 24, their centres at x ±3, z 8 and -9.9. The renderer's own scale
- * (foals, the 1.1 of horses) is already on the pose stack.</p>
+ * <p>Where the hooves stand and the ground under them are the mount's own, measured from its model
+ * ({@link MountShapes}): the vanilla horse's hooves are at x ±3, z 8 and -9.9, on y 24; a draft breed
+ * of Icy's Better Horses stands wider and longer. A mount whose hooves are not found is left alone.
+ * The renderer's own scale (foals, the 1.1 of horses) is already on the pose stack.</p>
  */
 public final class HorseFootGrounding {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("EMFCompatFootGrounding");
 
-    /** Hoof centres at the ground, model pixels, and the parts they belong to. */
-    private static final float GROUND = 24f;
-    private static final float[][] HOOVES = {{-3f, 8f}, {3f, 8f}, {-3f, -9.9f}, {3f, -9.9f}};
+    /** The parts the hooves belong to, in {@link MountShape#hooves()}'s order. Where the hooves are and the ground they stand on are the mount's own ({@code MountShapes}). */
     private static final String[][] LEGS = {
             {"right_hind_leg", "right_hind_baby_leg"}, {"left_hind_leg", "left_hind_baby_leg"},
             {"right_front_leg", "right_front_baby_leg"}, {"left_front_leg", "left_front_baby_leg"}};
-    private static final float SPAN = 17.9f;
-    private static final float MIDDLE_Z = -0.95f;
     private static final float[][] PROBES = {{0, 0}, {1.8f, 1.8f}, {-1.8f, 1.8f}, {1.8f, -1.8f}, {-1.8f, -1.8f}};
     private static final double RAY_UP = 0.1;
     private static final double RAY_DOWN = 1.2;
@@ -77,6 +76,8 @@ public final class HorseFootGrounding {
     }
 
     private static final class State {
+        /** This mount's hooves and ground, model pixels: measured once per model, the vanilla horse's otherwise. */
+        MountShape shape = MountShape.VANILLA_HORSE;
         float lower, tilt;
         final float[] lift = new float[4];
         /**
@@ -99,6 +100,7 @@ public final class HorseFootGrounding {
         long now = System.nanoTime();
         EntityStates.Entry<State> entry = STATES.seen(uuid, now);
         State state = entry.value;
+        state.shape = MountShapes.of(horse);
         double dt = EntityStates.due(entry, now);
         if (dt >= 0) solve(horse, stack, state, dt);
 
@@ -108,9 +110,9 @@ public final class HorseFootGrounding {
         if (Math.abs(state.lower) > 1e-3f) stack.translate(0f, state.lower / 16f, 0f);
         if (Math.abs(state.tilt) > 1e-4f) {
             // Round the middle of the footprint, on the ground: front up is -y at -z.
-            stack.translate(0f, GROUND / 16f, MIDDLE_Z / 16f);
+            stack.translate(0f, state.shape.ground() / 16f, state.shape.middleZ() / 16f);
             strm.touchnmotion.platform.Platform.rotate(stack, new org.joml.Quaternionf().rotationX(-state.tilt));
-            stack.translate(0f, -GROUND / 16f, -MIDDLE_Z / 16f);
+            stack.translate(0f, -state.shape.ground() / 16f, -state.shape.middleZ() / 16f);
         }
     }
 
@@ -121,7 +123,7 @@ public final class HorseFootGrounding {
         toWorld.get3x3(linear);
         Matrix3f back = new Matrix3f(linear).invert();
         // Model pixels -> model units: the pivot at the ground, in the middle of the footprint.
-        Vector3f pivotModel = new Vector3f(0f, GROUND / 16f, MIDDLE_Z / 16f);
+        Vector3f pivotModel = new Vector3f(0f, state.shape.ground() / 16f, state.shape.middleZ() / 16f);
         Vector3f pivotWorld = toWorld.transformPosition(new Vector3f(pivotModel));
         Vec3 camera = strm.touchnmotion.platform.Platform.cameraPosition();
         Vec3 at = horse.getPosition(partialTick);
@@ -139,6 +141,8 @@ public final class HorseFootGrounding {
         String decided;
 
         String why = ineligible(horse);
+        // A mount whose four hooves could not be told apart in its model is left as it is.
+        if (why == null && state.shape.hooves() == null) why = "no-hooves";
         IKFrame frame = null;
         if (why != null) {
             decided = "off:" + why;
@@ -147,7 +151,7 @@ public final class HorseFootGrounding {
             frame = IKFrame.capture(stack.last().pose(), camera);
             float low = 0f;
             for (int i = 0; i < 4; i++) {
-                drops[i] = drop(horse, frame, HOOVES[i]);
+                drops[i] = drop(horse, frame, state.shape.hooves()[i], state.shape.ground());
                 if (drops[i] <= MAX_STEP) low = Math.max(low, drops[i]);
             }
             if (low >= MIN_STEP) {
@@ -159,8 +163,9 @@ public final class HorseFootGrounding {
                 float front = Math.min(plant[2], plant[3]);
                 // The pitch lifts one pair and drops the other by half; the body goes up so that
                 // neither pair floats. A pitch held back by MAX_TILT leaves the rest to the legs.
-                float tilt = (float) Math.max(-MAX_TILT, Math.min(MAX_TILT, Math.atan2(front - hind, SPAN)));
-                float half = (float) Math.sin(tilt) * SPAN / 2f;
+                float span = state.shape.span();
+                float tilt = (float) Math.max(-MAX_TILT, Math.min(MAX_TILT, Math.atan2(front - hind, span)));
+                float half = (float) Math.sin(tilt) * span / 2f;
                 float up = Math.min(front - half, hind + half);
                 targetTilt = tilt;
                 targetLower = low - up;
@@ -212,8 +217,8 @@ public final class HorseFootGrounding {
     }
 
     /** How far below the hoof its floor is, model pixels; the ray length if there is none. */
-    private static float drop(AbstractHorse horse, IKFrame frame, float[] hoof) {
-        Vector3f base = new Vector3f(hoof[0], GROUND, hoof[1]);
+    private static float drop(AbstractHorse horse, IKFrame frame, float[] hoof, float ground) {
+        Vector3f base = new Vector3f(hoof[0], ground, hoof[1]);
         Vec3 best = null;
         for (float[] probe : PROBES) {
             Vec3 foot = frame.jointWorld(new Vector3f(base).add(probe[0], 0f, probe[1]));
@@ -225,7 +230,7 @@ public final class HorseFootGrounding {
         }
         if (best == null) return (float) (RAY_DOWN * 16);
         Vec3 centre = frame.jointWorld(base);
-        return frame.relativeToJoint(new Vec3(centre.x, best.y, centre.z), new Vector3f(0f, GROUND, 0f)).y;
+        return frame.relativeToJoint(new Vec3(centre.x, best.y, centre.z), new Vector3f(0f, ground, 0f)).y;
     }
 
     /** Slides each raised leg up into the body, on top of its animation. */

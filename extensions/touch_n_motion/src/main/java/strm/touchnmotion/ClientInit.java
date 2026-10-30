@@ -66,6 +66,7 @@ public final class ClientInit {
         Mining.register(blocks);
         EjectorLaunch.register(blocks);
         HorseSync.register(riding);
+        strm.touchnmotion.ride.MountRide.register(riding);
         strm.touchnmotion.ride.BoatRide.register(riding);
         strm.touchnmotion.ride.BoatPassenger.register(riding);
         // As the server has it, when the server has the addon; else as this client is set.

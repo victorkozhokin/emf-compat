@@ -445,6 +445,28 @@ public final class Platform {
         //?}
     }
 
+    /**
+     * How much larger than its model the renderer draws this entity - a horse's 1.1, a donkey's 0.87, a dragon's
+     * growth - read off the renderer's own scale on a fresh stack; 1 when it cannot be read. From 1.21.11 the size
+     * is in the render state: the horse's own rule, 1 otherwise.
+     */
+    public static float rendererScale(net.minecraft.world.entity.LivingEntity entity) {
+        //? if >=1.21.11 {
+        /*return entity instanceof net.minecraft.world.entity.animal.horse.AbstractHorse horse ? horseScale(horse) : 1.0f;
+        *///?} else {
+        Object renderer = net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity);
+        if (!(renderer instanceof strm.touchnmotion.mixin.legacy.LivingEntityRendererScaleInvoker invoker)) return 1.0f;
+        try {
+            com.mojang.blaze3d.vertex.PoseStack stack = new com.mojang.blaze3d.vertex.PoseStack();
+            invoker.touchnmotion$scale(entity, stack, 1.0f);
+            float s = stack.last().pose().getScale(new org.joml.Vector3f()).x;
+            return s > 0.01f && s < 100f ? s : 1.0f;
+        } catch (Throwable t) {
+            return 1.0f;
+        }
+        //?}
+    }
+
     /** Whether the server we are on knows the channels. Client only. */
     public static boolean canSendToServer() {
         //? if neoforge {

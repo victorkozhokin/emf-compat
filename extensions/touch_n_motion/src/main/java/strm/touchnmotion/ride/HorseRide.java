@@ -92,6 +92,9 @@ public final class HorseRide implements InteractionProvider {
         final SeatSpring spring = new SeatSpring(STIFF, DAMP, HARDEST, EVEN);
         float pitch, roll, rise, pitchRate, rollRate, noseUp;
         final strm.touchnmotion.DebugLog.Pace trace = new strm.touchnmotion.DebugLog.Pace();
+        /** The legs on this mount's barrel {hip x, turn out, forward}, and how much further its reins are than a vanilla horse's. */
+        float[] legs = {LEG_X, LEG_ROLL, 0f};
+        float reins = 1f;
     }
 
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
@@ -141,6 +144,12 @@ public final class HorseRide implements InteractionProvider {
             return;
         }
         state.riding = true;
+        // The legs and the reins by this mount's own size; a camel (two seats, its own rider pose) keeps the horse's.
+        if (!(horse instanceof net.minecraft.world.entity.animal.camel.Camel)) {
+            MountShape shape = MountShapes.of(horse);
+            state.legs = MountMath.legs(shape.riderHalfWidth());
+            state.reins = MountMath.reinsScale(shape.riderHalfWidth());
+        }
         state.weight += (1f - state.weight) * Smoothing.follow(dt, 0.2);
         Riders.carried(player);
         int busy = busy(player);
@@ -172,14 +181,14 @@ public final class HorseRide implements InteractionProvider {
         for (int hand = 0; hand < 2; hand++) {
             float side = hand == 0 ? RIGHT_SHOULDER.x : -RIGHT_SHOULDER.x;
             Vec3 shoulder = frame.jointWorld(Riders.shoulder(side, lean, SIT_BACK * state.weight));
-            Vec3 base = waist.add(up.scale(GRIP_UP)).add(right.scale((hand == 0 ? 1 : -1) * GRIP_WIDE));
+            Vec3 base = waist.add(up.scale(GRIP_UP * state.reins)).add(right.scale((hand == 0 ? 1 : -1) * GRIP_WIDE * state.reins));
             Vec3 d = base.subtract(shoulder);
             double ahead = d.dot(along);
             double far = -ahead + Math.sqrt(Math.max(0, ahead * ahead - d.lengthSqr() + reach * reach));
             // The reins are where they are, over the withers: the hands reach for them from the middle of the saddle,
             // and an arm too short - the rider sat up - goes as far towards them as it reaches.
             // Over a jump, folded over the neck, the rider gives the horse its head: the hands go on along it.
-            far = Mth.clamp(far, GRIP_NEAR, GRIP_AT + RELEASE * Math.max(0, state.noseUp));
+            far = Mth.clamp(far, GRIP_NEAR * state.reins, GRIP_AT * state.reins + RELEASE * Math.max(0, state.noseUp));
             grips[hand] = base.add(along.scale(far + graze * GRAZE_FORWARD)).add(up.scale(rear * REAR_UP - graze * GRAZE_DOWN));
             state.place[hand].set(Body.model(frame, grips[hand]));
         }
@@ -288,15 +297,17 @@ public final class HorseRide implements InteractionProvider {
         float w = state.weight;
         // Sat back to the middle of the saddle, and thrown up off it, the whole rider rises.
         Riders.shift(parts, SIT_BACK * w, state.rise * w);
-        // Hanging straight down the barrel, spread to its width; turned out from the hip, the right leg is +zRot.
-        r.x += (-LEG_X - r.x) * w;
-        l.x += (LEG_X - l.x) * w;
-        r.xRot += (0f - r.xRot) * w;
-        l.xRot += (0f - l.xRot) * w;
+        // Along the barrel's sides, the hips out towards its edge and each leg turned out just past it (MountMath);
+        // turned out from the hip, the right leg is +zRot.
+        float hip = state.legs[0], roll = state.legs[1], forward = state.legs[2];
+        r.x += (-hip - r.x) * w;
+        l.x += (hip - l.x) * w;
+        r.xRot += (forward - r.xRot) * w;
+        l.xRot += (forward - l.xRot) * w;
         r.yRot += (0f - r.yRot) * w;
         l.yRot += (0f - l.yRot) * w;
-        r.zRot += (LEG_ROLL - r.zRot) * w;
-        l.zRot += (-LEG_ROLL - l.zRot) * w;
+        r.zRot += (roll - r.zRot) * w;
+        l.zRot += (-roll - l.zRot) * w;
     }
 
     /** The last word on the hands and the head: each fist kept on its place on the reins, the head on the look. */

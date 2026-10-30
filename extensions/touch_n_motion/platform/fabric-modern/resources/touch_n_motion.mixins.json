@@ -21,7 +21,8 @@
     "FishingHookAccessor",
     "FishingLineMixin",
     "compat.ShoulderTurnMixin",
-    "compat.ShoulderControlCameraMixin"
+    "compat.ShoulderControlCameraMixin",
+    "ModelPartAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

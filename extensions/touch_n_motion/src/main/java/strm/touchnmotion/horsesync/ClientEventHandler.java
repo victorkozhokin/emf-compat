@@ -67,6 +67,8 @@ public class ClientEventHandler {
         EMFCompat.Saddle saddle = saddle(player);
         if (saddle == null || !(player.getVehicle() instanceof AbstractHorse horse)
                 || !strm.touchnmotion.interaction.WorldDraw.inWorld(player, stack)) return false;
+        // Icy's Better Horses carries its breeds' riders itself: carried here too, the rider would be moved twice.
+        if (strm.touchnmotion.compat.IcysHorses.isBreed(horse)) return false;
         stack.pushPose();
         float partial = strm.touchnmotion.platform.Platform.partialTick(false);
         double yaw = Math.toRadians(net.minecraft.util.Mth.rotLerp(partial, horse.yBodyRotO, horse.yBodyRot));

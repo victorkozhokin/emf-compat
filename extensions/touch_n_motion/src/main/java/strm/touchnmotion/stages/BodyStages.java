@@ -151,6 +151,7 @@ public final class BodyStages {
             (uuid, parts, pass) -> FootGrounding.apply(uuid, parts),
             (uuid, parts, pass) -> MinecartRide.legs(uuid, parts),
             (uuid, parts, pass) -> HorseRide.legs(uuid, parts),
+            (uuid, parts, pass) -> strm.touchnmotion.ride.MountRide.legs(uuid, parts),
             (uuid, parts, pass) -> BoatRide.seat(uuid, parts),
             (uuid, parts, pass) -> BoatPassenger.legs(uuid, parts),
             (uuid, parts, pass) -> EjectorLaunch.apply(uuid, parts),

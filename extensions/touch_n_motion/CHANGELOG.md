@@ -21,6 +21,10 @@
 - Carry On and TACZ: while you carry something or hold a gun, the arms are left to them - no reaching, gestures, turning in narrow gaps or leaning on walls, and half the lean with the motion; while aiming the torso and the head are left to TACZ too. The feet keep standing on the ground. Settings: "Carry On Compat", "TACZ Compat"
 - Create's item drain: the fluid in it is read for subclasses of the drain too
 - Aeronautics cockpit: turning sharply to a side lever no longer starts the far hand for a frame before the near one takes it, and the near hand starts a little sooner
+- Riding: the legs lie along the mount's sides by how wide it is, measured from its model - a vanilla horse, a donkey, a mule, every breed of Icy's Better Horses - instead of hanging half inside a broad horse or splayed off a narrow pony; the hands take the reins further on a larger horse
+- Horse foot IK stands each mount on its own hooves, measured from its model (Icy's Better Horses' draft breeds and ponies too); a mount whose hooves cannot be found is left as it is
+- Icy's Better Horses: its breeds' riders are carried by Icy's alone, never moved twice
+- New setting "Legs along other mounts" (off by default): on a mount that is not a horse - a Pokémon, an Ice and Fire hippogryph, a mod's animal - the legs lie along its sides by its size (Citadel models are measured; others by their hitbox)
 - Settings say what they do: "Horse sync" is now "Ride with the horse", "Brace on moving transport" is "Brace on moving sub-levels" (it works on Sable sub-levels); the throttle effort and fright texts are reworded
 - Sable: standing on a moving sub-level no longer costs frames - the ground under the feet was scanned again every frame because the world position kept changing, now it is rescanned when the player moves or turns on the sub-level, or it tilts
 - Sable: the legs no longer jerk and sink into the body on a moving, bobbing sub-level - standing on one was taken for walking at its speed
