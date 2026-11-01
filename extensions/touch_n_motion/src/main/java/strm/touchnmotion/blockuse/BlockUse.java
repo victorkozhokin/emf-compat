@@ -287,7 +287,7 @@ public final class BlockUse implements InteractionProvider {
                 spot = state.gesture.spot();
                 outwards = outwards(state.gesture.motion(), t);
             } else {
-                boolean still = Math.hypot(player.getX() - player.xo, player.getZ() - player.zo) <= SLOW_BELOW;
+                boolean still = strm.touchnmotion.interaction.Anchor.speed(player) <= SLOW_BELOW;
                 BlockPos oldPos = state.pos;
                 BlockTarget oldTarget = state.target;
                 spot = still ? look(player, state) : null;

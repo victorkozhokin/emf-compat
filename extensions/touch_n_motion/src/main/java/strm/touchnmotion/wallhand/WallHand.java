@@ -139,7 +139,7 @@ public final class WallHand implements InteractionProvider {
         if (!player.onGround() || player.isPassenger() || player.isSleeping()
                 || strm.touchnmotion.platform.Platform.inWater(player)) return "off:state";
         if (player.getPose() != Pose.STANDING && player.getPose() != Pose.CROUCHING) return "off:pose";
-        if (Math.hypot(player.getX() - player.xo, player.getZ() - player.zo) > SLOW_BELOW) return "off:moving";
+        if (strm.touchnmotion.interaction.Anchor.speed(player) > SLOW_BELOW) return "off:moving";
         return null;
     }
 

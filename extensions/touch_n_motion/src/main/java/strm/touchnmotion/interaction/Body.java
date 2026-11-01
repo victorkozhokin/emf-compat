@@ -20,7 +20,7 @@ public final class Body {
     /** Standing on the ground on their own feet and not walking. */
     public static boolean planted(Player player) {
         return player.onGround() && !player.isPassenger()
-                && player.getDeltaMovement().horizontalDistanceSqr() < .0004;
+                && Anchor.velocity(player).horizontalDistanceSqr() < .0004;
     }
 
     /** Whether the main hand ({@code main}) or the other one is the right arm. */

@@ -55,6 +55,11 @@ public final class SubLevels {
             return sub == null ? world : (Vec3) call(toLocal, call(logicalPose, sub), world);
         }
 
+        /** A direction of this space in the world, by the pose of the last tick. */
+        public Vec3 tickDirectionToWorld(Vec3 local) {
+            return sub == null ? local : (Vec3) call(normalToWorld, call(logicalPose, sub), local);
+        }
+
         public boolean isWorld() {
             return pose == null;
         }
@@ -130,6 +135,8 @@ public final class SubLevels {
     private static Object helper;
     private static Method containing, intersecting, renderPose, toWorld, toLocal, normalToWorld, normalToLocal, logicalPose, removed;
     private static Constructor<?> box;
+    private static Method tracking;
+    private static Class<?> trackingOwner, renderPoseOwner;
 
     private SubLevels() {
     }
@@ -139,6 +146,13 @@ public final class SubLevels {
         if (!ready()) return WORLD;
         Object sub = call(containing, helper, level, pos);
         return sub == null ? WORLD : space(sub);
+    }
+
+    /** The sub-level Sable carries {@code entity} with - the one it stands on - or {@link #WORLD}. */
+    public static Space tracking(Entity entity) {
+        if (!ready() || tracking == null || !trackingOwner.isInstance(entity)) return WORLD;
+        Object sub = call(tracking, entity);
+        return sub == null || !renderPoseOwner.isInstance(sub) ? WORLD : space(sub);
     }
 
     /**
@@ -215,7 +229,14 @@ public final class SubLevels {
                 containing = helper.getClass().getMethod("getContaining", Level.class, Vec3i.class);
                 intersecting = helper.getClass().getMethod("getAllIntersecting", Level.class, boxInterface);
                 box = boxClass.getConstructor(AABB.class);
-                renderPose = Class.forName("dev.ryanhcode.sable.sublevel.ClientSubLevel").getMethod("renderPose", float.class);
+                renderPoseOwner = Class.forName("dev.ryanhcode.sable.sublevel.ClientSubLevel");
+                renderPose = renderPoseOwner.getMethod("renderPose", float.class);
+                try {
+                    trackingOwner = Class.forName("dev.ryanhcode.sable.mixinterface.entity.entity_sublevel_collision.EntityMovementExtension");
+                    tracking = trackingOwner.getMethod("sable$getTrackingSubLevel");
+                } catch (ReflectiveOperationException e) {
+                    LOGGER.info("[SubLevels] no tracking sub-level in this Sable; the support is found by the blocks under the feet");
+                }
                 Class<?> subClass = Class.forName("dev.ryanhcode.sable.sublevel.SubLevel");
                 logicalPose = subClass.getMethod("logicalPose");
                 removed = subClass.getMethod("isRemoved");

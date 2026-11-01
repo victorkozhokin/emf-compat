@@ -68,7 +68,7 @@ public final class HeavyThrottle implements InteractionProvider {
         BlockPos pos = player == Minecraft.getInstance().player ? ThrottleLever.heldPosition() : strm.touchnmotion.net.Inputs.throttle(player);
         boolean eligible = pos != null && player.onGround() && !Seated.seated(player) && !player.isPassenger()
             && !player.isUsingItem() && !player.isSleeping() && !strm.touchnmotion.platform.Platform.inWater(player)
-            && !player.isFallFlying() && player.getDeltaMovement().horizontalDistanceSqr() < .0025;
+            && !player.isFallFlying() && strm.touchnmotion.interaction.Anchor.velocity(player).horizontalDistanceSqr() < .0025;
         Integer signal = eligible ? ThrottleLever.signal(player.level(), pos) : null;
         Vec3[] grips = signal == null ? null : ThrottleLever.grips(player.level(), pos);
         boolean fresh = pos != null && !pos.equals(s.pos);

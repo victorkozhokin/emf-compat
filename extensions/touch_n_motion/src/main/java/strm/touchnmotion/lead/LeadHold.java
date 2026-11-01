@@ -141,9 +141,9 @@ public final class LeadHold implements InteractionProvider {
         else s.direction.lerp(direction, Smoothing.follow(context.dt(), .12));
         // A following animal often stays short of vanilla's elastic distance. A small
         // walking effort shows the trailing grip without inventing an elastic impulse.
-        double walkSpeed = player.getDeltaMovement().horizontalDistance() * 20;
+        double walkSpeed = strm.touchnmotion.interaction.Anchor.velocity(player).horizontalDistance() * 20;
         s.stopPull = s.stop.advance(walkSpeed, s.distance, context.dt(), fresh || warped || !player.onGround());
-        float walking = (float) Math.min(1, player.getDeltaMovement().horizontalDistance() * 20 / 3);
+        float walking = (float) Math.min(1, strm.touchnmotion.interaction.Anchor.velocity(player).horizontalDistance() * 20 / 3);
         float trailing = Ease.smooth((s.direction.z + .1f) / .7f);
         float distance = Ease.smooth((float)(s.distance - 2) / 2);
         float wanted = Math.max(s.motion.load, walking * trailing * distance * .4f);

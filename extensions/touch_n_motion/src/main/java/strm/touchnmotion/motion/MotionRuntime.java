@@ -64,7 +64,8 @@ public final class MotionRuntime {
             float yaw = player.yBodyRot;
             double rad = Math.toRadians(yaw);
             // Minecraft yaw: 0 faces +z; forward (-sin, cos), the right of it (-cos, -sin).
-            double dx = (player.getX() - player.xo) * 20, dz = (player.getZ() - player.zo) * 20;
+            net.minecraft.world.phys.Vec3 moved = strm.touchnmotion.interaction.Anchor.moved(player);
+            double dx = moved.x * 20, dz = moved.z * 20;
             float forward = (float) (-Math.sin(rad) * dx + Math.cos(rad) * dz);
             float right = (float) (-Math.cos(rad) * dx - Math.sin(rad) * dz);
             float ticks = first ? 1 : Math.max(1, player.tickCount - s.tick);

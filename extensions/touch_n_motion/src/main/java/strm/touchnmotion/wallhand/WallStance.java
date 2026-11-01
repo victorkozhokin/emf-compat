@@ -26,7 +26,7 @@ final class WallStance {
                float requestedTurn, float support, boolean enabled) {
         ModelPart[] legs = {parts.apply("right_leg"), parts.apply("left_leg")};
         if (space == null || legs[0] == null || legs[1] == null) return;
-        boolean moving = player.getDeltaMovement().horizontalDistanceSqr() > .0004;
+        boolean moving = strm.touchnmotion.interaction.Anchor.velocity(player).horizontalDistanceSqr() > .0004;
         boolean ground = enabled && player.onGround() && !player.isPassenger();
         Vector3f[] feet = stride.feet;
         float counter = EMFState.getFrameCounter();

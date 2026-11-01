@@ -127,7 +127,7 @@ public final class Furniture implements InteractionProvider {
             context.decide("off:state");
             return;
         }
-        if (Math.hypot(player.getX() - player.xo, player.getZ() - player.zo) > SLOW_BELOW) {
+        if (strm.touchnmotion.interaction.Anchor.speed(player) > SLOW_BELOW) {
             context.decide("off:moving");
             return;
         }
