@@ -285,8 +285,7 @@ final class TerrainBalance {
         Floor best = null;
         Vec3 start = foot.add(0, 0.7, 0), end = foot.add(0, -0.8, 0);
         for (SubLevels.Space space : spaces) {
-            var hit = player.level().clip(new ClipContext(space.toLocal(start), space.toLocal(end),
-                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+            var hit = space.clip(player.level(), start, end, ClipContext.Block.COLLIDER, player);
             if (hit.getType() == HitResult.Type.MISS || hit.isInside()) continue;
             Vec3 normal = space.directionToWorld(Vec3.atLowerCornerOf(hit.getDirection().getNormal()));
             Vec3 point = space.isWorld() ? strm.touchnmotion.create.ejector.EjectorLid.onLid(player, hit)

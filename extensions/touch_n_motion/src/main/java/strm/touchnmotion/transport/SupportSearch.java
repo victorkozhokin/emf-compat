@@ -25,8 +25,8 @@ public final class SupportSearch {
         Deck best = null;
         double nearest = 1;
         for (var space : spaces) {
-            var hit = player.level().clip(new ClipContext(space.toLocal(from), space.toLocal(to),
-                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+            var hit = space.clip(player.level(), from, to,
+                    ClipContext.Block.COLLIDER, player);
             if (hit.getType() != HitResult.Type.BLOCK) continue;
             if (space.isWorld() && !SubLevels.at(player.level(), hit.getBlockPos()).isWorld()) continue;
             Vec3 normal = space.directionToWorld(Vec3.atLowerCornerOf(hit.getDirection().getNormal())).normalize();
@@ -50,8 +50,8 @@ public final class SupportSearch {
             Vector3f direction = new Vector3f(sign * (float) Math.sin(a), rise, -(float) Math.cos(a)).normalize().mul(14);
             Vec3 end = frame.jointWorld(new Vector3f(shoulder).add(direction));
             for (var space : spaces) for (boolean outline : new boolean[]{false, true}) {
-                var hit = player.level().clip(new ClipContext(space.toLocal(start), space.toLocal(end),
-                        outline ? ClipContext.Block.OUTLINE : ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+                var hit = space.clip(player.level(), start, end,
+                    outline ? ClipContext.Block.OUTLINE : ClipContext.Block.COLLIDER, player);
                 if (hit.getType() != HitResult.Type.BLOCK || hit.isInside()) continue;
                 if (space.isWorld() && !SubLevels.at(player.level(), hit.getBlockPos()).isWorld()) continue;
                 hits++;
@@ -77,8 +77,8 @@ public final class SupportSearch {
     public static boolean clear(AbstractClientPlayer player, Vec3 from, Vec3 to, List<SubLevels.Space> spaces) {
         double reach = from.distanceTo(to);
         for (var space : spaces) {
-            var hit = player.level().clip(new ClipContext(space.toLocal(from), space.toLocal(to),
-                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+            var hit = space.clip(player.level(), from, to,
+                    ClipContext.Block.COLLIDER, player);
             if (hit.getType() != HitResult.Type.BLOCK) continue;
             if (space.isWorld() && !SubLevels.at(player.level(), hit.getBlockPos()).isWorld()) continue;
             if (space.toWorld(hit.getLocation()).distanceTo(from) < reach - .05) return false;
@@ -119,8 +119,8 @@ public final class SupportSearch {
         if (!BraceMath.reachable(Body.model(frame, end), shoulder, right, true)) return false;
         // Extend just inside the retained face; the first hit must still be this block.
         Vec3 to = c.point.subtract(c.normal.scale(.015));
-        var hit = player.level().clip(new ClipContext(space.toLocal(from), to, c.outline ? ClipContext.Block.OUTLINE : ClipContext.Block.COLLIDER,
-                ClipContext.Fluid.NONE, player));
+        var hit = space.clipLocal(player.level(), space.toLocal(from), to, from.distanceTo(space.toWorld(to)),
+                c.outline ? ClipContext.Block.OUTLINE : ClipContext.Block.COLLIDER, player);
         return hit.getType() == HitResult.Type.BLOCK && hit.getBlockPos().equals(c.block)
                 && hit.getLocation().distanceTo(c.point) < .07
                 && clear(player, from, end, SubLevels.around(player.level(), player.getBoundingBox().inflate(1.2)));

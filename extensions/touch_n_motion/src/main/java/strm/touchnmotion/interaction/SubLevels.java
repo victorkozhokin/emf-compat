@@ -5,8 +5,11 @@ import java.util.IdentityHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +77,44 @@ public final class SubLevels {
         public Vec3 directionToLocal(Vec3 world) {
             return pose == null ? world : (Vec3) call(normalToLocal, pose, world);
         }
+
+        /**
+         * The blocks of this space along a world ray, {@code from} to {@code to}; a miss when there is
+         * nothing or the ray cannot be carried into this space.
+         */
+        public BlockHitResult clip(Level level, Vec3 from, Vec3 to, ClipContext.Block block, Entity entity) {
+            return clipLocal(level, toLocal(from), toLocal(to), from.distanceTo(to), block, entity);
+        }
+
+        /**
+         * {@link #clip} with the ray already in this space; {@code worldLength} is how long it is in the
+         * world. A ray the pose stretches far past that is not cast: the game walks a ray block by
+         * block, and one stretched across a plot (millions of blocks) froze the game.
+         */
+        public BlockHitResult clipLocal(Level level, Vec3 from, Vec3 to, double worldLength,
+                                        ClipContext.Block block, Entity entity) {
+            double length = from.distanceTo(to);
+            if (!Double.isFinite(length) || length > worldLength * 8 + 2) {
+                stretched(this, from, to, worldLength);
+                return BlockHitResult.miss(to, net.minecraft.core.Direction.UP, BlockPos.containing(to));
+            }
+            return level.clip(new ClipContext(from, to, block, ClipContext.Fluid.NONE, entity));
+        }
+
+        @Override
+        public String toString() {
+            return pose == null ? "world" : String.valueOf(pose);
+        }
+    }
+
+    private static boolean saidStretched;
+
+    /** A ray a sub-level's pose stretched, said once a game: what pose did it. */
+    private static void stretched(Space space, Vec3 from, Vec3 to, double worldLength) {
+        if (saidStretched) return;
+        saidStretched = true;
+        LOGGER.warn("[SubLevels] a ray of {} blocks became {} in a sub-level and was not cast ({} -> {}); pose {}",
+                worldLength, from.distanceTo(to), from, to, space);
     }
 
     public static final Space WORLD = new Space(null, null);

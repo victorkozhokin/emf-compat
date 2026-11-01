@@ -15,8 +15,7 @@ public final class WallSurface {
         Hit best = null;
         double distance = Double.POSITIVE_INFINITY;
         for (SubLevels.Space space : spaces) {
-            var hit = player.level().clip(new ClipContext(space.toLocal(from), space.toLocal(to),
-                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+            var hit = space.clip(player.level(), from, to, ClipContext.Block.COLLIDER, player);
             if (hit.getType() == HitResult.Type.MISS || hit.isInside()) continue;
             Vec3 normal = space.directionToWorld(Vec3.atLowerCornerOf(hit.getDirection().getNormal()));
             if (Math.abs(normal.y) > 0.5) continue;

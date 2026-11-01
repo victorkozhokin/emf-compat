@@ -81,8 +81,8 @@ public final class TransportStance {
         var space = deck.space().refresh();
         for (double distance : new double[]{holding ? .32 : .42, holding ? .42 : .52}) {
             var point = base.add(direction.scale(distance));
-            var hit = player.level().clip(new ClipContext(space.toLocal(point.add(0, .15, 0)), space.toLocal(point.add(0, -.65, 0)),
-                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+            var hit = space.clip(player.level(), point.add(0, .15, 0), point.add(0, -.65, 0),
+                    ClipContext.Block.COLLIDER, player);
             if (hit.getType() == HitResult.Type.BLOCK && space.toWorld(hit.getLocation()).y > base.y - .45) return false;
         }
         return true;
@@ -94,8 +94,8 @@ public final class TransportStance {
         Vector3f sole = Body.tip(leg, 12);
         for (float t : new float[]{0, .5f, 1}) for (float x : new float[]{-.09f, 0, .09f}) for (float z : new float[]{-.09f, 0, .09f}) {
             var point = frame.jointWorld(new Vector3f(sole).add(new Vector3f(from).lerp(to, t))).add(x, 0, z);
-            var hit = player.level().clip(new ClipContext(space.toLocal(point.add(0, .3, 0)), space.toLocal(point.add(0, -.3, 0)),
-                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+            var hit = space.clip(player.level(), point.add(0, .3, 0), point.add(0, -.3, 0),
+                    ClipContext.Block.COLLIDER, player);
             if (hit.getType() != HitResult.Type.BLOCK) return false;
             var actual = space.toWorld(hit.getLocation());
             var normal = space.directionToWorld(net.minecraft.world.phys.Vec3.atLowerCornerOf(hit.getDirection().getNormal())).normalize();
