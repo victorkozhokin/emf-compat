@@ -80,9 +80,11 @@ public final class Stride {
                 Vec3 p = point.add(x * spread, 0, z * spread);
                 var hit = player.level().clip(new ClipContext(p.add(0, probe, 0), p.add(0, -probe, 0),
                         ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
-                if (hit.getType() != HitResult.Type.BLOCK || Math.abs(hit.getLocation().y - point.y) > tolerance) return false;
-                if (Double.isNaN(height)) height = hit.getLocation().y;
-                else if (Math.abs(hit.getLocation().y - height) > .04) return false;
+                if (hit.getType() != HitResult.Type.BLOCK) return false;
+                double y = strm.touchnmotion.interaction.SubLevels.hitInWorld(player.level(), hit).y;
+                if (Math.abs(y - point.y) > tolerance) return false;
+                if (Double.isNaN(height)) height = y;
+                else if (Math.abs(y - height) > .04) return false;
             }
         }
         return true;

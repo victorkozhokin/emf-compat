@@ -29,6 +29,7 @@
 - Sable: standing on a moving sub-level no longer costs frames - the ground under the feet was scanned again every frame because the world position kept changing, now it is rescanned when the player moves or turns on the sub-level, or it tilts
 - Sable: the legs no longer jerk and sink into the body on a moving, bobbing sub-level - standing on one was taken for walking at its speed
 - Sable: the game no longer freezes going up stairs on a moving sub-level - a look for a wall to put a hand on could walk a broken ray block by block without end (#63)
+- Sable: a look at the ground, a wall or a step in the world no longer takes a sub-level's block for a world point millions of blocks out - feet, hands on walls, squeezing past a wall and a horse's hooves next to a craft got that point now and then, and on a craft flying low the feet got it every frame
 - Better Combat: foot IK leaves the legs to an attack that poses them ("Attack legs") - the mace's step no longer has its foot planted and the hip dragged up after it
 - Horse foot IK works only while a player rides the horse: a riderless horse, or one a mob rides, is left as it is - a skeleton trap's horseman no longer floats over a horse sunk into a slope
 - Riding a horse with a resource pack that animates it, the player in the inventory's portrait is no longer moved and turned with the saddle

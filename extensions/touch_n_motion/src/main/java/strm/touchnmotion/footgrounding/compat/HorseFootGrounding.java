@@ -226,7 +226,8 @@ public final class HorseFootGrounding {
                     foot.add(0, RAY_UP, 0), foot.add(0, -RAY_DOWN, 0),
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, horse));
             if (hit.getType() == HitResult.Type.MISS || hit.getDirection() != Direction.UP) continue;
-            if (best == null || hit.getLocation().y > best.y) best = hit.getLocation();
+            Vec3 at = strm.touchnmotion.interaction.SubLevels.hitInWorld(horse.level(), hit);
+            if (best == null || at.y > best.y) best = at;
         }
         if (best == null) return (float) (RAY_DOWN * 16);
         Vec3 centre = frame.jointWorld(base);

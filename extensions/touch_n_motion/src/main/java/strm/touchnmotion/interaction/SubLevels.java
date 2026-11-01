@@ -10,6 +10,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,7 +99,13 @@ public final class SubLevels {
                 stretched(this, from, to, worldLength);
                 return BlockHitResult.miss(to, net.minecraft.core.Direction.UP, BlockPos.containing(to));
             }
-            return level.clip(new ClipContext(from, to, block, ClipContext.Fluid.NONE, entity));
+            BlockHitResult hit = level.clip(new ClipContext(from, to, block, ClipContext.Fluid.NONE, entity));
+            // Sable lets a ray cast in the world hit a sub-level too, and answers in the sub-level's plot:
+            // millions of blocks out, taken for a world point it sent a hand there (#63). The
+            // sub-level's own space finds that block where it is.
+            if (pose == null && hit.getType() == HitResult.Type.BLOCK && !at(level, hit.getBlockPos()).isWorld())
+                return BlockHitResult.miss(to, hit.getDirection(), BlockPos.containing(to));
+            return hit;
         }
 
         @Override
@@ -132,6 +139,15 @@ public final class SubLevels {
         if (!ready()) return WORLD;
         Object sub = call(containing, helper, level, pos);
         return sub == null ? WORLD : space(sub);
+    }
+
+    /**
+     * Where a ray cast in the world hit, in the world. Sable lets such a ray hit a sub-level and
+     * answers in the sub-level's plot, millions of blocks out.
+     */
+    public static Vec3 hitInWorld(Level level, net.minecraft.world.phys.HitResult hit) {
+        return hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK
+                ? at(level, block.getBlockPos()).toWorld(hit.getLocation()) : hit.getLocation();
     }
 
     /** A point of the block at {@code pos}'s space, in the world. */

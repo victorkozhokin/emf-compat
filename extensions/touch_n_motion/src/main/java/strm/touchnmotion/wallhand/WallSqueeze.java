@@ -317,7 +317,7 @@ public final class WallSqueeze {
                 net.minecraft.world.level.ClipContext.Fluid.NONE, s.player));
         if (hit.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK) {
             double length = from.distanceTo(to);
-            offset.mul(length < 1e-6 ? 0 : (float) Math.max(0, (from.distanceTo(hit.getLocation()) - .05) / length));
+            offset.mul(length < 1e-6 ? 0 : (float) Math.max(0, (from.distanceTo(strm.touchnmotion.interaction.SubLevels.hitInWorld(s.player.level(), hit)) - .05) / length));
         }
         return offset;
     }

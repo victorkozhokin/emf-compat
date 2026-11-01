@@ -39,7 +39,7 @@ final class Sight {
         double blocks = strm.touchnmotion.platform.Platform.blockReach(player), entities = strm.touchnmotion.platform.Platform.entityReach(player);
         HitResult hit = player.level().clip(new ClipContext(eye, eye.add(look.scale(blocks)), ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
         // An entity nearer than the block behind it is what is looked at.
-        double limit = hit.getType() == HitResult.Type.MISS ? entities * entities : Math.min(entities * entities, hit.getLocation().distanceToSqr(eye));
+        double limit = hit.getType() == HitResult.Type.MISS ? entities * entities : Math.min(entities * entities, strm.touchnmotion.interaction.SubLevels.hitInWorld(player.level(), hit).distanceToSqr(eye));
         Vec3 reach = look.scale(entities);
         EntityHitResult entity = ProjectileUtil.getEntityHitResult(player, eye, eye.add(reach),
                 player.getBoundingBox().expandTowards(reach).inflate(1), e -> !e.isSpectator() && e.isPickable(), limit);
