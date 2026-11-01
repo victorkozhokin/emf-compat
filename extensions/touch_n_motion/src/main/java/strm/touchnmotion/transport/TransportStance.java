@@ -21,6 +21,11 @@ public final class TransportStance {
     final FrameClock clock = new FrameClock();
     final ClearanceOffset hip = new ClearanceOffset();
     float stanceWeight, ropeLift;
+    /** Feet already checked from this spot on the deck: {sole, from, to, safe}, model pixels. */
+    private final java.util.List<float[]> checked = new java.util.ArrayList<>();
+    private final strm.touchnmotion.interaction.DeckSpot checkedAt = new strm.touchnmotion.interaction.DeckSpot();
+    private static final long CHECKED_NANOS = 150_000_000L;
+    private static final float CHECKED_CLOSE = .25f;
     void apply(AbstractClientPlayer player, IKFrame space, SupportSearch.Deck deck,
                Function<String, ModelPart> parts, Vector3f force, float load, float owned, boolean walking, float rope, boolean rightHand, boolean helper, net.minecraft.world.phys.Vec3 grip) {
         ModelPart[] legs = {parts.apply("right_leg"), parts.apply("left_leg")};
@@ -29,6 +34,9 @@ public final class TransportStance {
         float counter = EMFState.getFrameCounter();
         double dt = clock.tick(counter, System.nanoTime());
         if (dt >= 0) {
+            // The deck under the feet only changes when the player moves on it: until then a foot
+            // checked once is answered from the list, not by 27 rays again each frame.
+            if (deck == null || !checkedAt.same(player, deck.space(), System.nanoTime(), CHECKED_NANOS)) checked.clear();
             stanceWeight += (owned - stanceWeight) * Smoothing.follow(dt, .16);
             boolean enabled = deck != null && player.onGround() && !player.isPassenger() && !walking && owned > .7f;
             boolean planted = enabled && safe(player, space, deck, legs[rightHand ? 1 : 0], feet[rightHand ? 1 : 0], feet[rightHand ? 1 : 0]);
@@ -87,11 +95,25 @@ public final class TransportStance {
         }
         return true;
     }
-    private static boolean safe(AbstractClientPlayer player, IKFrame frame, SupportSearch.Deck deck,
-                                ModelPart leg, Vector3f from, Vector3f to) {
+    private boolean safe(AbstractClientPlayer player, IKFrame frame, SupportSearch.Deck deck,
+                         ModelPart leg, Vector3f from, Vector3f to) {
         if (!deck.space().valid()) return false;
-        var space = deck.space().refresh();
         Vector3f sole = Body.tip(leg, 12);
+        for (float[] c : checked)
+            if (close(c, 0, sole) && close(c, 3, from) && close(c, 6, to)) return c[9] > 0;
+        boolean safe = cast(player, frame, deck, sole, from, to);
+        if (checked.size() < 16) checked.add(new float[]{sole.x, sole.y, sole.z, from.x, from.y, from.z, to.x, to.y, to.z, safe ? 1 : 0});
+        return safe;
+    }
+
+    private static boolean close(float[] c, int i, Vector3f v) {
+        return Math.abs(c[i] - v.x) < CHECKED_CLOSE && Math.abs(c[i + 1] - v.y) < CHECKED_CLOSE && Math.abs(c[i + 2] - v.z) < CHECKED_CLOSE;
+    }
+
+    /** Whether a sole carried from {@code from} to {@code to} stays on the deck all the way. */
+    private static boolean cast(AbstractClientPlayer player, IKFrame frame, SupportSearch.Deck deck,
+                                Vector3f sole, Vector3f from, Vector3f to) {
+        var space = deck.space().refresh();
         for (float t : new float[]{0, .5f, 1}) for (float x : new float[]{-.09f, 0, .09f}) for (float z : new float[]{-.09f, 0, .09f}) {
             var point = frame.jointWorld(new Vector3f(sole).add(new Vector3f(from).lerp(to, t))).add(x, 0, z);
             var hit = space.clip(player.level(), point.add(0, .3, 0), point.add(0, -.3, 0),

@@ -65,6 +65,7 @@ public final class WallSqueeze {
     private static final double NEED = (SHOULDER + ARM_HALF) * PIXEL + 0.01;
     /** How far to a side a wall is looked for, blocks. */
     private static final double LOOK = 0.75;
+    private static final long ROOM_NANOS = 100_000_000L;
     /** Where the rays start: shares of the player's height up, and blocks ahead and behind the middle - the arm's thickness. */
     private static final double[] HEIGHTS = {0.72, 0.45};
     private static final double[] ALONG = {-0.14, 0, 0.14};
@@ -93,6 +94,9 @@ public final class WallSqueeze {
     }
 
     private static final class State {
+        /** The room to each side last measured, and where on a craft's deck it was. */
+        double roomRight = LOOK, roomLeft = LOOK;
+        final strm.touchnmotion.interaction.DeckSpot roomAt = new strm.touchnmotion.interaction.DeckSpot();
         /** Asked of the torso this frame: the turn, radians; the shift, pixels (+ is the model's left). */
         float turn, shift;
         final WallStance stance = new WallStance();
@@ -170,9 +174,17 @@ public final class WallSqueeze {
             Vec3 forward = new Vec3(-Math.sin(yaw), 0, Math.cos(yaw));
             Vec3 right = new Vec3(-Math.cos(yaw), 0, -Math.sin(yaw));
             // In the open no ray could hit; a craft's walls are not among the world's collisions, so near one they are sent.
-            boolean walls = s.spaces.size() > 1 || anythingNear(player, at);
-            double roomRight = walls ? room(player, at, forward, right, s.spaces) : LOOK;
-            double roomLeft = walls ? room(player, at, forward, right.scale(-1), s.spaces) : LOOK;
+            boolean walls = strm.touchnmotion.interaction.DeckSpot.craft(s.spaces) != null || anythingNear(player, at);
+            // On a craft the world position is new every frame: the walls are looked for again when
+            // the player moves or turns on its deck, or a tenth of a second on.
+            var craft = strm.touchnmotion.interaction.DeckSpot.craft(s.spaces);
+            if (!walls) {
+                s.roomRight = s.roomLeft = LOOK;
+            } else if (craft == null || !s.roomAt.same(player, craft, now, ROOM_NANOS)) {
+                s.roomRight = room(player, at, forward, right, s.spaces);
+                s.roomLeft = room(player, at, forward, right.scale(-1), s.spaces);
+            }
+            double roomRight = s.roomRight, roomLeft = s.roomLeft;
             rightWall = roomRight < NEED;
             leftWall = roomLeft < NEED;
             s.wallRight = roomRight < LOOK ? (float) (roomRight / PIXEL) : NO_WALL;

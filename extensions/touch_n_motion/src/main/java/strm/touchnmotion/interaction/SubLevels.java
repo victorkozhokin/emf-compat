@@ -162,7 +162,29 @@ public final class SubLevels {
         if (!ready()) return spaces;
         Object bounds = newInstance(box, area);
         for (Object sub : (Iterable<?>) call(intersecting, helper, level, bounds)) spaces.add(space(sub));
+        // A craft up in the open sky: the world around it is air, nothing a ray there could hit, so
+        // it is not looked into - every look around a craft cast its rays twice, into each.
+        if (spaces.size() > 1 && air(level, area)) spaces.remove(0);
         return spaces;
+    }
+
+    /** Whether the world's blocks within {@code area} are all air, by whole chunk sections. */
+    private static boolean air(Level level, AABB area) {
+        int x0 = (int) Math.floor(area.minX) >> 4, x1 = (int) Math.floor(area.maxX) >> 4;
+        int y0 = (int) Math.floor(area.minY) >> 4, y1 = (int) Math.floor(area.maxY) >> 4;
+        int z0 = (int) Math.floor(area.minZ) >> 4, z1 = (int) Math.floor(area.maxZ) >> 4;
+        if ((x1 - x0 + 1) * (y1 - y0 + 1) * (z1 - z0 + 1) > 8) return false;
+        for (int cx = x0; cx <= x1; cx++) for (int cz = z0; cz <= z1; cz++) {
+            var chunk = level.getChunkSource().getChunkNow(cx, cz);
+            if (chunk == null) return false;
+            var sections = chunk.getSections();
+            for (int cy = y0; cy <= y1; cy++) {
+                int index = chunk.getSectionIndexFromSectionY(cy);
+                if (index < 0 || index >= sections.length) continue;
+                if (!sections[index].hasOnlyAir()) return false;
+            }
+        }
+        return true;
     }
 
     /** Each craft's space this frame: every provider asks for the same few, the pose is worked out once. */
