@@ -18,6 +18,7 @@ import java.util.function.Function;
 import strm.touchnmotion.interaction.Body;
 import strm.touchnmotion.DebugLog;
 import strm.touchnmotion.transport.aeronautics.AeronauticRopes;
+import strm.touchnmotion.buttonpress.ButtonPress;
 
 /** Automatic nearest free-hand contact while standing on a moving Sable deck. */
 public final class TransportGrip implements InteractionProvider {
@@ -126,10 +127,7 @@ public final class TransportGrip implements InteractionProvider {
         }
         if (s.primary == null && context.now() >= s.releaseUntil && context.now() >= s.searchAt && (s.motion.speed > .15 || s.load > .08)) {
             s.searchAt = context.now() + 180_000_000L;
-            for (Effector hand : new Effector[]{Effector.RIGHT_ARM, Effector.LEFT_ARM}) if (free(p, hand)) {
-                var c = SupportSearch.find(p, s.frame, spaces, hand == Effector.RIGHT_ARM);
-                if (c != null) { s.primary = c; s.hand = hand; s.gap = 1; s.ropeCrouching = p.isCrouching(); break; }
-            }
+            choose(p, s, spaces);
         }
         if (s.primary == null) {
             if (EMFCompatConfig.getBoolean(KEY_TRACE, false) && s.tracePace.due(500_000_000L)) {
@@ -154,8 +152,40 @@ public final class TransportGrip implements InteractionProvider {
             if (c != null && c.world().distanceTo(s.primary.world()) > .16) s.other = c;
         }
         if (s.other != null) { offer(context, out, other, s.other); s.helper = true; }
-        context.decide(s.helper ? "two-hands" : s.gap < .08 ? "held" : "reaching");
+        context.decide((s.helper ? "two-hands" : s.gap < .08 ? "held" : "reaching") + (s.hand == Effector.RIGHT_ARM ? "-R" : "-L"));
     }
+    /**
+     * The hand for a support, as for buttons and levers ({@link Handedness}): the main one, or with
+     * "Nearest hand" the one on the support's side, so an arm does not reach across the chest for a
+     * rope beside the other shoulder. A hand that holds something, or finds nothing, gives way to
+     * the other. The main hand looks first; the other only when the support is on its side.
+     */
+    private static void choose(AbstractClientPlayer p, State s, List<SubLevels.Space> spaces) {
+        boolean mainRight = Body.right(p, true);
+        Effector main = Effector.arm(mainRight), other = main.other();
+        boolean mainFree = free(p, main), otherFree = free(p, other);
+        Effector hand = mainFree ? main : otherFree ? other : null;
+        if (hand == null) return;
+        var c = SupportSearch.find(p, s.frame, spaces, hand == Effector.RIGHT_ARM);
+        if (c == null && hand == main && otherFree) {
+            hand = other;
+            c = SupportSearch.find(p, s.frame, spaces, hand == Effector.RIGHT_ARM);
+        }
+        if (c == null) return;
+        if (hand == main && otherFree && EMFCompatConfig.getBoolean(ButtonPress.KEY_NEAREST, true)) {
+            Vector3f at = Body.model(s.frame, c.world());
+            boolean right = Handedness.right(at.x, at.z, mainRight, null, false, false, true, true, true);
+            if (right != (main == Effector.RIGHT_ARM)) {
+                var near = SupportSearch.find(p, s.frame, spaces, right);
+                if (near != null) { hand = other; c = near; }
+            }
+        }
+        s.primary = c;
+        s.hand = hand;
+        s.gap = 1;
+        s.ropeCrouching = p.isCrouching();
+    }
+
     private static boolean free(AbstractClientPlayer p, Effector hand) {
         boolean main = Body.right(p, true) == (hand == Effector.RIGHT_ARM);
         return p.getItemInHand(main ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND).isEmpty()
