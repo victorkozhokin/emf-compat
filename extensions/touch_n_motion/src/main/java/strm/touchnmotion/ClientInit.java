@@ -81,6 +81,7 @@ public final class ClientInit {
         strm.touchnmotion.ride.CannonInBow.client = strm.touchnmotion.net.ClientHands::connected;
         strm.touchnmotion.ride.MinecartRide.register(riding);
         strm.touchnmotion.transport.TransportGrip.register(riding, debug);
+        strm.touchnmotion.interaction.Anchor.register(riding);
         // Only where there is something to be compatible with.
         if (strm.touchnmotion.platform.Platform.isModLoaded("notenoughanimations")) strm.touchnmotion.compat.NeaCompat.register(riding);
         strm.touchnmotion.compat.BodyClaims.register(movement);

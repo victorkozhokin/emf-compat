@@ -21,6 +21,8 @@
     "FishingHookAccessor",
     "FishingLineMixin",
     "compat.ShoulderTurnMixin",
+    "compat.PackFootingMixin",
+    "SubLevelWalkMixin",
     "compat.ShoulderControlCameraMixin",
     "ModelPartAccessor",
     "legacy.LivingEntityRendererScaleInvoker"

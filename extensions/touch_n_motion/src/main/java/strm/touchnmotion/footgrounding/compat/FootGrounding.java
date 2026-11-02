@@ -675,7 +675,8 @@ public final class FootGrounding {
         if (EMFCompatCore.isLocalPlayerInFirstPerson(player.getUUID())) return "first-person";
         // Whatever animation plays, the offset goes on top of it; only a pose with no floor under
         // the feet is left alone.
-        if (!player.onGround()) return "airborne";
+        // A step down a heeled sub-level's deck drops the player off it for a tick: still standing on it.
+        if (!player.onGround() && !Anchor.footing(player)) return "airborne";
         if (player.isPassenger() || strm.touchnmotion.platform.Platform.inWater(player) || player.isFallFlying()
                 || player.isSleeping()) return "state";
         if (player.getPose() != Pose.STANDING && player.getPose() != Pose.CROUCHING) return "pose";

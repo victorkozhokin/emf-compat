@@ -120,7 +120,7 @@ Everything below is optional — the matching animations turn on when the mod is
 | **[Create: Lights & Controls](https://modrinth.com/mod/createlights-controls)** | Buttons, levers, quad lever panel, gear switch, card reader: the hand waits at the control you aim at and taps it when used. |
 | **[Lever drugster](https://modrinth.com/mod/lever-drugster)** | The hand stays on the handle while you drag those levers. |
 
-Contacts follow a moving Sable sub-level, so they hold on a ship under way. Interactions on Create contraptions are not covered, apart from driving controls.
+Contacts follow a moving Sable sub-level, so they hold on a ship under way. Standing on one counts as standing, not as moving at its speed: buttons, levers and the wheel work under way. Interactions on Create contraptions are not covered, apart from driving controls.
 
 ## Multiplayer
 
@@ -201,6 +201,7 @@ Use **Mods → Touch'n Motion → Config** to open its tab directly, or **Mods �
 | Ride with the horse | Keeps you on the saddle of a horse your resource pack animates. Under it: **Riding animation**. |
 | Legs along other mounts | Off by default. On a mount that is not a horse - a Pokémon, a hippogryph, a mod's animal - the legs lie along its sides by how wide it is. |
 | Brace on moving sub-levels | On a moving Sable sub-level a free hand holds on to a support nearby and the feet are planted. |
+| Steady footing on sub-levels | Walking down a heeled or rocking Sable sub-level, the short drops under each step count as standing on the deck: the resource pack no longer lands you again and again, and a jump on a moving craft no longer runs the legs in the air. |
 | Row a boat | The hands on the oars, the body in the stroke. Under it: **Passenger in the bow** - a second rider sits in the bow facing the rower; **Chest in the bow** - a chest boat's chest is drawn in the bow, the rower aft. |
 | Ride in a minecart | The hands on the sides, the body thrown about by the ride. Under it: **Legs inside the cart**. |
 | NEA Compat | Shown when Not Enough Animations is installed. Gives Touch'n Motion control of rowing and horse riding while its matching poses are enabled. |
