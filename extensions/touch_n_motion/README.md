@@ -200,7 +200,7 @@ Use **Mods → Touch'n Motion → Config** to open its tab directly, or **Mods �
 |---|---|
 | Ride with the horse | Keeps you on the saddle of a horse your resource pack animates. Under it: **Riding animation**. |
 | Legs along other mounts | Off by default. On a mount that is not a horse - a Pokémon, a hippogryph, a mod's animal - the legs lie along its sides by how wide it is. |
-| Brace on moving sub-levels | On a moving Sable sub-level a free hand holds on to a support nearby and the feet are planted. |
+| Brace on moving sub-levels | On a moving Sable sub-level a free hand holds on to a support nearby and the feet are planted. Under it: **Brace only while it speeds up or turns** - the hand takes hold when the sub-level speeds up, slows down, turns or bobs, and lets go once it has kept its speed and course for a few seconds. |
 | Steady footing on sub-levels | Walking down a heeled or rocking Sable sub-level, the short drops under each step count as standing on the deck: the resource pack no longer lands you again and again, and a jump on a moving craft no longer runs the legs in the air. |
 | Row a boat | The hands on the oars, the body in the stroke. Under it: **Passenger in the bow** - a second rider sits in the bow facing the rower; **Chest in the bow** - a chest boat's chest is drawn in the bow, the rower aft. |
 | Ride in a minecart | The hands on the sides, the body thrown about by the ride. Under it: **Legs inside the cart**. |

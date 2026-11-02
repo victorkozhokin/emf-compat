@@ -23,7 +23,16 @@ import strm.touchnmotion.buttonpress.ButtonPress;
 /** Automatic nearest free-hand contact while standing on a moving Sable deck. */
 public final class TransportGrip implements InteractionProvider {
     public static final TransportGrip INSTANCE = new TransportGrip();
-    public static final String KEY_ENABLED = "transport.grip", KEY_TRACE = "transport.trace";
+    public static final String KEY_ENABLED = "transport.grip", KEY_TRACE = "transport.trace", KEY_ACCELERATION = "transport.onAcceleration";
+    /**
+     * Bracing is a reaction to the sub-level changing its speed or its way - speeding up, slowing,
+     * turning, bobbing: blocks a second squared of the deck under the player. Over the first a free
+     * hand looks for a support; below the second for {@link #CALM_NANOS} it lets go.
+     */
+    static final double GRIP_ACCELERATION = .8, CALM_ACCELERATION = .35;
+    static final long CALM_NANOS = 3_500_000_000L, MIN_HOLD_NANOS = 1_000_000_000L;
+    /** Let go at a steady speed, slower than a hand losing its hold. */
+    private static final Candidate.Timing CALM_TIMING = new Candidate.Timing(.16, .5, .05);
     private static final EntityStates<State> STATES = new EntityStates<>(State::new);
     private static final Candidate.Timing TIMING = new Candidate.Timing(.16, .18, .05);
     private static final class State {
@@ -42,7 +51,11 @@ public final class TransportGrip implements InteractionProvider {
         Effector hand = Effector.RIGHT_ARM;
         float gap = 1, helperGap = 1;
         long searchAt, releaseUntil, helperAt;
-        final DebugLog.Pace tracePace = new DebugLog.Pace();
+        /** Since when the deck has kept its speed and its way, and since when a hand has held. */
+        long calmSince, heldSince;
+        /** The deck's change of speed and way, smoothed over half a second. */
+        double change;
+        final DebugLog.Pace tracePace = new DebugLog.Pace(), accelPace = new DebugLog.Pace();
         TransportMotion motion = new TransportMotion();
         TransportStance stance = new TransportStance();
         final LowReach.State reach = new LowReach.State();
@@ -63,6 +76,9 @@ public final class TransportGrip implements InteractionProvider {
         config.addBoolean(KEY_ENABLED, "Brace on moving sub-levels", true,
                 "On", "On a moving Sable sub-level a free hand holds a support nearby, the feet are planted and the body leans against its motion.",
                 "Off", "Hands and stance stay as they are on a moving sub-level.");
+        config.addBoolean(KEY_ACCELERATION, "Brace only while it speeds up or turns", true,
+                "On", "A hand takes hold when the sub-level speeds up, slows down, turns or bobs, and lets go once it has kept its speed and course for a few seconds.",
+                "Off", "A hand holds on the whole time the sub-level moves.");
         debug.addBoolean(KEY_TRACE, "Trace sub-level bracing", false, "On", "Log the support and stance checks on moving sub-levels.", "Off", "No sub-level bracing trace.");
     }
     public void collect(InteractionContext context, List<Candidate> out) {
@@ -90,6 +106,7 @@ public final class TransportGrip implements InteractionProvider {
             s.previousLocal = null;
             s.releaseUntil = 0;
             s.gap = 1;
+            s.calmSince = 0;
         }
         Vec3 reference = craft.tickToWorld(s.reference);
         s.motion.sample(p.tickCount, new Vector3d(reference.x, reference.y, reference.z));
@@ -125,9 +142,26 @@ public final class TransportGrip implements InteractionProvider {
         if (s.primary != null && (!free(p, s.hand) || !SupportSearch.valid(p, s.frame, s.primary, s.hand == Effector.RIGHT_ARM))) {
             release(s, context.now());
         }
-        if (s.primary == null && context.now() >= s.releaseUntil && context.now() >= s.searchAt && (s.motion.speed > .15 || s.load > .08)) {
+        // Over half a second: Sable's tick pose jumps now and then, a single tick of a few blocks a
+        // second squared on a craft holding its course; a real change of speed or way lasts seconds.
+        s.change += (acceleration.length() - s.change) * Smoothing.follow(context.dt(), .5);
+        double change = s.change;
+        boolean onChange = EMFCompatConfig.getBoolean(KEY_ACCELERATION, true);
+        if (change > CALM_ACCELERATION || s.calmSince == 0) s.calmSince = context.now();
+        boolean calm = onChange && context.now() - s.calmSince > CALM_NANOS;
+        if (EMFCompatConfig.getBoolean(KEY_TRACE, false) && s.accelPace.due(250_000_000L))
+            org.slf4j.LoggerFactory.getLogger("EMFCompatTransport").info("[TransportAcceleration] change={} speed={} calm={}s held={}",
+                    DebugLog.r2(change), DebugLog.r2(s.motion.speed), DebugLog.r2((context.now() - s.calmSince) / 1e9), s.primary != null);
+        if (s.primary != null && calm && context.now() - s.heldSince > MIN_HOLD_NANOS) {
+            release(s, context.now());
+            context.decide("off:steady");
+            return;
+        }
+        boolean braceWanted = onChange ? change > GRIP_ACCELERATION : s.motion.speed > .15 || s.load > .08;
+        if (s.primary == null && context.now() >= s.releaseUntil && context.now() >= s.searchAt && braceWanted) {
             s.searchAt = context.now() + 180_000_000L;
             choose(p, s, spaces);
+            if (s.primary != null) s.heldSince = context.now();
         }
         if (s.primary == null) {
             if (EMFCompatConfig.getBoolean(KEY_TRACE, false) && s.tracePace.due(500_000_000L)) {
@@ -135,10 +169,12 @@ public final class TransportGrip implements InteractionProvider {
                     "[TransportSearch] speed={} load={} deck={} shoulder={}", s.motion.speed, s.load, s.deck.local(),
                     s.frame.jointWorld(new Vector3f(-5, 2, 0)));
             }
-            context.decide("off:no-support");
+            context.decide(onChange && !braceWanted ? "off:steady" : "off:no-support");
             return;
         }
-        offer(context, out, s.hand, s.primary);
+        // Calm for a second already: the hand is offered with a slow fade, so letting go is gentle.
+        boolean settling = onChange && context.now() - s.calmSince > 1_000_000_000L;
+        offer(context, out, s.hand, s.primary, settling);
         s.active = true;
         // The helper is requested only after the primary palm actually touches.
         // Keep it through small load changes instead of alternating both hands.
@@ -151,7 +187,7 @@ public final class TransportGrip implements InteractionProvider {
                     :SupportSearch.find(p, s.frame, spaces, other == Effector.RIGHT_ARM);
             if (c != null && c.world().distanceTo(s.primary.world()) > .16) s.other = c;
         }
-        if (s.other != null) { offer(context, out, other, s.other); s.helper = true; }
+        if (s.other != null) { offer(context, out, other, s.other, settling); s.helper = true; }
         context.decide((s.helper ? "two-hands" : s.gap < .08 ? "held" : "reaching") + (s.hand == Effector.RIGHT_ARM ? "-R" : "-L"));
     }
     /**
@@ -197,10 +233,10 @@ public final class TransportGrip implements InteractionProvider {
         s.gap = s.helperGap = 1;
         s.active = false;
     }
-    private static void offer(InteractionContext context, List<Candidate> out, Effector hand, SupportSearch.Contact c) {
+    private static void offer(InteractionContext context, List<Candidate> out, Effector hand, SupportSearch.Contact c, boolean settling) {
         Vector3f point = context.frame().relativeToJoint(c.world(), new Vector3f(hand == Effector.RIGHT_ARM ? -5 : 5, 2, 0)).normalize();
         var a = new Quaternionf().rotationTo(new Vector3f(0, 1, 0), point).getEulerAnglesZYX(new Vector3f());
-        out.add(Candidate.single(INSTANCE.id(), Category.PASSIVE, 25, 1, TIMING, hand, new float[]{a.x, a.y}).withTarget(c.rope() != null ? c.rope().id :
+        out.add(Candidate.single(INSTANCE.id(), Category.PASSIVE, 25, 1, settling ? CALM_TIMING : TIMING, hand, new float[]{a.x, a.y}).withTarget(c.rope() != null ? c.rope().id :
                 new strm.touchnmotion.interaction.ContactTarget(c.space(), c.block(), context.player().level().getBlockState(c.block()).getBlock())));
     }
     private static float ownership(UUID uuid, State s) {
