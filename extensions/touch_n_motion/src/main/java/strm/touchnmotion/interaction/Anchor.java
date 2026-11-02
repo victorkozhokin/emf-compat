@@ -25,6 +25,9 @@ public final class Anchor {
         int lastOn = Integer.MIN_VALUE;
         Vec3 local;
         Vec3 motion = Vec3.ZERO;
+        /** Off the ground on a sub-level since this tick, and at what height on its deck; MIN_VALUE on it. */
+        int airSince = Integer.MIN_VALUE;
+        double airFrom;
     }
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("TouchNMotionAnchor");
@@ -86,6 +89,7 @@ public final class Anchor {
             return s;
         }
         Vec3 local = found.tickToLocal(player.position());
+        if (strm.touchnmotion.DebugLog.decisions()) air(player, s, found, local);
         if (s.local != null && found.same(s.space)) {
             Vec3 moved = found.tickDirectionToWorld(local.subtract(s.local));
             s.motion = new Vec3(moved.x, 0, moved.z);
@@ -99,6 +103,26 @@ public final class Anchor {
         s.space = found;
         s.local = local;
         return s;
+    }
+
+    /**
+     * The feet leaving a sub-level's deck and coming back, said once each: a resource pack lands
+     * the player when they do, and on a craft that should only be a jump.
+     */
+    private static void air(Player player, State s, SubLevels.Space space, Vec3 local) {
+        boolean tracked = !SubLevels.tracking(player).isWorld();
+        if (!player.onGround() && s.airSince == Integer.MIN_VALUE) {
+            s.airSince = player.tickCount;
+            s.airFrom = local.y;
+            LOGGER.info("[Anchor] {} off the deck (tracked {}, dy {} world {})", player.getName().getString(), tracked,
+                    strm.touchnmotion.DebugLog.r2((local.y - (s.local == null ? local.y : s.local.y)) * 16),
+                    strm.touchnmotion.DebugLog.r2((player.getY() - player.yo) * 16));
+        } else if (player.onGround() && s.airSince != Integer.MIN_VALUE) {
+            LOGGER.info("[Anchor] {} back on the deck after {} ticks, {} px from where it left (tracked {})",
+                    player.getName().getString(), player.tickCount - s.airSince,
+                    strm.touchnmotion.DebugLog.r2((local.y - s.airFrom) * 16), tracked);
+            s.airSince = Integer.MIN_VALUE;
+        }
     }
 
     /** The sub-level Sable carries the player with, else one with a block right under the feet. */
