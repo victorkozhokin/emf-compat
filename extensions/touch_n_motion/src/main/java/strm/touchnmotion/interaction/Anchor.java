@@ -30,6 +30,15 @@ public final class Anchor {
         config.addBoolean(KEY_FOOTING, "Steady footing on sub-levels", true,
                 "On", "Walking down a heeled or rocking Sable sub-level, the short drops off the deck under each step count as standing on it: the resource pack no longer lands the player again and again, and the legs do not run in the air after a jump on a moving one.",
                 "Off", "The resource pack sees every drop off a sub-level's deck, as the game has it.");
+        // The core's steady height on sub-levels (1.21.1, where Sable is) holds the height through such a drop.
+        try {
+            @SuppressWarnings("unchecked")
+            var hold = (java.util.List<java.util.function.Predicate<net.minecraft.world.entity.Entity>>)
+                    Class.forName("strm.emfcompat.core.SubLevelHeight").getField("HOLD").get(null);
+            hold.add(entity -> entity instanceof Player player && footing(player));
+        } catch (ReflectiveOperationException | LinkageError absent) {
+            // An older core, or a version without Sable.
+        }
         // EMF can rename what is hooked; said once whether the hook is there.
         try {
             boolean hooked = false;
