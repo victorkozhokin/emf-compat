@@ -69,7 +69,8 @@ public final class AeronauticRopes {
                 Vector3d point = new Vector3d(a).lerp(b, fraction);
                 Vec3 world = new Vec3(point.x, point.y, point.z);
                 Vector3f model = Body.model(frame, world);
-                if (world.y < player.getY() + .7 || !RopePoseMath.reachable(model, shoulder, right)) continue;
+                if (world.y < player.getY() + .7 || !RopePoseMath.reachable(model, shoulder, right)
+                        || !RopePoseMath.beside(model, false)) continue;
                 double distance = point.distance(wanted);
                 if (distance < score && SupportSearch.clear(player, from, world, spaces)) {
                     score = distance;

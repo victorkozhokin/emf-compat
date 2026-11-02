@@ -105,7 +105,8 @@ public final class SupportSearch {
         if (c.rope != null) {
             Vector3f shoulder = new Vector3f(right ? -5 : 5, 2, 0);
             Vector3f target = Body.model(frame, c.world());
-            boolean exists = c.rope.valid(), reachable = RopePoseMath.reachable(target, shoulder, right);
+            boolean exists = c.rope.valid(), reachable = RopePoseMath.reachable(target, shoulder, right)
+                    && RopePoseMath.beside(target, true);
             boolean unobstructed = exists && reachable && clear(player, frame.jointWorld(shoulder), c.world(), SubLevels.around(player.level(), player.getBoundingBox().inflate(1.2)));
             if (!unobstructed && strm.emfcompat.core.EMFCompatConfig.getBoolean(TransportGrip.KEY_TRACE, false))
                 org.slf4j.LoggerFactory.getLogger("EMFCompatTransport").info("[RopeReject] exists={} reachable={} distance={} target={} right={}", exists, reachable, target.distance(shoulder), target, right);

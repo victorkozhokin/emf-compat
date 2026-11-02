@@ -16,6 +16,19 @@ public final class RopePoseMath {
         // Both hands may hold one side cord at separate heights without crossing forearms.
         return distance >= 6 && distance <= 14.5f && (right ? target.x <= 6 : target.x >= -6);
     }
+    /** A rope is taken only beside the body: not straight ahead nor behind, degrees from ahead... */
+    static final double BESIDE_FROM = 35, BESIDE_TO = 145;
+    /** ...and one already held is let go a little further round, so a small turn does not drop it. */
+    static final double HELD_FROM = 25, HELD_TO = 155;
+
+    /**
+     * Whether a rope point is beside the body, model pixels (ahead is -z, to the right -x): a rope
+     * in front of the player or at their back is not reached for.
+     */
+    public static boolean beside(org.joml.Vector3f target, boolean held) {
+        double round = Math.abs(Math.toDegrees(Math.atan2(-target.x, -target.z)));
+        return held ? round >= HELD_FROM && round <= HELD_TO : round >= BESIDE_FROM && round <= BESIDE_TO;
+    }
     public static double slide(double from, double to, double dt) {
         return from + (to - from) * strm.touchnmotion.interaction.Smoothing.follow(dt, .18);
     }

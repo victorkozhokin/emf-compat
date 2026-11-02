@@ -3,6 +3,16 @@ import org.joml.Vector3d;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 public class RopePoseMathTest {
+    @Test void ropeIsTakenOnlyBesideTheBody() {
+        assertFalse(RopePoseMath.beside(new org.joml.Vector3f(0, 0, -10), false), "straight ahead");
+        assertFalse(RopePoseMath.beside(new org.joml.Vector3f(0, 0, 10), false), "behind");
+        assertTrue(RopePoseMath.beside(new org.joml.Vector3f(-10, 0, 0), false), "right");
+        assertTrue(RopePoseMath.beside(new org.joml.Vector3f(10, 0, -3), false), "left, a little ahead");
+        // 30 degrees ahead: not taken, but kept if already held.
+        org.joml.Vector3f slant = new org.joml.Vector3f((float) -Math.sin(Math.toRadians(30)), 0, (float) -Math.cos(Math.toRadians(30))).mul(10);
+        assertFalse(RopePoseMath.beside(slant, false));
+        assertTrue(RopePoseMath.beside(slant, true));
+    }
     @Test void raisedFootRequiresAnEdgeAndAPlantedOppositeSole() {
         assertTrue(RopePoseMath.edgeLift(true, true, true, false, false) > 0);
         assertEquals(0, RopePoseMath.edgeLift(true, true, false, false, false));
