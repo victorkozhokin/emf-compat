@@ -123,18 +123,19 @@ public final class Anchor {
     /**
      * How far the player walked this tick for the walk animation. Sable counts it across the deck
      * while it carries the player; off the deck - a jump - it lets go and the game counts the
-     * craft's own speed, so the legs run in the air. While the sub-level is still the player's
-     * support, it is counted across the deck here too.
+     * craft's own speed, so the legs run in the air. In the air over the deck it is counted across
+     * the deck here; never more than the game's own count.
      */
     public static float walkDistance(Player player, float distance) {
         State s = update(player);
-        // Sable lets go of the player and takes them back a tick out of step with the craft: its own
-        // count jumps by the craft's speed on those ticks, on the deck as in the air.
-        if (s.space.isWorld() || !strm.emfcompat.core.EMFCompatConfig.getBoolean(KEY_FOOTING, true)) return distance;
-        double across = s.motion.horizontalDistance();
-        // In the air no faster than the player left the deck, but for the little a jump steers: that
-        // hand-over jump can last two ticks, past what the middle of three takes out.
-        return (float) (player.onGround() ? across : Math.min(across, s.groundSpeed + AIR_STEER));
+        // On the deck Sable's own count stands (and with Sable: Sure Footing, which keeps carrying the
+        // player through a jump, in the air too - it never runs).
+        if (s.space.isWorld() || player.onGround()
+                || !strm.emfcompat.core.EMFCompatConfig.getBoolean(KEY_FOOTING, true)) return distance;
+        // In the air no faster than the player left the deck, but for the little a jump steers: Sable lets
+        // go of the player a tick out of step with the craft, and the move across the deck jumps by the
+        // craft's speed for a tick or two.
+        return (float) Math.min(distance, Math.min(s.motion.horizontalDistance(), s.groundSpeed + AIR_STEER));
     }
 
     private static boolean saidFailed;
