@@ -43,23 +43,21 @@ public final class SubLevelHeight {
 
     /** Sable's calls, looked up once; all null without Sable. */
     private static final class Api {
-        static final Method TRACKING, RENDER_POSE, TO_WORLD, TO_LOCAL;
+        static final Method TRACKING, RENDER_POSE, TO_LOCAL;
 
         static {
-            Method tracking = null, renderPose = null, toWorld = null, toLocal = null;
+            Method tracking = null, renderPose = null, toLocal = null;
             try {
                 tracking = Class.forName("dev.ryanhcode.sable.mixinterface.entity.entity_sublevel_collision.EntityMovementExtension")
                         .getMethod("sable$getTrackingSubLevel");
                 renderPose = Class.forName("dev.ryanhcode.sable.sublevel.ClientSubLevel").getMethod("renderPose", float.class);
                 Class<?> pose = Class.forName("dev.ryanhcode.sable.companion.math.Pose3dc");
-                toWorld = pose.getMethod("transformPosition", Vec3.class);
                 toLocal = pose.getMethod("transformPositionInverse", Vec3.class);
             } catch (Throwable absent) {
                 tracking = null;
             }
             TRACKING = tracking;
             RENDER_POSE = renderPose;
-            TO_WORLD = toWorld;
             TO_LOCAL = toLocal;
         }
     }
