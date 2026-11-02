@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import strm.touchnmotion.interaction.Anchor;
 
 /**
- * The walk animation's step while a jump carries the player off a Sable sub-level: counted across
- * the deck, not at the craft's speed ({@link Anchor#walkDistance}).
+ * The walk animation's step on a Sable sub-level - in a jump off its deck too - counted across the
+ * deck, not at the craft's speed ({@link Anchor#walkDistance}).
  */
 @Mixin(LivingEntity.class)
 public abstract class SubLevelWalkMixin {

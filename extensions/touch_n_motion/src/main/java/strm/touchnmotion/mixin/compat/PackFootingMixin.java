@@ -27,7 +27,7 @@ public abstract class PackFootingMixin {
         try {
             EMFEntityRenderState state = emfState();
             if (state != null && state.emfEntity() instanceof net.minecraft.world.entity.player.Player player
-                    && strm.touchnmotion.interaction.Anchor.packFooting(player)) cir.setReturnValue(true);
+                    && strm.touchnmotion.interaction.Anchor.footing(player)) cir.setReturnValue(true);
         } catch (RuntimeException e) {
             strm.touchnmotion.interaction.Anchor.failed(e);
         }

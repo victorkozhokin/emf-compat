@@ -24,6 +24,8 @@ public final class Anchor {
      */
     private static final int FOOTING_TICKS = 3;
     private static final double FOOTING_DROP = 0.3;
+    /** How much faster than at take-off the walk may go in the air: what a jump steers, blocks a tick. */
+    private static final double AIR_STEER = 0.03;
     public static final String KEY_FOOTING = "sable.footing";
 
     public static void register(strm.emfcompat.core.ConfigRegistry.Group config) {
@@ -44,8 +46,7 @@ public final class Anchor {
             boolean hooked = false;
             for (java.lang.reflect.Method m : Class.forName("traben.entity_model_features.models.animation.math.EMFMath").getDeclaredMethods())
                 hooked |= m.getName().contains("footingOnDeck");
-            if (hooked) LOGGER.info("[Anchor] steady footing on sub-levels is hooked into EMF's is_on_ground");
-            else LOGGER.warn("[Anchor] EMF's is_on_ground could not be hooked: resource packs see every drop off a sub-level's deck");
+            if (!hooked) LOGGER.warn("[Anchor] EMF's is_on_ground could not be hooked: resource packs see every drop off a sub-level's deck");
         } catch (ReflectiveOperationException | LinkageError e) {
             LOGGER.warn("[Anchor] EMF's is_on_ground could not be looked at", e);
         }
@@ -62,10 +63,11 @@ public final class Anchor {
         int moveAt;
         /** Off the ground on a sub-level since this tick; MIN_VALUE on it. */
         int airSince = Integer.MIN_VALUE;
-        Vec3 drawn;
         /** The height on the deck the feet were last on, and whether the player went up off it. */
         double groundY = Double.NaN;
-        boolean jumped, footing, packTold;
+        /** How fast the player went across the deck on their last tick on it, blocks a tick. */
+        double groundSpeed;
+        boolean jumped, footing;
     }
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("TouchNMotionAnchor");
@@ -118,16 +120,6 @@ public final class Anchor {
                 && strm.emfcompat.core.EMFCompatConfig.getBoolean(KEY_FOOTING, true);
     }
 
-    /** {@link #footing}, as the resource pack is told it; said in the log the first time each drop. */
-    public static boolean packFooting(Player player) {
-        if (!footing(player)) return false;
-        State s = update(player);
-        if (!s.packTold && strm.touchnmotion.DebugLog.decisions())
-            LOGGER.info("[Anchor] {} kept standing on the deck for the resource pack", player.getName().getString());
-        s.packTold = true;
-        return true;
-    }
-
     /**
      * How far the player walked this tick for the walk animation. Sable counts it across the deck
      * while it carries the player; off the deck - a jump - it lets go and the game counts the
@@ -139,7 +131,10 @@ public final class Anchor {
         // Sable lets go of the player and takes them back a tick out of step with the craft: its own
         // count jumps by the craft's speed on those ticks, on the deck as in the air.
         if (s.space.isWorld() || !strm.emfcompat.core.EMFCompatConfig.getBoolean(KEY_FOOTING, true)) return distance;
-        return (float) s.motion.horizontalDistance();
+        double across = s.motion.horizontalDistance();
+        // In the air no faster than the player left the deck, but for the little a jump steers: that
+        // hand-over jump can last two ticks, past what the middle of three takes out.
+        return (float) (player.onGround() ? across : Math.min(across, s.groundSpeed + AIR_STEER));
     }
 
     private static boolean saidFailed;
@@ -174,14 +169,6 @@ public final class Anchor {
         Vec3 local = found.tickToLocal(player.position());
         if (!found.same(s.space)) s.groundY = Double.NaN;
         footing(player, s, local);
-        if (strm.touchnmotion.DebugLog.trace() && s.local != null && found.same(s.space)) {
-            float partial = strm.touchnmotion.platform.Platform.partialTick(false);
-            Vec3 drawn = found.toLocal(player.getPosition(partial));
-            LOGGER.info("[AnchorTrace] {} tick {} tickMove {} drawnMove {} partial {}", player.getName().getString(), player.tickCount,
-                    strm.touchnmotion.DebugLog.r2(local.subtract(s.local).horizontalDistance() * 1000),
-                    s.drawn == null ? "-" : strm.touchnmotion.DebugLog.r2(drawn.subtract(s.drawn).horizontalDistance() * 1000), partial);
-            s.drawn = drawn;
-        }
         if (s.local != null && found.same(s.space)) {
             Vec3 moved = found.tickDirectionToWorld(local.subtract(s.local));
             s.motion = steady(s, new Vec3(moved.x, 0, moved.z));
@@ -193,6 +180,7 @@ public final class Anchor {
             s.motion = new Vec3(player.getX() - player.xo, 0, player.getZ() - player.zo);
         }
         if (s.local == null || !found.same(s.space)) java.util.Arrays.fill(s.moves, s.motion);
+        if (player.onGround()) s.groundSpeed = s.motion.horizontalDistance();
         s.space = found;
         s.local = local;
         return s;
@@ -200,35 +188,21 @@ public final class Anchor {
 
     /**
      * Keeps track of the feet leaving the deck: up off it is a jump, down off it a step down the deck
-     * while it is short and shallow. Said in the log once each way: a resource pack lands the player
-     * whenever they leave the ground.
+     * while it is short and shallow.
      */
     private static void footing(Player player, State s, Vec3 local) {
         if (player.onGround()) {
-            if (s.airSince != Integer.MIN_VALUE && strm.touchnmotion.DebugLog.decisions())
-                LOGGER.info("[Anchor] {} back on the deck after {} ticks, {} px from where it left{}",
-                        player.getName().getString(), player.tickCount - s.airSince,
-                        strm.touchnmotion.DebugLog.r2((local.y - s.groundY) * 16), s.jumped ? " (jumped)" : "");
             s.airSince = Integer.MIN_VALUE;
             s.groundY = local.y;
             s.jumped = false;
             s.footing = false;
-            s.packTold = false;
             return;
         }
         if (s.airSince == Integer.MIN_VALUE) {
             s.airSince = player.tickCount;
             s.jumped = player.getDeltaMovement().y > 0.01 || Double.isNaN(s.groundY) || local.y > s.groundY + 0.01;
-            if (strm.touchnmotion.DebugLog.decisions())
-                LOGGER.info("[Anchor] {} off the deck ({}, tracked {}, dy {} px)", player.getName().getString(),
-                        s.jumped ? "up" : "down", !SubLevels.tracking(player).isWorld(),
-                        Double.isNaN(s.groundY) ? "-" : strm.touchnmotion.DebugLog.r2((local.y - s.groundY) * 16));
         }
-        boolean was = s.footing;
         s.footing = !s.jumped && player.tickCount - s.airSince < FOOTING_TICKS && s.groundY - local.y <= FOOTING_DROP;
-        if (was && !s.footing && strm.touchnmotion.DebugLog.decisions())
-            LOGGER.info("[Anchor] {} falling off the deck: {} px in {} ticks", player.getName().getString(),
-                    strm.touchnmotion.DebugLog.r2((s.groundY - local.y) * 16), player.tickCount - s.airSince + 1);
     }
 
     /**
