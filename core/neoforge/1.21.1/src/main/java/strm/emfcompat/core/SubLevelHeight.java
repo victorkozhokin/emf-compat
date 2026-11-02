@@ -15,8 +15,10 @@ import java.util.WeakHashMap;
  * <p>Packs read {@code pos_y} frame to frame to tell a fall, a landing or a vertical speed - Fresh
  * Animations restarts its landing whenever a player on the ground goes down, as off a step. On a
  * sub-level going down every frame is such a step, so the landing played over and over and the body
- * swayed with every rise. Here the sub-level's vertical movement under the entity is taken out: the
- * pack sees the entity move on the sub-level, as it would on the ground.</p>
+ * swayed with every rise. Here the height goes up and down with the sub-level's own up, not the
+ * world's: the sub-level rising or sinking under the entity is taken out, and so is its heel - walking
+ * down a heeled deck the world height sinks with every step though the feet stay on the same planks.
+ * The pack sees the entity move on the sub-level, as it would on the ground.</p>
  *
  * <p>What has been taken out is kept after the entity steps off, so the height does not jump by how
  * far the sub-level travelled meanwhile (a jump a pack would take for a fall). It is dropped with a
@@ -65,16 +67,22 @@ public final class SubLevelHeight {
     private static final class Ride {
         Level level;
         Object sub;
-        /** Where the entity stood on the sub-level last frame, and that point's world height then. */
+        /** Where the entity was on the sub-level last frame, and its world height then. */
         Vec3 local;
         double localY;
-        /** The sub-level's vertical movement taken out so far, blocks. */
+        /** How far the world height has gone up or down beyond the height up the sub-level, blocks. */
         double taken;
         double lastY = Double.NaN;
         /** The height given out while on the sub-level. */
         double held = Double.NaN;
         float frame = Float.NaN;
     }
+
+    /**
+     * What an addon says holds the height where it is on a sub-level: a short drop off its deck it
+     * takes for a step on it (Touch'n Motion's steady footing), where the pack must not see a fall.
+     */
+    public static final java.util.List<java.util.function.Predicate<Entity>> HOLD = new java.util.concurrent.CopyOnWriteArrayList<>();
 
     private static final Map<Entity, Ride> RIDES = new WeakHashMap<>();
     private static boolean failed;
@@ -104,9 +112,15 @@ public final class SubLevelHeight {
             return (float) steady;
         }
         if (Double.isNaN(ride.held)) ride.held = steady;
+        else if (held(entity)) return (float) ride.held;
         else if (steady > ride.held + STILL) ride.held = steady - STILL;
         else if (steady < ride.held - STILL) ride.held = steady + STILL;
         return (float) ride.held;
+    }
+
+    private static boolean held(Entity entity) {
+        for (var hold : HOLD) if (hold.test(entity)) return true;
+        return false;
     }
 
     private static void update(Ride ride, Entity entity, float y, float partialTick) throws ReflectiveOperationException {
@@ -124,14 +138,15 @@ public final class SubLevelHeight {
         Object pose = Api.RENDER_POSE.invoke(sub, partialTick);
         Vec3 at = entity.getPosition(partialTick);
         at = new Vec3(at.x, y, at.z);
+        Vec3 local = (Vec3) Api.TO_LOCAL.invoke(pose, at);
         if (sub == ride.sub && ride.local != null) {
-            // How far the spot the entity stood on last frame has gone up or down since.
-            double moved = ((Vec3) Api.TO_WORLD.invoke(pose, ride.local)).y - ride.localY;
+            // What the world height did since last frame beyond the height up the sub-level: its rise
+            // and sink, and its heel under steps along it.
             boolean gliding = entity instanceof LivingEntity living && living.isFallFlying();
-            if (!gliding) ride.taken += moved;
+            if (!gliding) ride.taken += (y - ride.localY) - (local.y - ride.local.y);
         }
         ride.sub = sub;
-        ride.local = (Vec3) Api.TO_LOCAL.invoke(pose, at);
+        ride.local = local;
         ride.localY = y;
     }
 }
