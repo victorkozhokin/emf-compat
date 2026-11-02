@@ -18,7 +18,9 @@ import strm.emfcompat.core.EMFCompatCore;
 import strm.emfcompat.core.ik.IKFrame;
 import strm.touchnmotion.footgrounding.FootGroundingFeature;
 import strm.touchnmotion.create.ejector.EjectorLid;
+import strm.touchnmotion.interaction.Anchor;
 import strm.touchnmotion.interaction.EntityStates;
+import strm.touchnmotion.interaction.SubLevels;
 import strm.touchnmotion.interaction.Smoothing;
 
 import java.util.UUID;
@@ -150,10 +152,8 @@ public final class FootGrounding {
         /** Where the model stood and faced at the last step search - on its craft's deck when on one. */
         Vec3 reachAtPosition, reachFacing;
         float reachYaw;
-        /** On a craft: the player's place on its deck last tick, and how far it walked since, in the world. */
-        strm.touchnmotion.interaction.SubLevels.Space deck;
-        Vec3 deckLocal, deckMotion = Vec3.ZERO;
-        int deckTick = Integer.MIN_VALUE;
+        /** What the feet's heights ({@link FootStep}) are measured in: the world, or the sub-level stood on. */
+        SubLevels.Space stepSpace = SubLevels.WORLD;
         String logged = "";
     }
 
@@ -261,7 +261,8 @@ public final class FootGrounding {
             // shorter, so held up by the foot behind, the front one hung in the air.
             if (state.right.descending()) onFeet = Math.max(onFeet, stride.right);
             if (state.left.descending()) onFeet = Math.max(onFeet, stride.left);
-            onFeet = StepSupport.bodyDrop(onFeet, t.hipRight, t.hipLeft, player.getY(),
+            onFeet = StepSupport.bodyDrop(onFeet, t.hipRight, t.hipLeft,
+                    height(state.stepSpace, player.position(), player.getY()),
                     state.right.plantedY, state.left.plantedY,
                     state.right.descending() || state.left.descending());
             t.lower = Math.max(0f, Math.min(lowerLimit, onFeet));
@@ -496,31 +497,22 @@ public final class FootGrounding {
      * How far the player went since the last tick, horizontally. On a craft that is across its
      * deck: standing on a moving one is standing, not walking at the craft's speed.
      */
-    private static Vec3 motion(AbstractClientPlayer player, State state) {
-        var deck = state.terrain.deck();
-        if (deck == null) {
-            state.deck = null;
-            state.deckLocal = null;
-            return new Vec3(player.getX() - player.xo, 0, player.getZ() - player.zo);
-        }
-        if (state.deck == null || !state.deck.same(deck)) {
-            state.deck = deck;
-            state.deckLocal = null;
-        }
-        if (state.deckTick != player.tickCount) {
-            Vec3 local = deck.tickToLocal(player.position());
-            Vec3 moved = state.deckLocal == null ? Vec3.ZERO : deck.directionToWorld(local.subtract(state.deckLocal));
-            state.deckMotion = new Vec3(moved.x, 0, moved.z);
-            state.deckLocal = local;
-            state.deckTick = player.tickCount;
-        }
-        return state.deckMotion;
+    private static Vec3 motion(AbstractClientPlayer player) {
+        return Anchor.moved(player);
     }
 
     private static Stride stride(AbstractClientPlayer player, IKFrame frame, State state,
                                  float rawRight, float rawLeft, double dt) {
         float[] r = state.terrain.pose(state.rightPose, true), l = state.terrain.pose(state.leftPose, false);
-        Vec3 motion = motion(player, state);
+        Vec3 motion = motion(player);
+        // The feet's heights are kept in what the player stands on: on a moving sub-level a planted
+        // foot's world height runs off with the deck, rising or sinking under the other foot.
+        SubLevels.Space space = Anchor.space(player);
+        if (!space.same(state.stepSpace) && !(space.isWorld() && state.stepSpace.isWorld())) {
+            state.right.reset();
+            state.left.reset();
+        }
+        state.stepSpace = space;
         if (r == null || l == null || motion.length() < WALKING) {
             state.lastRightX = Float.NaN;
             state.lastLeftX = Float.NaN;
@@ -548,8 +540,8 @@ public final class FootGrounding {
         }
         // Blocks a second, for where a swinging foot will come down.
         Vec3 velocity = motion.scale(20);
-        float right = step(player, frame, state.right, state.terrain.hip(RIGHT_HIP, true), r, rawRight, way, velocity);
-        float left = step(player, frame, state.left, state.terrain.hip(LEFT_HIP, false), l, rawLeft, way, velocity);
+        float right = step(player, frame, space, state.right, state.terrain.hip(RIGHT_HIP, true), r, rawRight, way, velocity);
+        float left = step(player, frame, space, state.left, state.terrain.hip(LEFT_HIP, false), l, rawLeft, way, velocity);
         return new Stride(right, left);
     }
 
@@ -565,16 +557,35 @@ public final class FootGrounding {
      * stands on the floor that is really under it and keeps it until it lifts again: an edge the
      * hitbox wobbles over no longer moves a planted foot.</p>
      */
-    private static float step(AbstractClientPlayer player, IKFrame frame, FootStep leg, Vector3f hip, float[] pose,
-                              float hipDrop, float way, Vec3 velocity) {
-        double floor = floorY(player, frame, hip, pose, Vec3.ZERO, hipDrop);
+    private static float step(AbstractClientPlayer player, IKFrame frame, SubLevels.Space space, FootStep leg,
+                              Vector3f hip, float[] pose, float hipDrop, float way, Vec3 velocity) {
+        Vec3 at = footAt(frame, hip, pose, Vec3.ZERO);
+        double floor = height(space, at, floorY(player, frame, hip, pose, Vec3.ZERO, hipDrop));
         double y = leg.update(pose[0] * way, System.nanoTime() / 1e9, floor,
-                () -> landing(player, frame, leg, hip, pose, hipDrop, velocity, way));
-        return floorBelow(frame, hip, pose, y, hipDrop);
+                () -> landing(player, frame, space, leg, hip, pose, hipDrop, velocity, way));
+        return floorBelow(frame, hip, pose, worldY(space, at, y), hipDrop);
     }
 
-    /** The floor under where the swinging foot will come down, world y. */
-    private static double landing(AbstractClientPlayer player, IKFrame frame, FootStep leg, Vector3f hip, float[] pose,
+    /** Where the sole is across the ground, world, moved {@code offset} blocks. */
+    private static Vec3 footAt(IKFrame frame, Vector3f hip, float[] pose, Vec3 offset) {
+        return frame.jointWorld(probeBase(hip, pose, sole(pose))).add(offset);
+    }
+
+    /** A world height at {@code at} as a height in {@code space}: up its own axis on a sub-level. */
+    private static double height(SubLevels.Space space, Vec3 at, double worldY) {
+        return space.isWorld() ? worldY : space.toLocal(new Vec3(at.x, worldY, at.z)).y;
+    }
+
+    /** {@link #height} back: the world height at {@code at} of a height in {@code space}. */
+    private static double worldY(SubLevels.Space space, Vec3 at, double height) {
+        if (space.isWorld()) return height;
+        Vec3 local = space.toLocal(at);
+        return space.toWorld(new Vec3(local.x, height, local.z)).y;
+    }
+
+    /** The floor under where the swinging foot will come down, as a height in {@code space}. */
+    private static double landing(AbstractClientPlayer player, IKFrame frame, SubLevels.Space space, FootStep leg,
+                                  Vector3f hip, float[] pose,
                                   float hipDrop, Vec3 velocity, float way) {
         double left = leg.swingSeconds * (1f - leg.progress);
         // The foot at the front of the swing, where it lands, against where it is now.
@@ -589,7 +600,8 @@ public final class FootGrounding {
         if (ahead.length() > 0.9) ahead = ahead.normalize().scale(0.9);
         Vec3 path = ahead;
         return FootStep.predictAlongPath(leg.plantedY,
-                fraction -> floorY(player, frame, hip, pose, path.scale(fraction), hipDrop));
+                fraction -> height(space, footAt(frame, hip, pose, path.scale(fraction)),
+                        floorY(player, frame, hip, pose, path.scale(fraction), hipDrop)));
     }
 
     private static Vector3f probeBase(Vector3f hip, float[] pose, Vector3f sole) {
