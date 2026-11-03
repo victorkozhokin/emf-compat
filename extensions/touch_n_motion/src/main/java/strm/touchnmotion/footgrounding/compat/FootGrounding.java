@@ -1,8 +1,8 @@
 package strm.touchnmotion.footgrounding.compat;
 
-import static strm.touchnmotion.interaction.Skeleton.LEFT_HIP;
-import static strm.touchnmotion.interaction.Skeleton.RIGHT_HIP;
-import strm.touchnmotion.interaction.Skeleton;
+import static strm.emfcompat.core.ik.Skeleton.LEFT_HIP;
+import static strm.emfcompat.core.ik.Skeleton.RIGHT_HIP;
+import strm.emfcompat.core.ik.Skeleton;
 import strm.touchnmotion.DebugLog;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;

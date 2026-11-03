@@ -1,8 +1,9 @@
 package strm.touchnmotion.wallhand;
 
+import strm.emfcompat.core.ik.IKMath;
 import net.minecraft.world.phys.AABB;
 import strm.touchnmotion.torso.TorsoLean;
-import strm.touchnmotion.interaction.Skeleton;
+import strm.emfcompat.core.ik.Skeleton;
 import strm.touchnmotion.DebugLog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
@@ -375,9 +376,9 @@ public final class WallSqueeze {
             }
             // A used/held hand belongs to that action immediately; clearance still turns the torso.
             if (!busy && contact.weight >= 0.001f) {
-                arm.xRot = WallPoseMath.followAngle(arm.xRot, contact.pitch, contact.weight);
-                arm.yRot = WallPoseMath.followAngle(arm.yRot, 0, contact.weight);
-                arm.zRot = WallPoseMath.followAngle(arm.zRot, contact.roll, contact.weight);
+                arm.xRot = IKMath.approachAngle(arm.xRot, contact.pitch, contact.weight);
+                arm.yRot = IKMath.approachAngle(arm.yRot, 0, contact.weight);
+                arm.zRot = IKMath.approachAngle(arm.zRot, contact.roll, contact.weight);
             }
             if (update && EMFCompatConfig.getBoolean(KEY_TRACE, false)) {
                 Touch touch = s.touches[i];

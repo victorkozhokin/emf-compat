@@ -1,6 +1,7 @@
 package strm.touchnmotion.buttonpress;
 
-import static strm.touchnmotion.interaction.Skeleton.WAIST;
+import strm.emfcompat.core.ik.Skeleton;
+import static strm.emfcompat.core.ik.Skeleton.WAIST;
 import net.minecraft.client.model.geom.ModelPart;
 import org.joml.Vector3f;
 import org.joml.Quaternionf;

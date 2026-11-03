@@ -1,9 +1,9 @@
-package strm.touchnmotion.interaction;
+package strm.emfcompat.core.ik;
 
 import org.joml.Vector3f;
 
 /**
- * The player model every feature measures against: vanilla pivots and lengths in model space -
+ * The vanilla player model IK measures against: vanilla pivots and lengths in model space -
  * pixels, y down, the model facing -z. The vectors are shared; never change one, copy it.
  */
 public final class Skeleton {

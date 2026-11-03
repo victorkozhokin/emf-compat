@@ -1,5 +1,6 @@
 package strm.touchnmotion.buttonpress.aeronautics;
 
+import strm.emfcompat.core.ik.Skeleton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -132,7 +133,7 @@ public final class HeavyThrottle implements InteractionProvider {
     private void offer(InteractionContext context, List<Candidate> out, Effector hand, Vector3f point, float confidence) {
         Vector3f shoulder = new Vector3f(hand == Effector.RIGHT_ARM ? -5 : 5, 2, 0);
         Vec3 target = context.frame().jointWorld(point);
-        var aim = OneBoneIK.solveXY(context.frame(), shoulder, target, 11, 0, 0);
+        var aim = OneBoneIK.solveXY(context.frame(), shoulder, target, Skeleton.ARM_TO_FINGERTIPS, 0, 0);
         if (aim == null) return;
         State state = STATES.fresh(context.player().getUUID());
         var space = SubLevels.at(context.player().level(), state.pos);
@@ -193,12 +194,7 @@ public final class HeavyThrottle implements InteractionProvider {
             ModelPart arm = parts.apply(hand.part);
             if (owned < 1e-3f || arm == null) continue;
             Vector3f point = hand == Effector.RIGHT_ARM ? s.right : s.left;
-            Vector3f to = new Vector3f(point).sub(arm.x, arm.y, arm.z);
-            if (to.lengthSquared() < 1e-6) continue;
-            to.normalize();
-            arm.xRot += IKMath.wrap(-(float) Math.acos(Mth.clamp(to.y, -1, 1)) - arm.xRot) * owned;
-            arm.yRot += IKMath.wrap((float) Math.atan2(-to.x, -to.z) - arm.yRot) * owned;
-            arm.zRot *= 1 - owned;
+            OneBoneIK.turnTowards(arm, point, owned, true);
         }
         s.primaryGap = gap(parts.apply(s.primary.part), s.primary == Effector.RIGHT_ARM ? s.right : s.left);
         s.helperGap = gap(parts.apply(s.primary == Effector.RIGHT_ARM ? "left_arm" : "right_arm"),

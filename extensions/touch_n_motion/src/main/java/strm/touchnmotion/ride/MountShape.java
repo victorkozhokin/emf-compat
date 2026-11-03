@@ -1,5 +1,6 @@
 package strm.touchnmotion.ride;
 
+import strm.emfcompat.core.ik.Skeleton;
 /**
  * What a mount's body is like where a rider sits on it, in its own model's pixels (the renderer's
  * scale is {@code scale}): how wide the barrel under the saddle is, and - when its legs could be
@@ -20,7 +21,7 @@ public record MountShape(float halfWidth, float[][] hooves, float ground, float 
 
     /** Half the barrel's width in the rider's own model pixels. */
     public float riderHalfWidth() {
-        return halfWidth * scale / strm.touchnmotion.interaction.Skeleton.SCALE;
+        return halfWidth * scale / strm.emfcompat.core.ik.Skeleton.SCALE;
     }
 
     /** From the hind hooves to the front ones, model pixels; 0 without hooves. */

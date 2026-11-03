@@ -1,7 +1,8 @@
 package strm.touchnmotion.ride;
 
-import static strm.touchnmotion.interaction.Skeleton.LEFT_SHOULDER;
-import static strm.touchnmotion.interaction.Skeleton.RIGHT_SHOULDER;
+import strm.emfcompat.core.ik.Skeleton;
+import static strm.emfcompat.core.ik.Skeleton.LEFT_SHOULDER;
+import static strm.emfcompat.core.ik.Skeleton.RIGHT_SHOULDER;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;

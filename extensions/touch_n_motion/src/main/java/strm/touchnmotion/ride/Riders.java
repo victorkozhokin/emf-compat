@@ -1,7 +1,7 @@
 package strm.touchnmotion.ride;
 
-import static strm.touchnmotion.interaction.Skeleton.LEFT_SHOULDER;
-import static strm.touchnmotion.interaction.Skeleton.RIGHT_SHOULDER;
+import static strm.emfcompat.core.ik.Skeleton.LEFT_SHOULDER;
+import static strm.emfcompat.core.ik.Skeleton.RIGHT_SHOULDER;
 
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -11,7 +11,7 @@ import strm.touchnmotion.interaction.Candidate;
 import strm.touchnmotion.interaction.Category;
 import strm.touchnmotion.interaction.Effector;
 import strm.touchnmotion.interaction.InteractionRuntime;
-import strm.touchnmotion.interaction.Skeleton;
+import strm.emfcompat.core.ik.Skeleton;
 import strm.emfcompat.core.ik.IKFrame;
 import strm.emfcompat.core.ik.IKResult;
 import strm.emfcompat.core.ik.OneBoneIK;

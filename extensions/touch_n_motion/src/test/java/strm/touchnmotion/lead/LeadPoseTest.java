@@ -8,7 +8,7 @@ class LeadPoseTest {
         Vector3f last = null;
         for (int i = 0; i <= 240; i++) {
             Vector3f grip = new Vector3f(-.8f, 8, -3 + i * .025f);
-            Vector3f a = LeadPose.angles(LeadPose.swing(grip));
+            Vector3f a = strm.emfcompat.core.ik.IKMath.eulerZYX(LeadPose.swing(grip));
             assertTrue(Math.abs(a.y) < .2f);
             if (last != null) assertTrue(a.distance(last) < .02f);
             Vector3f reached = new Quaternionf().rotationZYX(a.z, a.y, a.x).transform(new Vector3f(0, 1, 0));

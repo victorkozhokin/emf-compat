@@ -1,12 +1,12 @@
 package strm.touchnmotion.buttonpress;
 
 import strm.touchnmotion.torso.TorsoLean;
-import static strm.touchnmotion.interaction.Skeleton.WAIST;
-import static strm.touchnmotion.interaction.Skeleton.LEFT_HIP;
-import static strm.touchnmotion.interaction.Skeleton.RIGHT_HIP;
-import static strm.touchnmotion.interaction.Skeleton.RIGHT_SHOULDER;
-import static strm.touchnmotion.interaction.Skeleton.LEFT_SHOULDER;
-import strm.touchnmotion.interaction.Skeleton;
+import static strm.emfcompat.core.ik.Skeleton.WAIST;
+import static strm.emfcompat.core.ik.Skeleton.LEFT_HIP;
+import static strm.emfcompat.core.ik.Skeleton.RIGHT_HIP;
+import static strm.emfcompat.core.ik.Skeleton.RIGHT_SHOULDER;
+import static strm.emfcompat.core.ik.Skeleton.LEFT_SHOULDER;
+import strm.emfcompat.core.ik.Skeleton;
 import strm.touchnmotion.interaction.Visibility;
 import strm.touchnmotion.torso.LowReach;
 import net.minecraft.client.model.geom.ModelPart;

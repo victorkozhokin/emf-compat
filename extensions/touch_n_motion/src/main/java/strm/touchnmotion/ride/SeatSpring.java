@@ -1,5 +1,6 @@
 package strm.touchnmotion.ride;
 
+import strm.emfcompat.core.ik.Skeleton;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -84,7 +85,7 @@ public final class SeatSpring {
         float pitchRate = (float) rate[0] * shape.give() - (off[2] < 0 ? (float) rate[2] * shape.bow() : 0f);
         float roll = soft((float) off[1] * shape.give(), shape.side());
         float rollRate = (float) rate[1] * shape.give();
-        float rise = soft((float) Math.max(0.0, off[2]) * 16f / strm.touchnmotion.interaction.Skeleton.SCALE * shape.rise(), shape.riseLimit());
+        float rise = soft((float) Math.max(0.0, off[2]) * 16f / strm.emfcompat.core.ik.Skeleton.SCALE * shape.rise(), shape.riseLimit());
         return new Lean(pitch, pitchRate, roll, rollRate, rise);
     }
 

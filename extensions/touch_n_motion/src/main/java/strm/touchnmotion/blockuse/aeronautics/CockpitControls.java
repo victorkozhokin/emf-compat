@@ -1,5 +1,6 @@
 package strm.touchnmotion.blockuse.aeronautics;
 
+import strm.emfcompat.core.ik.Skeleton;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -242,7 +243,7 @@ public final class CockpitControls implements InteractionProvider {
                 state.grips[hand].set(target);
                 Vec3 point = context.frame().jointWorld(target);
                 state.gripLocal[hand] = space.toLocal(point);
-                var aim = OneBoneIK.solveXY(context.frame(), SHOULDERS[hand], point, 11, 0, 0);
+                var aim = OneBoneIK.solveXY(context.frame(), SHOULDERS[hand], point, Skeleton.ARM_TO_FINGERTIPS, 0, 0);
                 if (aim == null || aim.reach() > 2.25f) { context.decide("off:reach"); return; }
                 aims.put(hand == 0 ? Effector.RIGHT_ARM : Effector.LEFT_ARM, new float[]{aim.x(), aim.y()});
             }
@@ -423,13 +424,8 @@ public final class CockpitControls implements InteractionProvider {
             ModelPart arm = parts.apply(hand == 0 ? "right_arm" : "left_arm");
             if (arm == null) continue;
             state.shoulders[hand].set(arm.x, arm.y, arm.z);
-            Vector3f to = new Vector3f(state.grips[hand]).sub(arm.x, arm.y, arm.z).normalize();
-            float pitch = -(float) Math.acos(Math.max(-1, Math.min(1, to.y)));
-            float yaw = (float) Math.atan2(-to.x, -to.z);
-            arm.xRot += IKMath.wrap(pitch - arm.xRot) * weight;
-            arm.yRot += IKMath.wrap(yaw - arm.yRot) * weight;
-            arm.zRot *= 1 - weight;
-            Vector3f palm = Body.tip(arm, 11);
+            OneBoneIK.turnTowards(arm, state.grips[hand], weight, true);
+            Vector3f palm = Body.tip(arm, Skeleton.ARM_TO_FINGERTIPS);
             float gap = palm.distance(state.grips[hand]) / 16;
             if (hand == 0) state.rightGap = gap;
             else state.leftGap = gap;

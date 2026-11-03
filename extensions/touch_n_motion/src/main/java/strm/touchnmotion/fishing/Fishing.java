@@ -1,5 +1,6 @@
 package strm.touchnmotion.fishing;
 
+import strm.emfcompat.core.ik.Skeleton;
 import strm.touchnmotion.pose.BodyPose;
 import strm.touchnmotion.pose.PoseRunner;
 
@@ -244,7 +245,7 @@ public final class Fishing implements InteractionProvider {
     /** An arm sent to a place in the model; the last aim, once the body has come after it, is {@link #grip}'s. */
     private void offer(InteractionContext context, List<Candidate> out, Effector arm, Vector3f point) {
         Vector3f shoulder = new Vector3f(arm == Effector.RIGHT_ARM ? -5 : 5, 2, 0);
-        IKResult aim = OneBoneIK.solveXY(context.frame(), shoulder, context.frame().jointWorld(new Vector3f(point)), 11, 0, 0);
+        IKResult aim = OneBoneIK.solveXY(context.frame(), shoulder, context.frame().jointWorld(new Vector3f(point)), Skeleton.ARM_TO_FINGERTIPS, 0, 0);
         if (aim != null) out.add(Candidate.single(id(), Category.ACTIVE, 10, 1f, TIMING, arm, new float[]{aim.x(), aim.y()}).withQuietSwing(true));
     }
 

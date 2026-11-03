@@ -14,7 +14,7 @@ import strm.touchnmotion.interaction.Ease;
 import strm.touchnmotion.interaction.EntityStates;
 import strm.touchnmotion.interaction.InteractionContext;
 import strm.touchnmotion.interaction.InteractionProvider;
-import strm.touchnmotion.interaction.Skeleton;
+import strm.emfcompat.core.ik.Skeleton;
 import strm.touchnmotion.interaction.Smoothing;
 import strm.touchnmotion.motion.Spring;
 import strm.touchnmotion.torso.TorsoLean;
@@ -279,7 +279,7 @@ public final class BoatRide implements InteractionProvider {
 
     /** Brings a fist onto its place: the arm turned onto it from where the shoulder is, and what is left taken up at the shoulder. */
     public static float settle(net.minecraft.client.model.geom.ModelPart arm, Vector3f at, float weight) {
-        strm.touchnmotion.interaction.ArmAim.towards(arm, at, weight, true);
+        strm.emfcompat.core.ik.OneBoneIK.turnTowards(arm, at, weight, true);
         Vector3f left = new Vector3f(at).sub(Body.tip(arm, GRIP));
         float gap = left.length();
         if (gap > SHRUG) left.normalize(SHRUG);

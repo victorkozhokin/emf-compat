@@ -1,7 +1,7 @@
 package strm.touchnmotion.ride;
 
 import static strm.touchnmotion.DebugLog.r2;
-import static strm.touchnmotion.interaction.Skeleton.RIGHT_SHOULDER;
+import static strm.emfcompat.core.ik.Skeleton.RIGHT_SHOULDER;
 
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -13,7 +13,7 @@ import strm.touchnmotion.interaction.Candidate;
 import strm.touchnmotion.interaction.EntityStates;
 import strm.touchnmotion.interaction.InteractionContext;
 import strm.touchnmotion.interaction.InteractionProvider;
-import strm.touchnmotion.interaction.Skeleton;
+import strm.emfcompat.core.ik.Skeleton;
 import strm.touchnmotion.interaction.Smoothing;
 import strm.touchnmotion.torso.TorsoLean;
 import strm.emfcompat.core.ConfigRegistry;

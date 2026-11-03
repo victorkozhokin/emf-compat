@@ -1,8 +1,8 @@
 package strm.touchnmotion.doorhold;
 
-import static strm.touchnmotion.interaction.Skeleton.LEFT_SHOULDER;
-import static strm.touchnmotion.interaction.Skeleton.RIGHT_SHOULDER;
-import strm.touchnmotion.interaction.Skeleton;
+import static strm.emfcompat.core.ik.Skeleton.LEFT_SHOULDER;
+import static strm.emfcompat.core.ik.Skeleton.RIGHT_SHOULDER;
+import strm.emfcompat.core.ik.Skeleton;
 import strm.touchnmotion.interaction.Visibility;
 import strm.touchnmotion.interaction.HandContacts;
 import net.minecraft.client.player.AbstractClientPlayer;

@@ -14,12 +14,6 @@ final class LeadPose {
         pull.z = Math.max(-6, Math.min(5, pull.z));
         return rest.lerp(pull, Math.min(1, effort + jerk * .25f));
     }
-    static Vector3f angles(Quaternionf q) {
-        return new Vector3f(
-            (float) Math.atan2(2 * (q.w * q.x + q.y * q.z), 1 - 2 * (q.x * q.x + q.y * q.y)),
-            (float) Math.asin(Math.max(-1, Math.min(1, 2 * (q.w * q.y - q.z * q.x)))),
-            (float) Math.atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z)));
-    }
     static Quaternionf swing(Vector3f grip) {
         return new Quaternionf().rotationTo(new Vector3f(0, 1, 0), new Vector3f(grip).normalize());
     }

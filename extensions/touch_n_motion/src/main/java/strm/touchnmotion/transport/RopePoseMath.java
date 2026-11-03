@@ -12,9 +12,8 @@ public final class RopePoseMath {
         return length < 1e-12 ? 0 : Ease.unit(new Vector3d(point).sub(a).dot(segment) / length);
     }
     public static boolean reachable(org.joml.Vector3f target, org.joml.Vector3f shoulder, boolean right) {
-        float distance = target.distance(shoulder);
         // Both hands may hold one side cord at separate heights without crossing forearms.
-        return distance >= 6 && distance <= 14.5f && (right ? target.x <= 6 : target.x >= -6);
+        return BraceMath.within(target, shoulder, right, 14.5f, 6);
     }
     /** A rope is taken only beside the body: not straight ahead nor behind, degrees from ahead... */
     static final double BESIDE_FROM = 35, BESIDE_TO = 145;

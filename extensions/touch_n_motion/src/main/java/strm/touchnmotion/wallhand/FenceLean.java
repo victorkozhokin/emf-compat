@@ -1,7 +1,7 @@
 package strm.touchnmotion.wallhand;
 
-import static strm.touchnmotion.interaction.Skeleton.LEFT_SHOULDER;
-import static strm.touchnmotion.interaction.Skeleton.RIGHT_SHOULDER;
+import static strm.emfcompat.core.ik.Skeleton.LEFT_SHOULDER;
+import static strm.emfcompat.core.ik.Skeleton.RIGHT_SHOULDER;
 
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -22,7 +22,7 @@ import strm.touchnmotion.seat.CockpitFacing;
 import strm.touchnmotion.interaction.EntityStates;
 import strm.touchnmotion.interaction.InteractionContext;
 import strm.touchnmotion.interaction.InteractionProvider;
-import strm.touchnmotion.interaction.Skeleton;
+import strm.emfcompat.core.ik.Skeleton;
 import strm.touchnmotion.interaction.Smoothing;
 import strm.touchnmotion.ride.Riders;
 import strm.touchnmotion.torso.TorsoLean;

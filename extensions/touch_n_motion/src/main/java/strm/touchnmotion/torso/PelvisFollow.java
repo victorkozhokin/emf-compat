@@ -1,5 +1,6 @@
 package strm.touchnmotion.torso;
 
+import strm.emfcompat.core.ik.IKMath;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -13,7 +14,7 @@ public final class PelvisFollow {
         Vector3f moved = new Quaternionf(turn).transform(new Vector3f(pivot).sub(waist)).add(waist);
         moved.x += shift;
         Quaternionf rotation = new Quaternionf(turn).mul(new Quaternionf().rotationZYX(roll, yaw, pitch)).normalize();
-        Vector3f angles = angles(rotation);
+        Vector3f angles = IKMath.eulerZYX(rotation);
         return new Part(moved, angles.x, angles.y, angles.z);
     }
 
@@ -23,13 +24,6 @@ public final class PelvisFollow {
         Vector3f moved = new Quaternionf(turn).transform(new Vector3f(pivot).sub(waist)).add(waist);
         moved.x += shift;
         return new Part(moved, pitch, yaw, roll);
-    }
-
-    private static Vector3f angles(Quaternionf q) {
-        return new Vector3f(
-                (float) Math.atan2(2 * (q.w * q.x + q.y * q.z), 1 - 2 * (q.x * q.x + q.y * q.y)),
-                (float) Math.asin(Math.max(-1, Math.min(1, 2 * (q.w * q.y - q.z * q.x)))),
-                (float) Math.atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z)));
     }
 
     static Vector3f waist(Vector3f pivot, float pitch, float yaw, float roll, float length) {
@@ -91,7 +85,7 @@ public final class PelvisFollow {
         direction.y = y;
         Quaternionf q = new Quaternionf().rotationTo(before, direction).mul(original)
                 .rotateY(twist).normalize();
-        Vector3f angles = angles(q);
+        Vector3f angles = IKMath.eulerZYX(q);
         return new Leg(hip, angles.x, angles.y, angles.z);
     }
 
@@ -151,9 +145,7 @@ public final class PelvisFollow {
         Vector3f direction = swung.transform(new Vector3f(0, length, 0));
         Quaternionf q = new Quaternionf().rotationTo(direction, new Vector3f(x, y, z))
                 .mul(swung).normalize();
-        float px = (float) Math.atan2(2 * (q.w * q.x + q.y * q.z), 1 - 2 * (q.x * q.x + q.y * q.y));
-        float py = (float) Math.asin(Math.max(-1, Math.min(1, 2 * (q.w * q.y - q.z * q.x))));
-        float pz = (float) Math.atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z));
-        return new Leg(hip, px, py, pz);
+        Vector3f p = IKMath.eulerZYX(q);
+        return new Leg(hip, p.x, p.y, p.z);
     }
 }

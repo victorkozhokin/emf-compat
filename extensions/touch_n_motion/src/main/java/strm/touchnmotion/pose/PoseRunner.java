@@ -1,15 +1,16 @@
 package strm.touchnmotion.pose;
 
+import strm.emfcompat.core.ik.OneBoneIK;
+import strm.emfcompat.core.ik.IKMath;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
 import strm.emfcompat.core.ik.IKFrame;
-import strm.touchnmotion.interaction.ArmAim;
 import strm.touchnmotion.interaction.Body;
 import strm.touchnmotion.interaction.Ease;
 import strm.touchnmotion.interaction.Effector;
-import strm.touchnmotion.interaction.Skeleton;
+import strm.emfcompat.core.ik.Skeleton;
 import strm.touchnmotion.torso.BraceSteps;
 import strm.touchnmotion.torso.LowReach;
 
@@ -165,10 +166,9 @@ public final class PoseRunner {
      * turn is taken only as far as the point is out to a side.
      */
     private static float[] towards(float x, float y, float z) {
-        float[] aim = ArmAim.angles(x, y, z);
+        IKMath.Angles aim = IKMath.anglesXY(x, y, z);
         if (aim == null) return null;
-        aim[1] *= Ease.smooth((float) Math.hypot(x, z) / 5f);
-        return aim;
+        return new float[]{aim.x(), aim.secondary() * Ease.smooth((float) Math.hypot(x, z) / 5f)};
     }
 
     /**
@@ -249,7 +249,7 @@ public final class PoseRunner {
     private static void applyArm(ModelPart arm, float[] angles, Vector3f at, float reach, BodyPose.Hold hold, float[] add, float[] base, float weight) {
         if (arm == null) return;
         if (hold != BodyPose.Hold.POINT && at != null && weight >= .02f) {
-            if (hold == BodyPose.Hold.FIST) ArmAim.towards(arm, at, weight, true);
+            if (hold == BodyPose.Hold.FIST) OneBoneIK.turnTowards(arm, at, weight, true);
             else strm.touchnmotion.ride.BoatRide.settle(arm, at, weight);
             return;
         }

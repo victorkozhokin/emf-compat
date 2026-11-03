@@ -1,5 +1,6 @@
 package strm.touchnmotion.lead;
 
+import strm.emfcompat.core.ik.IKMath;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -154,7 +155,7 @@ public final class LeadHold implements InteractionProvider {
         wantedPalm.y -= s.stopPull * .5f;
         if (!s.hasPalm) { s.palm.set(wantedPalm); s.hasPalm = true; }
         else s.palm.lerp(wantedPalm, Smoothing.follow(context.dt(), .1));
-        Vector3f aim = LeadPose.angles(LeadPose.swing(s.palm));
+        Vector3f aim = IKMath.eulerZYX(LeadPose.swing(s.palm));
         out.add(Candidate.single(id(), Category.PASSIVE, 30, 1, TIMING, s.hand, new float[]{aim.x, aim.y}).withTarget(s.animal));
         // This grip follows the actual animated shoulder in capture(), not a fixed
         // world contact. Generic world-target correction would undo that distinction.
@@ -190,7 +191,7 @@ public final class LeadHold implements InteractionProvider {
             // Shortest swing from a downward arm admits both forward and backward
             // grips without the negative-acos/180-degree-yaw pole flip.
             Quaternionf current = new Quaternionf().rotationZYX(arm.zRot, arm.yRot, arm.xRot);
-            Vector3f angles = LeadPose.angles(current.slerp(LeadPose.swing(s.palm), owned));
+            Vector3f angles = IKMath.eulerZYX(current.slerp(LeadPose.swing(s.palm), owned));
             arm.setRotation(angles.x, angles.y, angles.z);
         }
         Vector3f palm = Body.tip(arm, 11);

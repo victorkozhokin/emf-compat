@@ -1,5 +1,6 @@
 package strm.touchnmotion.buttonpress;
 
+import strm.emfcompat.core.ik.IKMath;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import strm.touchnmotion.interaction.Ease;
@@ -29,13 +30,7 @@ public final class ReachEnvelope {
 
     /** Minimal rotation about the waist that brings a rigid arm within reach; never stretches bones. */
     public static Quaternionf contactTurn(Vector3f shoulder, Vector3f target, float arm, float limit) {
-        float a = shoulder.length(), b = target.length();
-        if (a < 1e-5f || b < 1e-5f || shoulder.distance(target) <= arm) return new Quaternionf();
-        float theta = (float) Math.acos(Math.max(-1f, Math.min(1f, shoulder.dot(target) / (a * b))));
-        if (theta < 1e-5f) return new Quaternionf();
-        float allowable = (float) Math.acos(Math.max(-1f, Math.min(1f,
-                (a * a + b * b - arm * arm) / (2f * a * b))));
-        float angle = Math.max(0f, Math.min(limit, theta - allowable));
-        return new Quaternionf().slerp(new Quaternionf().rotationTo(shoulder, target), angle / theta);
+        if (shoulder.distance(target) <= arm) return new Quaternionf();
+        return IKMath.reachTurn(shoulder, target, arm, 0f, limit);
     }
 }

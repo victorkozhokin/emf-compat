@@ -1,5 +1,6 @@
 package strm.touchnmotion.wallhand;
 
+import strm.emfcompat.core.ik.IKMath;
 import strm.touchnmotion.interaction.Smoothing;
 import strm.touchnmotion.interaction.Ease;
 
@@ -12,15 +13,8 @@ final class WallPoseMath {
     }
 
     static Aim aim(float x, float y, float z) {
-        float length = (float) Math.sqrt(x * x + y * y + z * z);
-        if (!Float.isFinite(length) || length < 1e-4f) return null;
-        return new Aim((float) Math.asin(Math.max(-1, Math.min(1, z / length))),
-                (float) Math.atan2(-x, y));
-    }
-
-    static float followAngle(float from, float to, float weight) {
-        float delta = (float) Math.atan2(Math.sin(to - from), Math.cos(to - from));
-        return from + delta * weight;
+        IKMath.Angles a = IKMath.anglesXZDownward(x, y, z);
+        return a == null ? null : new Aim(a.x(), a.secondary());
     }
 
     static final class Contact {
@@ -32,8 +26,8 @@ final class WallPoseMath {
             weight += (wanted - weight) * Smoothing.fadeIn(dt, wanted > weight ? 0.14 : 0.09);
             if (target != null) {
                 float k = known ? Smoothing.follow(dt, 0.055) : 1;
-                pitch = followAngle(pitch, target.pitch, k);
-                roll = followAngle(roll, target.roll, k);
+                pitch = IKMath.approachAngle(pitch, target.pitch, k);
+                roll = IKMath.approachAngle(roll, target.roll, k);
                 known = true;
             } else if (weight < 0.001f) {
                 known = false;

@@ -1,8 +1,10 @@
 package strm.emfcompat.core.ik;
 
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 /** Closed-form aiming for a single rigid limb whose neutral direction is model-space +y. */
 public final class OneBoneIK {
@@ -45,8 +47,20 @@ public final class OneBoneIK {
         }
         relative.div(distance);
 
-        float x = -(float) Math.acos(Math.max(-1f, Math.min(1f, relative.y)));
-        float y = (float) Math.atan2(-relative.x, -relative.z);
-        return new IKResult(x, y, reach, lift, shortfall);
+        IKMath.Angles aim = IKMath.anglesXY(relative.x, relative.y, relative.z);
+        return new IKResult(aim.x(), aim.secondary(), reach, lift, shortfall);
+    }
+
+    /**
+     * Turns {@code limb} (hanging along +y from its pivot) towards {@code point} in model pixels
+     * by {@code weight}, 0..1, from wherever the pivot is drawn this frame; with
+     * {@code levelRoll} its roll goes to nothing by as much.
+     */
+    public static void turnTowards(ModelPart limb, Vector3fc point, float weight, boolean levelRoll) {
+        IKMath.Angles aim = IKMath.anglesXY(point.x() - limb.x, point.y() - limb.y, point.z() - limb.z);
+        if (aim == null) return;
+        limb.xRot = IKMath.approachAngle(limb.xRot, aim.x(), weight);
+        limb.yRot = IKMath.approachAngle(limb.yRot, aim.secondary(), weight);
+        if (levelRoll) limb.zRot *= 1f - weight;
     }
 }

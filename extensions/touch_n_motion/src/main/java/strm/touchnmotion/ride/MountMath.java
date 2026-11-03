@@ -1,5 +1,6 @@
 package strm.touchnmotion.ride;
 
+import strm.emfcompat.core.ik.Skeleton;
 /**
  * How a rider's legs lie along a mount's sides, from how wide it is - plain geometry, no game
  * classes, so it can be tested.
@@ -12,7 +13,7 @@ package strm.touchnmotion.ride;
 public final class MountMath {
 
     /** Rider pixels: the leg's length; the hips' own place; as far out as they go; where the foot ends, past the side. */
-    static final float LEG = 12f, HIP = 1.9f, HIP_MOST = 4.5f, FOOT_OUT = 1f;
+    static final float LEG = Skeleton.LEG, HIP = 1.9f, HIP_MOST = 4.5f, FOOT_OUT = 1f;
     /** Radians: the least and the most the leg is turned out; the foot a little forward, as in a stirrup. */
     static final float ROLL_LEAST = 0.06f, ROLL_MOST = 0.6f, FORWARD = -0.15f;
     /** The vanilla horse's barrel, half its width in rider pixels: the reins were placed on it. */

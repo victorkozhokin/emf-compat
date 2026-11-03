@@ -1,5 +1,6 @@
 package strm.touchnmotion.torso;
 
+import strm.emfcompat.core.ik.Skeleton;
 import net.minecraft.client.model.geom.ModelPart;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -41,9 +42,9 @@ public final class LowReach {
         if (dt >= 0) {
             Vector3f shoulder = new Vector3f(arm.x, arm.y, arm.z).sub(hips);
             Vector3f point = new Vector3f(target).sub(hips);
-            Quaternionf wanted = LowReachMath.turn(shoulder, point, 11, state.angleLimit);
+            Quaternionf wanted = LowReachMath.turn(shoulder, point, Skeleton.ARM_TO_FINGERTIPS, state.angleLimit);
             Vector3f fitted = new Quaternionf(wanted).transform(new Vector3f(shoulder)).add(hips);
-            Vector3f move = LowReachMath.shift(fitted, target, 11, 3.5f);
+            Vector3f move = LowReachMath.shift(fitted, target, Skeleton.ARM_TO_FINGERTIPS, 3.5f);
             ModelPart other = otherTarget == null ? null : parts.apply(right ? "left_arm" : "right_arm");
             if (other != null) {
                 Vector3f otherShoulder = new Vector3f(other.x, other.y, other.z).sub(hips);

@@ -1,5 +1,7 @@
 package strm.touchnmotion.interaction;
+import strm.emfcompat.core.ik.Skeleton;
 
+import strm.emfcompat.core.ik.OneBoneIK;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
@@ -206,7 +208,7 @@ public final class HandContacts {
             }
             if (mainModel) state.drawnTargets.put(key, new float[]{point.x, point.y, point.z,
                     key.source.equals("PlantReach") || key.source.equals("WallHand") ? Skeleton.ARM_TO_PALM : Skeleton.ARM_TO_FINGERTIPS});
-            if (key.source.equals("HeavyThrottle")) { ArmAim.towards(arm, point, w, false); return; }
+            if (key.source.equals("HeavyThrottle")) { OneBoneIK.turnTowards(arm, point, w, false); return; }
             float[] original = base.get(key.hand);
             if (original == null) return;
             float[] angles = ContactAim.rotation(original, point.x - arm.x, point.y - arm.y, point.z - arm.z, w);

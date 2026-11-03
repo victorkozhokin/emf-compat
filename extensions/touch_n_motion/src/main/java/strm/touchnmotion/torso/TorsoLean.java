@@ -1,6 +1,6 @@
 package strm.touchnmotion.torso;
 
-import strm.touchnmotion.interaction.Skeleton;
+import strm.emfcompat.core.ik.Skeleton;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import org.joml.Quaternionf;

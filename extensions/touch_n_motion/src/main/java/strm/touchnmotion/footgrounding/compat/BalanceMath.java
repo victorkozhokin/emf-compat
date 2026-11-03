@@ -1,5 +1,6 @@
 package strm.touchnmotion.footgrounding.compat;
 
+import strm.emfcompat.core.ik.IKMath;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import java.util.List;
@@ -48,12 +49,8 @@ final class BalanceMath {
         Vector3f after = new Vector3f(x, y, z);
         Quaternionf correction = new Quaternionf().rotationTo(before, after);
         Quaternionf q = correction.mul(rotation).normalize();
-        // JOML 1.10.5's ZYX extraction has +y*y in the pitch denominator; use the
-        // rotationZYX inverse explicitly so a yawed leg does not miss its contact.
-        float px = (float) Math.atan2(2 * (q.w * q.x + q.y * q.z), 1 - 2 * (q.x * q.x + q.y * q.y));
-        float py = (float) Math.asin(SupportSurface.clamp(2 * (q.w * q.y - q.z * q.x), -1, 1));
-        float pz = (float) Math.atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z));
-        return new Leg(px, py, pz, before.y - y);
+        Vector3f p = IKMath.eulerZYX(q);
+        return new Leg(p.x, p.y, p.z, before.y - y);
     }
 
     /** Model-space normal: upright is (0,-1,0). Return bounded pitch and roll. */

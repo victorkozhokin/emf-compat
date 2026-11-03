@@ -4,10 +4,9 @@ import net.minecraft.world.level.block.Block;
 import java.util.IdentityHashMap;
 import strm.touchnmotion.torso.TorsoLean;
 import strm.touchnmotion.DebugLog;
-import strm.touchnmotion.interaction.ArmAim;
-import static strm.touchnmotion.interaction.Skeleton.LEFT_SHOULDER;
-import static strm.touchnmotion.interaction.Skeleton.RIGHT_SHOULDER;
-import strm.touchnmotion.interaction.Skeleton;
+import static strm.emfcompat.core.ik.Skeleton.LEFT_SHOULDER;
+import static strm.emfcompat.core.ik.Skeleton.RIGHT_SHOULDER;
+import strm.emfcompat.core.ik.Skeleton;
 import org.slf4j.LoggerFactory;
 import net.minecraft.core.Direction;
 import strm.touchnmotion.torso.LowReach;
@@ -729,12 +728,12 @@ public final class BlockUse implements InteractionProvider {
         ModelPart arm = parts.apply(effector.part);
         if (arm == null) return;
         if (new Vector3f(state.grip).sub(arm.x, arm.y, arm.z).lengthSquared() < 1e-6f) return;
-        ArmAim.towards(arm, state.grip, w, true);
+        OneBoneIK.turnTowards(arm, state.grip, w, true);
         if (state.support) {
             Effector other = Effector.arm(!state.right);
             float otherWeight = InteractionRuntime.weight(uuid, other, INSTANCE.id());
             ModelPart otherArm = parts.apply(other.part);
-            if (otherArm != null && otherWeight > 1e-3f) ArmAim.towards(otherArm, state.supportGrip, otherWeight, true);
+            if (otherArm != null && otherWeight > 1e-3f) OneBoneIK.turnTowards(otherArm, state.supportGrip, otherWeight, true);
         }
         TableSupport.capture(state.table, parts, state.right, state.grip, state.supportGrip);
         TableSupport.capture(state.bellows, parts, state.right, state.grip, state.supportGrip);

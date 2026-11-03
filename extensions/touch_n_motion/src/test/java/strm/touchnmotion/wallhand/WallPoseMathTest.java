@@ -58,7 +58,7 @@ class WallPoseMathTest {
     }
 
     @Test void angleWrapTakesTheShortPathAndEntryDoesNotSnap() {
-        assertEquals(Math.PI, WallPoseMath.followAngle(3.1f, -3.1f, .5f), 1e-5);
+        assertEquals(Math.PI, strm.emfcompat.core.ik.IKMath.approachAngle(3.1f, -3.1f, .5f), 1e-5);
         var contact = new WallPoseMath.Contact();
         contact.update(new WallPoseMath.Aim(1, 0), 1, 0);
         assertEquals(0, contact.weight);
