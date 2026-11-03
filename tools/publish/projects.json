@@ -1,6 +1,6 @@
 {
  "version_type": "release",
- "notes": "Хосты — optional, EMF и ядро — required, у Fabric ещё Fabric API — required, ETF не указываем. publish=false у бета-аддонов.",
+ "notes": "Мод-хост, без которого аддон не запускается, - required (как в fabric.mod.json / mods.toml), вместе с его библиотекой, если аддон требует её сам (Player Animation Library, playerAnimator). Необязательные интеграции - optional; у Gliders все три мода планеров optional (решение 03.11). EMF и ядро - required, у Fabric ещё Fabric API - required, ETF не указываем. publish=false у бета-аддонов.",
  "projects": {
   "core": {
    "slug": "emf-compat-core",
@@ -198,7 +198,7 @@
     {
      "slug": "better-combat",
      "project_id": "5sy6g3kz",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "better-combat-by-daedelus"
     },
     {
@@ -237,7 +237,7 @@
     {
      "slug": "better-combat",
      "project_id": "5sy6g3kz",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "better-combat-by-daedelus"
     },
     {
@@ -245,6 +245,12 @@
      "project_id": "P7dR8mSH",
      "dependency_type": "required",
      "cf_slug": "fabric-api"
+    },
+    {
+     "slug": "player-animation-library",
+     "project_id": "ha1mEyJS",
+     "dependency_type": "required",
+     "cf_slug": "player-animation-library"
     }
    ],
    "display": "Better Combat",
@@ -276,7 +282,7 @@
     {
      "slug": "better-combat",
      "project_id": "5sy6g3kz",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "better-combat-by-daedelus"
     },
     {
@@ -284,6 +290,12 @@
      "project_id": "P7dR8mSH",
      "dependency_type": "required",
      "cf_slug": "fabric-api"
+    },
+    {
+     "slug": "player-animation-library",
+     "project_id": "ha1mEyJS",
+     "dependency_type": "required",
+     "cf_slug": "player-animation-library"
     }
    ],
    "display": "Better Combat",
@@ -315,7 +327,7 @@
     {
      "slug": "better-combat",
      "project_id": "5sy6g3kz",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "better-combat-by-daedelus"
     },
     {
@@ -323,6 +335,12 @@
      "project_id": "P7dR8mSH",
      "dependency_type": "required",
      "cf_slug": "fabric-api"
+    },
+    {
+     "slug": "player-animation-library",
+     "project_id": "ha1mEyJS",
+     "dependency_type": "required",
+     "cf_slug": "player-animation-library"
     }
    ],
    "display": "Better Combat",
@@ -354,7 +372,7 @@
     {
      "slug": "better-combat",
      "project_id": "5sy6g3kz",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "better-combat-by-daedelus"
     },
     {
@@ -362,6 +380,12 @@
      "project_id": "P7dR8mSH",
      "dependency_type": "required",
      "cf_slug": "fabric-api"
+    },
+    {
+     "slug": "player-animation-library",
+     "project_id": "ha1mEyJS",
+     "dependency_type": "required",
+     "cf_slug": "player-animation-library"
     }
    ],
    "display": "Better Combat",
@@ -393,7 +417,7 @@
     {
      "slug": "better-combat",
      "project_id": "5sy6g3kz",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "better-combat-by-daedelus"
     }
    ],
@@ -426,7 +450,7 @@
     {
      "slug": "better-combat",
      "project_id": "5sy6g3kz",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "better-combat-by-daedelus"
     }
    ],
@@ -459,7 +483,7 @@
     {
      "slug": "carry-on",
      "project_id": "joEfVgkn",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "carry-on"
     },
     {
@@ -498,7 +522,7 @@
     {
      "slug": "carry-on",
      "project_id": "joEfVgkn",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "carry-on"
     },
     {
@@ -537,7 +561,7 @@
     {
      "slug": "carry-on",
      "project_id": "joEfVgkn",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "carry-on"
     },
     {
@@ -576,7 +600,7 @@
     {
      "slug": "carry-on",
      "project_id": "joEfVgkn",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "carry-on"
     },
     {
@@ -615,7 +639,7 @@
     {
      "slug": "carry-on",
      "project_id": "joEfVgkn",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "carry-on"
     },
     {
@@ -654,7 +678,7 @@
     {
      "slug": "carry-on",
      "project_id": "joEfVgkn",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "carry-on"
     }
    ],
@@ -687,7 +711,7 @@
     {
      "slug": "carry-on",
      "project_id": "joEfVgkn",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "carry-on"
     }
    ],
@@ -897,7 +921,7 @@
     {
      "slug": "create-fly",
      "project_id": "dKvj0eNn",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "create-fly"
     },
     {
@@ -942,7 +966,7 @@
     {
      "slug": "create-fly",
      "project_id": "dKvj0eNn",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "create-fly"
     },
     {
@@ -987,7 +1011,7 @@
     {
      "slug": "create-fly",
      "project_id": "dKvj0eNn",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "create-fly"
     },
     {
@@ -1032,7 +1056,7 @@
     {
      "slug": "create",
      "project_id": "LNytGWDc",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "create"
     },
     {
@@ -1083,7 +1107,7 @@
     {
      "slug": "create",
      "project_id": "LNytGWDc",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "create"
     },
     {
@@ -1115,6 +1139,12 @@
      "project_id": "I3mWDgfy",
      "dependency_type": "optional",
      "cf_slug": "sable-ragdolls"
+    },
+    {
+     "slug": "create-stuff-additions",
+     "project_id": "aq9qUUQG",
+     "dependency_type": "optional",
+     "cf_slug": null
     }
    ],
    "display": "Create",
@@ -1146,7 +1176,7 @@
     {
      "slug": "exposure",
      "project_id": "hB899VmG",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "exposure"
     },
     {
@@ -1185,7 +1215,7 @@
     {
      "slug": "exposure",
      "project_id": "hB899VmG",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "exposure"
     }
    ],
@@ -1218,7 +1248,7 @@
     {
      "slug": "exposure",
      "project_id": "hB899VmG",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "exposure"
     }
    ],
@@ -1485,7 +1515,7 @@
     {
      "slug": "immersive-melodies",
      "project_id": "TaSmHw8V",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "immersive-melodies"
     },
     {
@@ -1524,7 +1554,7 @@
     {
      "slug": "immersive-melodies",
      "project_id": "TaSmHw8V",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "immersive-melodies"
     }
    ],
@@ -1557,7 +1587,7 @@
     {
      "slug": "immersive-melodies",
      "project_id": "TaSmHw8V",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "immersive-melodies"
     }
    ],
@@ -1590,7 +1620,7 @@
     {
      "slug": "irons-spells-n-spellbooks",
      "project_id": "s4OWxYQQ",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "irons-spells-n-spellbooks"
     }
    ],
@@ -1623,7 +1653,7 @@
     {
      "slug": "irons-spells-n-spellbooks",
      "project_id": "s4OWxYQQ",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "irons-spells-n-spellbooks"
     }
    ],
@@ -1656,7 +1686,7 @@
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "not-enough-animations"
     },
     {
@@ -1695,7 +1725,7 @@
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "not-enough-animations"
     },
     {
@@ -1734,7 +1764,7 @@
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "not-enough-animations"
     },
     {
@@ -1773,7 +1803,7 @@
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "not-enough-animations"
     },
     {
@@ -1812,7 +1842,7 @@
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "not-enough-animations"
     },
     {
@@ -1851,7 +1881,7 @@
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "not-enough-animations"
     }
    ],
@@ -1884,7 +1914,7 @@
     {
      "slug": "not-enough-animations",
      "project_id": "MPCX6s5C",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "not-enough-animations"
     }
    ],
@@ -1917,7 +1947,7 @@
     {
      "slug": "parcool",
      "project_id": "Fsvx2bdR",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "parcool"
     }
    ],
@@ -1950,7 +1980,7 @@
     {
      "slug": "quark",
      "project_id": "qnQsVE2z",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "quark"
     }
    ],
@@ -1983,7 +2013,7 @@
     {
      "slug": "quark",
      "project_id": "qnQsVE2z",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "quark"
     }
    ],
@@ -2016,7 +2046,7 @@
     {
      "slug": "supplementaries",
      "project_id": "fFEIiSDQ",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "supplementaries"
     },
     {
@@ -2055,7 +2085,7 @@
     {
      "slug": "supplementaries",
      "project_id": "fFEIiSDQ",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "supplementaries"
     }
    ],
@@ -2088,7 +2118,7 @@
     {
      "slug": "supplementaries",
      "project_id": "fFEIiSDQ",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "supplementaries"
     }
    ],
@@ -2121,7 +2151,7 @@
     {
      "slug": "timeless-and-classics-zero",
      "project_id": "SzzJttH8",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "timeless-and-classics-zero"
     }
    ],
@@ -2154,7 +2184,7 @@
     {
      "slug": "tacz-1.21.1",
      "project_id": "OypNE65K",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "tacz-1-21-1"
     }
    ],
@@ -2187,7 +2217,7 @@
     {
      "slug": "tas",
      "project_id": "Gg7qMzxE",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "take-a-seat"
     },
     {
@@ -2226,7 +2256,7 @@
     {
      "slug": "tas",
      "project_id": "Gg7qMzxE",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "take-a-seat"
     },
     {
@@ -2265,7 +2295,7 @@
     {
      "slug": "tas",
      "project_id": "Gg7qMzxE",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "take-a-seat"
     },
     {
@@ -2304,8 +2334,14 @@
     {
      "slug": "sitting+",
      "project_id": "RVtIOlYX",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "sitting"
+    },
+    {
+     "slug": "playeranimator",
+     "project_id": "gedNE4y2",
+     "dependency_type": "required",
+     "cf_slug": "playeranimator"
     }
    ],
    "display": "Take a Seat",
@@ -2337,7 +2373,7 @@
     {
      "slug": "tas",
      "project_id": "Gg7qMzxE",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "take-a-seat"
     }
    ],
@@ -2370,7 +2406,7 @@
     {
      "slug": "what-are-they-up-to",
      "project_id": "AtB5mHky",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "what-are-they-up-to-watut"
     },
     {
@@ -2409,7 +2445,7 @@
     {
      "slug": "what-are-they-up-to",
      "project_id": "AtB5mHky",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "what-are-they-up-to-watut"
     }
    ],
@@ -2442,7 +2478,7 @@
     {
      "slug": "what-are-they-up-to",
      "project_id": "AtB5mHky",
-     "dependency_type": "optional",
+     "dependency_type": "required",
      "cf_slug": "what-are-they-up-to-watut"
     }
    ],
