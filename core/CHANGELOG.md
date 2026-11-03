@@ -1,13 +1,10 @@
 # EMF Compat Core — Changelog
 
-## Unreleased
-
-- Sable (1.21.1): on a moving sub-level your resource pack no longer sees it rise and sink - Fresh Animations' landing no longer plays each time the sub-level goes down, and the body no longer sways with it. Walking down a heeled sub-level no longer plays it either: the height goes with the sub-level's own up, so steps along its tilted deck are level. A jump, a fall or a stair on it still plays. Setting: "Sable: steady height on sub-levels"
-- The model no longer flickers for a moment when a Better Combat attack (or another mod's animation) ends - EMF now keeps animating through the whole fade-out, not just the first frame of it
-
 ## 2.4.0
 
 - Shared player states for addons and resource packs: what a player is doing (carrying, holding or aiming a gun, and Touch'n Motion's own states) and which parts of the body that takes. Packs read them as EMF variables named emfc_<state>, which read 0 when no mod sets them
+- Sable (1.21.1): on a moving sub-level your resource pack no longer sees it rise and sink - Fresh Animations' landing no longer plays each time the sub-level goes down, and the body no longer sways with it. Walking down a heeled sub-level no longer plays it either: the height goes with the sub-level's own up, so steps along its tilted deck are level. A jump, a fall or a stair on it still plays. Setting: "Sable: steady height on sub-levels"
+- The model no longer flickers for a moment when a Better Combat attack (or another mod's animation) ends - EMF now keeps animating through the whole fade-out, not just the first frame of it
 
 ## 2.3.2
 
