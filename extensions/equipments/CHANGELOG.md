@@ -2,6 +2,8 @@
 
 ## 1.0.0
 
+### Added
+
 - First release, NeoForge 1.21.1
 - Armour packs: armour whose texture an EMF armour pack did not draw for its model is worn with the vanilla model, in the same pose
 - Armour packs: trims drawn for the other model are left off

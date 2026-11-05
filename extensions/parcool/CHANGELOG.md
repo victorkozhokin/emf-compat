@@ -2,9 +2,13 @@
 
 ## 1.0.1
 
+### Fixed
+
 - Hanging off a ledge or under a bar and climbing up show ParCool's own pose again when no resource pack animates them - without the Fresh Animations module turned on the arms hung at the sides
 
 ## 1.0.0
+
+### Added
 
 - First release
 - Vaults, wall runs, rolls, climbing, hanging and every other parkour move stay visible instead of being overwritten by your resource pack, for you and for everyone else on the server
@@ -21,4 +25,7 @@
 - With the module, crawling and fast swimming show Fresh Animations' own crawl and swim, and climbing a chain or pole shows its ladder climb
 - The module keeps Fresh Animations' cape on the back while ParCool poses the torso, such as climbing up a ledge
 - A config tab with a master switch and a switch for holding the head and torso too
+
+### Dependencies
+
 - Requires EMF Compat Core 2.3.0 and Entity Model Features 3.3.2+

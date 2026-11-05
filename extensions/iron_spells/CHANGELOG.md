@@ -2,20 +2,37 @@
 
 ## 2.1.1
 
+### Fixed
+
 - Forge 1.20.1: the game no longer refuses to start asking for Iron's Spells 'n Spellbooks 3.16.3 when it is already installed
 
 ## 2.1.0
 
-- Requires EMF Compat Core 2.3.0
-- Turning the addon off in the settings now fully turns it off
+### Added
+
 - Added a Forge 1.20.1 build
+
+### Fixed
+
+- Turning the addon off in the settings now fully turns it off
+
+### Dependencies
+
+- Requires EMF Compat Core 2.3.0
 
 ## 2.0.0
 
-- Now requires Entity Model Features 3.3.2 and EMF Compat Core 2.0.0
+### Fixed
+
 - Fixed the player freezing during a cast: EMF 3.3 moved the decision that pauses its animations, and the addon was lifting the pause in a place that is no longer consulted
 
+### Dependencies
+
+- Now requires Entity Model Features 3.3.2 and EMF Compat Core 2.0.0
+
 ## 1.0.0
+
+### Added
 
 - First release
 - Spellcasting poses stay visible instead of being overwritten by your resource pack

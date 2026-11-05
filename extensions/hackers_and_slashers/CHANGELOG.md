@@ -1,6 +1,9 @@
 # EMF Compat: Hackers 'n Slashers — Changelog
 
 ## 1.0.0
+
+### Added
+
 - First release
 - First-person support for attacks, blocks and weapon poses with EMF player models
 - First Person Model compatibility without duplicated arms or held items
@@ -12,4 +15,7 @@
 - The body keeps your pack's animation while you fight
 - Third person only: Hackers 'n Slashers keeps its own first-person pose layer, so your own hands are left to it
 - A config tab with a master switch, the arm sync mode, and switches for the action legs, the weapon stances and the head during attacks
+
+### Dependencies
+
 - Requires EMF Compat Core 2.3.0 and Entity Model Features 3.3.2

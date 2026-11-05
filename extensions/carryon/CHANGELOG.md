@@ -2,18 +2,29 @@
 
 ## 2.2.0
 
-- Requires EMF Compat Core 2.4.0
+### Added
+
 - Tells other mods and resource packs when you carry something (EMF variable emfc_carrying): Touch'n Motion leaves your arms and torso to the carry
 
+### Dependencies
+
+- Requires EMF Compat Core 2.4.0
+
 ## 2.1.1
+
+### Fixed
 
 - An error while posing the carry no longer makes EMF stop animating the player's model for the rest of the session
 
 ## 2.1.0
 
-- Requires EMF Compat Core 2.3.0
-- Fabric 1.21.11 and newer: carrying a villager no longer poses the player with the villager's own animation, and the carried mob is drawn by its own animation instead of the player's
+### Added
+
 - Added Fabric 1.21.1 and Fabric 26.3 builds, and the Fabric 26.2 build is back
+
+### Fixed
+
+- Fabric 1.21.11 and newer: carrying a villager no longer poses the player with the villager's own animation, and the carried mob is drawn by its own animation instead of the player's
 - Fixed carried objects drifting away from the hands in the mirrored third-person camera
 - Frozen now keeps a per-entity EMF pose in both first and third person, so another visible mob of the same type cannot animate the carried model
 - Animated keeps the carried mob's own EMF animation while normalising Carry On's render interpolation to prevent shaking
@@ -22,12 +33,26 @@
 - Fixed a crash on Forge 1.20.1 when a carried mob was drawn in first person
 - Carried mobs face the way Carry On means them to, whatever way they were facing when picked up
 
+### Dependencies
+
+- Requires EMF Compat Core 2.3.0
+
 ## 2.0.0
 
-- Requires Entity Model Features 3.3.2 and EMF Compat Core 2.0.0
+### Fixed
+
 - Fixed a startup crash with EMF 3.3
+
+### Dependencies
+
+- Requires Entity Model Features 3.3.2 and EMF Compat Core 2.0.0
 
 ## 1.1.0
 
+### Added
+
 - Added a config tab with arm sync and a toggle for the carried mob's model
+
+### Changed
+
 - The carried block or mob stays in your hands while you move more accurately

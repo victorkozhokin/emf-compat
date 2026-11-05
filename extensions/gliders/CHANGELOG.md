@@ -2,10 +2,17 @@
 
 ## 2.0.0
 
-- Requires Entity Model Features 3.3.2 and EMF Compat Core 2.0.0
+### Added
+
 - Added a Fabric 1.21.1 build (Gliders and Reliable Gliders)
 
+### Dependencies
+
+- Requires Entity Model Features 3.3.2 and EMF Compat Core 2.0.0
+
 ## 1.0.0
+
+### Added
 
 - First release
 - Gliding poses stay visible instead of being overwritten by your resource pack
