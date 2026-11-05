@@ -18,7 +18,8 @@ public final class SupportSearch {
     public record Contact(SubLevels.Space space, BlockPos block, Vec3 point, Vec3 normal, boolean outline, AeronauticRopes.Grip rope) implements strm.touchnmotion.interaction.HandContacts.Target {
         public Contact(SubLevels.Space space, BlockPos block, Vec3 point, Vec3 normal, boolean outline) { this(space, block, point, normal, outline, null); }
         public Vec3 world() { return rope == null ? space.refresh().toWorld(point) : rope.world(); }
-        public boolean palm() { return true; }
+        public strm.touchnmotion.interaction.HandContacts.Pass pass() { return strm.touchnmotion.interaction.HandContacts.Pass.LATE; }
+        public strm.touchnmotion.interaction.HandContacts.Rotation rotation() { return strm.touchnmotion.interaction.HandContacts.Rotation.AXIS; }
         public float length() { return 11; }
         public boolean valid() { return space.valid() && (rope == null || rope.valid()); }
     }

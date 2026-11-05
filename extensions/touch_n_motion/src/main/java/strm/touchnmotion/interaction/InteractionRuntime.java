@@ -469,6 +469,14 @@ public final class InteractionRuntime {
         return source.equals(slot.owner) && !slot.releasing && slot.weight > .05f && java.util.Objects.equals(target, slot.target);
     }
 
+    /** finishHands restores the last drawn pose while this owner lets go; contact IK must not replace it. */
+    public static boolean releasing(UUID uuid, Effector hand, String source) {
+        PlayerState state = STATES.fresh(uuid);
+        if (state == null) return false;
+        Slot slot = state.slots.get(hand);
+        return slot.releasing && source.equals(slot.owner);
+    }
+
     public static IKFrame frame(UUID uuid) {
         PlayerState state = STATES.fresh(uuid);
         return state == null ? null : state.frame;

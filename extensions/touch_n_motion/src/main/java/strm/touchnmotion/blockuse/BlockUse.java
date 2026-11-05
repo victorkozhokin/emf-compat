@@ -286,11 +286,11 @@ public final class BlockUse implements InteractionProvider {
                 spot = state.gesture.spot();
                 outwards = outwards(state.gesture.motion(), t);
             } else {
-                boolean still = strm.touchnmotion.interaction.Anchor.speed(player) <= SLOW_BELOW
-                        || heldBlock(player) != null;
+                boolean holding = heldBlock(player) != null;
+                boolean still = strm.touchnmotion.interaction.Anchor.speed(player) <= SLOW_BELOW || holding;
                 BlockPos oldPos = state.pos;
                 BlockTarget oldTarget = state.target;
-                spot = still ? look(player, state) : null;
+                spot = still ? look(player, state, holding) : null;
                 if (spot != null && state.target != null && state.target.supportSurface(player.level().getBlockState(state.pos)) != null)
                     state.tableUntil = now + 350_000_000L;
                 if (spot == null && still && oldPos != null && oldTarget != null && now < state.tableUntil) {
@@ -485,7 +485,10 @@ public final class BlockUse implements InteractionProvider {
     }
 
     /** The spot under the look on a block a hand uses, keeping the block to watch it change; {@code null} when none. */
-    private static BlockTarget.Spot look(AbstractClientPlayer player, State state) {
+    private static BlockTarget.Spot look(AbstractClientPlayer player, State state, boolean holding) {
+        // The real hold was checked once by collect; do not query the foreign API again here.
+        if (holding) return state.target.hover(player, state.pos, player.level().getBlockState(state.pos),
+                new BlockHitResult(Vec3.atCenterOf(state.pos), Direction.UP, state.pos, false));
         if (state.pos != null && state.target != null && state.target.quietsSwing()
                 && Inputs.useHeld(player)) {
             BlockState kept = player.level().getBlockState(state.pos);
@@ -499,14 +502,6 @@ public final class BlockUse implements InteractionProvider {
                     return state.target.hover(player, state.pos, kept,
                             new BlockHitResult(local, Direction.UP, state.pos, false));
                 }
-            }
-        }
-        // At work on the block the hands are on: they stay, wherever the look goes.
-        if (state.pos != null && state.target != null) {
-            BlockState kept = player.level().getBlockState(state.pos);
-            if (state.target.matches(kept) && state.target.holds(player, player.level(), state.pos, kept)) {
-                return state.target.hover(player, state.pos, kept,
-                        new BlockHitResult(Vec3.atCenterOf(state.pos), Direction.UP, state.pos, false));
             }
         }
         // Our own player: the game's crosshair target, the block a click uses. Sable's sub-levels

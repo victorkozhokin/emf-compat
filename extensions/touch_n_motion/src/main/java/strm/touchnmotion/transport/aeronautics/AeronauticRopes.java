@@ -23,7 +23,9 @@ public final class AeronauticRopes {
         public final UUID id;
         final int count;
         private double coordinate, wanted;
-        private Vec3 last;
+        private Vec3 last, sampled;
+        private float sampledFrame = Float.NaN;
+        private double sampledCoordinate = Double.NaN;
         public Grip(Level level, UUID id, int segment, int count, double fraction, Vec3 point) {
             this.level = level;
             this.id = id;
@@ -35,17 +37,25 @@ public final class AeronauticRopes {
             Object s = call(strand, call(manager, null, level), id);
             return s == null ? null : (List<?>) call(points, s);
         }
-        public boolean valid() { var p = vertices(); return p != null && p.size() == count && count >= 2; }
+        public boolean valid() { return sample() != null; }
         public void retarget(Grip next) {
             if (level == next.level && id.equals(next.id) && count == next.count) wanted = next.coordinate;
         }
         public void advance(double dt) { coordinate = RopePoseMath.slide(coordinate, wanted, dt); }
-        public Vec3 world() {
+        /** Geometry is read once per rendered frame and grip coordinate, including armour copies. */
+        private Vec3 sample() {
+            float frame = traben.entity_model_features.models.animation.state.EMFState.getFrameCounter();
+            if (sampledFrame == frame && sampledCoordinate == coordinate) return sampled;
+            sampledFrame = frame;
+            sampledCoordinate = coordinate;
             var p = vertices();
-            if (p == null || p.size() != count) return last;
+            if (p == null || p.size() != count || count < 2) return sampled = null;
             Vector3d a = RopePoseMath.sample(count, coordinate, i -> position(p.get(i)));
-            last = new Vec3(a.x, a.y, a.z);
-            return last;
+            return sampled = last = new Vec3(a.x, a.y, a.z);
+        }
+        public Vec3 world() {
+            Vec3 point = sample();
+            return point == null ? last : point;
         }
     }
     public static SupportSearch.Contact find(AbstractClientPlayer player, IKFrame frame, List<SubLevels.Space> spaces, boolean right) {

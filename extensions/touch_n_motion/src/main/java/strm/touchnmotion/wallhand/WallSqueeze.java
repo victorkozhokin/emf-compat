@@ -5,7 +5,6 @@ import net.minecraft.world.phys.AABB;
 import strm.touchnmotion.torso.TorsoLean;
 import strm.emfcompat.core.ik.Skeleton;
 import strm.touchnmotion.DebugLog;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;

@@ -4,7 +4,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 import strm.touchnmotion.interaction.*;
@@ -12,6 +11,7 @@ import strm.touchnmotion.torso.LowReach;
 import strm.emfcompat.core.ConfigRegistry;
 import strm.emfcompat.core.EMFCompatConfig;
 import strm.emfcompat.core.ik.IKFrame;
+import strm.emfcompat.core.ik.IKMath;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -234,10 +234,11 @@ public final class TransportGrip implements InteractionProvider {
         s.active = false;
     }
     private static void offer(InteractionContext context, List<Candidate> out, Effector hand, SupportSearch.Contact c, boolean settling) {
+        Vector3f point = context.frame().relativeToJoint(c.world(), new Vector3f(hand == Effector.RIGHT_ARM ? -5 : 5, 2, 0));
+        var a = IKMath.anglesXY(point.x, point.y, point.z);
+        if (a == null) return;
         HandContacts.remember(context, INSTANCE.id(), hand, c);
-        Vector3f point = context.frame().relativeToJoint(c.world(), new Vector3f(hand == Effector.RIGHT_ARM ? -5 : 5, 2, 0)).normalize();
-        var a = new Quaternionf().rotationTo(new Vector3f(0, 1, 0), point).getEulerAnglesZYX(new Vector3f());
-        out.add(Candidate.single(INSTANCE.id(), Category.PASSIVE, 25, 1, settling ? CALM_TIMING : TIMING, hand, new float[]{a.x, a.y}).withTarget(c.rope() != null ? c.rope().id :
+        out.add(Candidate.single(INSTANCE.id(), Category.PASSIVE, 25, 1, settling ? CALM_TIMING : TIMING, hand, new float[]{a.x(), a.secondary()}).withTarget(c.rope() != null ? c.rope().id :
                 new strm.touchnmotion.interaction.ContactTarget(c.space(), c.block(), context.player().level().getBlockState(c.block()).getBlock())));
     }
     private static float ownership(UUID uuid, State s) {
@@ -282,10 +283,10 @@ public final class TransportGrip implements InteractionProvider {
         s.reach.weightForward = -.7f * s.ropeBlend;
         LowReach.apply(parts, s.hand == Effector.RIGHT_ARM, point, other, owned, s.reach);
     }
-    public static void aim(UUID uuid, Function<String, ModelPart> parts, boolean mainModel) {
+    public static void aim(UUID uuid, Function<String, ModelPart> parts, java.util.Map<Effector, float[]> base, boolean mainModel) {
         State s = STATES.fresh(uuid);
         if (s == null || s.frame == null) return;
-        HandContacts.applyMoving(uuid, INSTANCE.id(), parts, mainModel);
+        HandContacts.applyLate(uuid, INSTANCE.id(), parts, base, mainModel);
         if (!mainModel || !s.active) return;
         s.gap = HandContacts.gap(uuid, INSTANCE.id(), s.hand, parts);
         if (s.helper) s.helperGap = HandContacts.gap(uuid, INSTANCE.id(), s.hand.other(), parts);

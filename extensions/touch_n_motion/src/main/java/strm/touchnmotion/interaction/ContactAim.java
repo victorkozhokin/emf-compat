@@ -12,7 +12,7 @@ public final class ContactAim {
         return blend(base, new float[]{aim.x(), aim.secondary()}, weight);
     }
 
-    /** Palm contact keeps the existing roll while turning its rigid axis towards the point. */
+    /** Rigid-axis contact blended from the pre-IK base, including its original roll. */
     public static float[] palmRotation(float[] base, float x, float y, float z, float weight) {
         var direction = new org.joml.Vector3f(x, y, z);
         if (!direction.isFinite() || direction.lengthSquared() < 1e-5f)

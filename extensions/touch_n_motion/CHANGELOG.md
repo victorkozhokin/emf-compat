@@ -32,6 +32,8 @@
 
 ### Fixed
 
+- Rope and rail grips ease in from the resource pack pose with one ownership blend; the final contact correction no longer applies that weight a second time
+
 - Sable: door and button searches use the player's place on the deck; reading a sign follows its board in the sub-level, and visibility checks keep world and plot hits apart
 - Steering wheels and other two-handed blocks: an unreachable second grip no longer drops the reachable main hand; each hand retains its own reach margin, and an actively held control stays selected while the eyes wander
 - A train driver's body stays turned to the controls through the bends, as a boat keeps its rider's: the torso no longer twists after the camera. In the cab the cape hangs down the back instead of flying out with the train's speed (1.20.1 and 1.21.1)

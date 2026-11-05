@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
-import strm.touchnmotion.buttonpress.aeronautics.HeavyThrottle;
 
 /** Contact targets reapplied from the drawn shoulder after breathing and torso layers. */
 public final class HandContacts {
@@ -19,13 +18,17 @@ public final class HandContacts {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("EMFCompatContact");
     private record Key(String source, Effector hand) {}
     /** A retained point supplies its current rendered position; reading never advances its motion. */
+    public enum Pass { CONTACT, LATE }
+    public enum Rotation { XY, AXIS, KEEP_ROLL }
+
     public interface Target {
         Vec3 world();
-        default boolean palm() { return false; }
-        default float length() { return Skeleton.ARM_TO_PALM; }
+        default Pass pass() { return Pass.CONTACT; }
+        default Rotation rotation() { return Rotation.XY; }
+        default float length() { return Skeleton.ARM_TO_FINGERTIPS; }
         default boolean valid() { return true; }
     }
-    private record Anchor(SubLevels.Space space, Vec3 local, Vec3 normal) implements Target {
+    private record Anchor(SubLevels.Space space, Vec3 local, Vec3 normal, float length, Rotation rotation) implements Target {
         public Vec3 world() { return space.valid() ? space.refresh().toWorld(local) : null; }
     }
     private static final class State {
@@ -58,7 +61,9 @@ public final class HandContacts {
         State state = STATES.seen(context.player().getUUID(), context.now()).value;
         state.player = context.player();
         Key key = new Key(source, hand);
-        state.targets.put(key, new Anchor(space, space.toLocal(world), normal == null ? null : space.directionToLocal(normal)));
+        float length = source.equals("PlantReach") || source.equals("WallHand") ? Skeleton.ARM_TO_PALM : Skeleton.ARM_TO_FINGERTIPS;
+        Rotation rotation = source.equals("HeavyThrottle") ? Rotation.KEEP_ROLL : Rotation.XY;
+        state.targets.put(key, new Anchor(space, space.toLocal(world), normal == null ? null : space.directionToLocal(normal), length, rotation));
     }
 
     /** Moving mechanisms (including deforming ropes) keep their own stable local/segment identity. */
@@ -80,6 +85,8 @@ public final class HandContacts {
         Key key = new Key(source, hand);
         state.targets.remove(key);
         state.drawnTargets.remove(key);
+        state.wallChecked.remove(key);
+        state.wallCheckedPoint.remove(key);
         if (source.equals("PlantReach")) state.plantBounds.remove(hand);
     }
 
@@ -169,23 +176,27 @@ public final class HandContacts {
         Map<String, float[]> out = new HashMap<>();
         if (state == null || frame == null) return out;
         state.targets.forEach((key, anchor) -> {
-            Vec3 world = anchor.valid() ? anchor.world() : null;
-            if (world == null || InteractionRuntime.weight(uuid, key.hand, key.source) < .001f) return;
-            Vector3f p = Body.model(frame, world);
+            if (InteractionRuntime.weight(uuid, key.hand, key.source) < .001f || !anchor.valid()) return;
             float[] drawn = state.drawnTargets.get(key);
-            out.put(key.source+":"+key.hand, drawn != null ? drawn : new float[]{p.x, p.y, p.z,
-                    anchor.palm() ? anchor.length() : key.source.equals("PlantReach") || key.source.equals("WallHand") ? Skeleton.ARM_TO_PALM : Skeleton.ARM_TO_FINGERTIPS});
+            if (drawn != null) {
+                out.put(key.source+":"+key.hand, drawn);
+                return;
+            }
+            Vec3 world = anchor.world();
+            if (world == null) return;
+            Vector3f p = Body.model(frame, world);
+            out.put(key.source+":"+key.hand, new float[]{p.x, p.y, p.z, anchor.length()});
         });
         return out;
     }
 
     public static void apply(UUID uuid, Function<String, ModelPart> parts, Map<Effector, float[]> base, boolean mainModel) {
-        applyTargets(uuid, parts, base, mainModel, false, null);
+        applyTargets(uuid, parts, base, mainModel, Pass.CONTACT, null);
     }
 
     /** Late contact pass, after the source's torso/reach stages; also used for armour copies. */
-    public static void applyMoving(UUID uuid, String source, Function<String, ModelPart> parts, boolean mainModel) {
-        applyTargets(uuid, parts, Map.of(), mainModel, true, source);
+    public static void applyLate(UUID uuid, String source, Function<String, ModelPart> parts, Map<Effector, float[]> base, boolean mainModel) {
+        applyTargets(uuid, parts, base, mainModel, Pass.LATE, source);
     }
 
     public static float gap(UUID uuid, String source, Effector hand, Function<String, ModelPart> parts) {
@@ -195,24 +206,24 @@ public final class HandContacts {
         ModelPart arm = parts.apply(hand.part);
         Vec3 world = target == null || !target.valid() ? null : target.world();
         return frame == null || arm == null || world == null ? 1
-                : (float) frame.jointWorld(Body.tip(arm, target.palm() ? target.length() : Skeleton.ARM_TO_FINGERTIPS)).distanceTo(world);
+                : (float) frame.jointWorld(Body.tip(arm, target.length())).distanceTo(world);
     }
 
     private static void applyTargets(UUID uuid, Function<String, ModelPart> parts, Map<Effector, float[]> base,
-                                     boolean mainModel, boolean moving, String source) {
+                                     boolean mainModel, Pass pass, String source) {
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         State state = STATES.fresh(uuid);
         if (state == null) return;
         var frame = InteractionRuntime.frame(uuid);
         if (frame == null) return;
         state.targets.forEach((key, anchor) -> {
-            if (anchor.palm() != moving || source != null && !key.source.equals(source)) return;
+            if (anchor.pass() != pass || source != null && !key.source.equals(source)) return;
+            float w = InteractionRuntime.weight(uuid, key.hand, key.source);
+            ModelPart arm = parts.apply(key.hand.part);
+            if (w < 1e-3f || arm == null || InteractionRuntime.releasing(uuid, key.hand, key.source)) return;
             Vec3 world = anchor.valid() ? anchor.world() : null;
             if (world == null) return;
             Vector3f point = Body.model(frame, world);
-            float w = InteractionRuntime.weight(uuid, key.hand, key.source);
-            ModelPart arm = parts.apply(key.hand.part);
-            if (w < 1e-3f || arm == null) return;
             if (anchor instanceof Anchor fixed && fixed.normal != null && key.source.equals("WallHand")) {
                 Vec3 normal = fixed.space.refresh().directionToWorld(fixed.normal);
                 Vector3f modelNormal = Body.model(frame, world.add(normal)).sub(point).normalize();
@@ -247,16 +258,18 @@ public final class HandContacts {
                 }
             }
             if (mainModel) state.drawnTargets.put(key, new float[]{point.x, point.y, point.z,
-                    anchor.palm() ? anchor.length() : key.source.equals("PlantReach") || key.source.equals("WallHand") ? Skeleton.ARM_TO_PALM : Skeleton.ARM_TO_FINGERTIPS});
-            if (key.source.equals("HeavyThrottle")) { OneBoneIK.turnTowards(arm, point, w, false); return; }
-            if (anchor.palm()) {
-                float[] angles = ContactAim.palmRotation(new float[]{arm.xRot, arm.yRot, arm.zRot},
+                    anchor.length()});
+            if (anchor.rotation() == Rotation.KEEP_ROLL) { OneBoneIK.turnTowards(arm, point, w, false); return; }
+            float[] original = base.get(key.hand);
+            if (original == null) return;
+            if (anchor.rotation() == Rotation.AXIS) {
+                // The runtime already aimed this arm. Correct from the pre-IK pose, not its
+                // weighted result, so the contact's ownership weight is applied exactly once.
+                float[] angles = ContactAim.palmRotation(original,
                         point.x - arm.x, point.y - arm.y, point.z - arm.z, w);
                 arm.setRotation(angles[0], angles[1], angles[2]);
                 return;
             }
-            float[] original = base.get(key.hand);
-            if (original == null) return;
             float[] angles = ContactAim.rotation(original, point.x - arm.x, point.y - arm.y, point.z - arm.z, w);
             arm.setRotation(angles[0], angles[1], angles[2]);
         });
