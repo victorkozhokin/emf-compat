@@ -18,11 +18,18 @@ public final class HandContacts {
     private static final java.util.Set<String> EARLY_SOURCES = java.util.Set.of("DoorHold", "Furniture", "WallHand", "PlantReach");
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("EMFCompatContact");
     private record Key(String source, Effector hand) {}
-    private record Anchor(SubLevels.Space space, Vec3 local, Vec3 normal) {
-        Vec3 world() { return space.valid() ? space.refresh().toWorld(local) : null; }
+    /** A retained point supplies its current rendered position; reading never advances its motion. */
+    public interface Target {
+        Vec3 world();
+        default boolean palm() { return false; }
+        default float length() { return Skeleton.ARM_TO_PALM; }
+        default boolean valid() { return true; }
+    }
+    private record Anchor(SubLevels.Space space, Vec3 local, Vec3 normal) implements Target {
+        public Vec3 world() { return space.valid() ? space.refresh().toWorld(local) : null; }
     }
     private static final class State {
-        final Map<Key, Anchor> targets = new HashMap<>();
+        final Map<Key, Target> targets = new HashMap<>();
         final Map<Key, float[]> drawnTargets = new HashMap<>();
         final java.util.EnumMap<Effector, net.minecraft.world.phys.AABB> plantBounds = new java.util.EnumMap<>(Effector.class);
         final strm.touchnmotion.torso.BraceSteps.State feet = new strm.touchnmotion.torso.BraceSteps.State();
@@ -32,6 +39,7 @@ public final class HandContacts {
         boolean rightReach = true;
         /** When each wall contact's refined point was last tried against the wall itself, and whether it held. */
         final Map<Key, long[]> wallChecked = new HashMap<>();
+        final Map<Key, Vec3> wallCheckedPoint = new HashMap<>();
     }
     /** The wall is asked again this often, not every frame: a ray a frame for each hand and again for the armour is too dear. */
     private static final long WALL_CHECK_NANOS = 150_000_000L;
@@ -51,6 +59,13 @@ public final class HandContacts {
         state.player = context.player();
         Key key = new Key(source, hand);
         state.targets.put(key, new Anchor(space, space.toLocal(world), normal == null ? null : space.directionToLocal(normal)));
+    }
+
+    /** Moving mechanisms (including deforming ropes) keep their own stable local/segment identity. */
+    public static void remember(InteractionContext context, String source, Effector hand, Target target) {
+        State state = STATES.seen(context.player().getUUID(), context.now()).value;
+        state.player = context.player();
+        state.targets.put(new Key(source, hand), target);
     }
 
     public static void rememberPlant(InteractionContext context, Effector hand, Vec3 world, net.minecraft.world.phys.AABB box) {
@@ -138,7 +153,7 @@ public final class HandContacts {
             state.lastReach.set(Body.model(frame, state.targets.get(chosen).world()));
             state.rightReach = chosen.hand == Effector.RIGHT_ARM;
             Key opposite = new Key(chosen.source, Effector.arm(!state.rightReach));
-            Anchor anchor = state.targets.get(opposite);
+            Target anchor = state.targets.get(opposite);
             if (anchor != null && anchor.world() != null && InteractionRuntime.weight(uuid, opposite.hand, opposite.source) > .1f)
                 other = Body.model(frame, anchor.world());
         }
@@ -154,41 +169,66 @@ public final class HandContacts {
         Map<String, float[]> out = new HashMap<>();
         if (state == null || frame == null) return out;
         state.targets.forEach((key, anchor) -> {
-            Vec3 world = anchor.world();
+            Vec3 world = anchor.valid() ? anchor.world() : null;
             if (world == null || InteractionRuntime.weight(uuid, key.hand, key.source) < .001f) return;
             Vector3f p = Body.model(frame, world);
             float[] drawn = state.drawnTargets.get(key);
             out.put(key.source+":"+key.hand, drawn != null ? drawn : new float[]{p.x, p.y, p.z,
-                    key.source.equals("PlantReach") || key.source.equals("WallHand") ? Skeleton.ARM_TO_PALM : Skeleton.ARM_TO_FINGERTIPS});
+                    anchor.palm() ? anchor.length() : key.source.equals("PlantReach") || key.source.equals("WallHand") ? Skeleton.ARM_TO_PALM : Skeleton.ARM_TO_FINGERTIPS});
         });
         return out;
     }
 
     public static void apply(UUID uuid, Function<String, ModelPart> parts, Map<Effector, float[]> base, boolean mainModel) {
+        applyTargets(uuid, parts, base, mainModel, false, null);
+    }
+
+    /** Late contact pass, after the source's torso/reach stages; also used for armour copies. */
+    public static void applyMoving(UUID uuid, String source, Function<String, ModelPart> parts, boolean mainModel) {
+        applyTargets(uuid, parts, Map.of(), mainModel, true, source);
+    }
+
+    public static float gap(UUID uuid, String source, Effector hand, Function<String, ModelPart> parts) {
+        State state = STATES.fresh(uuid);
+        var frame = InteractionRuntime.frame(uuid);
+        Target target = state == null ? null : state.targets.get(new Key(source, hand));
+        ModelPart arm = parts.apply(hand.part);
+        Vec3 world = target == null || !target.valid() ? null : target.world();
+        return frame == null || arm == null || world == null ? 1
+                : (float) frame.jointWorld(Body.tip(arm, target.palm() ? target.length() : Skeleton.ARM_TO_FINGERTIPS)).distanceTo(world);
+    }
+
+    private static void applyTargets(UUID uuid, Function<String, ModelPart> parts, Map<Effector, float[]> base,
+                                     boolean mainModel, boolean moving, String source) {
         if (!EMFCompatCore.isCompatEnabled() || EMFCompatCore.isLocalPlayerInFirstPerson(uuid)) return;
         State state = STATES.fresh(uuid);
         if (state == null) return;
         var frame = InteractionRuntime.frame(uuid);
         if (frame == null) return;
         state.targets.forEach((key, anchor) -> {
-            Vec3 world = anchor.world();
+            if (anchor.palm() != moving || source != null && !key.source.equals(source)) return;
+            Vec3 world = anchor.valid() ? anchor.world() : null;
             if (world == null) return;
             Vector3f point = Body.model(frame, world);
             float w = InteractionRuntime.weight(uuid, key.hand, key.source);
             ModelPart arm = parts.apply(key.hand.part);
             if (w < 1e-3f || arm == null) return;
-            if (anchor.normal != null && key.source.equals("WallHand")) {
-                Vec3 normal = anchor.space.refresh().directionToWorld(anchor.normal);
+            if (anchor instanceof Anchor fixed && fixed.normal != null && key.source.equals("WallHand")) {
+                Vec3 normal = fixed.space.refresh().directionToWorld(fixed.normal);
                 Vector3f modelNormal = Body.model(frame, world.add(normal)).sub(point).normalize();
                 Vector3f fitted = PlaneContact.fit(new Vector3f(arm.x, arm.y, arm.z), point, modelNormal, Skeleton.ARM_TO_PALM);
                 if (fitted != null) {
                     long now = System.nanoTime();
                     long[] checked = state.wallChecked.computeIfAbsent(key, k -> new long[2]);
-                    if (checked[0] == 0 || now - checked[0] > WALL_CHECK_NANOS) {
-                        Vec3 fitWorld = frame.jointWorld(fitted);
+                    Vec3 fitWorld = frame.jointWorld(fitted);
+                    Vec3 localFit = fixed.space.refresh().toLocal(fitWorld);
+                    Vec3 previousFit = state.wallCheckedPoint.get(key);
+                    if (checked[0] == 0 || now - checked[0] > WALL_CHECK_NANOS
+                            || previousFit == null || previousFit.distanceToSqr(localFit) > .04 * .04) {
+                        state.wallCheckedPoint.put(key, localFit);
                         var face = strm.touchnmotion.wallhand.WallSurface.clip(state.player,
                                 fitWorld.add(normal.scale(.08)), fitWorld.subtract(normal.scale(.08)),
-                                java.util.List.of(anchor.space.refresh()));
+                                java.util.List.of(fixed.space.refresh()));
                         checked[0] = now;
                         checked[1] = face != null && face.normal().dot(normal) > .9 && face.position().distanceTo(fitWorld) < .04 ? 1 : 0;
                     }
@@ -207,8 +247,14 @@ public final class HandContacts {
                 }
             }
             if (mainModel) state.drawnTargets.put(key, new float[]{point.x, point.y, point.z,
-                    key.source.equals("PlantReach") || key.source.equals("WallHand") ? Skeleton.ARM_TO_PALM : Skeleton.ARM_TO_FINGERTIPS});
+                    anchor.palm() ? anchor.length() : key.source.equals("PlantReach") || key.source.equals("WallHand") ? Skeleton.ARM_TO_PALM : Skeleton.ARM_TO_FINGERTIPS});
             if (key.source.equals("HeavyThrottle")) { OneBoneIK.turnTowards(arm, point, w, false); return; }
+            if (anchor.palm()) {
+                float[] angles = ContactAim.palmRotation(new float[]{arm.xRot, arm.yRot, arm.zRot},
+                        point.x - arm.x, point.y - arm.y, point.z - arm.z, w);
+                arm.setRotation(angles[0], angles[1], angles[2]);
+                return;
+            }
             float[] original = base.get(key.hand);
             if (original == null) return;
             float[] angles = ContactAim.rotation(original, point.x - arm.x, point.y - arm.y, point.z - arm.z, w);

@@ -234,6 +234,7 @@ public final class TransportGrip implements InteractionProvider {
         s.active = false;
     }
     private static void offer(InteractionContext context, List<Candidate> out, Effector hand, SupportSearch.Contact c, boolean settling) {
+        HandContacts.remember(context, INSTANCE.id(), hand, c);
         Vector3f point = context.frame().relativeToJoint(c.world(), new Vector3f(hand == Effector.RIGHT_ARM ? -5 : 5, 2, 0)).normalize();
         var a = new Quaternionf().rotationTo(new Vector3f(0, 1, 0), point).getEulerAnglesZYX(new Vector3f());
         out.add(Candidate.single(INSTANCE.id(), Category.PASSIVE, 25, 1, settling ? CALM_TIMING : TIMING, hand, new float[]{a.x, a.y}).withTarget(c.rope() != null ? c.rope().id :
@@ -281,31 +282,18 @@ public final class TransportGrip implements InteractionProvider {
         s.reach.weightForward = -.7f * s.ropeBlend;
         LowReach.apply(parts, s.hand == Effector.RIGHT_ARM, point, other, owned, s.reach);
     }
-    public static void aim(UUID uuid, Function<String, ModelPart> parts) {
+    public static void aim(UUID uuid, Function<String, ModelPart> parts, boolean mainModel) {
         State s = STATES.fresh(uuid);
-        if (s == null || s.frame == null || !s.active) return;
-        s.gap = aimOne(uuid, s, s.hand, s.primary, parts);
-        if (s.helper) s.helperGap = aimOne(uuid, s, s.hand.other(), s.other, parts);
+        if (s == null || s.frame == null) return;
+        HandContacts.applyMoving(uuid, INSTANCE.id(), parts, mainModel);
+        if (!mainModel || !s.active) return;
+        s.gap = HandContacts.gap(uuid, INSTANCE.id(), s.hand, parts);
+        if (s.helper) s.helperGap = HandContacts.gap(uuid, INSTANCE.id(), s.hand.other(), parts);
         if (EMFCompatConfig.getBoolean(KEY_TRACE, false) && s.tracePace.due(100_000_000L)) {
             org.slf4j.LoggerFactory.getLogger("EMFCompatTransport").info(
                 "[TransportTrace] speed={} relative={} load={} owned={} gap={} helper={} helperGap={} step={} right={} left={} local={} world={} rope={} lift={}",
                 s.motion.speed, s.relativeSpeed, s.load, ownership(uuid, s), s.gap, s.helper, s.helperGap,
                 s.stance.stride.stepping, s.stance.stride.feet[0], s.stance.stride.feet[1], s.primary.point(), s.primary.world(), s.primary.rope() != null, s.stance.ropeLift);
         }
-    }
-    private static float aimOne(UUID uuid, State s, Effector hand, SupportSearch.Contact c, Function<String, ModelPart> parts) {
-        if (c == null) return 1;
-        ModelPart arm = parts.apply(hand.part);
-        if (arm == null) return 1;
-        float owned = InteractionRuntime.weight(uuid, hand, INSTANCE.id());
-        if (owned < .001) return 1;
-        Vector3f point = Body.model(s.frame, c.world());
-        Vector3f direction = new Vector3f(point).sub(arm.x, arm.y, arm.z);
-        if (direction.lengthSquared() < 1e-5) return 1;
-        Quaternionf wanted = new Quaternionf().rotationTo(new Vector3f(0, 1, 0), direction.normalize());
-        Vector3f angles = new Quaternionf().rotationZYX(arm.zRot, arm.yRot, arm.xRot).slerp(wanted, owned).getEulerAnglesZYX(new Vector3f());
-        arm.setRotation(angles.x, angles.y, angles.z);
-        Vector3f palm = Body.tip(arm, 11);
-        return (float) s.frame.jointWorld(palm).distanceTo(c.world());
     }
 }

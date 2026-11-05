@@ -119,6 +119,7 @@ public final class WallSqueeze {
         final WallPoseMath.Contact[] contacts = {new WallPoseMath.Contact(), new WallPoseMath.Contact()};
         final Touch[] touches = new Touch[2];
         Vec3 lastPosition;
+        SubLevels.Space lastSpace;
         String logged = "off";
     }
 
@@ -139,13 +140,16 @@ public final class WallSqueeze {
         double dt = EntityStates.due(entry, now);
         if (dt < 0) return;
         State s = entry.value;
-        if (s.lastPosition != null && s.lastPosition.distanceToSqr(player.position()) > 4) {
+        var anchor = strm.touchnmotion.interaction.Anchor.space(player);
+        Vec3 localPosition = anchor.tickToLocal(player.position());
+        if (s.lastPosition != null && (!anchor.same(s.lastSpace) || s.lastPosition.distanceToSqr(localPosition) > 4)) {
             s.arms = s.hands = s.upRight = s.upLeft = 0;
             s.stance.reset();
             s.rightClearance = s.leftClearance = 0;
             for (var contact : s.contacts) { contact.weight = 0; contact.known = false; }
         }
-        s.lastPosition = player.position();
+        s.lastPosition = localPosition;
+        s.lastSpace = anchor;
         s.player = player;
         s.frame = frame;
         s.dt = dt;

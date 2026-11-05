@@ -15,9 +15,12 @@ import strm.touchnmotion.transport.aeronautics.AeronauticRopes;
 
 /** Short local rays. Collision surfaces, or continuous slender outline-only supports. */
 public final class SupportSearch {
-    public record Contact(SubLevels.Space space, BlockPos block, Vec3 point, Vec3 normal, boolean outline, AeronauticRopes.Grip rope) {
+    public record Contact(SubLevels.Space space, BlockPos block, Vec3 point, Vec3 normal, boolean outline, AeronauticRopes.Grip rope) implements strm.touchnmotion.interaction.HandContacts.Target {
         public Contact(SubLevels.Space space, BlockPos block, Vec3 point, Vec3 normal, boolean outline) { this(space, block, point, normal, outline, null); }
-        Vec3 world() { return rope == null ? space.refresh().toWorld(point) : rope.world(); }
+        public Vec3 world() { return rope == null ? space.refresh().toWorld(point) : rope.world(); }
+        public boolean palm() { return true; }
+        public float length() { return 11; }
+        public boolean valid() { return space.valid() && (rope == null || rope.valid()); }
     }
     record Deck(SubLevels.Space space, Vec3 local, Vec3 normal) {}
     static Deck deck(AbstractClientPlayer player, List<SubLevels.Space> spaces) {

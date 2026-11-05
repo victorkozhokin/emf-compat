@@ -228,7 +228,7 @@ public final class BodyStages {
             (uuid, parts, pass) -> TrainCockpit.head(uuid, parts),
             (uuid, parts, pass) -> HandContacts.apply(uuid, parts, pass.base(), pass.mainModel()),
             (uuid, parts, pass) -> HeavyThrottle.aimArms(uuid, parts),
-            (uuid, parts, pass) -> TransportGrip.aim(uuid, parts),
+            (uuid, parts, pass) -> TransportGrip.aim(uuid, parts, pass.mainModel()),
             (uuid, parts, pass) -> LeadHold.capture(uuid, parts),
             (uuid, parts, pass) -> BoatRide.grip(uuid, parts),
             (uuid, parts, pass) -> BoatPassenger.grip(uuid, parts),
