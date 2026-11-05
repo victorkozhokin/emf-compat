@@ -286,7 +286,8 @@ public final class BlockUse implements InteractionProvider {
                 spot = state.gesture.spot();
                 outwards = outwards(state.gesture.motion(), t);
             } else {
-                boolean still = strm.touchnmotion.interaction.Anchor.speed(player) <= SLOW_BELOW;
+                boolean still = strm.touchnmotion.interaction.Anchor.speed(player) <= SLOW_BELOW
+                        || heldBlock(player) != null;
                 BlockPos oldPos = state.pos;
                 BlockTarget oldTarget = state.target;
                 spot = still ? look(player, state) : null;
@@ -379,29 +380,33 @@ public final class BlockUse implements InteractionProvider {
             if (support != null) {
                 Vec3 otherPoint = support.point().add(support.out().scale((held != null ? 0f : table || state.target instanceof Bellows ? .5f : HOVER_OUT) / 16.0));
                 IKResult other = OneBoneIK.solveXY(frame, right ? LEFT_SHOULDER : RIGHT_SHOULDER, otherPoint, ARM, 0f, 0f);
-                if (other == null || !strm.touchnmotion.interaction.ContactReach.accepts(other.reach(), MAX_REACH, retained)) {
-                    context.decide("support-out-of-reach");
-                    return;
+                boolean supportRetained = InteractionRuntime.holds(player.getUUID(), id(), Effector.arm(!right), contactIdentity);
+                if (other == null || !strm.touchnmotion.interaction.ContactReach.accepts(other.reach(), MAX_REACH, supportRetained)) {
+                    // A second grip is optional: losing it must not discard the reachable main hand
+                    // and restart both fades. It joins again when its own reach allows it.
+                    state.support = false;
+                    out.add(Candidate.single(id(), Category.USE, priority(state), 1f, TIMING, effector, aim));
+                } else {
+                    Vector3f otherModel = Body.model(frame, otherPoint);
+                    // As the main hand: straight onto a grip that goes round (a wheel), followed otherwise.
+                    if (centre != null || fresh || !supported) state.supportGrip.set(otherModel);
+                    else state.supportGrip.lerp(otherModel, Smoothing.follow(context.dt(), held != null ? HELD_GRIP_SECONDS : GRIP_SECONDS));
+                    if (state.target instanceof SteeringWheel) {
+                        state.lean[2] = WheelGeometry.steeringRoll(
+                                right ? state.grip.y : state.supportGrip.y,
+                                right ? state.supportGrip.y : state.grip.y);
+                    }
+                    if (held != null) {
+                        // A driver leans to the levers a little, and turns to them when they are off to one side.
+                        Vector3f levers = new Vector3f(state.grip).add(state.supportGrip).mul(.5f);
+                        state.lean[0] = DRIVER_PITCH;
+                        state.lean[1] = Mth.clamp((float) Math.atan2(-levers.x, -levers.z) * .5f, -DRIVER_YAW, DRIVER_YAW);
+                    }
+                    Map<Effector, float[]> hands = new EnumMap<>(Effector.class);
+                    hands.put(effector, aim);
+                    hands.put(Effector.arm(!right), new float[]{other.x(), other.y()});
+                    out.add(Candidate.of(id(), Category.USE, priority(state), 1f, TIMING, hands));
                 }
-                Vector3f otherModel = Body.model(frame, otherPoint);
-                // As the main hand: straight onto a grip that goes round (a wheel), followed otherwise.
-                if (centre != null || fresh || !supported) state.supportGrip.set(otherModel);
-                else state.supportGrip.lerp(otherModel, Smoothing.follow(context.dt(), held != null ? HELD_GRIP_SECONDS : GRIP_SECONDS));
-                if (state.target instanceof SteeringWheel) {
-                    state.lean[2] = WheelGeometry.steeringRoll(
-                            right ? state.grip.y : state.supportGrip.y,
-                            right ? state.supportGrip.y : state.grip.y);
-                }
-                if (held != null) {
-                    // A driver leans to the levers a little, and turns to them when they are off to one side.
-                    Vector3f levers = new Vector3f(state.grip).add(state.supportGrip).mul(.5f);
-                    state.lean[0] = DRIVER_PITCH;
-                    state.lean[1] = Mth.clamp((float) Math.atan2(-levers.x, -levers.z) * .5f, -DRIVER_YAW, DRIVER_YAW);
-                }
-                Map<Effector, float[]> hands = new EnumMap<>(Effector.class);
-                hands.put(effector, aim);
-                hands.put(Effector.arm(!right), new float[]{other.x(), other.y()});
-                out.add(Candidate.of(id(), Category.USE, priority(state), 1f, TIMING, hands));
             } else {
                 out.add(Candidate.single(id(), Category.USE, priority(state), 1f, TIMING, effector, aim));
             }
@@ -416,7 +421,7 @@ public final class BlockUse implements InteractionProvider {
             shown = true;
             // The click swings the arm; the gesture is the swing.
             context.claimArms();
-            context.decide((state.gesture == null ? "hover" : state.gesture.motion().name().toLowerCase())
+            context.decide((support != null && !state.support ? "main-only" : state.gesture == null ? "hover" : state.gesture.motion().name().toLowerCase())
                     + (right ? "-R" : "-L"));
         } finally {
             state.shown = shown;
@@ -486,8 +491,9 @@ public final class BlockUse implements InteractionProvider {
             BlockState kept = player.level().getBlockState(state.pos);
             if (state.target.matches(kept)) {
                 Vec3 local = state.target.swayCentre(player.level(), state.pos, kept);
-                Vec3 centre = local == null ? null : SubLevels.toWorld(player.level(), state.pos, local);
-                if (centre != null && centre.distanceTo(player.getEyePosition()) <= RANGE
+                var space = SubLevels.at(player.level(), state.pos);
+                Vec3 centre = local == null ? null : space.toWorld(local);
+                if (centre != null && local.distanceTo(space.tickToLocal(player.getEyePosition())) <= RANGE
                         && centre.subtract(player.getEyePosition()).normalize().dot(player.getViewVector(1f)) > 0.9
                         && Visibility.visible(player, state.pos, centre)) {
                     return state.target.hover(player, state.pos, kept,

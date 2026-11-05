@@ -2,6 +2,10 @@
 
 ## 1.0.5
 
+- Sable: rope and rail grips share the retained hand-contact pass, following their current rendered anchor through a turn and while letting go; armour copies no longer change the contact measurements
+- Sable: door and button searches use the player's place on the deck; reading a sign follows its board in the sub-level, and visibility checks keep world and plot hits apart
+- Steering wheels and other two-handed blocks: an unreachable second grip no longer drops the reachable main hand; each hand retains its own reach margin, and an actively held control stays selected while the eyes wander
+
 - Create: Lights & Controls: its buttons, levers, lever panel, gear switch and card reader - the hand waits at the control you aim at and taps it when you use it
 - Create: Connected's crank wheel and large crank wheel are turned like Create's hand crank: the hand on the handle, going round with it
 - Levers with a handle: Create's analog lever (and Create: Connected's linked one), Design n' Decor's stepped lever and breaker switch, Compact Gearbox's controller. The hand goes to the handle when you aim at it and follows it as it moves; with Lever drugster it stays on the handle while you drag it

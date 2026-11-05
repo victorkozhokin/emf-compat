@@ -53,8 +53,9 @@ public class RimGrip {
      * block's own space - is at the player's right as they face the rim.
      */
     public static boolean positiveSide(AbstractClientPlayer player, BlockPos pos, Vec3 centre, Vec3 side) {
-        Vec3 across = SubLevels.at(player.level(), pos).directionToWorld(side.subtract(centre));
-        Vec3 toward = SubLevels.toWorld(player.level(), pos, centre).subtract(player.position());
+        var space = SubLevels.at(player.level(), pos);
+        Vec3 across = space.directionToWorld(side.subtract(centre));
+        Vec3 toward = space.directionToWorld(centre.subtract(space.tickToLocal(player.position())));
         return WheelGeometry.positiveSide((float) across.x, (float) across.z, (float) toward.x, (float) toward.z);
     }
 }

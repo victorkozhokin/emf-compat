@@ -56,9 +56,10 @@ public final class SteeringWheel implements BlockTarget {
             Vec3 centre = point(pos, block, 0, new Vector3f(.5f));
             boolean positiveSide = RimGrip.positiveSide(player, pos, centre, point(pos, block, 0, new Vector3f(1, .5f, .5f)));
             state.main = player.getMainArm();
-            Vec3 worldCentre = SubLevels.at(player.level(), pos).toWorld(centre);
+            var space = SubLevels.at(player.level(), pos);
+            Vec3 localFeet = space.tickToLocal(player.position());
             float upper = 0;
-            if (worldCentre.y - player.getY() < .75) {
+            if (centre.y - localFeet.y < .75) {
                 Vec3 tangent = SubLevels.at(player.level(), pos).directionToWorld(
                         point(pos, block, (float)(Math.PI / 2), new Vector3f(positiveSide ? 1 : 0, .5f, .5f)).subtract(centre));
                 if (Math.abs(tangent.y) > .01) upper = tangent.y > 0 ? 45 : -45;

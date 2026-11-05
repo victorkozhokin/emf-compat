@@ -105,7 +105,7 @@ public final class DoorHold implements InteractionProvider {
         Object rightTarget = null, leftTarget = null;
         // The world, and a craft's plot seen from where the player stands on it (see SubLevels).
         for (SubLevels.Space space : SubLevels.around(player.level(), player.getBoundingBox().inflate(1.5))) {
-            Vec3 at = space.toLocal(player.position());
+            Vec3 at = space.tickToLocal(player.position());
             BlockPos feet = BlockPos.containing(at.x, at.y + 1e-3, at.z);
             for (BlockPos pos : BlockPos.betweenClosed(feet.offset(-1, 0, -1), feet.offset(1, 0, 1))) {
                 BlockState block = player.level().getBlockState(pos);

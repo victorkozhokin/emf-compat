@@ -195,13 +195,15 @@ public final class LookAt implements InteractionProvider {
         String name = null;
         BlockPos sign = player.isSleeping() ? null : SignRead.resting(player, state.sign, now);
         if (sign != null) {
-            Vec3 board = SignRead.board(player.level(), sign);
+            var signSpace = strm.touchnmotion.interaction.SubLevels.at(player.level(), sign);
+            Vec3 localBoard = SignRead.board(player.level(), sign);
+            Vec3 board = signSpace.toWorld(localBoard);
             float[] aim = aim(frame, board);
             // Behind the shoulder a sign is not read: the look is on it only by the camera's freedom.
             if (Math.abs(aim[0] + state.turn.value) <= NECK_YAW && Math.abs(aim[1]) <= NECK_PITCH) {
                 point = board;
                 name = "sign " + sign.toShortString();
-                state.signNear = (float) Mth.clamp(1.0 - (board.distanceTo(player.getEyePosition()) - 1.0) / (SignRead.RANGE - 1.0), 0.0, 1.0);
+                state.signNear = (float) Mth.clamp(1.0 - (localBoard.distanceTo(signSpace.tickToLocal(player.getEyePosition())) - 1.0) / (SignRead.RANGE - 1.0), 0.0, 1.0);
             }
         }
         boolean reading = point != null;

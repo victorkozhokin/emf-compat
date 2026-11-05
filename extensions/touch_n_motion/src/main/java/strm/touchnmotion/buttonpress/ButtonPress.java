@@ -347,7 +347,7 @@ public final class ButtonPress implements InteractionProvider {
         int r = Mth.ceil(SCAN_RADIUS);
         // Round the eyes in the world, and in the plot of any craft near them (see SubLevels).
         for (SubLevels.Space space : SubLevels.around(player.level(), new AABB(player.getEyePosition(), player.getEyePosition()).inflate(r + 1))) {
-            BlockPos eye = BlockPos.containing(space.toLocal(player.getEyePosition()));
+            BlockPos eye = BlockPos.containing(space.tickToLocal(player.getEyePosition()));
             for (BlockPos pos : BlockPos.betweenClosed(eye.offset(-r, -r - 1, -r), eye.offset(r, r, r))) {
                 if (isTarget(player.level().getBlockState(pos))) found.add(pos.immutable());
             }
