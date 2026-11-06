@@ -93,7 +93,6 @@ public final class Inputs {
         return told == null || !told.has(HandsState.DRIVE) ? null : told.drivePos();
     }
 
-    /** How many times another player has moved something in the container they have open; -1 when not known. */
     /**
      * Whether the player has a container's screen up: as our own game or theirs says, or
      * {@code null} where theirs says nothing.
@@ -116,6 +115,7 @@ public final class Inputs {
         return pos.equals(menuPos(player));
     }
 
+    /** How many times another player has moved something in the container they have open; -1 when not known. */
     public static int menuActions(AbstractClientPlayer player) {
         HandsState told = ClientHands.of(player);
         return told == null || told.menu() == 0 ? -1 : told.actions();

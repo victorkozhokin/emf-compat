@@ -17,7 +17,7 @@ import strm.touchnmotion.net.HandsWork;
 import java.util.function.Supplier;
 
 /**
- * The channel on Forge 1.20.1, which has no payloads of the game's own yet: one channel, two
+ * The channel on Forge 1.20.1, which has no payloads of the game's own yet: one channel, three
  * messages, either way. Optional on both sides - a game without the mod is neither refused nor
  * sent to.
  */

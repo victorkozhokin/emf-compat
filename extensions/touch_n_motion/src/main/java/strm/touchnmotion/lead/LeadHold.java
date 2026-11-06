@@ -131,8 +131,8 @@ public final class LeadHold implements InteractionProvider {
         } else if (s.animal == null) {
             boolean mainRight = Body.right(player, true);
             boolean off = player.getOffhandItem().is(Items.LEAD) && !player.getMainHandItem().is(Items.LEAD);
-            s.hand = chosen.getUUID().equals(s.attachingAnimal) && s.attachingHand != null ? s.attachingHand
- : Effector.arm(mainRight != off);
+            s.hand = chosen.getUUID().equals(s.attachingAnimal) && s.attachingHand != null
+                    ? s.attachingHand : Effector.arm(mainRight != off);
         }
         s.animal = chosen.getUUID();
         s.frame = context.frame();

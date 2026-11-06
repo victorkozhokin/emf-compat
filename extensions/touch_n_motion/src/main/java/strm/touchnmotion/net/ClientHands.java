@@ -7,7 +7,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -27,7 +26,7 @@ import strm.touchnmotion.DebugLog;
 
 /** The client's end of {@link HandsNet}: tells the server what our own hands are at, and keeps what it is told of others'. */
 public final class ClientHands {
-    /** While anything lasts it is said again this often, ticks; what a late joiner or a dropped packet missed comes with it. */
+    /** Repeat even at rest, ticks: late observers need the ground bit as well as held controls. */
     private static final int AGAIN_TICKS = 10;
     /** A change of only where the crosshair is goes out no oftener than this, ticks. */
     private static final int LOOK_TICKS = 3;
@@ -105,13 +104,16 @@ public final class ClientHands {
         HEARD.entrySet().removeIf(entry -> {
             Heard heard = entry.getValue();
             Entity known = mc.level.getEntity(entry.getKey());
-            return heard.level != mc.level || known == null || !known.getUUID().equals(heard.uuid);
+            boolean gone = heard.level != mc.level || known == null || !known.getUUID().equals(heard.uuid);
+            if (!gone && known instanceof AbstractClientPlayer remote && System.nanoTime() - heard.at < FRESH_NANOS)
+                remote.setOnGround(heard.state.has(HandsState.GROUND));
+            return gone;
         });
         menuChanged();
         HandsState now = capture(mc, player);
         sentAgo++;
         boolean looked = !now.sameInput(sent, true), changed = !now.sameInput(sent, false);
-        if (changed || looked && sentAgo >= LOOK_TICKS || !now.idle() && sentAgo >= AGAIN_TICKS) {
+        if (changed || looked && sentAgo >= LOOK_TICKS || sentAgo >= AGAIN_TICKS) {
             Platform.sendToServer(now);
             if (changed && DebugLog.decisions())
                 LOGGER.info("[Hands] sent flags={} block={} entity={} menu={}", now.flags(), now.block(), now.entity(), now.menu());
@@ -131,7 +133,7 @@ public final class ClientHands {
     }
 
     private static HandsState capture(Minecraft mc, LocalPlayer player) {
-        int flags = 0, face = 0, entity = -1, key = -1, menu = 0;
+        int flags = player.onGround() ? HandsState.GROUND : 0, face = 0, entity = -1, key = -1, menu = 0;
         BlockPos block = null;
         double x = 0, y = 0, z = 0;
         boolean playing = strm.touchnmotion.platform.Platform.screen() == null;
@@ -214,7 +216,10 @@ public final class ClientHands {
         mc.execute(() -> {
             if (level != mc.level) return;
             if (HEARD.size() > 256) HEARD.clear();
-            if (mc.level == null || !(mc.level.getEntity(state.sender()) instanceof AbstractClientPlayer player)) return;
+            if (mc.level == null || !(mc.level.getEntity(state.sender()) instanceof AbstractClientPlayer player) || player == mc.player) return;
+            // Vanilla can leave a stationary remote player with the ground bit from its teleport.
+            // This client's input carries the current bit; only the remote visual entity is changed.
+            player.setOnGround(state.has(HandsState.GROUND));
             Heard before = HEARD.put(state.sender(), new Heard(state, mc.level, player.getUUID(), System.nanoTime()));
             if (DebugLog.decisions() && (before == null || before.state.flags() != state.flags()))
                 LOGGER.info("[Hands] heard from {} flags={} block={} entity={}", state.sender(), state.flags(), state.block(), state.entity());

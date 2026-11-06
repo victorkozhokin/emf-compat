@@ -6,7 +6,7 @@ import strm.touchnmotion.platform.ServerSide;
 import java.util.UUID;
 
 /**
- * The addon's only part that runs on a server: two optional channels, on which the server does
+ * The addon's only part that runs on a server: three optional channels, on which the server does
  * one thing - passes what a player's hands are at on to the players near enough to see them. A
  * client on a server without the addon never sends, and guesses as it did; a client without the
  * addon is never sent to.

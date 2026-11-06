@@ -479,7 +479,7 @@ public final class Platform {
         *///?}
     }
 
-    /** A {@code HandsState} or a {@code HandsAct}, to the server. Client only. */
+    /** A {@code HandsState}, {@code HandsAct} or {@code HandsWork}, to the server. Client only. */
     public static void sendToServer(Object payload) {
         //? if neoforge {
         net.neoforged.neoforge.network.PacketDistributor.sendToServer((net.minecraft.network.protocol.common.custom.CustomPacketPayload) payload);

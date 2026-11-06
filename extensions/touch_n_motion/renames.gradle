@@ -27,6 +27,7 @@ stonecutter.replacements {
     [
         'client.renderer.state.CameraRenderState'  : 'client.renderer.state.level.CameraRenderState',
         'client/renderer/state/CameraRenderState'  : 'client/renderer/state/level/CameraRenderState',
+        'handleInventoryMouseClick'                  : 'handleContainerInput',
         '.playC2S()'                               : '.serverboundPlay()',
         '.playS2C()'                               : '.clientboundPlay()',
     ].each { from, to ->

@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
  * What one player's hands are at, as only that player's own game knows it: the buttons held, the
  * thing under the crosshair (a craft's blocks included, which another client's ray does not see),
  * the control held on to, the key typed, the train driven, the container gone through and which block it is. Sent to the server when it
- * changes and now and then while it lasts; the server passes it on to whoever sees that player.
+ * changes and now and then even at rest; the server passes it on to whoever sees that player.
  * Nothing here moves the world - it only poses the sender's model on other screens.
  */
 public record HandsState(int sender, int flags, BlockPos block, int face, double hitX, double hitY, double hitZ, int entity,
@@ -22,7 +22,7 @@ public record HandsState(int sender, int flags, BlockPos block, int face, double
         //? if >=1.20.5
         implements CustomPacketPayload
 {
-    public static final int USE = 1, ATTACK = 2, BLOCK = 4, ENTITY = 8, HOLD = 16, THROTTLE = 32, TYPING = 64, DRIVE = 128;
+    public static final int USE = 1, ATTACK = 2, BLOCK = 4, ENTITY = 8, HOLD = 16, THROTTLE = 32, TYPING = 64, DRIVE = 128, GROUND = 256;
     //? if >=1.20.5 {
     public static final Type<HandsState> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("touch_n_motion", "hands_v3"));
     public static final StreamCodec<RegistryFriendlyByteBuf, HandsState> CODEC = StreamCodec.of(HandsState::write, HandsState::read);
@@ -36,7 +36,7 @@ public record HandsState(int sender, int flags, BlockPos block, int face, double
 
     public static void write(FriendlyByteBuf out, HandsState s) {
         out.writeVarInt(s.sender);
-        out.writeByte(s.flags);
+        out.writeVarInt(s.flags);
         if (s.has(BLOCK)) {
             out.writeBlockPos(s.block);
             out.writeByte(s.face);
@@ -62,7 +62,7 @@ public record HandsState(int sender, int flags, BlockPos block, int face, double
     }
 
     public static HandsState read(FriendlyByteBuf in) {
-        int sender = in.readVarInt(), flags = in.readByte() & 0xFF;
+        int sender = in.readVarInt(), flags = in.readVarInt();
         BlockPos block = null, throttle = null, typing = null, drivePos = null;
         int face = 0, entity = -1, key = -1, drive = -1;
         double x = 0, y = 0, z = 0;
@@ -99,11 +99,6 @@ public record HandsState(int sender, int flags, BlockPos block, int face, double
 
     public boolean has(int flag) {
         return (flags & flag) != 0;
-    }
-
-    /** Whether there is anything in it worth keeping another client told of. */
-    public boolean idle() {
-        return flags == 0 && menu == 0 && details.idle();
     }
 
     public HandsState from(int entityId) {

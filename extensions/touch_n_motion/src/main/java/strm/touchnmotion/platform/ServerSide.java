@@ -42,7 +42,7 @@ public final class ServerSide {
         *///?}
     }
 
-    /** A {@code HandsState} or a {@code HandsAct}, to that player. */
+    /** A {@code HandsState}, {@code HandsAct} or {@code HandsWork}, to that player. */
     public static void send(ServerPlayer player, Object payload) {
         //? if neoforge {
         net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player, (net.minecraft.network.protocol.common.custom.CustomPacketPayload) payload);

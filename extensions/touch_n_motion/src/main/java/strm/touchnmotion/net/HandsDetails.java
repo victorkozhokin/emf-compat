@@ -7,10 +7,6 @@ import net.minecraft.network.FriendlyByteBuf;
 public record HandsDetails(BlockPos cockpitWheel, int typingKeys, BlockPos breaking, int leadHand, boolean cannonAim) {
     public static final HandsDetails NONE = new HandsDetails(null, 0, null, -1, false);
 
-    public boolean idle() {
-        return cockpitWheel == null && typingKeys == 0 && breaking == null && leadHand < 0 && !cannonAim;
-    }
-
     public void write(FriendlyByteBuf out) {
         writePos(out, cockpitWheel);
         out.writeByte(typingKeys);

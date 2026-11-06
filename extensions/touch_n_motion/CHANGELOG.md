@@ -32,6 +32,8 @@
 
 ### Fixed
 
+- Multiplayer: a stationary remote player no longer stays airborne for hand poses after a teleport; grounded state is refreshed for late observers too
+- 26.1.2–26.3: menu click capture follows the renamed container input method
 - Multiplayer: menu work shares its actual put, take or tap and contact point, including crafter slot toggles, instead of a generic put; it is captured in first person too
 
 - Multiplayer: cockpit anchors, both typing hands, actual block breaking, the lead hand and cannon aiming are shared even when the local model is hidden; train control changes send immediately and input is cleared between worlds
