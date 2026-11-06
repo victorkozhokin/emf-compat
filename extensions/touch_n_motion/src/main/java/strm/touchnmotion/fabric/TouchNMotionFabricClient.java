@@ -10,6 +10,7 @@ import strm.touchnmotion.horsesync.HorseSync;
 import strm.touchnmotion.net.ClientHands;
 import strm.touchnmotion.net.HandsAct;
 import strm.touchnmotion.net.HandsState;
+import strm.touchnmotion.net.HandsWork;
 
 /**
  * Touch'n Motion on Fabric, the client: the mod's client part started, and Fabric's events passed
@@ -23,6 +24,7 @@ public class TouchNMotionFabricClient implements ClientModInitializer {
         HorseSync.registerHook();
         ClientPlayNetworking.registerGlobalReceiver(HandsState.TYPE, (state, context) -> ClientHands.receive(state));
         ClientPlayNetworking.registerGlobalReceiver(HandsAct.TYPE, (act, context) -> ClientHands.receive(act));
+        ClientPlayNetworking.registerGlobalReceiver(HandsWork.TYPE, (work, context) -> ClientHands.receive(work));
 
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> ClientInit.leftWorld());
         ClientTickEvents.END_CLIENT_TICK.register(client -> ClientInit.tickEnd());

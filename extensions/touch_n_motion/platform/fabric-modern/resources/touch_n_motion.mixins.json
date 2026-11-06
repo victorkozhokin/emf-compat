@@ -17,6 +17,7 @@
     "LeadInteractionMixin",
     "ItemPickupMixin",
     "GestureInteractionMixin",
+    "MenuInteractionMixin",
     "LevelRendererAccessor",
     "FishingHookAccessor",
     "FishingLineMixin",

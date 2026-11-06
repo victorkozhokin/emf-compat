@@ -12,6 +12,7 @@
     "LeadPlayerMixin",
     "LeadInteractionMixin",
     "GestureInteractionMixin",
+    "MenuInteractionMixin",
     "LevelRendererAccessor",
     "legacy.BoatChestMixin",
     "legacy.CapeTurnMixin",

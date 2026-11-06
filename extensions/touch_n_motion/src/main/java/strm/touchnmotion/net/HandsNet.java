@@ -30,6 +30,11 @@ public final class HandsNet {
         relay(player, act.from(player.getId()));
     }
 
+    public static void onServer(ServerPlayer player, HandsWork work) {
+        PENDING.flush(player, HandsNet::sendState);
+        relay(player, work.from(player.getId()));
+    }
+
     /** End of a server tick: collapse a burst of input to its newest state, including release. */
     public static void tick() {
         PENDING.flush(HandsNet::sendState);

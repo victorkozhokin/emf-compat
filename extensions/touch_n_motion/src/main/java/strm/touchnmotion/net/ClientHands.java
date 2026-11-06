@@ -21,6 +21,8 @@ import strm.touchnmotion.gesture.HandTo;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import net.minecraft.world.item.ItemStack;
 import strm.touchnmotion.DebugLog;
 
 /** The client's end of {@link HandsNet}: tells the server what our own hands are at, and keeps what it is told of others'. */
@@ -39,11 +41,14 @@ public final class ClientHands {
     private static final Map<Integer, Heard> HEARD = new HashMap<>();
     private static HandsState sent = HandsState.NOTHING;
     private static int sentAgo, actions;
-    private static long slotsHash;
+    private static List<ItemStack> slots = List.of();
+    private static final strm.touchnmotion.blockuse.MenuWork MENU_WORK = new strm.touchnmotion.blockuse.MenuWork();
+    private static final java.util.ArrayDeque<HandsWork> WORK = new java.util.ArrayDeque<>();
     /** The block our last accepted click used and when, game time; the block whose screen is up, {@code null} with none or not a block's. */
     private static BlockPos used, menuPos;
     private static long usedAt;
     private static boolean menuUp;
+    private static int menuId = -1;
     /** A screen that comes up this soon after a block was used, ticks, is that block's. */
     private static final int OPENED_TICKS = 20;
 
@@ -77,8 +82,13 @@ public final class ClientHands {
 
     private static void watchMenu(Minecraft mc) {
         boolean up = ownMenu();
-        if (up && !menuUp)
+        int id = up ? mc.player.containerMenu.containerId : -1;
+        if (up && (!menuUp || id != menuId)) {
             menuPos = used != null && mc.level != null && mc.level.getGameTime() - usedAt <= OPENED_TICKS ? used : null;
+            MENU_WORK.clear();
+            slots = List.of();
+        }
+        menuId = id;
         if (!up) menuPos = null;
         menuUp = up;
     }
@@ -97,6 +107,7 @@ public final class ClientHands {
             Entity known = mc.level.getEntity(entry.getKey());
             return heard.level != mc.level || known == null || !known.getUUID().equals(heard.uuid);
         });
+        menuChanged();
         HandsState now = capture(mc, player);
         sentAgo++;
         boolean looked = !now.sameInput(sent, true), changed = !now.sameInput(sent, false);
@@ -107,6 +118,16 @@ public final class ClientHands {
             sent = now;
             sentAgo = 0;
         }
+        while (!WORK.isEmpty()) Platform.sendToServer(WORK.removeFirst());
+    }
+
+    /** Called before/after a predicted click and once a tick for server-confirmed changes. */
+    public static void menuChanged() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null || !connected()) return;
+        watchMenu(mc);
+        HandsWork work = MENU_WORK.sample(mc.player, ownMenuPos());
+        if (work != null) WORK.addLast(work);
     }
 
     private static HandsState capture(Minecraft mc, LocalPlayer player) {
@@ -151,15 +172,16 @@ public final class ClientHands {
         // A container opened in the world; the player's own inventory is not one.
         if (ownMenu() && strm.touchnmotion.platform.Platform.screen() instanceof AbstractContainerScreen<?> screen) {
             menu = 1;
-            long hash = 1;
-            for (Slot slot : screen.getMenu().slots)
-                hash = hash * 31 + (slot.getItem().isEmpty() ? 0 : slot.getItem().getItem().hashCode() * 131L + slot.getItem().getCount());
-            if (hash != slotsHash) {
-                if (slotsHash != 0) actions = actions + 1 & 0x7FFF;
-                slotsHash = hash;
+            var current = screen.getMenu().slots;
+            boolean changed = current.size() != slots.size();
+            for (int i = 0; i < current.size() && !changed; i++)
+                changed = !ItemStack.matches(slots.get(i), current.get(i).getItem());
+            if (changed) {
+                if (!slots.isEmpty()) actions = actions + 1 & 0x7FFF;
+                slots = current.stream().map(slot -> slot.getItem().copy()).toList();
             }
         } else {
-            slotsHash = 0;
+            slots = List.of();
         }
         // A train driven: which contraption and which of its controls only the driver's own game knows.
         int drive = -1;
@@ -204,12 +226,22 @@ public final class ClientHands {
         Object level = mc.level;
         mc.execute(() -> {
             if (mc.level != level || mc.level == null || !(mc.level.getEntity(act.sender()) instanceof AbstractClientPlayer player) || player == mc.player) return;
+            if (DebugLog.decisions()) LOGGER.info("[Hands] act from {} kind={}", act.sender(), act.kind());
             if (act.kind() <= HandsAct.SHEAR) {
                 Entity animal = mc.level.getEntity(act.entity());
                 if (animal != null) AnimalCare.done(player, animal, act.kind(), act.mainHand());
             } else {
                 HandTo.done(player, act.kind() == HandsAct.STAND ? HandTo.STAND : HandTo.SEED, new Vec3(act.x(), act.y(), act.z()), act.mainHand());
             }
+        });
+    }
+
+    public static void receive(HandsWork work) {
+        Minecraft mc = Minecraft.getInstance();
+        Object level = mc.level;
+        mc.execute(() -> {
+            if (mc.level != level || mc.level == null || !(mc.level.getEntity(work.sender()) instanceof AbstractClientPlayer player) || player == mc.player) return;
+            BlockUse.work(player, work);
         });
     }
 
@@ -229,9 +261,13 @@ public final class ClientHands {
         HEARD.clear();
         sent = HandsState.NOTHING;
         sentAgo = actions = 0;
-        slotsHash = usedAt = 0;
+        usedAt = 0;
+        slots = List.of();
+        MENU_WORK.clear();
+        WORK.clear();
         used = menuPos = null;
         menuUp = false;
+        menuId = -1;
         strm.touchnmotion.blockuse.aeronautics.CockpitControls.forgetOwnWheel();
     }
 }

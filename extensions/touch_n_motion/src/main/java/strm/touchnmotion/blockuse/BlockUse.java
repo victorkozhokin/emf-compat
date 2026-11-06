@@ -153,7 +153,6 @@ public final class BlockUse implements InteractionProvider {
         BlockPos pos;
         Object last;
         /** For another player at the block's screen: how many slot actions their game had counted; -1 unknown. */
-        int menuActions = -1;
         /** When this player last gave a sign of using something: a swing begun, the use key, a screen up. */
         long actedAt;
         boolean swinging;
@@ -248,26 +247,14 @@ public final class BlockUse implements InteractionProvider {
                 BlockPos menuPos = menu == null ? null : Inputs.menuPos(player);
                 boolean theirs = (menu == null || menu && (menuPos == null || menuPos.equals(state.pos))) && !othersDoing(player, state);
                 if (!seen.equals(state.last)) {
-                    BlockTarget.Gesture gesture = theirs ? state.target.changed(state.pos, state.last, seen) : null;
+                    BlockTarget.Gesture gesture = theirs && !(state.target.menu() && player != mc.player && Inputs.told(player))
+                            ? state.target.changed(state.pos, state.last, seen) : null;
                     if (gesture != null) {
                         state.gesture = gesture;
                         state.gestureAt = now;
                     }
                     state.last = seen;
                 }
-                // Another player's screen shows nothing here but that something was moved in it: the hand goes down once.
-                int moved = menu != null && menu && theirs && player != Minecraft.getInstance().player ? Inputs.menuActions(player) : -1;
-                if (moved >= 0 && state.menuActions >= 0 && moved != state.menuActions && state.gesture == null && state.target.matches(block)) {
-                    BlockTarget.Spot at = state.target.hover(player, state.pos, block,
-                            new BlockHitResult(Vec3.atCenterOf(state.pos), net.minecraft.core.Direction.UP, state.pos, false));
-                    if (at != null) {
-                        state.gesture = new BlockTarget.Gesture(at, BlockTarget.Motion.PUT);
-                        state.gestureAt = now;
-                    }
-                }
-                state.menuActions = moved;
-            } else {
-                state.menuActions = -1;
             }
             double t = state.gesture == null ? 1 : (now - state.gestureAt) / 1e9 / GESTURE_SECONDS;
             if (t >= 1) state.gesture = null;
@@ -548,6 +535,26 @@ public final class BlockUse implements InteractionProvider {
         }
         state.target = target;
         return spot;
+    }
+
+    static BlockTarget menuTarget(BlockState block) {
+        for (BlockTarget target : targetsOf(block)) if (target.menu()) return target;
+        return null;
+    }
+
+    /** Exact remote menu gesture; its point stays in block/sub-level space until the drawn frame. */
+    public static void work(AbstractClientPlayer player, strm.touchnmotion.net.HandsWork work) {
+        var block = player.level().getBlockState(work.block());
+        BlockTarget target = menuTarget(block);
+        if (target == null || work.motion() < 0 || work.motion() >= BlockTarget.Motion.values().length) return;
+        State state = STATES.seen(player.getUUID(), System.nanoTime()).value;
+        state.pos = work.block();
+        state.target = target;
+        state.last = target.snapshot(player, player.level(), state.pos, block);
+        state.gesture = new BlockTarget.Gesture(new BlockTarget.Spot(work.point(), work.out()), BlockTarget.Motion.values()[work.motion()], work.sweep());
+        state.gestureAt = state.actedAt = System.nanoTime();
+        if (strm.touchnmotion.DebugLog.decisions()) org.slf4j.LoggerFactory.getLogger("EMFCompatHands")
+                .info("[Hands] work from {} block={} motion={} point={}", player.getId(), work.block(), state.gesture.motion(), work.point());
     }
 
     /** The control our own player's hands are kept on while the eyes wander - a wheel, a keyboard, a plate - or {@code null}. */

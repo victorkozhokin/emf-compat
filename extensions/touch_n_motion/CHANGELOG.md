@@ -32,6 +32,8 @@
 
 ### Fixed
 
+- Multiplayer: menu work shares its actual put, take or tap and contact point, including crafter slot toggles, instead of a generic put; it is captured in first person too
+
 - Multiplayer: cockpit anchors, both typing hands, actual block breaking, the lead hand and cannon aiming are shared even when the local model is hidden; train control changes send immediately and input is cleared between worlds
 
 - Multiplayer: bursts of hand input keep the newest state, including release, without dropping one-shot gestures; a gesture follows the state it belongs to

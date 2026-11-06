@@ -12,6 +12,7 @@ import strm.touchnmotion.net.ClientHands;
 import strm.touchnmotion.net.HandsAct;
 import strm.touchnmotion.net.HandsNet;
 import strm.touchnmotion.net.HandsState;
+import strm.touchnmotion.net.HandsWork;
 
 import java.util.function.Supplier;
 
@@ -32,6 +33,7 @@ public final class ForgeNet {
     static void register() {
         CHANNEL.registerMessage(0, HandsState.class, (state, out) -> HandsState.write(out, state), HandsState::read, ForgeNet::got);
         CHANNEL.registerMessage(1, HandsAct.class, HandsAct::write, HandsAct::read, ForgeNet::got);
+        CHANNEL.registerMessage(2, HandsWork.class, HandsWork::write, HandsWork::read, ForgeNet::got);
     }
 
     private static void got(Object message, Supplier<NetworkEvent.Context> context) {
@@ -43,6 +45,7 @@ public final class ForgeNet {
                 if (player == null) return;
                 if (message instanceof HandsState state) HandsNet.onServer(player, state);
                 else if (message instanceof HandsAct act) HandsNet.onServer(player, act);
+                else if (message instanceof HandsWork work) HandsNet.onServer(player, work);
             } else {
                 Client.got(message);
             }
@@ -55,6 +58,7 @@ public final class ForgeNet {
         static void got(Object message) {
             if (message instanceof HandsState state) ClientHands.receive(state);
             else if (message instanceof HandsAct act) ClientHands.receive(act);
+            else if (message instanceof HandsWork work) ClientHands.receive(work);
         }
     }
 

@@ -14,6 +14,7 @@ import strm.touchnmotion.net.ClientHands;
 import strm.touchnmotion.net.HandsAct;
 import strm.touchnmotion.net.HandsNet;
 import strm.touchnmotion.net.HandsState;
+import strm.touchnmotion.net.HandsWork;
 
 /** Touch'n Motion on NeoForge: the entry point, and the one thing a server has of the mod - the channels it passes players' hands on by. */
 @Mod(TouchNMotionMod.MOD_ID)
@@ -39,6 +40,11 @@ public class TouchNMotionNeoForge {
                 new DirectionalPayloadHandler<>((act, context) -> ClientHands.receive(act),
                         (act, context) -> {
                             if (context.player() instanceof ServerPlayer player) HandsNet.onServer(player, act);
+                        }));
+        registrar.playBidirectional(HandsWork.TYPE, HandsWork.CODEC,
+                new DirectionalPayloadHandler<>((work, context) -> ClientHands.receive(work),
+                        (work, context) -> {
+                            if (context.player() instanceof ServerPlayer player) HandsNet.onServer(player, work);
                         }));
     }
 }
