@@ -15,6 +15,7 @@ public class TouchNMotionFabric implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(server -> HandsNet.tick());
         PayloadTypeRegistry.playC2S().register(HandsState.TYPE, HandsState.CODEC);
         PayloadTypeRegistry.playS2C().register(HandsState.TYPE, HandsState.CODEC);
         PayloadTypeRegistry.playC2S().register(HandsAct.TYPE, HandsAct.CODEC);

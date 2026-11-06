@@ -14,6 +14,9 @@ public class TouchNMotionForge {
     public TouchNMotionForge() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ForgeNet.register();
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.TickEvent.ServerTickEvent event) -> {
+            if (event.phase == net.minecraftforge.event.TickEvent.Phase.END) strm.touchnmotion.net.HandsNet.tick();
+        });
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ForgeClient.run(modEventBus);
         }

@@ -32,6 +32,8 @@
 
 ### Fixed
 
+- Multiplayer: bursts of hand input keep the newest state, including release, without dropping one-shot gestures; a gesture follows the state it belongs to
+
 - Rope and rail grips ease in from the resource pack pose with one ownership blend; the final contact correction no longer applies that weight a second time
 
 - Sable: door and button searches use the player's place on the deck; reading a sign follows its board in the sub-level, and visibility checks keep world and plot hits apart

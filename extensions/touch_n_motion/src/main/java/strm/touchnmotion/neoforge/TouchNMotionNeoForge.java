@@ -21,6 +21,8 @@ public class TouchNMotionNeoForge {
 
     public TouchNMotionNeoForge(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(TouchNMotionNeoForge::registerChannels);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(
+                (net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) -> HandsNet.tick());
         if (FMLEnvironment.dist == Dist.CLIENT) {
             NeoForgeClient.run(modEventBus, modContainer);
         }

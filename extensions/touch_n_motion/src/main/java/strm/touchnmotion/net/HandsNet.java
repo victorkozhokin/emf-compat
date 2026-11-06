@@ -3,9 +3,7 @@ package strm.touchnmotion.net;
 import net.minecraft.server.level.ServerPlayer;
 import strm.touchnmotion.platform.ServerSide;
 
-import java.util.Map;
 import java.util.UUID;
-import java.util.WeakHashMap;
 
 /**
  * The addon's only part that runs on a server: two optional channels, on which the server does
@@ -16,31 +14,29 @@ import java.util.WeakHashMap;
 public final class HandsNet {
     /** No further than this, blocks, is anyone told. */
     private static final double RANGE = 96;
-    /** A player's states are passed on no oftener than this many a second; the rest are dropped. */
-    private static final int PER_SECOND = 24;
-
-    private static final Map<ServerPlayer, long[]> RATE = new WeakHashMap<>();
+    private static final LatestStates<ServerPlayer, HandsState> PENDING = new LatestStates<>();
 
     private HandsNet() {
     }
 
     /** A server got a player's state: passed on, under the player's own id. The channels themselves are the loader's part to register. */
     public static void onServer(ServerPlayer player, HandsState state) {
-        if (allowed(player)) relay(player, state.from(player.getId()));
+        PENDING.put(player, state.from(player.getId()));
     }
 
     public static void onServer(ServerPlayer player, HandsAct act) {
-        if (allowed(player)) relay(player, act.from(player.getId()));
+        // A click must not use up the input budget, nor arrive before its target/held control.
+        PENDING.flush(player, HandsNet::sendState);
+        relay(player, act.from(player.getId()));
     }
 
-    private static boolean allowed(ServerPlayer player) {
-        long second = System.nanoTime() / 1_000_000_000L;
-        long[] rate = RATE.computeIfAbsent(player, p -> new long[2]);
-        if (rate[0] != second) {
-            rate[0] = second;
-            rate[1] = 0;
-        }
-        return ++rate[1] <= PER_SECOND;
+    /** End of a server tick: collapse a burst of input to its newest state, including release. */
+    public static void tick() {
+        PENDING.flush(HandsNet::sendState);
+    }
+
+    private static void sendState(ServerPlayer player, HandsState state) {
+        if (ServerSide.level(player).players().contains(player)) relay(player, state);
     }
 
     /** To every other player of that level near enough, whose game knows the channel. */
