@@ -14,8 +14,8 @@ import java.util.WeakHashMap;
  * Aiming the cannon of Supplementaries' boat: where the hands go - onto the cannon's breech, one to
  * a side, going round with it as it is turned ({@link BoatRide} takes them off the paddles for it).
  *
- * <p>Our own player aims while the mod's cannon view is on. Of another player only the cannon is
- * seen: they are taken to be aiming for a moment after it has turned. Optional, by name.</p>
+ * <p>The native aiming mode is shared by TnM. Without its server channel, another player's recent
+ * cannon rotation remains the fallback. Optional, by name.</p>
  */
 public final class CannonAim {
 
@@ -30,6 +30,17 @@ public final class CannonAim {
     private static final Map<Boat, Object[]> TURNED = new WeakHashMap<>();
 
     private CannonAim() {
+    }
+
+    /** Native aiming mode, sampled even while first person hides the player's model. */
+    public static boolean ownAiming(AbstractClientPlayer player) {
+        if (failed || !(player.getVehicle() instanceof Boat boat) || !CannonInBow.moved(boat)) return false;
+        try {
+            if (active == null) active = Class.forName("net.mehvahdjukaar.supplementaries.client.cannon.CannonController").getMethod("isActive");
+            return (Boolean) active.invoke(null);
+        } catch (ReflectiveOperationException | LinkageError absent) {
+            return false;
+        }
     }
 
     /** The places of the right hand and the left on the breech of {@code boat}'s cannon, in the world; {@code null} when {@code player} is not aiming it. */
@@ -53,7 +64,8 @@ public final class CannonAim {
                 ((Vector3f) seen[0]).set(local);
                 seen[1] = now;
             }
-            boolean aiming = player == Minecraft.getInstance().player ? (Boolean) active.invoke(null)
+            boolean aiming = player == Minecraft.getInstance().player ? ownAiming(player)
+                    : strm.touchnmotion.net.Inputs.told(player) ? strm.touchnmotion.net.Inputs.details(player).cannonAim()
                     : (Long) seen[1] != 0L && (now - (Long) seen[1]) / 1e9 < LINGER;
             if (!aiming) return null;
             Vec3 at = (Vec3) positionOf.invoke(cannon, partial);

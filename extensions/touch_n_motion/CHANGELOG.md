@@ -32,6 +32,8 @@
 
 ### Fixed
 
+- Multiplayer: cockpit anchors, both typing hands, actual block breaking, the lead hand and cannon aiming are shared even when the local model is hidden; train control changes send immediately and input is cleared between worlds
+
 - Multiplayer: bursts of hand input keep the newest state, including release, without dropping one-shot gestures; a gesture follows the state it belongs to
 
 - Rope and rail grips ease in from the resource pack pose with one ownership blend; the final contact correction no longer applies that weight a second time

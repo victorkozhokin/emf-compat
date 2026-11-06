@@ -21,9 +21,10 @@ import java.util.function.Supplier;
  * sent to.
  */
 public final class ForgeNet {
-    private static final String VERSION = "2";
+    private static final String VERSION = "3";
     private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation("touch_n_motion", "hands"), () -> VERSION, version -> true, version -> true);
+            new ResourceLocation("touch_n_motion", "hands_v3"), () -> VERSION, version -> VERSION.equals(version) || NetworkRegistry.ABSENT.equals(version) || NetworkRegistry.ACCEPTVANILLA.equals(version),
+            version -> VERSION.equals(version) || NetworkRegistry.ABSENT.equals(version) || NetworkRegistry.ACCEPTVANILLA.equals(version));
 
     private ForgeNet() {
     }

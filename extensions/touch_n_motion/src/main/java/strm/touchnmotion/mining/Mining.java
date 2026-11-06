@@ -252,8 +252,7 @@ public final class Mining implements InteractionProvider {
         }
         // Their own game says it outright; the crack list is the guess for a server that passes nothing on.
         if (strm.touchnmotion.net.Inputs.told(player))
-            return strm.touchnmotion.net.Inputs.attackHeld(player) && strm.touchnmotion.net.Inputs.sight(player, 6, 1f) instanceof BlockHitResult told
-                    && told.getType() == HitResult.Type.BLOCK ? told.getBlockPos() : null;
+            return strm.touchnmotion.net.Inputs.details(player).breaking();
         if ((now - state.swungAt) / 1e9 > SWING_GAP) return null;
         //? if <26.2 {
         var blocks = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).emfcompat$destroyingBlocks();

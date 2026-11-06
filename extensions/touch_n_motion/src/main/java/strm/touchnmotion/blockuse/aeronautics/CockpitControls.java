@@ -87,6 +87,36 @@ public final class CockpitControls implements InteractionProvider {
     }
     public boolean isEnabled() { return BlockUse.INSTANCE.isEnabled() && ButtonPress.INSTANCE.isEnabled(); }
 
+    private static Object ownLevel;
+    private static net.minecraft.world.entity.Entity ownSeat;
+    private static BlockPos ownWheel;
+
+    public static void forgetOwnWheel() {
+        ownLevel = null;
+        ownSeat = null;
+        ownWheel = null;
+    }
+
+    /** Remember the cockpit anchor on client ticks too, including in first person. */
+    public static BlockPos ownWheel(AbstractClientPlayer player) {
+        if (!Seated.seated(player)) { forgetOwnWheel(); return null; }
+        if (ownLevel != player.level() || ownSeat != player.getVehicle()) {
+            ownLevel = player.level();
+            ownSeat = player.getVehicle();
+            ownWheel = null;
+        }
+        var sight = net.minecraft.client.Minecraft.getInstance().hitResult;
+        BlockPos held = SteeringWheel.heldPosition();
+        BlockPos candidate = held != null ? held : sight instanceof BlockHitResult hit
+                && hit.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK ? hit.getBlockPos() : null;
+        if (candidate != null && WHEEL.matches(player.level().getBlockState(candidate))
+                && SubLevels.toWorld(player.level(), candidate, Vec3.atCenterOf(candidate)).distanceTo(seatWorld(player)) <= 3)
+            ownWheel = candidate.immutable();
+        if (ownWheel != null && (!WHEEL.matches(player.level().getBlockState(ownWheel))
+                || SubLevels.toWorld(player.level(), ownWheel, Vec3.atCenterOf(ownWheel)).distanceTo(seatWorld(player)) > 3)) ownWheel = null;
+        return ownWheel;
+    }
+
     public void collect(InteractionContext context, List<Candidate> out) {
         AbstractClientPlayer player = context.player();
         State state = STATES.seen(player.getUUID(), context.now()).value;
@@ -131,9 +161,13 @@ public final class CockpitControls implements InteractionProvider {
             var sight = player == net.minecraft.client.Minecraft.getInstance().player ? player.pick(3, 1, false)
                     : strm.touchnmotion.net.Inputs.sight(player, 3, 1);
             BlockHitResult hit = sight instanceof BlockHitResult b && b.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK ? b : null;
-            if (hit != null && WHEEL.matches(player.level().getBlockState(hit.getBlockPos()))
-                    && !hit.getBlockPos().equals(state.wheel)) {
-                state.wheel = hit.getBlockPos().immutable();
+            boolean told = strm.touchnmotion.net.Inputs.told(player);
+            BlockPos wheel = player == net.minecraft.client.Minecraft.getInstance().player ? ownWheel(player)
+                    : told ? strm.touchnmotion.net.Inputs.details(player).cockpitWheel()
+                    : hit != null && WHEEL.matches(player.level().getBlockState(hit.getBlockPos())) ? hit.getBlockPos() : state.wheel;
+            if (told && wheel == null) state.wheel = null;
+            if (wheel != null && WHEEL.matches(player.level().getBlockState(wheel)) && !wheel.equals(state.wheel)) {
+                state.wheel = wheel.immutable();
                 Arrays.fill(state.rim, null);
                 state.motion.away = state.motion.moving = -1;
                 state.motion.progress = 1;

@@ -112,6 +112,19 @@ public final class SteeringWheel implements BlockTarget {
             return false;
         }
     }
+    private static java.lang.reflect.Method position;
+
+    /** Native active control, independent of whether our own model has been rendered. */
+    public static BlockPos heldPosition() {
+        if (!held(null)) return null;
+        try {
+            if (position == null) position = handler.getClass().getMethod("getInteractionPos");
+            return (BlockPos) position.invoke(handler);
+        } catch (ReflectiveOperationException | LinkageError absent) {
+            return null;
+        }
+    }
+
     public Float stanceAngle(Level level, BlockPos pos) {
         Float radians = ANGLE.read(level, pos);
         return radians == null ? null : (float) Math.toDegrees(radians);

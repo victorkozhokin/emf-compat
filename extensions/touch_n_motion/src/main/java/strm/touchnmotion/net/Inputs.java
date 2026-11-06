@@ -77,6 +77,11 @@ public final class Inputs {
         return told == null ? -1 : told.key();
     }
 
+    public static HandsDetails details(AbstractClientPlayer player) {
+        HandsState told = ClientHands.of(player);
+        return told == null ? HandsDetails.NONE : told.details();
+    }
+
     /** The contraption another player drives, as their game says, and which of its controls; -1 and {@code null} for none. */
     public static int driveEntity(AbstractClientPlayer player) {
         HandsState told = ClientHands.of(player);

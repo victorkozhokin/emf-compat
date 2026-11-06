@@ -87,7 +87,7 @@ public final class Typewriter implements BlockTarget {
         Object held = own ? ownHeld() : PRESSED_KEYS.read(player.level().getBlockEntity(pos));
         // Told by the typist's game: the key as an index of the drawn keys, as our own are.
         if (!own && strm.touchnmotion.net.Inputs.told(player)) {
-            int told = strm.touchnmotion.net.Inputs.typedKey(player);
+            int told = strm.touchnmotion.net.TypingKeys.key(strm.touchnmotion.net.Inputs.details(player).typingKeys(), right);
             held = told < 0 ? List.of() : List.of(told);
             own = true;
         }
@@ -117,6 +117,18 @@ public final class Typewriter implements BlockTarget {
     /** The key the player holds down, 0..{@link #KEYS}-1, or -1: our own from the screen, another's as their game says. */
     public static int pressedKey(AbstractClientPlayer player) {
         return player == Minecraft.getInstance().player ? pressedKey() : strm.touchnmotion.net.Inputs.typedKey(player);
+    }
+
+    /** Preserve the last key of each half; two hands may press different keys at once. */
+    public static int pressedKeys() {
+        Object held = ownHeld();
+        int result = 0;
+        if (held instanceof List<?> keys) for (Object each : List.copyOf(keys)) {
+            if (!(each instanceof Integer value)) continue;
+            int index = Math.max(0, Math.min(KEYS - 1, value));
+            result = strm.touchnmotion.net.TypingKeys.with(result, key(index)[0] <= 8, index);
+        }
+        return result;
     }
 
     static int pressedKey() {

@@ -32,7 +32,7 @@ public final class ClientHands {
     /** What was heard longer ago than this is forgotten: the sender has gone quiet, or away. */
     private static final long FRESH_NANOS = 1_500_000_000L;
 
-    private record Heard(HandsState state, long at) {
+    private record Heard(HandsState state, Object level, java.util.UUID uuid, long at) {
     }
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("EMFCompatHands");
@@ -88,13 +88,18 @@ public final class ClientHands {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         if (player != null) watchMenu(mc);
-        if (player == null || !connected()) {
+        if (player == null || mc.level == null || !connected()) {
             sent = HandsState.NOTHING;
             return;
         }
+        HEARD.entrySet().removeIf(entry -> {
+            Heard heard = entry.getValue();
+            Entity known = mc.level.getEntity(entry.getKey());
+            return heard.level != mc.level || known == null || !known.getUUID().equals(heard.uuid);
+        });
         HandsState now = capture(mc, player);
         sentAgo++;
-        boolean looked = !same(now, sent, false), changed = !same(now, sent, true);
+        boolean looked = !now.sameInput(sent, true), changed = !now.sameInput(sent, false);
         if (changed || looked && sentAgo >= LOOK_TICKS || !now.idle() && sentAgo >= AGAIN_TICKS) {
             Platform.sendToServer(now);
             if (changed && DebugLog.decisions())
@@ -112,7 +117,11 @@ public final class ClientHands {
         if (playing && mc.options.keyUse.isDown()) flags |= HandsState.USE;
         if (playing && mc.options.keyAttack.isDown()) flags |= HandsState.ATTACK;
         // A control the hands stay on while the eyes wander is what is "looked at" for as long as it is held.
-        BlockPos held = BlockUse.heldBlock(player);
+        BlockPos throttle = ThrottleLever.heldPosition();
+        if (throttle == null) throttle = strm.touchnmotion.buttonpress.HandleLevers.dragged();
+        BlockPos typing = Typewriter.activePosition(player);
+        BlockPos wheel = strm.touchnmotion.blockuse.aeronautics.SteeringWheel.heldPosition();
+        BlockPos held = typing != null ? typing : throttle != null ? throttle : wheel != null ? wheel : BlockUse.heldBlock(player);
         HitResult hit = mc.hitResult;
         if (held != null) {
             flags |= HandsState.HOLD | HandsState.BLOCK;
@@ -134,10 +143,7 @@ public final class ClientHands {
             entity = entityHit.getEntity().getId();
         }
         // A lever Lever drugster drags is held as a throttle is: told the same way.
-        BlockPos throttle = ThrottleLever.heldPosition();
-        if (throttle == null) throttle = strm.touchnmotion.buttonpress.HandleLevers.dragged();
         if (throttle != null) flags |= HandsState.THROTTLE;
-        BlockPos typing = Typewriter.activePosition(player);
         if (typing != null) {
             flags |= HandsState.TYPING;
             key = Typewriter.pressedKey(player);
@@ -165,16 +171,12 @@ public final class ClientHands {
         } else {
             drivePos = null;
         }
-        return new HandsState(0, flags, block, face, x, y, z, entity, throttle, typing, key, menu, actions, drive, drivePos, menu == 0 ? null : menuPos);
-    }
-
-    /** {@code all}: everything; else everything but where on the same block the crosshair is. */
-    private static boolean same(HandsState a, HandsState b, boolean all) {
-        if (a.flags() != b.flags() || a.entity() != b.entity() || a.key() != b.key() || a.drive() != b.drive() || a.menu() != b.menu() || !java.util.Objects.equals(a.menuPos(), b.menuPos()) || a.actions() != b.actions()
-                || !java.util.Objects.equals(a.block(), b.block()) || !java.util.Objects.equals(a.throttle(), b.throttle())
-                || !java.util.Objects.equals(a.typing(), b.typing())) return false;
-        // The spot looked at on one and the same block is the only thing that waits its turn.
-        return all || a.face() == b.face() && a.hitX() == b.hitX() && a.hitY() == b.hitY() && a.hitZ() == b.hitZ();
+        BlockPos breaking = mc.gameMode != null && mc.gameMode.isDestroying()
+                && mc.hitResult instanceof BlockHitResult target && target.getType() == HitResult.Type.BLOCK ? target.getBlockPos() : null;
+        HandsDetails details = new HandsDetails(strm.touchnmotion.blockuse.aeronautics.CockpitControls.ownWheel(player),
+                typing == null ? 0 : Typewriter.pressedKeys(), breaking,
+                strm.touchnmotion.lead.LeadHold.heldHand(player), strm.touchnmotion.ride.CannonAim.ownAiming(player));
+        return new HandsState(0, flags, block, face, x, y, z, entity, throttle, typing, key, menu, actions, drive, drivePos, menu == 0 ? null : menuPos, details);
     }
 
     /** Our own game accepted a click a gesture answers: others are told, so they need not guess. */
@@ -185,9 +187,13 @@ public final class ClientHands {
     }
 
     public static void receive(HandsState state) {
-        Minecraft.getInstance().execute(() -> {
+        Minecraft mc = Minecraft.getInstance();
+        Object level = mc.level;
+        mc.execute(() -> {
+            if (level != mc.level) return;
             if (HEARD.size() > 256) HEARD.clear();
-            Heard before = HEARD.put(state.sender(), new Heard(state, System.nanoTime()));
+            if (mc.level == null || !(mc.level.getEntity(state.sender()) instanceof AbstractClientPlayer player)) return;
+            Heard before = HEARD.put(state.sender(), new Heard(state, mc.level, player.getUUID(), System.nanoTime()));
             if (DebugLog.decisions() && (before == null || before.state.flags() != state.flags()))
                 LOGGER.info("[Hands] heard from {} flags={} block={} entity={}", state.sender(), state.flags(), state.block(), state.entity());
         });
@@ -195,8 +201,9 @@ public final class ClientHands {
 
     public static void receive(HandsAct act) {
         Minecraft mc = Minecraft.getInstance();
+        Object level = mc.level;
         mc.execute(() -> {
-            if (mc.level == null || !(mc.level.getEntity(act.sender()) instanceof AbstractClientPlayer player) || player == mc.player) return;
+            if (mc.level != level || mc.level == null || !(mc.level.getEntity(act.sender()) instanceof AbstractClientPlayer player) || player == mc.player) return;
             if (act.kind() <= HandsAct.SHEAR) {
                 Entity animal = mc.level.getEntity(act.entity());
                 if (animal != null) AnimalCare.done(player, animal, act.kind(), act.mainHand());
@@ -210,7 +217,7 @@ public final class ClientHands {
     public static HandsState of(AbstractClientPlayer player) {
         if (HEARD.isEmpty() || player == Minecraft.getInstance().player) return null;
         Heard heard = HEARD.get(player.getId());
-        return heard != null && System.nanoTime() - heard.at < FRESH_NANOS ? heard.state : null;
+        return heard != null && heard.level == player.level() && heard.uuid.equals(player.getUUID()) && System.nanoTime() - heard.at < FRESH_NANOS ? heard.state : null;
     }
 
     /** For tests: as if this had come from the server. */
@@ -221,5 +228,10 @@ public final class ClientHands {
     public static void forgetAll() {
         HEARD.clear();
         sent = HandsState.NOTHING;
+        sentAgo = actions = 0;
+        slotsHash = usedAt = 0;
+        used = menuPos = null;
+        menuUp = false;
+        strm.touchnmotion.blockuse.aeronautics.CockpitControls.forgetOwnWheel();
     }
 }

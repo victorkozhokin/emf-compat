@@ -18,13 +18,13 @@ import net.minecraft.resources.ResourceLocation;
  */
 public record HandsState(int sender, int flags, BlockPos block, int face, double hitX, double hitY, double hitZ, int entity,
                          BlockPos throttle, BlockPos typing, int key, int menu, int actions, int drive, BlockPos drivePos,
-                         BlockPos menuPos)
+                         BlockPos menuPos, HandsDetails details)
         //? if >=1.20.5
         implements CustomPacketPayload
 {
     public static final int USE = 1, ATTACK = 2, BLOCK = 4, ENTITY = 8, HOLD = 16, THROTTLE = 32, TYPING = 64, DRIVE = 128;
     //? if >=1.20.5 {
-    public static final Type<HandsState> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("touch_n_motion", "hands"));
+    public static final Type<HandsState> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("touch_n_motion", "hands_v3"));
     public static final StreamCodec<RegistryFriendlyByteBuf, HandsState> CODEC = StreamCodec.of(HandsState::write, HandsState::read);
 
     @Override
@@ -32,7 +32,7 @@ public record HandsState(int sender, int flags, BlockPos block, int face, double
         return TYPE;
     }
     //?}
-    public static final HandsState NOTHING = new HandsState(0, 0, null, 0, 0, 0, 0, -1, null, null, -1, 0, 0, -1, null, null);
+    public static final HandsState NOTHING = new HandsState(0, 0, null, 0, 0, 0, 0, -1, null, null, -1, 0, 0, -1, null, null, HandsDetails.NONE);
 
     public static void write(FriendlyByteBuf out, HandsState s) {
         out.writeVarInt(s.sender);
@@ -58,6 +58,7 @@ public record HandsState(int sender, int flags, BlockPos block, int face, double
         out.writeByte(s.menu == 0 ? 0 : s.menuPos == null ? 1 : 2);
         out.writeShort(s.actions);
         if (s.menu != 0 && s.menuPos != null) out.writeBlockPos(s.menuPos);
+        s.details.write(out);
     }
 
     public static HandsState read(FriendlyByteBuf in) {
@@ -84,7 +85,16 @@ public record HandsState(int sender, int flags, BlockPos block, int face, double
         }
         int menu = in.readByte(), actions = in.readShort();
         BlockPos menuPos = menu == 2 ? in.readBlockPos() : null;
-        return new HandsState(sender, flags, block, face, x, y, z, entity, throttle, typing, key, menu == 0 ? 0 : 1, actions, drive, drivePos, menuPos);
+        return new HandsState(sender, flags, block, face, x, y, z, entity, throttle, typing, key, menu == 0 ? 0 : 1, actions, drive, drivePos, menuPos, HandsDetails.read(in));
+    }
+
+    /** Only movement of the hit point waits its turn; all control identities change immediately. */
+    public boolean sameInput(HandsState b, boolean includeHit) {
+        if (!java.util.Objects.equals(this.drivePos(), b.drivePos()) || !this.details().equals(b.details()) || this.flags() != b.flags() || this.entity() != b.entity() || this.key() != b.key() || this.drive() != b.drive() || this.menu() != b.menu() || !java.util.Objects.equals(this.menuPos(), b.menuPos()) || this.actions() != b.actions()
+                || !java.util.Objects.equals(this.block(), b.block()) || !java.util.Objects.equals(this.throttle(), b.throttle())
+                || !java.util.Objects.equals(this.typing(), b.typing())) return false;
+        // The spot looked at on one and the same block is the only thing that waits its turn.
+        return !includeHit || this.face() == b.face() && this.hitX() == b.hitX() && this.hitY() == b.hitY() && this.hitZ() == b.hitZ();
     }
 
     public boolean has(int flag) {
@@ -93,10 +103,10 @@ public record HandsState(int sender, int flags, BlockPos block, int face, double
 
     /** Whether there is anything in it worth keeping another client told of. */
     public boolean idle() {
-        return flags == 0 && menu == 0;
+        return flags == 0 && menu == 0 && details.idle();
     }
 
     public HandsState from(int entityId) {
-        return new HandsState(entityId, flags, block, face, hitX, hitY, hitZ, entity, throttle, typing, key, menu, actions, drive, drivePos, menuPos);
+        return new HandsState(entityId, flags, block, face, hitX, hitY, hitZ, entity, throttle, typing, key, menu, actions, drive, drivePos, menuPos, details);
     }
 }

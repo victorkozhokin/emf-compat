@@ -29,7 +29,7 @@ public class TouchNMotionNeoForge {
     }
 
     private static void registerChannels(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("2").optional();
+        PayloadRegistrar registrar = event.registrar("3").optional();
         registrar.playBidirectional(HandsState.TYPE, HandsState.CODEC,
                 new DirectionalPayloadHandler<>((state, context) -> ClientHands.receive(state),
                         (state, context) -> {

@@ -33,6 +33,7 @@ public final class LeadHold implements InteractionProvider {
         final LeadStopGesture stop = new LeadStopGesture();
         final Vector3f palm = new Vector3f(), direction = new Vector3f();
         UUID animal, attachingAnimal;
+        int handChecked = Integer.MIN_VALUE, reportedHand = -1;
         Effector attachingHand;
         Effector hand = Effector.RIGHT_ARM;
         boolean active, grounded, hasPalm;
@@ -71,8 +72,26 @@ public final class LeadHold implements InteractionProvider {
                 || strm.touchnmotion.platform.Platform.leashHolder(target) == player) return;
         State s = STATES.seen(player.getUUID(), System.nanoTime()).value;
         s.attachingAnimal = target.getUUID();
+        s.handChecked = Integer.MIN_VALUE;
         boolean right = Body.right(player, hand);
         s.attachingHand = Effector.arm(right);
+    }
+
+    /** Current physical hand, even when the local model is hidden; -1 without a lead. */
+    public static int heldHand(AbstractClientPlayer player) {
+        State s = STATES.seen(player.getUUID(), System.nanoTime()).value;
+        if (s.handChecked != Integer.MIN_VALUE && player.tickCount - s.handChecked >= 0 && player.tickCount - s.handChecked < 5)
+            return s.reportedHand;
+        s.handChecked = player.tickCount;
+        var attached = player.level().getEntities(player, player.getBoundingBox().inflate(12),
+                entity -> entity.isAlive() && strm.touchnmotion.platform.Platform.leashHolder(entity) == player);
+        if (attached.isEmpty()) { s.animal = null; s.hasPalm = false; return s.reportedHand = -1; }
+        if (s.hand == null || s.animal == null) {
+            boolean off = player.getOffhandItem().is(Items.LEAD) && !player.getMainHandItem().is(Items.LEAD);
+            s.hand = s.attachingHand != null && attached.stream().anyMatch(entity -> entity.getUUID().equals(s.attachingAnimal))
+                    ? s.attachingHand : Effector.arm(Body.right(player, true) != off);
+        }
+        return s.reportedHand = s.hand == Effector.RIGHT_ARM ? 0 : 1;
     }
 
     /** Same animal attachment transform as the vanilla lead renderer. */
@@ -106,7 +125,10 @@ public final class LeadHold implements InteractionProvider {
         }
         if (chosen == null) { s.animal = null; s.hasPalm = false; context.decide("none"); return; }
         boolean fresh = s.animal == null || !chosen.getUUID().equals(s.animal);
-        if (s.animal == null) {
+        int toldHand = strm.touchnmotion.net.Inputs.details(player).leadHand();
+        if (strm.touchnmotion.net.Inputs.told(player) && toldHand >= 0 && toldHand <= 1) {
+            s.hand = Effector.arm(toldHand == 0);
+        } else if (s.animal == null) {
             boolean mainRight = Body.right(player, true);
             boolean off = player.getOffhandItem().is(Items.LEAD) && !player.getMainHandItem().is(Items.LEAD);
             s.hand = chosen.getUUID().equals(s.attachingAnimal) && s.attachingHand != null ? s.attachingHand

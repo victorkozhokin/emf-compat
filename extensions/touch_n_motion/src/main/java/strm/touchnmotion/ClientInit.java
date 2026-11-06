@@ -23,6 +23,8 @@ import strm.touchnmotion.wallhand.WallSqueeze;
  * server loads too. The loader's part ({@code neoforge}, {@code fabric}) calls it and tells it the tick and the leaving of a world.
  */
 public final class ClientInit {
+    private static Object level;
+
     private ClientInit() {
     }
 
@@ -93,6 +95,11 @@ public final class ClientInit {
 
     /** The end of a client tick: what our own hands are at, told to a server that passes it on. */
     public static void tickEnd() {
+        Object current = net.minecraft.client.Minecraft.getInstance().level;
+        if (current != level) {
+            leftWorld();
+            level = current;
+        }
         strm.touchnmotion.net.ClientHands.tick();
         strm.touchnmotion.compat.NeaCompat.tick();
         strm.touchnmotion.compat.PlayerModelCheck.tick();
@@ -101,6 +108,7 @@ public final class ClientInit {
 
     /** Leaving a world drops every feature's per-entity state with it, and what was known of other players' hands. */
     public static void leftWorld() {
+        level = null;
         EntityStates.clearAll();
         TouchNMotionHook.Drawn.clear();
         strm.touchnmotion.net.ClientHands.forgetAll();

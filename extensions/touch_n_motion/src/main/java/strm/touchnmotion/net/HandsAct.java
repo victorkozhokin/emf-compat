@@ -20,7 +20,7 @@ public record HandsAct(int sender, int kind, int entity, double x, double y, dou
     public static final int FEED = 0, MILK = 1, SHEAR = 2, STAND = 3, SEED = 4;
 
     //? if >=1.20.5 {
-    public static final Type<HandsAct> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("touch_n_motion", "act"));
+    public static final Type<HandsAct> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath("touch_n_motion", "act_v3"));
     public static final StreamCodec<RegistryFriendlyByteBuf, HandsAct> CODEC = StreamCodec.of((out, act) -> act.write(out), HandsAct::read);
 
     @Override
