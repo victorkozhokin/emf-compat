@@ -1,5 +1,11 @@
 # EMF Compat: Take a Seat — Changelog
 
+## Unreleased
+
+### Build
+
+- Forge 1.20.1: resolve Sitting+ by its canonical Modrinth project ID so builds with a fresh dependency cache pass Maven metadata validation. The Sitting+ version and in-game behaviour are unchanged
+
 ## 2.0.2
 
 ### Fixed
