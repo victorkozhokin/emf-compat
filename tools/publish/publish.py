@@ -123,6 +123,15 @@ def main() -> int:
         print("nothing matches the filters")
         return 1
 
+    # The shared map also contains CurseForge-only projects. They have no Modrinth endpoint.
+    for mod in mods:
+        if not mod.get("project_id"):
+            print(f'skip (no Modrinth project): {mod["name"]} {mod["loader"]} {mod["game_version"]}')
+    mods = [m for m in mods if m.get("project_id")]
+    if not mods:
+        print("nothing to publish on Modrinth; use publish_tui.py for CurseForge")
+        return 0
+
     token = os.environ.get("MODRINTH_TOKEN", "")
     if args.upload and not token:
         print("MODRINTH_TOKEN is not set — refusing to upload", file=sys.stderr)

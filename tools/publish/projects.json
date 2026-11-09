@@ -162,7 +162,7 @@
   "touch_n_motion": {
    "slug": null,
    "id": null,
-   "publish": false,
+   "publish": true,
    "cf_slug": "touch-and-motion",
    "cf_id": 1734204,
    "cf_environments": [
@@ -2384,11 +2384,11 @@
    "addon": "watut",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "1.0.0",
+   "version_number": "1.1.0",
    "project": "emf-compat-watut",
    "project_id": "PIxeWxJ0",
    "publish": true,
-   "file": "upload/WATUT/fabric/1.21.1/emf_compat_watut_fabric_1.21.1_1.0.0.jar",
+   "file": "upload/WATUT/fabric/1.21.1/emf_compat_watut_fabric_1.21.1_1.1.0.jar",
    "changelog": "extensions/watut/CHANGELOG.md",
    "dependencies": [
     {
@@ -2417,17 +2417,17 @@
     }
    ],
    "display": "WATUT",
-   "name": "EMF Compat: WATUT 1.0.0"
+   "name": "EMF Compat: WATUT 1.1.0"
   },
   {
    "addon": "watut",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "1.0.0",
+   "version_number": "1.1.0",
    "project": "emf-compat-watut",
    "project_id": "PIxeWxJ0",
    "publish": true,
-   "file": "upload/WATUT/forge/1.20.1/emf_compat_watut_forge_1.20.1_1.0.0.jar",
+   "file": "upload/WATUT/forge/1.20.1/emf_compat_watut_forge_1.20.1_1.1.0.jar",
    "changelog": "extensions/watut/CHANGELOG.md",
    "dependencies": [
     {
@@ -2450,17 +2450,17 @@
     }
    ],
    "display": "WATUT",
-   "name": "EMF Compat: WATUT 1.0.0"
+   "name": "EMF Compat: WATUT 1.1.0"
   },
   {
    "addon": "watut",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "1.0.0",
+   "version_number": "1.1.0",
    "project": "emf-compat-watut",
    "project_id": "PIxeWxJ0",
    "publish": true,
-   "file": "upload/WATUT/neoforge/1.21.1/emf_compat_watut_neoforge_1.21.1_1.0.0.jar",
+   "file": "upload/WATUT/neoforge/1.21.1/emf_compat_watut_neoforge_1.21.1_1.1.0.jar",
    "changelog": "extensions/watut/CHANGELOG.md",
    "dependencies": [
     {
@@ -2483,7 +2483,7 @@
     }
    ],
    "display": "WATUT",
-   "name": "EMF Compat: WATUT 1.0.0"
+   "name": "EMF Compat: WATUT 1.1.0"
   },
   {
    "addon": "touch_n_motion",
@@ -2492,7 +2492,7 @@
    "version_number": "1.0.5",
    "project": null,
    "project_id": null,
-   "publish": false,
+   "publish": true,
    "file": "upload/Touch'n Motion/forge/1.20.1/touch_n_motion_forge_1.20.1_1.0.5.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
@@ -2518,7 +2518,7 @@
    "version_number": "1.0.5",
    "project": null,
    "project_id": null,
-   "publish": false,
+   "publish": true,
    "file": "upload/Touch'n Motion/neoforge/1.21.1/touch_n_motion_neoforge_1.21.1_1.0.5.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
@@ -2544,7 +2544,7 @@
    "version_number": "1.0.5",
    "project": null,
    "project_id": null,
-   "publish": false,
+   "publish": true,
    "file": "upload/Touch'n Motion/fabric/1.21.1/touch_n_motion_fabric_1.21.1_1.0.5.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
@@ -2576,7 +2576,7 @@
    "version_number": "1.0.5",
    "project": null,
    "project_id": null,
-   "publish": false,
+   "publish": true,
    "file": "upload/Touch'n Motion/fabric/1.21.11/touch_n_motion_fabric_1.21.11_1.0.5.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
@@ -2608,7 +2608,7 @@
    "version_number": "1.0.5",
    "project": null,
    "project_id": null,
-   "publish": false,
+   "publish": true,
    "file": "upload/Touch'n Motion/fabric/26.1.2/touch_n_motion_fabric_26.1.2_1.0.5.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
@@ -2640,7 +2640,7 @@
    "version_number": "1.0.5",
    "project": null,
    "project_id": null,
-   "publish": false,
+   "publish": true,
    "file": "upload/Touch'n Motion/fabric/26.2/touch_n_motion_fabric_26.2_1.0.5.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
@@ -2672,7 +2672,7 @@
    "version_number": "1.0.5",
    "project": null,
    "project_id": null,
-   "publish": false,
+   "publish": true,
    "file": "upload/Touch'n Motion/fabric/26.3/touch_n_motion_fabric_26.3_1.0.5.jar",
    "changelog": "extensions/touch_n_motion/CHANGELOG.md",
    "dependencies": [
