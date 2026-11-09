@@ -1,5 +1,15 @@
 # EMF Compat: Take a Seat — Changelog
 
+## 2.0.2
+
+### Fixed
+
+- Forge 1.20.1: the mod list now shows this addon's icon
+
+### Dependencies
+
+- Forge 1.20.1: corrected the minimum EMF Compat Core version to 2.3.0
+
 ## 2.0.1
 
 ### Fixed

@@ -1,5 +1,15 @@
 # EMF Compat: Gliders — Changelog
 
+## 2.0.1
+
+### Fixed
+
+- Fabric and NeoForge builds no longer install on later, incompatible Minecraft versions
+
+### Dependencies
+
+- Corrected the minimum EMF Compat Core version to 2.3.0 on Forge, NeoForge and Fabric 26.x
+
 ## 2.0.0
 
 ### Added

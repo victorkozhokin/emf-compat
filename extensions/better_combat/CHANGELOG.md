@@ -1,6 +1,6 @@
 # EMF Compat: Better Combat — Changelog
 
-## Unreleased
+## 2.1.2
 
 ### Added
 
@@ -9,6 +9,7 @@
 ### Fixed
 
 - The hand keeps time with the weapon: an attack's arms go straight to Better Combat's pose instead of easing in a frame or two late (the end still eases out); **Smooth attack start** brings the old ease-in back, off by default
+- Fabric 1.21.11 and newer: weapon stance rendering no longer risks a helper-method conflict with another compat addon
 
 ### Removed
 

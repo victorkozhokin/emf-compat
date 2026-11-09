@@ -6,6 +6,10 @@
 
 - Steps aside while Touch'n Motion animates the player - a hand on a table or a lever, a gesture: the screen pose comes back when it is done
 
+### Fixed
+
+- Prevents conflicts over pose state when other compat addons modify the same player model
+
 ### Dependencies
 
 - Requires EMF Compat Core 2.4.0

@@ -176,11 +176,11 @@
    "addon": "better_combat",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "2.1.1",
+   "version_number": "2.1.2",
    "project": "emf-compat-better-combat",
    "project_id": "Smytm33T",
    "publish": true,
-   "file": "upload/Better Combat/fabric/1.21.1/emf_compat_better_combat_fabric_1.21.1_2.1.1.jar",
+   "file": "upload/Better Combat/fabric/1.21.1/emf_compat_better_combat_fabric_1.21.1_2.1.2.jar",
    "changelog": "extensions/better_combat/CHANGELOG.md",
    "dependencies": [
     {
@@ -209,17 +209,17 @@
     }
    ],
    "display": "Better Combat",
-   "name": "EMF Compat: Better Combat 2.1.1"
+   "name": "EMF Compat: Better Combat 2.1.2"
   },
   {
    "addon": "better_combat",
    "loader": "fabric",
    "game_version": "1.21.11",
-   "version_number": "2.1.0",
+   "version_number": "2.1.2",
    "project": "emf-compat-better-combat",
    "project_id": "Smytm33T",
    "publish": true,
-   "file": "upload/Better Combat/fabric/1.21.11/emf_compat_better_combat_fabric_1.21.11_2.1.0.jar",
+   "file": "upload/Better Combat/fabric/1.21.11/emf_compat_better_combat_fabric_1.21.11_2.1.2.jar",
    "changelog": "extensions/better_combat/CHANGELOG.md",
    "dependencies": [
     {
@@ -254,17 +254,17 @@
     }
    ],
    "display": "Better Combat",
-   "name": "EMF Compat: Better Combat 2.1.0"
+   "name": "EMF Compat: Better Combat 2.1.2"
   },
   {
    "addon": "better_combat",
    "loader": "fabric",
    "game_version": "26.1.2",
-   "version_number": "2.1.0",
+   "version_number": "2.1.2",
    "project": "emf-compat-better-combat",
    "project_id": "Smytm33T",
    "publish": true,
-   "file": "upload/Better Combat/fabric/26.1.2/emf_compat_better_combat_fabric_26.1.2_2.1.0.jar",
+   "file": "upload/Better Combat/fabric/26.1.2/emf_compat_better_combat_fabric_26.1.2_2.1.2.jar",
    "changelog": "extensions/better_combat/CHANGELOG.md",
    "dependencies": [
     {
@@ -299,17 +299,17 @@
     }
    ],
    "display": "Better Combat",
-   "name": "EMF Compat: Better Combat 2.1.0"
+   "name": "EMF Compat: Better Combat 2.1.2"
   },
   {
    "addon": "better_combat",
    "loader": "fabric",
    "game_version": "26.2",
-   "version_number": "2.1.0",
+   "version_number": "2.1.2",
    "project": "emf-compat-better-combat",
    "project_id": "Smytm33T",
    "publish": true,
-   "file": "upload/Better Combat/fabric/26.2/emf_compat_better_combat_fabric_26.2_2.1.0.jar",
+   "file": "upload/Better Combat/fabric/26.2/emf_compat_better_combat_fabric_26.2_2.1.2.jar",
    "changelog": "extensions/better_combat/CHANGELOG.md",
    "dependencies": [
     {
@@ -344,17 +344,17 @@
     }
    ],
    "display": "Better Combat",
-   "name": "EMF Compat: Better Combat 2.1.0"
+   "name": "EMF Compat: Better Combat 2.1.2"
   },
   {
    "addon": "better_combat",
    "loader": "fabric",
    "game_version": "26.3",
-   "version_number": "2.1.0",
+   "version_number": "2.1.2",
    "project": "emf-compat-better-combat",
    "project_id": "Smytm33T",
    "publish": true,
-   "file": "upload/Better Combat/fabric/26.3/emf_compat_better_combat_fabric_26.3_2.1.0.jar",
+   "file": "upload/Better Combat/fabric/26.3/emf_compat_better_combat_fabric_26.3_2.1.2.jar",
    "changelog": "extensions/better_combat/CHANGELOG.md",
    "dependencies": [
     {
@@ -389,17 +389,17 @@
     }
    ],
    "display": "Better Combat",
-   "name": "EMF Compat: Better Combat 2.1.0"
+   "name": "EMF Compat: Better Combat 2.1.2"
   },
   {
    "addon": "better_combat",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "2.1.1",
+   "version_number": "2.1.2",
    "project": "emf-compat-better-combat",
    "project_id": "Smytm33T",
    "publish": true,
-   "file": "upload/Better Combat/forge/1.20.1/emf_compat_better_combat_forge_1.20.1_2.1.1.jar",
+   "file": "upload/Better Combat/forge/1.20.1/emf_compat_better_combat_forge_1.20.1_2.1.2.jar",
    "changelog": "extensions/better_combat/CHANGELOG.md",
    "dependencies": [
     {
@@ -422,17 +422,17 @@
     }
    ],
    "display": "Better Combat",
-   "name": "EMF Compat: Better Combat 2.1.1"
+   "name": "EMF Compat: Better Combat 2.1.2"
   },
   {
    "addon": "better_combat",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "2.1.1",
+   "version_number": "2.1.2",
    "project": "emf-compat-better-combat",
    "project_id": "Smytm33T",
    "publish": true,
-   "file": "upload/Better Combat/neoforge/1.21.1/emf_compat_better_combat_neoforge_1.21.1_2.1.1.jar",
+   "file": "upload/Better Combat/neoforge/1.21.1/emf_compat_better_combat_neoforge_1.21.1_2.1.2.jar",
    "changelog": "extensions/better_combat/CHANGELOG.md",
    "dependencies": [
     {
@@ -455,7 +455,7 @@
     }
    ],
    "display": "Better Combat",
-   "name": "EMF Compat: Better Combat 2.1.1"
+   "name": "EMF Compat: Better Combat 2.1.2"
   },
   {
    "addon": "carry_on",
@@ -899,11 +899,11 @@
    "addon": "create",
    "loader": "fabric",
    "game_version": "1.21.11",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "create-emf-compat-skyhook",
    "project_id": "J9McOdzy",
    "publish": true,
-   "file": "upload/Create/fabric/1.21.11/emf_compat_create_fabric_1.21.11_2.1.0.jar",
+   "file": "upload/Create/fabric/1.21.11/emf_compat_create_fabric_1.21.11_2.1.1.jar",
    "changelog": "extensions/create/CHANGELOG.md",
    "dependencies": [
     {
@@ -938,17 +938,17 @@
     }
    ],
    "display": "Create",
-   "name": "EMF Compat: Create 2.1.0"
+   "name": "EMF Compat: Create 2.1.1"
   },
   {
    "addon": "create",
    "loader": "fabric",
    "game_version": "26.1.2",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "create-emf-compat-skyhook",
    "project_id": "J9McOdzy",
    "publish": true,
-   "file": "upload/Create/fabric/26.1.2/emf_compat_create_fabric_26.1.2_2.1.0.jar",
+   "file": "upload/Create/fabric/26.1.2/emf_compat_create_fabric_26.1.2_2.1.1.jar",
    "changelog": "extensions/create/CHANGELOG.md",
    "dependencies": [
     {
@@ -983,17 +983,17 @@
     }
    ],
    "display": "Create",
-   "name": "EMF Compat: Create 2.1.0"
+   "name": "EMF Compat: Create 2.1.1"
   },
   {
    "addon": "create",
    "loader": "fabric",
    "game_version": "26.2",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "create-emf-compat-skyhook",
    "project_id": "J9McOdzy",
    "publish": true,
-   "file": "upload/Create/fabric/26.2/emf_compat_create_fabric_26.2_2.1.0.jar",
+   "file": "upload/Create/fabric/26.2/emf_compat_create_fabric_26.2_2.1.1.jar",
    "changelog": "extensions/create/CHANGELOG.md",
    "dependencies": [
     {
@@ -1028,17 +1028,17 @@
     }
    ],
    "display": "Create",
-   "name": "EMF Compat: Create 2.1.0"
+   "name": "EMF Compat: Create 2.1.1"
   },
   {
    "addon": "create",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "create-emf-compat-skyhook",
    "project_id": "J9McOdzy",
    "publish": true,
-   "file": "upload/Create/forge/1.20.1/emf_compat_create_forge_1.20.1_2.1.0.jar",
+   "file": "upload/Create/forge/1.20.1/emf_compat_create_forge_1.20.1_2.1.1.jar",
    "changelog": "extensions/create/CHANGELOG.md",
    "dependencies": [
     {
@@ -1073,17 +1073,17 @@
     }
    ],
    "display": "Create",
-   "name": "EMF Compat: Create 2.1.0"
+   "name": "EMF Compat: Create 2.1.1"
   },
   {
    "addon": "create",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "2.1.0",
+   "version_number": "2.1.1",
    "project": "create-emf-compat-skyhook",
    "project_id": "J9McOdzy",
    "publish": true,
-   "file": "upload/Create/neoforge/1.21.1/emf_compat_create_neoforge_1.21.1_2.1.0.jar",
+   "file": "upload/Create/neoforge/1.21.1/emf_compat_create_neoforge_1.21.1_2.1.1.jar",
    "changelog": "extensions/create/CHANGELOG.md",
    "dependencies": [
     {
@@ -1148,17 +1148,17 @@
     }
    ],
    "display": "Create",
-   "name": "EMF Compat: Create 2.1.0"
+   "name": "EMF Compat: Create 2.1.1"
   },
   {
    "addon": "exposure",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "1.0.0",
+   "version_number": "1.0.1",
    "project": "emf-compat-exposure",
    "project_id": "mHqWFw6Z",
    "publish": true,
-   "file": "upload/Exposure/fabric/1.21.1/emf_compat_exposure_fabric_1.21.1_1.0.0.jar",
+   "file": "upload/Exposure/fabric/1.21.1/emf_compat_exposure_fabric_1.21.1_1.0.1.jar",
    "changelog": "extensions/exposure/CHANGELOG.md",
    "dependencies": [
     {
@@ -1187,17 +1187,17 @@
     }
    ],
    "display": "Exposure",
-   "name": "EMF Compat: Exposure 1.0.0"
+   "name": "EMF Compat: Exposure 1.0.1"
   },
   {
    "addon": "exposure",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "1.0.0",
+   "version_number": "1.0.1",
    "project": "emf-compat-exposure",
    "project_id": "mHqWFw6Z",
    "publish": true,
-   "file": "upload/Exposure/forge/1.20.1/emf_compat_exposure_forge_1.20.1_1.0.0.jar",
+   "file": "upload/Exposure/forge/1.20.1/emf_compat_exposure_forge_1.20.1_1.0.1.jar",
    "changelog": "extensions/exposure/CHANGELOG.md",
    "dependencies": [
     {
@@ -1220,17 +1220,17 @@
     }
    ],
    "display": "Exposure",
-   "name": "EMF Compat: Exposure 1.0.0"
+   "name": "EMF Compat: Exposure 1.0.1"
   },
   {
    "addon": "exposure",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "1.0.0",
+   "version_number": "1.0.1",
    "project": "emf-compat-exposure",
    "project_id": "mHqWFw6Z",
    "publish": true,
-   "file": "upload/Exposure/neoforge/1.21.1/emf_compat_exposure_neoforge_1.21.1_1.0.0.jar",
+   "file": "upload/Exposure/neoforge/1.21.1/emf_compat_exposure_neoforge_1.21.1_1.0.1.jar",
    "changelog": "extensions/exposure/CHANGELOG.md",
    "dependencies": [
     {
@@ -1253,17 +1253,17 @@
     }
    ],
    "display": "Exposure",
-   "name": "EMF Compat: Exposure 1.0.0"
+   "name": "EMF Compat: Exposure 1.0.1"
   },
   {
    "addon": "gliders",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "2.0.0",
+   "version_number": "2.0.1",
    "project": "emf-compat-gliders",
    "project_id": "PsGWhwc8",
    "publish": true,
-   "file": "upload/Gliders/fabric/1.21.1/emf_compat_gliders_fabric_1.21.1_2.0.0.jar",
+   "file": "upload/Gliders/fabric/1.21.1/emf_compat_gliders_fabric_1.21.1_2.0.1.jar",
    "changelog": "extensions/gliders/CHANGELOG.md",
    "dependencies": [
     {
@@ -1298,17 +1298,17 @@
     }
    ],
    "display": "Gliders",
-   "name": "EMF Compat: Gliders 2.0.0"
+   "name": "EMF Compat: Gliders 2.0.1"
   },
   {
    "addon": "gliders",
    "loader": "fabric",
    "game_version": "26.1.2",
-   "version_number": "2.0.0",
+   "version_number": "2.0.1",
    "project": "emf-compat-gliders",
    "project_id": "PsGWhwc8",
    "publish": true,
-   "file": "upload/Gliders/fabric/26.1.2/emf_compat_gliders_fabric_26.1.2_2.0.0.jar",
+   "file": "upload/Gliders/fabric/26.1.2/emf_compat_gliders_fabric_26.1.2_2.0.1.jar",
    "changelog": "extensions/gliders/CHANGELOG.md",
    "dependencies": [
     {
@@ -1337,17 +1337,17 @@
     }
    ],
    "display": "Gliders",
-   "name": "EMF Compat: Gliders 2.0.0"
+   "name": "EMF Compat: Gliders 2.0.1"
   },
   {
    "addon": "gliders",
    "loader": "fabric",
    "game_version": "26.2",
-   "version_number": "2.0.0",
+   "version_number": "2.0.1",
    "project": "emf-compat-gliders",
    "project_id": "PsGWhwc8",
    "publish": true,
-   "file": "upload/Gliders/fabric/26.2/emf_compat_gliders_fabric_26.2_2.0.0.jar",
+   "file": "upload/Gliders/fabric/26.2/emf_compat_gliders_fabric_26.2_2.0.1.jar",
    "changelog": "extensions/gliders/CHANGELOG.md",
    "dependencies": [
     {
@@ -1376,17 +1376,17 @@
     }
    ],
    "display": "Gliders",
-   "name": "EMF Compat: Gliders 2.0.0"
+   "name": "EMF Compat: Gliders 2.0.1"
   },
   {
    "addon": "gliders",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "2.0.0",
+   "version_number": "2.0.1",
    "project": "emf-compat-gliders",
    "project_id": "PsGWhwc8",
    "publish": true,
-   "file": "upload/Gliders/forge/1.20.1/emf_compat_gliders_forge_1.20.1_2.0.0.jar",
+   "file": "upload/Gliders/forge/1.20.1/emf_compat_gliders_forge_1.20.1_2.0.1.jar",
    "changelog": "extensions/gliders/CHANGELOG.md",
    "dependencies": [
     {
@@ -1415,17 +1415,17 @@
     }
    ],
    "display": "Gliders",
-   "name": "EMF Compat: Gliders 2.0.0"
+   "name": "EMF Compat: Gliders 2.0.1"
   },
   {
    "addon": "gliders",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "2.0.0",
+   "version_number": "2.0.1",
    "project": "emf-compat-gliders",
    "project_id": "PsGWhwc8",
    "publish": true,
-   "file": "upload/Gliders/neoforge/1.21.1/emf_compat_gliders_neoforge_1.21.1_2.0.0.jar",
+   "file": "upload/Gliders/neoforge/1.21.1/emf_compat_gliders_neoforge_1.21.1_2.0.1.jar",
    "changelog": "extensions/gliders/CHANGELOG.md",
    "dependencies": [
     {
@@ -1460,7 +1460,7 @@
     }
    ],
    "display": "Gliders",
-   "name": "EMF Compat: Gliders 2.0.0"
+   "name": "EMF Compat: Gliders 2.0.1"
   },
   {
    "addon": "hackers_and_slashers",
@@ -1631,11 +1631,11 @@
    "addon": "iron_spells",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "2.1.0",
+   "version_number": "2.1.2",
    "project": "emf-compat-irons-spells-n-spellbooks",
    "project_id": "rk0DMjc3",
    "publish": true,
-   "file": "upload/Iron's Spells/neoforge/1.21.1/emf_compat_iron_spells_neoforge_1.21.1_2.1.0.jar",
+   "file": "upload/Iron's Spells/neoforge/1.21.1/emf_compat_iron_spells_neoforge_1.21.1_2.1.2.jar",
    "changelog": "extensions/iron_spells/CHANGELOG.md",
    "dependencies": [
     {
@@ -1658,17 +1658,17 @@
     }
    ],
    "display": "Iron's Spells",
-   "name": "EMF Compat: Iron's Spells 2.1.0"
+   "name": "EMF Compat: Iron's Spells 2.1.2"
   },
   {
    "addon": "not_enough_animations",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "1.2.1",
+   "version_number": "1.2.2",
    "project": "not-enough-animations-emf-compat",
    "project_id": "IGCrWfL7",
    "publish": true,
-   "file": "upload/Not Enough Animations/fabric/1.21.1/emf_compat_not_enough_animations_fabric_1.21.1_1.2.1.jar",
+   "file": "upload/Not Enough Animations/fabric/1.21.1/emf_compat_not_enough_animations_fabric_1.21.1_1.2.2.jar",
    "changelog": "extensions/nea/CHANGELOG.md",
    "dependencies": [
     {
@@ -1697,7 +1697,7 @@
     }
    ],
    "display": "Not Enough Animations",
-   "name": "EMF Compat: Not Enough Animations 1.2.1"
+   "name": "EMF Compat: Not Enough Animations 1.2.2"
   },
   {
    "addon": "not_enough_animations",
@@ -1892,11 +1892,11 @@
    "addon": "not_enough_animations",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "1.2.1",
+   "version_number": "1.2.2",
    "project": "not-enough-animations-emf-compat",
    "project_id": "IGCrWfL7",
    "publish": true,
-   "file": "upload/Not Enough Animations/neoforge/1.21.1/emf_compat_not_enough_animations_neoforge_1.21.1_1.2.1.jar",
+   "file": "upload/Not Enough Animations/neoforge/1.21.1/emf_compat_not_enough_animations_neoforge_1.21.1_1.2.2.jar",
    "changelog": "extensions/nea/CHANGELOG.md",
    "dependencies": [
     {
@@ -1919,7 +1919,7 @@
     }
    ],
    "display": "Not Enough Animations",
-   "name": "EMF Compat: Not Enough Animations 1.2.1"
+   "name": "EMF Compat: Not Enough Animations 1.2.2"
   },
   {
    "addon": "parcool",
@@ -1958,11 +1958,11 @@
    "addon": "quark",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "1.1.0",
+   "version_number": "1.1.1",
    "project": "emf-compat-quark",
    "project_id": "UvuFGp0l",
    "publish": true,
-   "file": "upload/Quark/forge/1.20.1/emf_compat_quark_forge_1.20.1_1.1.0.jar",
+   "file": "upload/Quark/forge/1.20.1/emf_compat_quark_forge_1.20.1_1.1.1.jar",
    "changelog": "extensions/quark/CHANGELOG.md",
    "dependencies": [
     {
@@ -1985,17 +1985,17 @@
     }
    ],
    "display": "Quark",
-   "name": "EMF Compat: Quark 1.1.0"
+   "name": "EMF Compat: Quark 1.1.1"
   },
   {
    "addon": "quark",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "1.1.0",
+   "version_number": "1.1.1",
    "project": "emf-compat-quark",
    "project_id": "UvuFGp0l",
    "publish": true,
-   "file": "upload/Quark/neoforge/1.21.1/emf_compat_quark_neoforge_1.21.1_1.1.0.jar",
+   "file": "upload/Quark/neoforge/1.21.1/emf_compat_quark_neoforge_1.21.1_1.1.1.jar",
    "changelog": "extensions/quark/CHANGELOG.md",
    "dependencies": [
     {
@@ -2018,17 +2018,17 @@
     }
    ],
    "display": "Quark",
-   "name": "EMF Compat: Quark 1.1.0"
+   "name": "EMF Compat: Quark 1.1.1"
   },
   {
    "addon": "supplementaries",
    "loader": "fabric",
    "game_version": "1.21.1",
-   "version_number": "1.1.1",
+   "version_number": "1.1.2",
    "project": "emf-compat-supplementaries",
    "project_id": "z4FSlBqI",
    "publish": true,
-   "file": "upload/Supplementaries/fabric/1.21.1/emf_compat_supplementaries_fabric_1.21.1_1.1.1.jar",
+   "file": "upload/Supplementaries/fabric/1.21.1/emf_compat_supplementaries_fabric_1.21.1_1.1.2.jar",
    "changelog": "extensions/supplementaries/CHANGELOG.md",
    "dependencies": [
     {
@@ -2057,17 +2057,17 @@
     }
    ],
    "display": "Supplementaries",
-   "name": "EMF Compat: Supplementaries 1.1.1"
+   "name": "EMF Compat: Supplementaries 1.1.2"
   },
   {
    "addon": "supplementaries",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "1.1.1",
+   "version_number": "1.1.2",
    "project": "emf-compat-supplementaries",
    "project_id": "z4FSlBqI",
    "publish": true,
-   "file": "upload/Supplementaries/forge/1.20.1/emf_compat_supplementaries_forge_1.20.1_1.1.1.jar",
+   "file": "upload/Supplementaries/forge/1.20.1/emf_compat_supplementaries_forge_1.20.1_1.1.2.jar",
    "changelog": "extensions/supplementaries/CHANGELOG.md",
    "dependencies": [
     {
@@ -2090,17 +2090,17 @@
     }
    ],
    "display": "Supplementaries",
-   "name": "EMF Compat: Supplementaries 1.1.1"
+   "name": "EMF Compat: Supplementaries 1.1.2"
   },
   {
    "addon": "supplementaries",
    "loader": "neoforge",
    "game_version": "1.21.1",
-   "version_number": "1.1.1",
+   "version_number": "1.1.2",
    "project": "emf-compat-supplementaries",
    "project_id": "z4FSlBqI",
    "publish": true,
-   "file": "upload/Supplementaries/neoforge/1.21.1/emf_compat_supplementaries_neoforge_1.21.1_1.1.1.jar",
+   "file": "upload/Supplementaries/neoforge/1.21.1/emf_compat_supplementaries_neoforge_1.21.1_1.1.2.jar",
    "changelog": "extensions/supplementaries/CHANGELOG.md",
    "dependencies": [
     {
@@ -2123,7 +2123,7 @@
     }
    ],
    "display": "Supplementaries",
-   "name": "EMF Compat: Supplementaries 1.1.1"
+   "name": "EMF Compat: Supplementaries 1.1.2"
   },
   {
    "addon": "tacz",
@@ -2312,11 +2312,11 @@
    "addon": "takeaseat",
    "loader": "forge",
    "game_version": "1.20.1",
-   "version_number": "2.0.0",
+   "version_number": "2.0.2",
    "project": "emf-compat-take-a-seat",
    "project_id": "npIU8sEo",
    "publish": true,
-   "file": "upload/Take a Seat/forge/1.20.1/emf_compat_takeaseat_forge_1.20.1_2.0.0.jar",
+   "file": "upload/Take a Seat/forge/1.20.1/emf_compat_takeaseat_forge_1.20.1_2.0.2.jar",
    "changelog": "extensions/takeaseat/CHANGELOG.md",
    "dependencies": [
     {
@@ -2345,7 +2345,7 @@
     }
    ],
    "display": "Take a Seat",
-   "name": "EMF Compat: Take a Seat 2.0.0"
+   "name": "EMF Compat: Take a Seat 2.0.2"
   },
   {
    "addon": "takeaseat",

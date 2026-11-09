@@ -1,5 +1,11 @@
 # EMF Compat: Not Enough Animations — Changelog
 
+## 1.2.2
+
+### Fixed
+
+- Fabric and NeoForge 1.21.1 builds no longer install on later, incompatible Minecraft versions
+
 ## 1.2.1
 
 ### Added

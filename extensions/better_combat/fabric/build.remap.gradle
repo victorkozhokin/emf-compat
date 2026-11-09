@@ -17,7 +17,7 @@ def mc = ext.mc()
 // mod_version has to be an ext property, not just `version`: the root build script reads
 // it back with findProperty to name the uploaded jar, and without it the module would
 // inherit the 1.0.0 default from the root gradle.properties.
-ext.mod_version = '2.1.0'
+ext.mod_version = '2.1.2'
 version = mod_version
 group = mod_group_id
 

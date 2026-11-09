@@ -6,6 +6,10 @@
 
 - Tells other mods and resource packs when you carry something (EMF variable emfc_carrying): Touch'n Motion leaves your arms and torso to the carry
 
+### Fixed
+
+- Prevents conflicts over carry pose state when other compat addons modify the same model or renderer
+
 ### Dependencies
 
 - Requires EMF Compat Core 2.4.0

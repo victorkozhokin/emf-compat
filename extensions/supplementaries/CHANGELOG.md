@@ -1,5 +1,11 @@
 # EMF Compat: Supplementaries — Changelog
 
+## 1.1.2
+
+### Fixed
+
+- Prevents conflicts over model state fields when other EMF compat addons modify the same player model
+
 ## 1.1.1
 
 ### Fixed

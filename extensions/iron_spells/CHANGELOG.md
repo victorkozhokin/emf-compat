@@ -1,5 +1,11 @@
 # EMF Compat: Iron's Spells 'n Spellbooks — Changelog
 
+## 2.1.2
+
+### Fixed
+
+- NeoForge 1.21.1: the addon no longer installs on later, incompatible Minecraft versions
+
 ## 2.1.1
 
 ### Fixed

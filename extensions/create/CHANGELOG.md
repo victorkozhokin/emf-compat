@@ -1,5 +1,12 @@
 # EMF Compat: Create — Changelog
 
+## 2.1.1
+
+### Fixed
+
+- Forge and NeoForge: skyhook pose state no longer risks a field-name conflict with another compat addon; on NeoForge this also covers handles, grappling hooks and ragdolls
+- Fabric and NeoForge builds no longer install on later, incompatible Minecraft versions
+
 ## 2.1.0
 
 ### Added
